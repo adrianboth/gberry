@@ -1,18 +1,7 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2015-01-08T20:03:17
-#
-#-------------------------------------------------
+TEMPLATE = subdirs
 
-QT       += core
+SUBDIRS += src lib
 
-QT       -= gui
+#SUBDIRS += tests
 
-TARGET = comms
-CONFIG   += console
-CONFIG   -= app_bundle
-
-TEMPLATE = app
-
-
-SOURCES += main.cpp
+CONFIG += ordered
