@@ -1,5 +1,6 @@
 import QtQuick 2.3
 
+// TODO: there was way to separate Design from logic ...
 Rectangle {
     property alias mouseArea: mouseArea
 
@@ -12,7 +13,16 @@ Rectangle {
     }
 
     Text {
+        id: serverText
         anchors.centerIn: parent
-        text: "Hello World"
+        text: serverTextStr
+        anchors.verticalCenterOffset: -22
+        anchors.horizontalCenterOffset: -4
+    }
+
+    Text {
+        id: consoleText
+        anchors.centerIn: parent
+        text: consoleTextStr
     }
 }

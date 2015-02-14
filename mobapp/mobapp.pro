@@ -2,7 +2,11 @@ TEMPLATE = app
 
 QT += qml quick
 
-SOURCES += main.cpp
+CONFIG += c++11
+
+SOURCES += main.cpp \
+    restquery.cpp \
+    appcontroller.cpp
 
 RESOURCES += qml.qrc
 
@@ -11,3 +15,7 @@ QML_IMPORT_PATH =
 
 # Default rules for deployment.
 include(deployment.pri)
+
+HEADERS += \
+    restquery.h \
+    appcontroller.h
