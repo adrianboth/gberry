@@ -1,5 +1,8 @@
 #include "mock_qnetworkaccessmanager.h"
 
+#include <QNetworkReply>
+#include <QUrl>
+
 template <class PacketStream>
 void PacketReader<PacketStream>::ReadPackets(PacketStream *stream)
 {

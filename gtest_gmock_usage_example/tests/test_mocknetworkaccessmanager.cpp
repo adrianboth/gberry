@@ -8,6 +8,9 @@ using ::testing::_;
 
 #include "namnuser.h"
 
+#include "proxyqnetwork.h"
+#include "mock_proxyqnetwork.h"
+
 #include "mock_qnetworkaccessmanager.h"
 
 

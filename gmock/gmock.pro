@@ -1,6 +1,8 @@
 TARGET = gmock
 TEMPLATE = lib
 
+include(../global.pri)
+
 QT += core
 QT -= gui
 
@@ -34,6 +36,13 @@ OTHER_FILES += src/gmock_main.cc
 DISTFILES += \
     README
 
-INCLUDEPATH += . include gtest gtest/include
+INCLUDEPATH += . include ../gtest ../gtest/include
 
 #LIBS += -L../src -lGeekTools -L../lib/qhttpserver/src -lqhttpserver
+
+gmock_headers.path    = $${INSTALLDIR}/include/gmock
+gmock_headers.files   += $$HEADERS
+
+target.path = $${INSTALLDIR}/lib/
+INSTALLS += target gmock_headers
+
