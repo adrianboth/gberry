@@ -12,10 +12,18 @@ INCLUDEPATH += ../gmock/include ../gtest/include
 
 HEADERS += \
     proxyqnetwork.h \
-    mock_proxyqnetwork.h
+    mock_proxyqnetwork.h \
+    restinvocation.h \
+    restinvocationfactory.h \
+    serverconnection.h
 
-lib_headers.path    = $${INSTALLDIR}/include/gmock
+lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
 
 target.path = $${INSTALLDIR}/lib/
 INSTALLS += target lib_headers
+
+SOURCES += \
+    restinvocation.cpp \
+    restinvocationfactory.cpp \
+    serverconnection.cpp

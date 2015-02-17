@@ -21,8 +21,7 @@ public:
     MockProxyQNetworkAccessManager() : ProxyQNetworkAccessManager(Q_NULLPTR) {}
 
     // QNetworkReply *get(const QNetworkRequest &request);
-    MOCK_METHOD1(get, QNetworkReply*(const QNetworkRequest& request));
-    MOCK_METHOD1(get_proxytest, ProxyQNetworkReply*(const QNetworkRequest& request));
+    MOCK_METHOD1(get, ProxyQNetworkReply*(const QNetworkRequest& request));
 };
 
 
@@ -33,7 +32,7 @@ public:
     StubQNetworkReply(QObject* parent=NULL) : QNetworkReply(parent) {} // accesses protected constructor
 
     // implementing pure virtual
-    virtual qint64 readData(char* data, qint64 maxSize) {}
+    virtual qint64 readData(char* data, qint64 maxSize) { Q_UNUSED(data); Q_UNUSED(maxSize); return 0; }
     //virtual qint64 QIODevice::​writeData(const char * data, qint64 maxSize) {}
 
 public Q_SLOTS:
