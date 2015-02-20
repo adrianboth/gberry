@@ -35,8 +35,9 @@ void GBerryConsoleServer::handleRequest(QHttpRequest *req, QHttpResponse *resp)
         resp->writeHead(200);
 
         QString name = exp.capturedTexts()[1];
-        QString body = tr("<html><head><title>Greeting App</title></head><body><h1>Hello %1!</h1></body></html>");
-        resp->end(body.arg(name).toUtf8());
+        //QString body = tr("<html><head><title>Greeting App</title></head><body><h1>Hello %1!</h1></body></html>");
+        //resp->end(body.arg(name).toUtf8());
+        resp->end(QString("ping").toUtf8());
         qDebug() << "OK";
     }
     else

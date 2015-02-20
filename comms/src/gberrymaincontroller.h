@@ -17,7 +17,7 @@ class GBerryMainController : public QObject
 
 public:
     // TODO: parent qobject?
-    GBerryMainController();
+    GBerryMainController(QNetworkAccessManager* network);
     ~GBerryMainController();
 
     void start();
@@ -36,7 +36,7 @@ private slots:
 private:
     // TODO: naming issues, style guide
     QUrl url;
-    QNetworkAccessManager qnam;
+    QNetworkAccessManager* qnam;
     QNetworkReply *reply;
     QTimer *timer;
 };

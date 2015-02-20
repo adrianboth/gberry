@@ -7,7 +7,7 @@
 // TODO: c++11 features for signal connection
 
 
-GBerryMainController::GBerryMainController() : qnam(this)
+GBerryMainController::GBerryMainController(QNetworkAccessManager* network) : qnam(network)
 {
 //    connect(&qnam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
 //            this, SLOT(slotAuthenticationRequired(QNetworkReply*,QAuthenticator*)));
@@ -33,12 +33,17 @@ void GBerryMainController::start()
 void GBerryMainController::startRequest(QUrl url)
 {
     qDebug() << "GET:" << url;
-    reply = qnam.get(QNetworkRequest(url));
+    reply = qnam->get(QNetworkRequest(url));
 
-    connect(reply, SIGNAL(finished()),
-            this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
-            this, SLOT(httpReadyRead()));
+    connect(reply, &QNetworkReply::finished,
+            this,  &GBerryMainController::httpFinished);
+
+    //connect(reply, SIGNAL(finished()),
+    //        this, SLOT(httpFinished()));
+
+    // TODO: not needed in our example (proxy doesn't yet support this)
+    //connect(reply, SIGNAL(readyRead()),
+    //        this, SLOT(httpReadyRead()));
 }
 
 // TODO: maybe something needs to be done to common lib
