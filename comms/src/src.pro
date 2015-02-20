@@ -17,10 +17,14 @@ HEADERS += \
 
 DEPENDPATH += .
 
-GBERRYLIB_BUILD_DIR=$$PWD/../../../builds/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/lib/src
-GBERRYLIB_SRC_DIR=$$PWD/../../../gberry-lib/lib/src
+PROJECTS_ROOT_DIR=$$PWD/../../..
+BUILDS_DIR=$${PROJECTS_ROOT_DIR}/builds
+include($${PROJECTS_ROOT_DIR}/gberry-lib/qmake/functions.pri)
+
+GBERRYLIB_BUILD_DIR=$$BUILDS_DIR/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/lib/src
+GBERRYLIB_SRC_DIR=$$PROJECTS_ROOT_DIR/gberry-lib/lib/src
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 
-QHTTPSERVER_BUILD_DIR=$$PWD/../../../builds/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/qhttpserver/src
-QHTTPSERVER_SRC_DIR=$$PWD/../../../gberry-lib/qhttpserver/src
+QHTTPSERVER_BUILD_DIR=$$BUILDS_DIR/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/qhttpserver/src
+QHTTPSERVER_SRC_DIR=$$PROJECTS_ROOT_DIR./gberry-lib/qhttpserver/src
 includeStaticLibrary("qhttpserver", $${QHTTPSERVER_SRC_DIR}, $${QHTTPSERVER_BUILD_DIR})
