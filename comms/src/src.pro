@@ -18,25 +18,14 @@ include(../global.pri)
 
 
 SOURCES += main.cpp \
-    gberrymaincontroller.cpp \
     gberryconsoleserver.cpp
 
 HEADERS += \
-    gberrymaincontroller.h \
     gberryconsoleserver.h
 
-DEPENDPATH += . ../lib
-#INCLUDEPATH += ../lib/qhttpserver/src $${INSTALLDIR}/include
-# TODO: pointing directly to sources (easier to manage with QtCreator), howabout project dependencies? and then from command line?
-# TODO: gberrylib could have include folder
-#INCLUDEPATH += ../lib/qhttpserver/src $${INSTALLDIR}/../workspace/gberry/gberry-lib/lib
-# TODO: relative path ends up into binary for connect() errors, static path here doesn't help?
-INCLUDEPATH += ../lib/qhttpserver/src
+DEPENDPATH += .
 
 # TODO: some macro to add external libs?
-LIBS += -L../lib/qhttpserver/src -lqhttpserver
-#-L$${INSTALLDIR}/lib -lgberrylib
-
 
 GBERRYLIB_BUILD_DIR=$$PWD/../../../builds/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/lib/src
 GBERRYLIB_SRC_DIR=$$PWD/../../../gberry-lib/lib/src
@@ -53,3 +42,34 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $${GBERRYLIB_BUIL
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $${GBERRYLIB_BUILD_DIR}/release/gberrylib.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $${GBERRYLIB_BUILD_DIR}/debug/gberrylib.lib
 else:unix: PRE_TARGETDEPS += $${GBERRYLIB_BUILD_DIR}/libgberrylib.a
+
+defineTest(includeStaticLibrary) {
+    LIB_NAME=$${1}
+    SRC_DIR=$${2}
+    BUILD_DIR=$${3}
+
+    message(" -- adding static lib: $${LIB_NAME} $${SRC_DIR} $${BUILD_DIR}")
+
+    win32:CONFIG(release, debug|release): LIBS += -L$${BUILD_DIR}/release -l$${LIB_NAME}
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$${BUILD_DIR}/debug -l$${LIB_NAME}
+    else:unix: LIBS += -L$${BUILD_DIR} -l$${LIB_NAME}
+
+    INCLUDEPATH += $$SRC_DIR
+    DEPENDPATH += $$SRC_DIR
+
+    win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $${BUILD_DIR}/release/lib$${LIB_NAME}.a
+    else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $${GBERRYLIB_BUILD_DIR}/lib$${LIB_NAME}.a
+    else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $${BUILD_DIR}/release/$${LIB_NAME}.lib
+    else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $${BUILD_DIR}/debug/$${LIB_NAME}.lib
+    else:unix: PRE_TARGETDEPS += $${BUILD_DIR}/lib$${LIB_NAME}.a
+
+    export(LIBS)
+    export(INCLUDEPATH)
+    export(DEPENDPATH)
+    export(PRE_TARGETDEPS)
+}
+
+QHTTPSERVER_BUILD_DIR=$$PWD/../../../builds/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/qhttpserver/src
+QHTTPSERVER_SRC_DIR=$$PWD/../../../gberry-lib/qhttpserver/src
+
+includeStaticLibrary("qhttpserver", $${QHTTPSERVER_SRC_DIR}, $${QHTTPSERVER_BUILD_DIR})
