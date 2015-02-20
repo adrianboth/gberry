@@ -3,6 +3,7 @@
 #include <QDebug>
 
 #include "gberryconsoleserver.h"
+#include "communicationchannel.h"
 
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -35,6 +36,9 @@ int main(int argc, char *argv[])
                      &model,            &ServerConnectionModel::serverDisconnected);
     */
     serverConnection.open();
+
+    CommunicationChannel comms;
+    comms.open();
 
     return a.exec();
 }

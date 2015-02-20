@@ -10,10 +10,12 @@ CONFIG   -= app_bundle
 include(../global.pri)
 
 SOURCES += main.cpp \
-    gberryconsoleserver.cpp
+    gberryconsoleserver.cpp \
+    communicationchannel.cpp
 
 HEADERS += \
-    gberryconsoleserver.h
+    gberryconsoleserver.h \
+    communicationchannel.h
 
 DEPENDPATH += .
 
