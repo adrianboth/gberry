@@ -12,7 +12,7 @@ QMAKE_CXX = ccache g++
 QT += network
 QT -= gui
 
-CONFIG += dll
+CONFIG += dll staticlib
 #debug_and_release
 
 CONFIG(debug, debug|release) {
