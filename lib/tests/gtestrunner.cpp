@@ -2,6 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <QCoreApplication>
+#include <QTimer>
 
 
 GTestRunner::GTestRunner(int* argc, char** argv, QObject *parent) : QObject(parent)
@@ -14,9 +15,13 @@ GTestRunner::~GTestRunner()
 
 }
 
+void GTestRunner::start()
+{
+    QTimer::singleShot(0, this, SLOT(runTests()));
+}
+
 void GTestRunner::runTests()
 {
     int retval = RUN_ALL_TESTS();
     QCoreApplication::exit(retval);
-    // TODO: exit event loop
 }

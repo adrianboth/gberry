@@ -10,6 +10,8 @@ public:
     explicit GTestRunner(int* argc, char** argv, QObject *parent = 0);
     ~GTestRunner();
 
+    void start();
+
 signals:
 
 public slots:
