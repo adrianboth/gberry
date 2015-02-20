@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += gtest gmock lib gtest_gmock_usage_example
+SUBDIRS += gtest gmock qhttpserver lib gtest_gmock_usage_example
 
 CONFIG += ordered
 

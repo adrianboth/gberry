@@ -37,39 +37,27 @@ TEST(mockQNetworkAccessManager, simple)
 
 TEST(mockQNetworkAccessManager, proxy)
 {
+    // just dummy url - no response expected
+    QUrl url("http://localhost:8000");
+
     QNetworkAccessManager qnam;
     ProxyQNetworkAccessManager proxy(&qnam);
+    ProxyQNetworkReply* r1 = proxy.get(QNetworkRequest(url));
+    EXPECT_FALSE(r1->isFinished()); // call is proxied to real QNetworkReply
+
+    // -- similar case but now with mock objects
     MockProxyQNetworkAccessManager mockProxy;
 
-    QUrl url("http://localhost:8000");
-    QNetworkReply* r1 = proxy.get(QNetworkRequest(url));
-    EXPECT_FALSE(r1->isFinished());
-
-    StubQNetworkReply mockReply;
+    MockProxyQNetworkReply mockReply;
     EXPECT_CALL(mockProxy, get(_))
               .Times(1)
               .WillOnce( Return(&mockReply));
 
-    // note get_proxytest() - this is temporary secondary way
-    MockProxyQNetworkReply mockProxyReply;
-    EXPECT_CALL(mockProxyReply, isFinished())
+    EXPECT_CALL(mockReply, isFinished())
               .Times(1)
               .WillOnce( Return(true));
 
-    EXPECT_CALL(mockProxy, get_proxytest(_))
-              .Times(1)
-              .WillOnce( Return(&mockProxyReply));
-
-    QNetworkReply* r2 = mockProxy.get(QNetworkRequest(url));
-    EXPECT_EQ(r2, &mockReply); // pointer comparison
-
-    // testing other approach
-    // 1st using standard proxy
-    ProxyQNetworkReply* r3 = proxy.get_proxytest(QNetworkRequest(url));
-    EXPECT_FALSE(r3->isFinished()); // default of not executed real http request
-
-    // 2nd using mock
-    ProxyQNetworkReply* r4 = mockProxy.get_proxytest(QNetworkRequest(url));
-    EXPECT_TRUE(r4->isFinished());
-    qDebug() << "END OF TEST";
+    ProxyQNetworkReply* r = mockProxy.get(QNetworkRequest(url));
+    EXPECT_EQ(r, &mockReply); // pointer comparison
+    EXPECT_TRUE(r->isFinished());
 }

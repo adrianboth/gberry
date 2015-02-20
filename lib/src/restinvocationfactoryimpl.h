@@ -1,0 +1,36 @@
+#ifndef RESTINVOCATIONFACTORYIMPL_H
+#define RESTINVOCATIONFACTORYIMPL_H
+
+#include <QUrl>
+
+#include "restinvocationfactory.h"
+
+class QNetworkAccessManager;
+
+/**
+ * @brief The RESTInvocationFactoryImpl class
+ *
+ * Properties:
+ *   url_prefix             http://<host>:<port>/<url>
+ *
+ */
+class RESTInvocationFactoryImpl : public RESTInvocationFactory
+{
+    Q_DISABLE_COPY(RESTInvocationFactoryImpl);
+
+public:
+    RESTInvocationFactoryImpl(QNetworkAccessManager* qnam = NULL);
+    ~RESTInvocationFactoryImpl();
+
+    QNetworkAccessManager* getQNetworkAccessManager() const { return _qnam; }
+    QUrl buildUrl(QString invocationPath) const;
+
+    //inherited
+    virtual RESTInvocation* newInvocation();
+
+private:
+    QNetworkAccessManager* _qnam;
+
+};
+
+#endif // RESTINVOCATIONFACTORYIMPL_H

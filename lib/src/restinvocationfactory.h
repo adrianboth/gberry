@@ -2,15 +2,21 @@
 #define RESTINVOCATIONFACTORY_H
 
 #include <QObject>
+#include <QNetworkAccessManager>
+
+class RESTInvocation;
+
+// TODO: namespace
+// TODO: I prefix (then *.cpp file could be removed
 
 class RESTInvocationFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit RESTInvocationFactory(configuration, QObject *parent = 0);
+    explicit RESTInvocationFactory(QObject *parent = 0);
     ~RESTInvocationFactory();
 
-    RESTInvocation newInvocation();
+    virtual RESTInvocation* newInvocation() = 0;
 
 signals:
 

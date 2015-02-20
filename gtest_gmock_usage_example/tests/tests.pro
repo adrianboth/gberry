@@ -12,13 +12,13 @@ SOURCES += main.cpp \
     template_testclassimpl.cpp
 
 # TODO: way to get paths
-INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../lib
+INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../lib/src
 
-LIBS += -L../src -lapp -L../../gmock -lgmock -L../../lib -lgberrylib
+LIBS += -L../src -lapp -L../../gmock -lgmock -L../../lib/src -lgberrylib
 
 DEPENDPATH += ../src
 
-PRE_TARGETDEPS +=  ../src/libapp.a ../../lib/libgberrylib.a
+PRE_TARGETDEPS +=  ../src/libapp.a ../../lib/src/libgberrylib.a
 
 HEADERS += \
     mock_iotherservice.h \
