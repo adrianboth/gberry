@@ -2,13 +2,12 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
-//#include "appcontroller.h"
-
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
 #include <realsystemservices.h>
 
 #include "serverconnectionmodel.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -16,9 +15,6 @@ int main(int argc, char *argv[])
 
     RealSystemServices systemServices;
     systemServices.registerItself();
-
-    // this was original way
-    //AppController appController;
 
     RESTInvocationFactoryImpl factory;
     factory.setProperty("url_prefix", "http://localhost:9000/gberryrest/v1");
@@ -49,11 +45,7 @@ int main(int argc, char *argv[])
     QObject::connect(&consoleConnection, &ServerConnectionImpl::disconnected,
                      &model,            &ServerConnectionModel::consoleDisconnected);
 
-
-    // TODO: console connection
-
     QQmlApplicationEngine engine;
-    //engine.rootContext()->setContextProperty("app", &appController);
     engine.rootContext()->setContextProperty("app", &model);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
