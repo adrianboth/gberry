@@ -22,7 +22,9 @@ HEADERS += \
     restinvocationimpl.h \
     restinvocationfactoryimpl.h \
     systemservices.h \
-    realsystemservices.h
+    realsystemservices.h \
+    testutils/gtestrunner.h \
+    testutils/signalrecorder.h
 
 lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
@@ -38,4 +40,5 @@ SOURCES += \
     restinvocationimpl.cpp \
     restinvocationfactoryimpl.cpp \
     realsystemservices.cpp \
-    systemservices.cpp
+    systemservices.cpp \
+    testutils/gtestrunner.cpp

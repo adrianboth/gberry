@@ -17,8 +17,6 @@ SOURCES += main.cpp \
     test_serverconnectionimpl.cpp \
     test_restinvocationfactoryimpl.cpp \
     utils/testhttpserver.cpp \
-    gberryconsoleserver.cpp \
-    gtestrunner.cpp \
     utils/testsystemservices.cpp \
     test_systemservices.cpp
 
@@ -31,8 +29,5 @@ DEPENDPATH += ../src
 PRE_TARGETDEPS += ../src/libgberrylib.a
 
 HEADERS += \
-    utils/signalrecorder.h \
     utils/testhttpserver.h \
-    gberryconsoleserver.h \
-    gtestrunner.h \
     utils/testsystemservices.h
