@@ -109,41 +109,15 @@ TEST(CommTcp, clientReadsData)
 
     int called = 0;
     QString ourStr;
-    auto func = [&] (QByteArray msg) { called++; ourStr = QString(msg); };
+    auto func = [&] (const QByteArray& msg) { called++; ourStr = QString(msg); };
     QObject::connect(&client, &CommTcpClient::received, func);
 
-    /*
-    QTcpServer* server = new QTcpServer();
-    bool listenOk = server->listen(QHostAddress::Any, 7777);
-    ASSERT_TRUE(listenOk);
-    QThread::msleep(100);
-    */
-    //QTcpServer serv;
-    //bool listenOk = serv.listen(QHostAddress::Any, 7000);
-    //ASSERT_TRUE(listenOk);
-
     TestTcpServer server(7777);
-    /*
-    QTcpSocket* client2 = new QTcpSocket();
-    qDebug("### connectionToHost() FAIL?");
-    client2->connectToHost(QHostAddress::LocalHost, 7777);
-    qDebug("### connectionToHost() OK");
-    Waiter::wait([&client2] () { return client2->isOpen(); }, true);
-    qDebug("### abort() FAIL?");
-    client2->abort();
-*/
+
     client.open();
     Waiter::wait([&client] () { return client.isConnected(); }, true);
-    //Waiter::wait([&client] () { return false; }, true);
 
     ASSERT_TRUE(server.waitForConnection(1000));
-
-    //qDebug("#### TEST FAILURE");
-    //ASSERT_TRUE(false);
-
-    //Waiter::wait([&server] () { return server->hasPendingConnections(); });
-
-    //QTcpSocket* socket = server->nextPendingConnection();
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);

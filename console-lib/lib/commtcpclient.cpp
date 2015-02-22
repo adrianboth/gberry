@@ -4,8 +4,11 @@
 #include <QHostAddress>
 #include <QDataStream>
 
+#include "messagereader.h"
+
+
 CommTcpClient::CommTcpClient(int port, QObject *parent) :
-    QObject(parent), _port(port), _socket(NULL)
+    QObject(parent), _port(port), _socket(NULL), _reader(NULL)
 {
 
 }
@@ -14,9 +17,8 @@ CommTcpClient::~CommTcpClient()
 {
     if (_socket)
     {
-
-        disconnect(_socket, &QTcpSocket::readyRead,
-                this,       &CommTcpClient::dataReady);
+        delete _reader;
+        _reader = NULL;
 
         disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
                 this,       SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function
@@ -42,8 +44,9 @@ void CommTcpClient::open()
 {
     if (_socket)
     {
-        disconnect(_socket, &QTcpSocket::readyRead,
-                this,    &CommTcpClient::dataReady);
+        // TODO: dry
+        delete _reader;
+        _reader = NULL;
 
         disconnect(_socket, &QTcpSocket::disconnected,
                 this,    &CommTcpClient::sockecDisconnected); // TODO: spelling mistake
@@ -58,9 +61,10 @@ void CommTcpClient::open()
     }
 
     _socket = new QTcpSocket();
-
-    connect(_socket, &QTcpSocket::readyRead,
-            this,    &CommTcpClient::dataReady);
+    _reader = new MessageReader(_socket);
+    // forward signal
+    connect(_reader, SIGNAL(received(const QByteArray&)),
+            this,    SIGNAL(received(const QByteArray&)));
 
     connect(_socket, &QTcpSocket::disconnected,
             this,    &CommTcpClient::sockecDisconnected);
@@ -71,7 +75,6 @@ void CommTcpClient::open()
 
     // abort all possibly earlier connections
     //_socket->abort();
-    _blockSize = 0;
     _socket->connectToHost(QHostAddress::LocalHost, _port);
 }
 
@@ -80,29 +83,6 @@ bool CommTcpClient::isConnected()
     return _socket->isOpen();
 }
 
-void CommTcpClient::dataReady()
-{
-    // TODO: we could put this to own class
-    QDataStream in(_socket);
-    in.setVersion(QDataStream::Qt_5_4);
-
-    if (_blockSize == 0)
-    {
-        // we need at needs 4 bytes to present length
-        if (_socket->bytesAvailable() < (int)sizeof(quint32))
-            return;
-
-        in >> _blockSize;
-    }
-
-    if (_socket->bytesAvailable() < _blockSize)
-        return;
-
-    QByteArray messageData;
-    in >> messageData;
-
-    emit received(messageData);
-}
 
 void CommTcpClient::connectionError(QAbstractSocket::SocketError socketError)
 {

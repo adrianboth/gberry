@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QByteArray>
 
+class MessageReader;
+
 
 class CommTcpClient : public QObject
 {
@@ -17,22 +19,21 @@ public:
 
     bool isConnected();
 
-    // TODO: close outside
+    // TODO: close from outside
 signals:
     void connected();
     void disconnected();
-    void received(QByteArray msg);
+    void received(const QByteArray& msg);
 
 
 public slots:
-    void dataReady();
     void connectionError(QAbstractSocket::SocketError socketError);
     void sockecDisconnected();
 
 private:
-    QTcpSocket* _socket;
-    int _blockSize;
     int _port;
+    QTcpSocket* _socket;
+    MessageReader* _reader;
 };
 
 #endif // COMMTCPCLIENT_H
