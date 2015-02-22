@@ -3,12 +3,11 @@
 #include <QDebug>
 
 #include "gberryconsoleserver.h"
-#include "communicationchannel.h"
 
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
 #include <realsystemservices.h>
-
+#include <commtcpserver.h>
 
 int main(int argc, char *argv[])
 {
@@ -37,7 +36,7 @@ int main(int argc, char *argv[])
     */
     serverConnection.open();
 
-    CommunicationChannel comms;
+    CommTcpServer comms(7000);
     comms.open();
 
     return a.exec();

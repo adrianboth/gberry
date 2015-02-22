@@ -2,7 +2,7 @@
 
 #include <QCoreApplication>
 
-#include "gtestrunner.h"
+#include <testutils/gtestrunner.h>
 
 int main(int argc, char *argv[])
 {
