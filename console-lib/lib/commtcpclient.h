@@ -16,10 +16,11 @@ public:
     ~CommTcpClient();
 
     void open();
-
+    void close();
     bool isConnected();
 
-    // TODO: close from outside
+    void write(const QByteArray& msg);
+
 signals:
     void connected();
     void disconnected();
@@ -28,7 +29,7 @@ signals:
 
 public slots:
     void connectionError(QAbstractSocket::SocketError socketError);
-    void sockecDisconnected();
+    void socketDisconnected();
 
 private:
     int _port;

@@ -16,25 +16,10 @@ CommTcpClient::CommTcpClient(int port, QObject *parent) :
 CommTcpClient::~CommTcpClient()
 {
     if (_socket)
-    {
-        delete _reader;
-        _reader = NULL;
-
-        disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-                this,       SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function
-
-        disconnect(_socket, &QTcpSocket::disconnected,
-                this,    &CommTcpClient::sockecDisconnected); // TODO: spelling mistake
-
-        connect(_socket, &QTcpSocket::disconnected,
-                _socket, &QTcpSocket::deleteLater);
-
-        _socket->abort();
-        //_socket->deleteLater();
-    }
+        close();
 }
 
-void CommTcpClient::sockecDisconnected()
+void CommTcpClient::socketDisconnected()
 {
     // someone closed to socket -> reconnect
     open();
@@ -42,23 +27,8 @@ void CommTcpClient::sockecDisconnected()
 
 void CommTcpClient::open()
 {
-    if (_socket)
-    {
-        // TODO: dry
-        delete _reader;
-        _reader = NULL;
-
-        disconnect(_socket, &QTcpSocket::disconnected,
-                this,    &CommTcpClient::sockecDisconnected); // TODO: spelling mistake
-
-        disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-                this,    SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function
-
-        connect(_socket, &QTcpSocket::disconnected,
-                _socket, &QTcpSocket::deleteLater);
-
-        _socket->abort();
-    }
+    if (isConnected())
+        close();
 
     _socket = new QTcpSocket();
     _reader = new MessageReader(_socket);
@@ -67,26 +37,40 @@ void CommTcpClient::open()
             this,    SIGNAL(received(const QByteArray&)));
 
     connect(_socket, &QTcpSocket::disconnected,
-            this,    &CommTcpClient::sockecDisconnected);
+            this,    &CommTcpClient::socketDisconnected);
 
     connect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
             this,    SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function
 
-
-    // abort all possibly earlier connections
-    //_socket->abort();
     _socket->connectToHost(QHostAddress::LocalHost, _port);
+}
+
+void CommTcpClient::close()
+{
+    delete _reader;
+    _reader = NULL;
+
+    disconnect(_socket, &QTcpSocket::disconnected,
+               this,    &CommTcpClient::socketDisconnected);
+
+    disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+               this,    SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function?
+
+    connect(_socket, &QTcpSocket::disconnected,
+            _socket, &QTcpSocket::deleteLater);
+
+    _socket->close();
+    _socket = NULL;
 }
 
 bool CommTcpClient::isConnected()
 {
-    return _socket->isOpen();
+    return _socket && _socket->state() == QAbstractSocket::ConnectedState;
 }
 
 
 void CommTcpClient::connectionError(QAbstractSocket::SocketError socketError)
 {
-
     switch (socketError)
     {
     case QAbstractSocket::RemoteHostClosedError:
@@ -103,4 +87,10 @@ void CommTcpClient::connectionError(QAbstractSocket::SocketError socketError)
         // TODO: action .arg(tcpSocket->errorString()));
         break;
     }
+}
+
+void CommTcpClient::write(const QByteArray &msg)
+{
+    if (_reader)
+        _reader->write(msg);
 }

@@ -3,50 +3,59 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+#include "messagereader.h"
+
 
 TcpConnection::TcpConnection(int id, QTcpSocket* s, CommTcpServer* ccs) :
-    id(id), socket(s), _comm(ccs), _blockSize(0)
+    id(id), socket(s), _comm(ccs), _reader(NULL)
+{
+    _reader = new MessageReader(socket);
+
+    connect(socket,     &QTcpSocket::disconnected,
+            this,       &TcpConnection::socketDisconnect);
+
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), // error(...) overload, any c++11 way to select specific function
+            this,   SLOT(socketError(QAbstractSocket::SocketError)));
+
+
+    connect(_reader, &MessageReader::received,
+            this,    &TcpConnection::readerReceived);
+}
+
+TcpConnection::~TcpConnection()
 {
 }
 
-// TODO: QSignalMapper, or lambda function
-void TcpConnection::disconnect()
+void TcpConnection::close()
+{
+    _comm = NULL; // no more signal redirection
+    socket->close(); // wait to get socketDisconnect()
+}
+
+void TcpConnection::socketDisconnect()
 {
     if (_comm)
         _comm->closeConnection2(id); // TODO: inform, remove data structure
+
+    delete _reader;
+    _reader = NULL;
+
     socket->deleteLater();
+    socket = NULL;
+
     this->deleteLater(); // TODO: we could disconnect and delete in different places but ...
 }
 
-void TcpConnection::read()
+void TcpConnection::readerReceived(const QByteArray &data)
 {
     if (!_comm)
         return;
 
-    QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_5_4);
-
-    if (_blockSize == 0)
-    {
-        if (socket->bytesAvailable() < (int)sizeof(quint32))
-            return;
-
-        in >> _blockSize;
-    }
-
-    if (socket->bytesAvailable() < _blockSize)
-        return;
-
-    // TODO: what if there is second message ready to be read? I guess we don't other readyRead() signal
-    QByteArray data;
-    in >> data;
-    _blockSize = 0; // reset for next message
-
-    // seems like accepted syntax
+    // ... seems like accepted syntax
     emit _comm->received(id, data);
 }
 
-void TcpConnection::error(QAbstractSocket::SocketError err)
+void TcpConnection::socketError(QAbstractSocket::SocketError err)
 {
     // TODO: looks like remote connection closed comes also here, ignore as disconnected also attached
     // QAbstractSocket::RemoteHostClosedError (1)
@@ -54,7 +63,11 @@ void TcpConnection::error(QAbstractSocket::SocketError err)
         return;
 }
 
-
+void TcpConnection::write(const QByteArray &data)
+{
+    if (_reader)
+        _reader->write(data);
+}
 
 
 CommTcpServer::CommTcpServer(int port, QObject *parent) :
@@ -94,11 +107,11 @@ void CommTcpServer::close()
     disconnect(_server, &QTcpServer::newConnection,
                this,    &CommTcpServer::newConnection);
 
-    foreach (int id, _connections.keys()) {
+    foreach (int id, _connections.keys())
+    {
         TcpConnection* conn = _connections[id];
-        conn->_comm = NULL;
-        conn->socket->close();
         closeConnection2(id);
+        conn->close();
     }
     _server->deleteLater();
     _server = NULL;
@@ -111,52 +124,20 @@ void CommTcpServer::newConnection()
 
     // TODO: not sure do we need connectionId, and does it mean
     //       anything if just generated (it could have different for mainui vs app)
-    TcpConnection* connection = new TcpConnection(_connectionIdCount++, socket, this);
-    _connections[connection->id] = connection;
+    int id = _connectionIdCount++;
+    TcpConnection* connection = new TcpConnection(id, socket, this);
+    _connections[id] = connection;
 
-    connect(socket,     &QTcpSocket::disconnected,
-            connection, &TcpConnection::disconnect);
-
-    connect(socket,     &QTcpSocket::readyRead,
-            connection, &TcpConnection::read);
-
-    connect(socket,    SIGNAL(error(QAbstractSocket::SocketError)),
-            connection, SLOT(error(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function
-
-
-    emit connected(connection->id);
-
-    /*
-    // TODO: data parser
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-
-    out << (quint16)0;
-    out << fortunes.at(qrand() % fortunes.size());
-    out.device()->seek(0);
-    out << (quint16)(block.size() - sizeof(quint16));
-
-    QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
-    connect(clientConnection, SIGNAL(disconnected()),
-            clientConnection, SLOT(deleteLater()));
-
-    clientConnection->write(block);
-
-    // if we want to keep connection to directional, no disconnectFromHost() ?
-    clientConnection->disconnectFromHost();
-
-    // TODO: how to read data, get signal when data is available
-    */
+    emit connected(id);
 }
 
 
-void CommTcpServer::closeConnection2(int id)
+void CommTcpServer::closeConnection2(int connectionId)
 {
-    if (_connections.contains(id))
+    if (_connections.contains(connectionId))
     {
-        TcpConnection* conn = _connections[id];
-        _connections.remove(id);
+        TcpConnection* conn = _connections[connectionId];
+        _connections.remove(connectionId);
 
         // we can arrive here two ways
         // 1) socket was closed and TcpConnection informs to delete resources
@@ -173,12 +154,16 @@ void CommTcpServer::closeConnection2(int id)
         //conn->socket->deleteLater();
 
         //delete conn;
-        emit disconnected(id);
+        emit disconnected(connectionId);
     }
 }
 
 
-void CommTcpServer::write(int connectionId, QByteArray &data)
+void CommTcpServer::write(int connectionId, const QByteArray &msg)
 {
-    // TODO
+    if (_connections.contains(connectionId))
+    {
+        TcpConnection* conn = _connections[connectionId];
+        conn->write(msg);
+    }
 }

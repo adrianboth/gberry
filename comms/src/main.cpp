@@ -39,5 +39,11 @@ int main(int argc, char *argv[])
     CommTcpServer comms(7000);
     comms.open();
 
+    auto func = [&comms] (int connectionId, const QByteArray& msg) {
+        QByteArray a(QString("echo" + QString(msg)).toLatin1());
+        comms.write(connectionId, a);
+    };
+    QObject::connect(&comms, &CommTcpServer::received, func);
+
     return a.exec();
 }

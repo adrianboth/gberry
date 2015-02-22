@@ -9,10 +9,8 @@
 
 class QTcpServer;
 class QTcpSocket;
-class CommTcpServer;
 class TcpConnection;
-
-
+class MessageReader;
 
 class CommTcpServer : public QObject
 {
@@ -26,14 +24,12 @@ public:
     void close();
 
     void closeConnection2(int id);
-    void write(int connectionId, QByteArray& data);
+    void write(int connectionId, const QByteArray& msg);
 
 signals:
-    void connected(int id); // TODO: when used
-    void disconnected(int channelId);
-
-    // TODO: change parameter name
-    void received(int channelID, QByteArray msg);
+    void connected(int connectionId); // TODO: when used
+    void disconnected(int connectionId);
+    void received(int connectionId, const QByteArray& msg);
 
 public slots:
     void newConnection();
@@ -58,20 +54,21 @@ class TcpConnection : public QObject
 
 public:
     TcpConnection(int id, QTcpSocket* s, CommTcpServer* ccs);
+    ~TcpConnection();
 
-    int id;
-    QTcpSocket* socket;
-
-    CommTcpServer* _comm;
+    void close();
+    void write(const QByteArray& data);
 
 public slots:
-    void disconnect();
-    void read();
-    void error(QAbstractSocket::SocketError);
+    void socketDisconnect();
+    void readerReceived(const QByteArray& data);
+    void socketError(QAbstractSocket::SocketError);
 
 private:
-
-    quint32 _blockSize;
+    int id;
+    QTcpSocket* socket;
+    MessageReader* _reader;
+    CommTcpServer* _comm;
 
 
 };

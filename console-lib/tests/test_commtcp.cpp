@@ -115,9 +115,9 @@ TEST(CommTcp, clientReadsData)
     TestTcpServer server(7777);
 
     client.open();
-    Waiter::wait([&client] () { return client.isConnected(); }, true);
 
-    ASSERT_TRUE(server.waitForConnection(1000));
+    ASSERT_TRUE(server.waitForConnection(1000)); // this accepts connections
+    Waiter::wait([&client] () { return client.isConnected(); }, true);
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -136,17 +136,48 @@ TEST(CommTcp, clientReadsData)
     // TODO:client.close();
 }
 
-// use client to open connection
-//  - register to received messages
-//  - write message
 
-// server generates a response
-//  - write message
+TEST(CommTcp, clientAndServer)
+{
+    CommTcpServer server(7000);
 
+    int serverReceived = 0;
+    int connectionId = -1;
+    QString serverStr;
+    auto serverFunc = [&] (int id, QByteArray msg) { connectionId = id; serverReceived++; serverStr = QString(msg); };
+    QObject::connect(&server, &CommTcpServer::received, serverFunc);
 
-// TODO: test client separately
+    server.open();
 
-// TODO: test together
+    // --
+    CommTcpClient client(7000);
+
+    int clientReceived = 0;
+    QString clientStr;
+    auto clientFunc = [&] (const QByteArray& msg) { clientReceived++; clientStr = QString(msg); };
+    QObject::connect(&client, &CommTcpClient::received, clientFunc);
+
+    client.open();
+    Waiter::wait([&client] () { return client.isConnected(); });
+
+    // --
+    QByteArray foo("foo");
+    client.write(foo);
+    Waiter::wait([&] () { return serverReceived > 0; });
+    EXPECT_TRUE(serverReceived > 0);
+    EXPECT_TRUE(serverStr == "foo") << "Got: " << serverStr;
+
+    // --
+    QByteArray bar("bar");
+    server.write(connectionId, bar);
+    Waiter::wait([&] () { return clientReceived > 0; });
+    EXPECT_TRUE(clientReceived > 0);
+    EXPECT_TRUE(clientStr == "bar") << "Got: " << clientStr;
+
+    //--
+    server.close();
+    client.close();
+}
 
 // TODO: test multiple messages going towards server
 
