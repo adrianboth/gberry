@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core network
 
 QT       -= gui
 
@@ -15,7 +15,8 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    test_commchannel.cpp
+    test_commtcp.cpp \
+    utils/testtcpserver.cpp
 
 INCLUDEPATH += ../lib
 LIBS += -L../lib -lconsolelib
@@ -35,3 +36,6 @@ includeStaticLibrary("gmock", $${GMOCK_SRC_DIR}, $${GMOCK_BUILD_DIR})
 GTEST_BUILD_DIR=$$BUILDS_DIR/build-gberry-lib-Desktop_Qt_5_4_0_GCC_64bit-Debug/gtest
 GTEST_SRC_DIR=$$PROJECTS_ROOT_DIR/gberry-lib/gtest/include
 includeStaticLibrary("gtest", $${GTEST_SRC_DIR}, $${GTEST_BUILD_DIR})
+
+HEADERS += \
+    utils/testtcpserver.h

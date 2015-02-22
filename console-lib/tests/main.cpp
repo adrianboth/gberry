@@ -1,8 +1,7 @@
-//#include "gtest/gtest.h"
-
 #include <QCoreApplication>
 
 #include <testutils/gtestrunner.h>
+
 
 int main(int argc, char *argv[])
 {

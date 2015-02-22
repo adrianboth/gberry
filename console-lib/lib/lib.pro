@@ -14,11 +14,13 @@ TEMPLATE = lib
 DEFINES += LIB_LIBRARY
 
 SOURCES += messagehandler.cpp \
-    commchannelserver.cpp
+    commtcpclient.cpp \
+    commtcpserver.cpp
 
 HEADERS += messagehandler.h\
         lib_global.h \
-    commchannelserver.h
+    commtcpclient.h \
+    commtcpserver.h
 
 unix {
     target.path = /usr/lib
