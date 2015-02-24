@@ -7,7 +7,7 @@
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
 #include <realsystemservices.h>
-#include <commtcpserver.h>
+#include <server/commtcpserver.h>
 
 int main(int argc, char *argv[])
 {

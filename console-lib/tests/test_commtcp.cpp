@@ -5,8 +5,8 @@
 #include <QTcpServer>
 #include <QHostAddress>
 
-#include "commtcpserver.h"
-#include "commtcpclient.h"
+#include "server/commtcpserver.h"
+#include "client/commtcpclient.h"
 
 #include "utils/testtcpserver.h"
 

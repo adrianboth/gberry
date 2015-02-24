@@ -22,8 +22,8 @@ SOURCES += main.cpp \
     test_communication_integration.cpp \
     test_messagereader.cpp
 
-INCLUDEPATH += ../lib
-LIBS += -L../lib -lconsolelib
+INCLUDEPATH += ../src
+LIBS += -L../src -lconsolelib
 
 PROJECTS_ROOT_DIR=$$PWD/../../..
 BUILDS_DIR=$${PROJECTS_ROOT_DIR}/builds

@@ -9,12 +9,12 @@ CONFIG += c++11
 DEFINES += LIB_LIBRARY
 
 SOURCES += \
-    commtcpclient.cpp \
-    commtcpserver.cpp \
+    client/commtcpclient.cpp \
+    server/commtcpserver.cpp \
     messagereader.cpp \
     channelmanager.cpp \
     channelhandler.cpp \
-    tcpconnection.cpp \
+    server/tcpconnection.cpp \
     server/serversidecontrolchannel.cpp \
     client/clientsidecontrolchannel.cpp \
     playercontrolchannel.cpp \
@@ -26,12 +26,12 @@ SOURCES += \
 
 HEADERS +=\
         lib_global.h \
-    commtcpclient.h \
-    commtcpserver.h \
+    client/commtcpclient.h \
+    server/commtcpserver.h \
     messagereader.h \
     channelmanager.h \
     channelhandler.h \
-    tcpconnection.h \
+    server/tcpconnection.h \
     server/serversidecontrolchannel.h \
     client/clientsidecontrolchannel.h \
     playercontrolchannel.h \

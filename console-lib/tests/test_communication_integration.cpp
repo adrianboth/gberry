@@ -7,13 +7,13 @@
 #include <testutils/qtgtest.h>
 
 #include "channelmanager.h"
-#include "commtcpclient.h"
-#include "commtcpserver.h"
-#include "server/serversidecontrolchannel.h"
-#include "client/clientsidecontrolchannel.h"
-#include "server/serversetup.h"
-#include "client/clientsetup.h"
 #include "playercontrolchannel.h"
+#include "server/commtcpserver.h"
+#include "server/serversidecontrolchannel.h"
+#include "server/serversetup.h"
+#include "client/clientsidecontrolchannel.h"
+#include "client/commtcpclient.h"
+#include "client/clientsetup.h"
 
 
 TEST(CommunicationIntegration, SetupServerAndClientRootChannelsAndPingBothWays)
