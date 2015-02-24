@@ -33,8 +33,8 @@ void CommTcpClient::open()
     _socket = new QTcpSocket();
     _reader = new MessageReader(_socket);
     // forward signal
-    connect(_reader, SIGNAL(received(const QByteArray&)),
-            this,    SIGNAL(received(const QByteArray&)));
+    connect(_reader, SIGNAL(received(int, const QByteArray&)),
+            this,    SIGNAL(received(int, const QByteArray&)));
 
     connect(_socket, &QTcpSocket::disconnected,
             this,    &CommTcpClient::socketDisconnected);
@@ -89,8 +89,8 @@ void CommTcpClient::connectionError(QAbstractSocket::SocketError socketError)
     }
 }
 
-void CommTcpClient::write(const QByteArray &msg)
+void CommTcpClient::write(int channelId, const QByteArray &msg)
 {
     if (_reader)
-        _reader->write(msg);
+        _reader->write(channelId, msg);
 }

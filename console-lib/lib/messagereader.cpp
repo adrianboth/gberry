@@ -23,34 +23,42 @@ void MessageReader::socketReadyRead()
 
     if (_blockSize == 0)
     {
-        // we need at needs 4 bytes to present length
-        if (_socket->bytesAvailable() < (int)sizeof(quint32))
+        // we need at needs 4+4 bytes to present length + channel
+        if (_socket->bytesAvailable() < (int)sizeof(quint32)*2)
             return;
 
         in >> _blockSize;
+        in >> _channelId;
     }
-
+    // 4+4 is not calculated to message length
     if (_socket->bytesAvailable() < _blockSize)
         return;
 
     _data.clear();
     in >> _data;
 
-    // TODO: what if there is second message ready to be read? I guess we don't other readyRead() signal
-    emit received(_data);
+    emit received(_channelId, _data);
+
+    _blockSize = 0;
+    _channelId = 0;
+
+    // If there is more to read
+    if (_socket->bytesAvailable() > 0)
+        socketReadyRead();
 }
 
 
-void MessageReader::write(const QByteArray &msg)
+void MessageReader::write(int channelId, const QByteArray &msg)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
     out << (quint32)0;
+    out << channelId;
     out << msg;
     out.device()->seek(0);
-    out << (quint32)(block.size() - sizeof(quint32));
+    out << (quint32)(block.size() - sizeof(quint32)*2);
 
     _socket->write(block);
 }

@@ -64,8 +64,9 @@ TEST(CommTcp, writeDataToServer)
     int ourId = -1;
     QString ourStr;
 
-    auto func = [&] (int id, QByteArray msg) {
-        called++; ourId = id; ourStr = QString(msg);
+    auto func = [&] (int connectionId, int cid, QByteArray msg) {
+        Q_UNUSED(connectionId);
+        called++; ourId = cid; ourStr = QString(msg);
     };
     QObject::connect(&server, &CommTcpServer::received, func);
 
@@ -85,9 +86,10 @@ TEST(CommTcp, writeDataToServer)
     QByteArray data;
     QDataStream out(&data, QIODevice::WriteOnly);
     out << (quint32)0; // reserve space for message length information
+    out << (quint32)1; // channel 1
     out << "ping";
     out.device()->seek(0);
-    out << (quint32)(data.size() - sizeof(quint32)); // write length
+    out << (quint32)(data.size() - sizeof(quint32)*2); // write length
 
     client->write(data);
 
@@ -108,8 +110,9 @@ TEST(CommTcp, clientReadsData)
     CommTcpClient client(7777);
 
     int called = 0;
+    int channelId = -1;
     QString ourStr;
-    auto func = [&] (const QByteArray& msg) { called++; ourStr = QString(msg); };
+    auto func = [&] (int cid, const QByteArray& msg) { called++; channelId = cid; ourStr = QString(msg); };
     QObject::connect(&client, &CommTcpClient::received, func);
 
     TestTcpServer server(7777);
@@ -123,9 +126,9 @@ TEST(CommTcp, clientReadsData)
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_4);
 
-    out << (quint32)0 << "ping";
+    out << (quint32)0 << (quint32) 1 << "ping";
     out.device()->seek(0);
-    out << (quint32)(block.size() - sizeof(quint32));
+    out << (quint32)(block.size() - sizeof(quint32)*2);
 
     server.socket->write(block);
     Waiter::wait([&] () { return called > 0; }, true);
@@ -133,7 +136,8 @@ TEST(CommTcp, clientReadsData)
     EXPECT_EQ(called, 1);
     EXPECT_TRUE(ourStr == "ping") << "Got: " << ourStr;
 
-    // TODO:client.close();
+    // -- closing
+    client.close();
 }
 
 
@@ -143,8 +147,11 @@ TEST(CommTcp, clientAndServer)
 
     int serverReceived = 0;
     int connectionId = -1;
+    int serverChannelId = -1;
     QString serverStr;
-    auto serverFunc = [&] (int id, QByteArray msg) { connectionId = id; serverReceived++; serverStr = QString(msg); };
+    auto serverFunc = [&] (int connId, int cid, QByteArray msg) {
+        connectionId = connId; serverChannelId = cid; serverReceived++; serverStr = QString(msg);
+    };
     QObject::connect(&server, &CommTcpServer::received, serverFunc);
 
     server.open();
@@ -153,8 +160,11 @@ TEST(CommTcp, clientAndServer)
     CommTcpClient client(7000);
 
     int clientReceived = 0;
+    int clientChannelId = -1;
     QString clientStr;
-    auto clientFunc = [&] (const QByteArray& msg) { clientReceived++; clientStr = QString(msg); };
+    auto clientFunc = [&] (int cid, const QByteArray& msg) {
+        clientReceived++; clientChannelId = cid; clientStr = QString(msg);
+    };
     QObject::connect(&client, &CommTcpClient::received, clientFunc);
 
     client.open();
@@ -162,18 +172,19 @@ TEST(CommTcp, clientAndServer)
 
     // --
     QByteArray foo("foo");
-    client.write(foo);
+    client.write(1, foo); // we just "know" channel id = 1
     Waiter::wait([&] () { return serverReceived > 0; });
     EXPECT_TRUE(serverReceived > 0);
     EXPECT_TRUE(serverStr == "foo") << "Got: " << serverStr;
 
     // --
     QByteArray bar("bar");
-    server.write(connectionId, bar);
+    server.write(connectionId, serverChannelId, bar);
     Waiter::wait([&] () { return clientReceived > 0; });
     EXPECT_TRUE(clientReceived > 0);
     EXPECT_TRUE(clientStr == "bar") << "Got: " << clientStr;
 
+    EXPECT_EQ(serverChannelId, clientChannelId);
     //--
     server.close();
     client.close();

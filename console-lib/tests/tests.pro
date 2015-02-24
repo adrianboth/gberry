@@ -16,7 +16,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     test_commtcp.cpp \
-    utils/testtcpserver.cpp
+    utils/testtcpserver.cpp \
+    test_channelmanager.cpp \
+    utils/testchannelhandler.cpp \
+    test_communication_integration.cpp \
+    test_messagereader.cpp
 
 INCLUDEPATH += ../lib
 LIBS += -L../lib -lconsolelib
@@ -38,4 +42,5 @@ GTEST_SRC_DIR=$$PROJECTS_ROOT_DIR/gberry-lib/gtest/include
 includeStaticLibrary("gtest", $${GTEST_SRC_DIR}, $${GTEST_BUILD_DIR})
 
 HEADERS += \
-    utils/testtcpserver.h
+    utils/testtcpserver.h \
+    utils/testchannelhandler.h
