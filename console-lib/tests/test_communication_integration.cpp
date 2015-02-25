@@ -55,6 +55,10 @@ TEST(CommunicationIntegration, SetupServerAndClientRootChannelsAndPingBothWays)
     QObject::connect(&client,               &CommTcpClient::received,
                      &clientChannelManager, &ChannelManager::processMessage);
 
+    int disconnectedReceived = 0;
+    QObject::connect(&client,               &CommTcpClient::disconnected,
+                     [&] () { disconnectedReceived++; });
+
     QObject::connect(&clientChannelManager, &ClientSideChannelManager::outgoingMessage,
                      &client, &CommTcpClient::write);
 
@@ -100,12 +104,18 @@ TEST(CommunicationIntegration, SetupServerAndClientRootChannelsAndPingBothWays)
 
     Waiter::wait([&] () { return serverControl.state() == ChannelHandler::CHANNEL_CLOSED; });
     EXPECT_EQ(serverControl.state(), ChannelHandler::CHANNEL_CLOSED);
-    EXPECT_EQ(clientControl.state(), ChannelHandler::CHANNEL_CLOSED);
 
+    // On client side closing means tearing down all data structures.
+    // Now checking that just signal arrives
+    EXPECT_EQ(disconnectedReceived, 1);
+    // TODO: when client connection goes down, all control should be recreated
+
+    // -- closing
     server.close(); // just to be nice
+    qDebug("### tearing down PingBothWays");
 }
-/*
-// TODO: wrap up setup to specific class? or inside classes
+
+
 TEST(CommunicationIntegration, newPlayerChannel_createdAndDestroyed)
 {
     ServerSetup serverSetup;
@@ -123,16 +133,25 @@ TEST(CommunicationIntegration, newPlayerChannel_createdAndDestroyed)
     int playerChannelId = serverSetup.channelManager.nextFreeChannelId();
     PlayerControlChannel clientPlayer(playerChannelId);
 
-    serverSetup.channelManager.registerHandler(&clientPlayer); // TODO: should sent opening message
-    Waiter::wait([&] () { return clientSetup.playersManager.numberOfPlayers() > 0; });
+    serverSetup.channelManager.registerHandler(&clientPlayer);
+    serverSetup.channelManager.openChannel(playerChannelId);
+    Waiter::wait([&] () { return clientSetup.playersManager.numberOfPlayers() > 0; }, true);
     ASSERT_EQ(clientSetup.playersManager.numberOfPlayers(), 1);
+
+    // Waiting OpenChannelAccepted to arrive
+    Waiter::wait([&] () { return clientPlayer.state() == ChannelHandler::CHANNEL_OPEN; }, true);
 
     // -- close
 
-    serverSetup.channelManager.unregisterHandler(clientPlayer.channelId()); // TODO: should sent closing message
+    serverSetup.channelManager.unregisterHandler(clientPlayer.channelId()); // sends closing message, no response
     Waiter::wait([&] () { return clientSetup.playersManager.numberOfPlayers() < 1; });
     ASSERT_EQ(clientSetup.playersManager.numberOfPlayers(), 0);
 
-    // closing in setup class desctructors
+    // closing happens in setup class desctructors
 }
-*/
+
+
+// TODO: test client tcp connection dead -> close all channels -> reconnecting
+
+// TODO: connection out -> once reconnected restore
+//  * channel states from OPEN -> CLOSED -> OPEN

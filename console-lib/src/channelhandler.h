@@ -20,6 +20,7 @@ public:
     };
 
     ChannelHandler(int channelId, QObject* parent = 0);
+    virtual ~ChannelHandler();
 
     int channelId();
 
@@ -29,6 +30,8 @@ public:
 
 signals:
     void outgoingMessage(const QByteArray& msg);
+    void closing(ChannelHandler* handler); // TODO: better name
+    void closeReceived(ChannelHandler* handler);
 
 public slots:
     virtual void handleMessage(const QByteArray& msg) = 0;

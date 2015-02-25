@@ -21,6 +21,7 @@ CommTcpClient::~CommTcpClient()
 
 void CommTcpClient::socketDisconnected()
 {
+    emit disconnected();
     // someone closed to socket -> reconnect
     open();
 }
@@ -61,6 +62,8 @@ void CommTcpClient::close()
 
     _socket->close();
     _socket = NULL;
+
+    emit disconnected();
 }
 
 bool CommTcpClient::isConnected()

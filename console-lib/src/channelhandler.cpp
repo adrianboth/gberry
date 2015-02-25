@@ -6,6 +6,12 @@ ChannelHandler::ChannelHandler(int channelId, QObject* parent) :
 {
 }
 
+ChannelHandler::~ChannelHandler()
+{
+    qDebug("### ~ChannelHandler");
+    emit closing(this);
+}
+
 int ChannelHandler::channelId()
 {
     return _id;

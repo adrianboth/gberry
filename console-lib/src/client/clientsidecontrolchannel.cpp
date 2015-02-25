@@ -31,7 +31,7 @@ ClientSideControlChannel::ClientSideControlChannel() :
 
 ClientSideControlChannel::~ClientSideControlChannel()
 {
-
+    qDebug("### ~ClientSideControlChannel");
 }
 
 void ClientSideControlChannel::ping()
@@ -55,26 +55,19 @@ void ClientSideControlChannel::handleMessage(const QByteArray &msg)
     // TODO: we could place common ping func/logic to somewhere
     QJsonDocument doc(QJsonDocument::fromJson(msg));
     QJsonObject json(doc.object());
-    qDebug() << "CLIENTMSG: " << QString(msg);
+
     if (json.contains("command") && json["command"] == "ping")
     {
-        qDebug("### PING RECEIVED");
         setState(ChannelHandler::CHANNEL_OPEN);
         emit pingReceived();
         emit outgoingMessage(PINGREPLY_MESSAGE);
     }
     else if (json.contains("command") && json["command"] == "pingreply")
     {
-        qDebug("### PING REPLY RECEIVED");
         setState(ChannelHandler::CHANNEL_OPEN);
         emit pingReceived();
         // but no reply to reply ...
     }
-    else
-    {
-        qDebug("### ELSE");
-    }
-    qDebug("### CLIENT MSG HANDLED");
 }
 
 // TODO: if localhost connection breaks, then reconnection needs to be done ...

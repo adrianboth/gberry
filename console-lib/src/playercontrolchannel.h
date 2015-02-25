@@ -11,6 +11,8 @@ public:
     ~PlayerControlChannel();
 
     virtual void handleMessage(const QByteArray& msg);
+
+
 };
 
 #endif // PLAYERCONTROLCHANNEL_H

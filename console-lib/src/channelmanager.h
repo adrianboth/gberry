@@ -19,6 +19,9 @@ public:
     void registerHandler(ChannelHandler* handler);
     ChannelHandler* unregisterHandler(int channelId);
 
+    void openChannel(int channelId);
+    void closeChannel(int channelId);
+
 
     // TODO: how channel is opened towards commXX
     // TODO: how channel is closed
@@ -38,6 +41,7 @@ signals:
 public slots:
     void processMessage(int channelId, const QByteArray& msg);
     void outgoingMessageFromChannelHandler(const QByteArray& msg);
+    void channelCloseReceived(ChannelHandler* handler);
 
 protected:
     QMap<int, ChannelHandler*> _handlers; // by channelId

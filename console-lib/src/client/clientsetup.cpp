@@ -6,6 +6,9 @@ ClientSetup::ClientSetup(QObject* parent) :
     QObject::connect(&tcpClient,      &CommTcpClient::received,
                      &channelManager, &ChannelManager::processMessage);
 
+    QObject::connect(&channelManager, &ChannelManager::outgoingMessage,
+                     &tcpClient,      &CommTcpClient::write);
+
     channelManager.registerHandler(&controlChannel);
 
     QObject::connect(&channelManager, &ChannelManager::newChannel, // TODO: channel state is not connect until connected message is received
@@ -17,6 +20,7 @@ ClientSetup::ClientSetup(QObject* parent) :
 
 ClientSetup::~ClientSetup()
 {
+    qDebug("### ~ClientSetup");
     tcpClient.close();
 }
 

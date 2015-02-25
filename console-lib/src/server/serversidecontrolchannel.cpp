@@ -29,7 +29,7 @@ ServerSideControlChannel::ServerSideControlChannel() :
 
 ServerSideControlChannel::~ServerSideControlChannel()
 {
-
+    qDebug("### ~ServerSideControlChannel");
 }
 
 

@@ -22,7 +22,8 @@ SOURCES += \
     server/serversetup.cpp \
     client/clientsetup.cpp \
     client/clientsidechannelmanager.cpp \
-    server/serversidechannelmanager.cpp
+    server/serversidechannelmanager.cpp \
+    server/connectionmanager.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -39,7 +40,8 @@ HEADERS +=\
     server/serversetup.h \
     client/clientsetup.h \
     client/clientsidechannelmanager.h \
-    server/serversidechannelmanager.h
+    server/serversidechannelmanager.h \
+    server/connectionmanager.h
 
 unix {
     target.path = /usr/lib

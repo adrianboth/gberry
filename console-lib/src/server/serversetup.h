@@ -2,9 +2,10 @@
 #define SERVERSETUP_H
 
 #include <QObject>
-#include "commtcpserver.h"
+#include "server/commtcpserver.h"
 #include "server/serversidechannelmanager.h"
 #include "server/serversidecontrolchannel.h"
+#include "server/connectionmanager.h"
 
 
 class ServerSetup : public QObject
@@ -20,6 +21,7 @@ public:
     CommTcpServer tcpServer;
     ServerSideChannelManager channelManager;
     ServerSideControlChannel controlChannel;
+    ConnectionManager* connectionManager;
 
 };
 
