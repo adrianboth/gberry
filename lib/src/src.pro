@@ -3,7 +3,7 @@ TEMPLATE = lib
 
 include(../../global.pri)
 
-QT += core network
+QT += core network websockets
 QT -= gui
 
 CONFIG += c++11 staticlib
@@ -24,7 +24,11 @@ HEADERS += \
     systemservices.h \
     realsystemservices.h \
     testutils/gtestrunner.h \
-    testutils/signalrecorder.h
+    testutils/signalrecorder.h \
+    testutils/waiter.h \
+    testutils/qtgtest.h \
+    server/websocketserver.h \
+    client/websocketclient.h
 
 lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
@@ -41,4 +45,7 @@ SOURCES += \
     restinvocationfactoryimpl.cpp \
     realsystemservices.cpp \
     systemservices.cpp \
-    testutils/gtestrunner.cpp
+    testutils/gtestrunner.cpp \
+    testutils/qtgtest.cpp \
+    server/websocketserver.cpp \
+    client/websocketclient.cpp

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network
+QT       += core network websockets
 QT       -= gui
 
 TARGET = tests
@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     test_restinvocationfactoryimpl.cpp \
     utils/testhttpserver.cpp \
     utils/testsystemservices.cpp \
-    test_systemservices.cpp
+    test_systemservices.cpp \
+    test_websockets.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 
