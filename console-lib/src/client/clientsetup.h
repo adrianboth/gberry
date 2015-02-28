@@ -22,6 +22,11 @@ public:
     ClientSideChannelManager channelManager;
     ClientSideControlChannel controlChannel;
     PlayersManager playersManager;
+
+public slots:
+    void connectionEstablished();
+    void connectionBroken();
+
 };
 
 #endif // CLIENTSETUP_H

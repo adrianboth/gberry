@@ -5,13 +5,6 @@ ServerSetup::ServerSetup(QObject* parent)
 {
     connectionManager = new ConnectionManager(&tcpServer, &channelManager, &controlChannel, this);
 
-    // we discard connectionId, in future it might have meaning
-    connect(&tcpServer, &CommTcpServer::received,
-            [this] (int connectionId, int channelId, const QByteArray& msg) {
-        Q_UNUSED(connectionId);
-        this->channelManager.processMessage(channelId, msg);
-    });
-
     // ConnectionManager works as adapter
     connect(&channelManager, &ChannelManager::outgoingMessage,
             connectionManager, &ConnectionManager::outgoingMessageFromChannel);
@@ -19,13 +12,17 @@ ServerSetup::ServerSetup(QObject* parent)
     connect(&tcpServer, &CommTcpServer::received,
             connectionManager, &ConnectionManager::incomingMessage);
 
+    // TODO: these could be moved to ConnectionManager
     connect(&tcpServer, &CommTcpServer::connected,
             connectionManager, &ConnectionManager::applicationConnected);
 
     connect(&tcpServer, &CommTcpServer::disconnected,
             connectionManager, &ConnectionManager::applicationDisconnected);
 
-    channelManager.registerHandler(&controlChannel);
+    connect(&controlChannel,   &ServerSideControlChannel::pingReceived,
+            connectionManager, &ConnectionManager::pingOK);
+
+    channelManager.registerChannel(&controlChannel);
 
 }
 

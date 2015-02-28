@@ -23,6 +23,8 @@ void CommTcpClient::socketDisconnected()
 {
     emit disconnected();
     // someone closed to socket -> reconnect
+    // TODO: do we need timeout
+    // TODO: if error, we don't get disconnect -> no retry after first error
     open();
 }
 
@@ -34,8 +36,8 @@ void CommTcpClient::open()
     _socket = new QTcpSocket();
     _reader = new MessageReader(_socket);
     // forward signal
-    connect(_reader, SIGNAL(received(int, const QByteArray&)),
-            this,    SIGNAL(received(int, const QByteArray&)));
+    connect(_reader, SIGNAL(received(int, const QByteArray)),
+            this,    SIGNAL(received(int, const QByteArray)));
 
     connect(_socket, &QTcpSocket::disconnected,
             this,    &CommTcpClient::socketDisconnected);
@@ -48,22 +50,30 @@ void CommTcpClient::open()
 
 void CommTcpClient::close()
 {
-    delete _reader;
-    _reader = NULL;
+    // guard against double closing
 
-    disconnect(_socket, &QTcpSocket::disconnected,
-               this,    &CommTcpClient::socketDisconnected);
+    if (_reader)
+    {
+        delete _reader;
+        _reader = NULL;
+    }
 
-    disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
-               this,    SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function?
+    if (_socket)
+    {
+        disconnect(_socket, &QTcpSocket::disconnected,
+                   this,    &CommTcpClient::socketDisconnected);
 
-    connect(_socket, &QTcpSocket::disconnected,
-            _socket, &QTcpSocket::deleteLater);
+        disconnect(_socket, SIGNAL(error(QAbstractSocket::SocketError)),
+                   this,    SLOT(connectionError(QAbstractSocket::SocketError))); // error(...) overload, any c++11 way to select specific function?
 
-    _socket->close();
-    _socket = NULL;
+        connect(_socket, &QTcpSocket::disconnected,
+                _socket, &QTcpSocket::deleteLater);
 
-    emit disconnected();
+        _socket->close();
+        _socket = NULL;
+
+        emit disconnected();
+    }
 }
 
 bool CommTcpClient::isConnected()
@@ -92,7 +102,7 @@ void CommTcpClient::connectionError(QAbstractSocket::SocketError socketError)
     }
 }
 
-void CommTcpClient::write(int channelId, const QByteArray &msg)
+void CommTcpClient::write(int channelId, const QByteArray msg)
 {
     if (_reader)
         _reader->write(channelId, msg);

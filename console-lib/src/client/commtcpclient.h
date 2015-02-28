@@ -19,12 +19,12 @@ public:
     void close();
     bool isConnected();
 
-    void write(int channelId, const QByteArray& msg);
+    void write(int channelId, const QByteArray msg);
 
 signals:
     void connected();
     void disconnected();
-    void received(int channelId, const QByteArray& msg);
+    void received(int channelId, const QByteArray msg);
 
 
 public slots:

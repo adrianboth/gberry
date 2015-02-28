@@ -18,16 +18,16 @@ public:
     ~TcpConnection();
 
     void close();
-    void write(int channelId, const QByteArray& data);
+    void write(int channelId, const QByteArray data);
 
 signals:
     void connectionClosed(int connectionId);
-    void messageReceived(int connectionId, int channelId, const QByteArray& msg);
+    void messageReceived(int connectionId, int channelId, const QByteArray msg);
 
 public slots:
     void socketDisconnect();
     void socketError(QAbstractSocket::SocketError);
-    void readerReceived(int channelId, const QByteArray& data);
+    void readerReceived(int channelId, const QByteArray data);
 
 private:
     int id;

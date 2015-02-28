@@ -17,10 +17,10 @@ public:
     explicit MessageReader(QTcpSocket* socket, QObject *parent = 0);
     ~MessageReader();
 
-    void write(int channelId, const QByteArray& msg);
+    void write(int channelId, const QByteArray msg);
 
 signals:
-    void received(int channelId, const QByteArray& msg);
+    void received(int channelId, const QByteArray msg);
 
 public slots:
     void socketReadyRead();

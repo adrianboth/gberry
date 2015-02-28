@@ -8,7 +8,7 @@
 
 #include "server/serversidechannelmanager.h"
 
-#include "utils/testchannelhandler.h"
+#include "utils/testchannel.h"
 
 
 TEST(ServerSideChannelManager, registerHandlerAndWriteAndReadMessages)
@@ -20,15 +20,15 @@ TEST(ServerSideChannelManager, registerHandlerAndWriteAndReadMessages)
     int msgsWritten = 0;
     int channelId = -1;
     QString writtenMsg;
-    auto writeFunc = [&] (int cid, const QByteArray& msg) {
+    auto writeFunc = [&] (int cid, const QByteArray msg) {
         msgsWritten++;
         channelId = cid;
         writtenMsg = QString(msg);
     };
     QObject::connect(&manager, &ChannelManager::outgoingMessage, writeFunc);
 
-    TestChannelHandler handler(msgChannelId);
-    manager.registerHandler(&handler);
+    TestChannel handler(msgChannelId);
+    manager.registerChannel(&handler);
 
     QByteArray msg("ping");
     manager.processMessage(msgChannelId, msg);
@@ -45,13 +45,13 @@ TEST(ServerSideChannelManager, registerHandlerAndWriteAndReadMessages)
     EXPECT_EQ(msgChannelId, channelId);
     EXPECT_TRUE(writtenMsg == "foobar");
 
-    ChannelHandler* unregisteredHandler = manager.unregisterHandler(handler.channelId());
+    Channel* unregisteredHandler = manager.unregisterChannel(handler.channelId());
     EXPECT_TRUE(unregisteredHandler == &handler); // comparing pointers
 
-    // send a message again -> no more processing
+    // send a message again (just repeating)
     handler.triggerOutgoingMessage(msg2);
     Waiter::wait([&] () { return msgsWritten > 1; });
-    ASSERT_EQ(msgsWritten, 1);
+    ASSERT_EQ(msgsWritten, 2);
 }
 
 // TODO: open channel handshaking

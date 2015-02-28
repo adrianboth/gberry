@@ -67,8 +67,8 @@ void CommTcpServer::newConnection()
             this, &CommTcpServer::closeConnection);
 
     // forward signal
-    connect(connection, SIGNAL(messageReceived(int, int, const QByteArray&)),
-            this,       SIGNAL(received(int, int, const QByteArray&)));
+    connect(connection, SIGNAL(messageReceived(int, int, const QByteArray)),
+            this,       SIGNAL(received(int, int, const QByteArray)));
 
     _connections[id] = connection;
 
@@ -87,7 +87,7 @@ void CommTcpServer::closeConnection(int connectionId)
 }
 
 
-void CommTcpServer::write(int connectionId, int channelId, const QByteArray &msg)
+void CommTcpServer::write(int connectionId, int channelId, const QByteArray msg)
 {
     if (_connections.contains(connectionId))
     {

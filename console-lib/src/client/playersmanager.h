@@ -2,8 +2,50 @@
 #define PLAYERSMANAGER_H
 
 #include <QObject>
+#include <QMap>
+#include <QJsonObject>
 
-//TODO: move to server/ folder
+class PlayerChannel;
+
+
+// TODO: make this qml compatible
+class PlayerMetadata
+{
+public:
+    PlayerMetadata() : playerId(-1), playerName("UNKNOWN") {}
+    PlayerMetadata(int pid, QString name) :
+        playerId(pid), playerName(name) {}
+
+    PlayerMetadata(QJsonObject metaJson)
+    {
+        this->playerId = metaJson["id"].toInt();
+        this->playerName = metaJson["name"].toString();
+    }
+
+    PlayerMetadata(const PlayerMetadata& other)
+    {
+        this->playerId = other.playerId;
+        this->playerName = other.playerName;
+    }
+
+    PlayerMetadata& operator=(const PlayerMetadata& other)
+    {
+        this->playerId = other.playerId;
+        this->playerName = other.playerName;
+        return *this;
+    }
+
+    QJsonObject json()
+    {
+        QJsonObject json;
+        json["id"] = playerId;
+        json["name"] = playerName;
+        return json;
+    }
+
+    int playerId;
+    QString playerName;
+};
 
 class PlayersManager : public QObject
 {
@@ -13,17 +55,36 @@ public:
     explicit PlayersManager(QObject *parent = 0);
     ~PlayersManager();
 
-    int numberOfPlayers();
+    int numberOfPlayers() const;
+    QList<int> playerIds() const;
+    QString playerName(int playerId) const;
+
+    // TODO: for now player id matches to channel id, but later it should be different
+    //       as player might disconnect for awhile (in phone, e.g.) but then come
+    //       back and channel id will change -> game might have kept some information
+    //       stored and player can continue if player ids match
+
+    void sendPlayerMessage(int playerId, QByteArray msg);
 
 signals:
+    void playerIn(int playerId);
+    void playerOut(int playerId);
+    void playerMessageReceived(int playerId, QByteArray msg);
 
 public slots:
-    void newPlayer(int channelId);
+    void newPlayer(PlayerChannel* channel, PlayerMetadata metadata);
+
+    // handle incoming player message
+    void playerMessage(int channelId, QByteArray msg);
     void playerExit(int channelId);
 
 private:
     // TODO: this is just temp
     int _playerCount;
+    QMap<int, PlayerChannel*> _channelsByPlayerId;
+    QMap<int, PlayerMetadata> _meta;
+    QMap<int, int> _playerIdsByChannelId;
+    QMap<int, int> _channelIdsByPlayerIds;
 };
 
 // TODO: handle metadata

@@ -13,17 +13,20 @@ SOURCES += \
     server/commtcpserver.cpp \
     messagereader.cpp \
     channelmanager.cpp \
-    channelhandler.cpp \
     server/tcpconnection.cpp \
     server/serversidecontrolchannel.cpp \
     client/clientsidecontrolchannel.cpp \
-    playercontrolchannel.cpp \
     client/playersmanager.cpp \
     server/serversetup.cpp \
     client/clientsetup.cpp \
     client/clientsidechannelmanager.cpp \
     server/serversidechannelmanager.cpp \
-    server/connectionmanager.cpp
+    server/connectionmanager.cpp \
+    server/serversideplayerchannel.cpp \
+    client/clientsideplayerchannel.cpp \
+    playerchannel.cpp \
+    controlchannel.cpp \
+    channel.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -31,17 +34,21 @@ HEADERS +=\
     server/commtcpserver.h \
     messagereader.h \
     channelmanager.h \
-    channelhandler.h \
     server/tcpconnection.h \
     server/serversidecontrolchannel.h \
     client/clientsidecontrolchannel.h \
-    playercontrolchannel.h \
     client/playersmanager.h \
     server/serversetup.h \
     client/clientsetup.h \
     client/clientsidechannelmanager.h \
     server/serversidechannelmanager.h \
-    server/connectionmanager.h
+    server/connectionmanager.h \
+    server/serversideplayerchannel.h \
+    client/clientsideplayerchannel.h \
+    playerchannel.h \
+    controlchannel.h \
+    channel.h \
+    ichannelparent.h
 
 unix {
     target.path = /usr/lib

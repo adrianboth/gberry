@@ -2,6 +2,8 @@
 
 #include <QTcpSocket>
 #include <QDataStream>
+#include <QDebug>
+
 
 MessageReader::MessageReader(QTcpSocket* socket, QObject *parent)
     : QObject(parent), _socket(socket), _blockSize(0)
@@ -36,7 +38,8 @@ void MessageReader::socketReadyRead()
 
     _data.clear();
     in >> _data;
-
+    //_data.append(_socket->r)
+    qDebug() << "### MessageReader: cid=" << _channelId << QString(_data);
     emit received(_channelId, _data);
 
     _blockSize = 0;
@@ -48,7 +51,7 @@ void MessageReader::socketReadyRead()
 }
 
 
-void MessageReader::write(int channelId, const QByteArray &msg)
+void MessageReader::write(int channelId, const QByteArray msg)
 {
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -56,9 +59,11 @@ void MessageReader::write(int channelId, const QByteArray &msg)
 
     out << (quint32)0;
     out << channelId;
-    out << msg;
+    out.writeBytes(msg, msg.length());
+    //out << msg;
     out.device()->seek(0);
     out << (quint32)(block.size() - sizeof(quint32)*2);
 
     _socket->write(block);
+    qDebug() << "### MessageReader wrote: " << QString(msg);
 }

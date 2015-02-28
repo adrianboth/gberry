@@ -29,8 +29,9 @@ signals:
 public slots:
     void applicationConnected(int connectionId);
     void applicationDisconnected(int connectionId);
-    void incomingMessage(int connectionId, int channelId, const QByteArray& msg);
-    void outgoingMessageFromChannel(int channelId, const QByteArray& msg);
+    void pingOK();
+    void incomingMessage(int connectionId, int channelId, const QByteArray msg);
+    void outgoingMessageFromChannel(int channelId, const QByteArray msg);
 
 private:
     CommTcpServer* _tcpServer;

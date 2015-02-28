@@ -3,6 +3,10 @@
 
 #include <QObject>
 #include "channelmanager.h"
+#include "playerchannel.h"
+
+// TODO: PlayerMetadata should be moved to common place
+#include "client/playersmanager.h"
 
 
 class ServerSideChannelManager : public ChannelManager
@@ -12,6 +16,9 @@ public:
     ~ServerSideChannelManager();
 
     int nextFreeChannelId();
+    PlayerChannel* openPlayerChannel(PlayerMetadata metadata);
+
+    void reopenPlayerChannels();
 
 public slots:
     void applicationClosed(); // connection towards client closed

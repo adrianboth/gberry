@@ -32,7 +32,7 @@ TEST(MessageReader, ReadSingleMessage)
     int channelId = -1;
     QString myStr;
     QObject::connect(&reader, &MessageReader::received,
-                     [&] (int cid, const QByteArray& msg) { channelId = cid; myStr = QString(msg); } );
+                     [&] (int cid, const QByteArray msg) { channelId = cid; myStr = QString(msg); } );
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
@@ -89,14 +89,14 @@ TEST(MessageReader, ReadAndWrite)
     int serverReceived = 0;
     QString serverStr;
     QObject::connect(&serverReader, &MessageReader::received,
-                     [&] (int cid, const QByteArray& msg) {
+                     [&] (int cid, const QByteArray msg) {
         Q_UNUSED(cid); serverReceived++; serverStr = QString(msg);
     } );
 
     int clientReceived = 0;
     QString clientStr;
     QObject::connect(&clientReader, &MessageReader::received,
-                     [&] (int cid, const QByteArray& msg) {
+                     [&] (int cid, const QByteArray msg) {
         Q_UNUSED(cid); clientReceived++; clientStr = QString(msg);
     } );
 
@@ -156,7 +156,7 @@ TEST(MessageReader, MultipleMessageIncoming)
     int received = 0;
     QStringList myStrings;
     QObject::connect(&reader, &MessageReader::received,
-                     [&] (int cid, const QByteArray& msg) {
+                     [&] (int cid, const QByteArray msg) {
         Q_UNUSED(cid); received++; myStrings.append(QString(msg)); } );
 
     QByteArray block;
@@ -205,7 +205,7 @@ TEST(MessageReader, ReadInMultipleParts)
     int received = 0;
     QString myString;
     QObject::connect(&reader, &MessageReader::received,
-                     [&] (int cid, const QByteArray& msg) {
+                     [&] (int cid, const QByteArray msg) {
         Q_UNUSED(cid); received++; myString = QString(msg); } );
 
     QByteArray block;

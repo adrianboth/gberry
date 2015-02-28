@@ -3,23 +3,16 @@
 
 #include <QByteArray>
 
-#include "channelhandler.h"
+#include "controlchannel.h"
 
 
-class ClientSideControlChannel : public ChannelHandler
+class ClientSideControlChannel : public ControlChannel
 {
     Q_OBJECT
 
 public:
     ClientSideControlChannel();
     ~ClientSideControlChannel();
-
-    void ping();
-    bool isConnectionValid();
-    virtual void handleMessage(const QByteArray& msg);
-
-signals:
-    void pingReceived();
 
 };
 

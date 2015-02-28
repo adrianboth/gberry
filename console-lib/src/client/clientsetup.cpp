@@ -9,13 +9,20 @@ ClientSetup::ClientSetup(QObject* parent) :
     QObject::connect(&channelManager, &ChannelManager::outgoingMessage,
                      &tcpClient,      &CommTcpClient::write);
 
-    channelManager.registerHandler(&controlChannel);
+    QObject::connect(&tcpClient,    &CommTcpClient::connected,
+                     this,          &ClientSetup::connectionEstablished);
 
-    QObject::connect(&channelManager, &ChannelManager::newChannel, // TODO: channel state is not connect until connected message is received
+    QObject::connect(&tcpClient,    &CommTcpClient::disconnected,
+                     this,          &ClientSetup::connectionBroken);
+
+    channelManager.registerChannel(&controlChannel);
+
+    QObject::connect(&channelManager, &ClientSideChannelManager::newPlayerChannel,
                      &playersManager, &PlayersManager::newPlayer);
 
-    QObject::connect(&channelManager, &ChannelManager::channelClosed, // TODO: channel state is not connect until connected message is received
+    QObject::connect(&channelManager, &ChannelManager::channelClosed,
                      &playersManager, &PlayersManager::playerExit);
+
 }
 
 ClientSetup::~ClientSetup()
@@ -27,4 +34,24 @@ ClientSetup::~ClientSetup()
 void ClientSetup::start()
 {
     tcpClient.open();
+}
+
+void ClientSetup::connectionEstablished()
+{
+    // socket connection ok
+    controlChannel.ping();
+}
+
+void ClientSetup::connectionBroken()
+{
+    // all player channels will be destroyed
+    foreach (int cid, channelManager.allChannelIds())
+    {
+        if (cid != ChannelManager::ROOT_CHANNEL)
+        {
+            Channel* handler = channelManager.unregisterChannel(cid);
+            delete handler;
+            playersManager.playerExit(cid);
+        }
+    }
 }

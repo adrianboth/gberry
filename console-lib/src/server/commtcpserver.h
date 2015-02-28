@@ -25,12 +25,12 @@ public:
     void close();
 
     void closeConnection(int id);
-    void write(int connectionId, int channelId, const QByteArray& msg);
+    void write(int connectionId, int channelId, const QByteArray msg);
 
 signals:
     void connected(int connectionId); // TODO: when used
     void disconnected(int connectionId);
-    void received(int connectionId, int channelId, const QByteArray& msg);
+    void received(int connectionId, int channelId, const QByteArray msg);
 
 public slots:
     void newConnection();

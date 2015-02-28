@@ -112,7 +112,7 @@ TEST(CommTcp, clientReadsData)
     int called = 0;
     int channelId = -1;
     QString ourStr;
-    auto func = [&] (int cid, const QByteArray& msg) { called++; channelId = cid; ourStr = QString(msg); };
+    auto func = [&] (int cid, const QByteArray msg) { called++; channelId = cid; ourStr = QString(msg); };
     QObject::connect(&client, &CommTcpClient::received, func);
 
     TestTcpServer server(7777);
@@ -162,7 +162,7 @@ TEST(CommTcp, clientAndServer)
     int clientReceived = 0;
     int clientChannelId = -1;
     QString clientStr;
-    auto clientFunc = [&] (int cid, const QByteArray& msg) {
+    auto clientFunc = [&] (int cid, const QByteArray msg) {
         clientReceived++; clientChannelId = cid; clientStr = QString(msg);
     };
     QObject::connect(&client, &CommTcpClient::received, clientFunc);

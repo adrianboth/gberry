@@ -18,9 +18,9 @@ SOURCES += main.cpp \
     test_commtcp.cpp \
     utils/testtcpserver.cpp \
     test_channelmanager.cpp \
-    utils/testchannelhandler.cpp \
     test_communication_integration.cpp \
-    test_messagereader.cpp
+    test_messagereader.cpp \
+    utils/testchannel.cpp
 
 INCLUDEPATH += ../src
 LIBS += -L../src -lconsolelib
@@ -43,4 +43,4 @@ includeStaticLibrary("gtest", $${GTEST_SRC_DIR}, $${GTEST_BUILD_DIR})
 
 HEADERS += \
     utils/testtcpserver.h \
-    utils/testchannelhandler.h
+    utils/testchannel.h

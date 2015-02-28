@@ -42,7 +42,7 @@ void TcpConnection::socketDisconnect()
     this->deleteLater(); // TODO: we could disconnect and delete in different places but ...
 }
 
-void TcpConnection::readerReceived(int channelId, const QByteArray &data)
+void TcpConnection::readerReceived(int channelId, const QByteArray data)
 {
     emit messageReceived(id, channelId, data);
 }
@@ -53,7 +53,7 @@ void TcpConnection::socketError(QAbstractSocket::SocketError err)
     // QAbstractSocket::RemoteHostClosedError (1)
 }
 
-void TcpConnection::write(int channelId, const QByteArray &data)
+void TcpConnection::write(int channelId, const QByteArray data)
 {
     if (_reader)
         _reader->write(channelId, data);

@@ -54,6 +54,7 @@ void ConnectionManager::applicationConnected(int connectionId)
 
 void ConnectionManager::applicationDisconnected(int connectionId)
 {
+    Q_UNUSED(connectionId);
     closeCurrentApplication();
 }
 
@@ -62,22 +63,22 @@ bool ConnectionManager::activeConnection()
     return _activeConnectionId != -1;
 }
 
-void ConnectionManager::incomingMessage(int connectionId, int channelId, const QByteArray &msg)
+void ConnectionManager::incomingMessage(int connectionId, int channelId, const QByteArray msg)
 {
     if (connectionId != _activeConnectionId)
     {
         // record keeping is not in sync! Suspicious
-        qCritical() << "[ConnectionManager] Discarding message because connectioId is different from active connection:"
+        qCritical() << "[ConnectionManager] Discarding message because connectionId is different from active connection:"
                     << "active =" << _activeConnectionId
                     << ", got =" << connectionId;
 
         return; // skip message
     }
-
+    qDebug() << "### --- ConnectionManager::incomingMessage(); cid=" << channelId;
     _channelManager->processMessage(channelId, msg);
 }
 
-void ConnectionManager::outgoingMessageFromChannel(int channelId, const QByteArray &msg)
+void ConnectionManager::outgoingMessageFromChannel(int channelId, const QByteArray msg)
 {
     if (activeConnection())
     {
@@ -85,9 +86,14 @@ void ConnectionManager::outgoingMessageFromChannel(int channelId, const QByteArr
     }
     else
     {
-        qWarning() << "Message from channel while no active connection:"
+        qWarning() << "[ConnectionManager] Message from channel while no active connection:"
                    << "channelId =" << channelId;
     }
+}
+
+void ConnectionManager::pingOK()
+{
+    _channelManager->reopenPlayerChannels();
 }
 
 // TODO: we can handle pinging here (timer)

@@ -4,10 +4,11 @@
 #include <QObject>
 #include <QMap>
 
-#include "channelhandler.h"
+#include "ichannelparent.h"
+#include "channel.h"
 
 
-class ChannelManager : public QObject
+class ChannelManager : public QObject, IChannelParent
 {
     Q_OBJECT
 public:
@@ -16,11 +17,17 @@ public:
 
     const static int ROOT_CHANNEL = 0;
 
-    void registerHandler(ChannelHandler* handler);
-    ChannelHandler* unregisterHandler(int channelId);
+    void registerChannel(Channel* handler);
 
-    void openChannel(int channelId);
+    // If channel is open then it is closed before unattaching ChannelHandler
+    // from channel.
+    Channel* unregisterChannel(int channelId);
+
+    // Closes channel and sends closing message. ChannelHandler is left
+    // attached to the channel.
     void closeChannel(int channelId);
+
+    QList<int> allChannelIds();
 
 
     // TODO: how channel is opened towards commXX
@@ -32,19 +39,21 @@ public:
     //    - or explicit control message (mobile device away)
     //        -> message to channel
 
+    // from IChannelParent
+    virtual void channelSendMessage(int channelId, const QByteArray msg);
+    virtual void channelCloseReceived(int channelId);
+    virtual void channelDestroyed(int channelId);
 
 signals:
-    void outgoingMessage(int channelId, const QByteArray& msg);
+    void outgoingMessage(int channelId, const QByteArray msg);
     void newChannel(int channelId);
     void channelClosed(int channelId);
 
 public slots:
-    void processMessage(int channelId, const QByteArray& msg);
-    void outgoingMessageFromChannelHandler(const QByteArray& msg);
-    void channelCloseReceived(ChannelHandler* handler);
+    virtual void processMessage(int channelId, const QByteArray msg);
 
 protected:
-    QMap<int, ChannelHandler*> _handlers; // by channelId
+    QMap<int, Channel*> _channels; // by channelId
 
 
 };
