@@ -28,7 +28,11 @@ HEADERS += \
     testutils/waiter.h \
     testutils/qtgtest.h \
     server/websocketserver.h \
-    client/websocketclient.h
+    client/websocketclient.h \
+    server/playersessionmanager.h \
+    server/playersession.h \
+    server/websocketconnection.h \
+    mocks/mock_playersessionmanager.h
 
 lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
@@ -48,4 +52,7 @@ SOURCES += \
     testutils/gtestrunner.cpp \
     testutils/qtgtest.cpp \
     server/websocketserver.cpp \
-    client/websocketclient.cpp
+    client/websocketclient.cpp \
+    server/playersessionmanager.cpp \
+    server/playersession.cpp \
+    server/websocketconnection.cpp

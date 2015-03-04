@@ -8,9 +8,11 @@ class WebsocketClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit WebsocketClient(const QUrl &url, QObject *parent = Q_NULLPTR);
+    explicit WebsocketClient(QObject *parent = Q_NULLPTR);
     ~WebsocketClient();
 
+    void open(const QUrl &url);
+    void close();
     bool isConnected();
     void sendMessage(QString message);
 

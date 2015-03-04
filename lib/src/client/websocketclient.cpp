@@ -2,19 +2,29 @@
 
 #include <QDebug>
 
-WebsocketClient::WebsocketClient(const QUrl &url, QObject *parent) :
+WebsocketClient::WebsocketClient(QObject *parent) :
     QObject(parent),
-    m_url(url),
+    m_url(QUrl("")),
     _isConnected(false)
 {
     connect(&m_webSocket, &QWebSocket::connected, this, &WebsocketClient::onConnected);
     connect(&m_webSocket, &QWebSocket::disconnected, this, &WebsocketClient::closed);
-    qDebug() << "[WebsocketClient] Connection to" << url;
-    m_webSocket.open(QUrl(url));
 }
 
 WebsocketClient::~WebsocketClient()
 {
+}
+
+void WebsocketClient::open(const QUrl &url)
+{
+    m_url = url;
+    qDebug() << "[WebsocketClient] Connection to" << url;
+    m_webSocket.open(QUrl(url));
+}
+
+void WebsocketClient::close()
+{
+    m_webSocket.close();
 }
 
 bool WebsocketClient::isConnected()
@@ -32,7 +42,7 @@ void WebsocketClient::onConnected()
     qDebug() << "WebSocket connected";
     connect(&m_webSocket, &QWebSocket::textMessageReceived,
             this, &WebsocketClient::onTextMessageReceived);
-    m_webSocket.sendTextMessage(QStringLiteral("Hello, world!"));
+    //m_webSocket.sendTextMessage(QStringLiteral("Hello, world!"));
     _isConnected = true;
     emit connected();
 }

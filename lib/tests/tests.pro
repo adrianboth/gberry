@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     utils/testhttpserver.cpp \
     utils/testsystemservices.cpp \
     test_systemservices.cpp \
-    test_websockets.cpp
+    test_websockets.cpp \
+    test_integration_test.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 

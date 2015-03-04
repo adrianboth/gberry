@@ -95,4 +95,6 @@ private:
 
 };
 
+#define WAIT_AND_ASSERT(condition) Waiter::wait([&] () { return condition;} ); ASSERT_TRUE(condition);
+
 #endif // WAITER_H
