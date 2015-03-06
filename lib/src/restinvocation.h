@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QByteArray>
+#include <QJsonDocument>
 
 
 class RESTInvocation : public QObject
@@ -27,6 +28,7 @@ public:
     };
 
     virtual void get(QString invocationPath) = 0;
+    virtual void post(QString invocationPath, QJsonDocument jsondoc) = 0;
 
     virtual InvocationStatus statusCode() const = 0;
     virtual HttpStatus responseHttpStatusCode() const = 0;

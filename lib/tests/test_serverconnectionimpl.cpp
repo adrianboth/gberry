@@ -15,7 +15,7 @@ using ::testing::_;
 #include "serverconnectionimpl.h"
 #include "mocks/mock_restinvocation.h"
 #include "mocks/mock_restinvocationfactory.h"
-#include "utils/signalrecorder.h"
+#include "testutils/signalrecorder.h"
 #include "utils/testsystemservices.h"
 
 

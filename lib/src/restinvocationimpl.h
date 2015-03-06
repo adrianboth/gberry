@@ -26,6 +26,9 @@ public:
     virtual void get(QString invocationPath);
     virtual void get(QUrl url);
 
+    virtual void post(QString invocationPath, QJsonDocument jsondoc);
+    virtual void post(QUrl url, QJsonDocument jsondoc);
+
     virtual RESTInvocation::InvocationStatus statusCode() const;
     virtual RESTInvocation::HttpStatus responseHttpStatusCode() const;
     virtual bool responseAvailable() const;

@@ -1,10 +1,16 @@
 #include <gtest/gtest.h>
 #include "testutils/qtgtest.h"
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include "server/playersessionmanager.h"
 #include "server/playersession.h"
 #include "server/websocketserver.h"
+#include "server/consolerestserver.h"
 #include "client/websocketclient.h"
+#include "restinvocationfactoryimpl.h"
+#include "restinvocation.h"
 #include "testutils/waiter.h"
 
 
@@ -81,6 +87,42 @@ TEST(Websockets, OpenConnectionAndTransmitData)
     // normal closing in desctructors
 }
 
+
+TEST(RESTAPI, OpenGuestSession)
+{
+    ConsoleRESTServer restServer;
+
+    RESTInvocationFactoryImpl factory;
+    factory.setProperty("url_prefix", "http://localhost:8050/console/v1");
+
+    // -- GET
+    RESTInvocation* inv = factory.newInvocation();
+    inv->get("/ping");
+    Waiter::wait([&] () { return false; }, true );
+
+    // TODO: connect to signal and release inv
+
+    // -- POST
+    QJsonObject json;
+    json["name"] = "fooplayer";
+    QJsonDocument jsondoc(json);
+
+    inv = factory.newInvocation();
+    inv->post("/ping", jsondoc);
+
+    Waiter::wait([&] () { return false; }, true );
+
+   // QObject::connect(inv, &RESTInvocation::finishedOK,
+   //                  &okRecorder, &SignalRecorder::signal1_QObjectPointer);
+
+   // QObject::connect(inv, &RESTInvocation::finishedError,
+   //                  &errRecorder, &SignalRecorder::signal1_QObjectPointer);
+    // REST client
+    //  - post login (JSON)
+
+    // server updates to PlayerSessionManager
+    // return to client token id
+}
 
 // on client side Websocket client is connected to Application (qml supported type)
 //  application states

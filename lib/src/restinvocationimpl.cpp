@@ -45,6 +45,26 @@ void RESTInvocationImpl::get(QUrl url)
     _invocationStatus = RESTInvocation::ONGOING;
 }
 
+void RESTInvocationImpl::post(QString invocationPath, QJsonDocument jsondoc)
+{
+    post(_factory->buildUrl(invocationPath), jsondoc);
+}
+
+void RESTInvocationImpl::post(QUrl url, QJsonDocument jsondoc)
+{
+    _url = url;
+    QByteArray body = jsondoc.toJson();
+    QNetworkRequest req(_url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+    _reply = _factory->getQNetworkAccessManager()->post(req, body);
+
+    qDebug("### CONNECTING POST");
+    connect(_reply, &QNetworkReply::finished,
+            this,   &RESTInvocationImpl::httpFinished);
+
+    _invocationStatus = RESTInvocation::ONGOING;
+}
+
 RESTInvocation::InvocationStatus RESTInvocationImpl::statusCode() const
 {
     return _invocationStatus;

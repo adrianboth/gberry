@@ -13,10 +13,8 @@ using ::testing::_;
 
 #include "restinvocationfactoryimpl.h"
 #include "restinvocation.h"
-#include "utils/signalrecorder.h"
+#include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
-
-#include "gberryconsoleserver.h"
 
 
 // TODO: test with internal http server (register action)
