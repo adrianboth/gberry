@@ -45,11 +45,11 @@ public:
 
 };
 
+
 class GuestPlayerSession : public PlayerSession
 {
 public:
-    GuestPlayerSession(QString guestName, QString token) :
-        PlayerSession(-2, guestName, token) {}
+    GuestPlayerSession(QString guestName, QString token);
 };
 
 #endif // PLAYERSESSION_H

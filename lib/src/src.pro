@@ -33,7 +33,10 @@ HEADERS += \
     server/playersession.h \
     server/websocketconnection.h \
     mocks/mock_playersessionmanager.h \
-    server/consolerestserver.h
+    server/consolerestserver.h \
+    client/application.h \
+    client/consoledevice.h \
+    client/consolesessionmanager.h
 
 lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
@@ -57,7 +60,10 @@ SOURCES += \
     server/playersessionmanager.cpp \
     server/playersession.cpp \
     server/websocketconnection.cpp \
-    server/consolerestserver.cpp
+    server/consolerestserver.cpp \
+    client/application.cpp \
+    client/consoledevice.cpp \
+    client/consolesessionmanager.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

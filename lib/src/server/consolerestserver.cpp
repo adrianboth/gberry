@@ -12,8 +12,11 @@
 #include <qhttprequest.h>
 #include <qhttpresponse.h>
 
+#include "server/playersession.h"
 
-ConsoleRESTServer::ConsoleRESTServer()
+
+ConsoleRESTServer::ConsoleRESTServer(PlayerSessionManager &sessionManager) :
+    _sessionManager(sessionManager), _tokenCounter(100)
 {
     _server = new QHttpServer(this);
     connect(_server, SIGNAL(newRequest(QHttpRequest*, QHttpResponse*)),
@@ -70,6 +73,7 @@ void ConsoleRESTServer::handleRequest(QHttpRequest *req, QHttpResponse *resp)
 
 void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp)
 {
+    // at this point http request full body is available
     //QString body = QString::fromLocal8Bit(req->body());
 
     QRegExp exp("^/console/v1/([a-z]+)?$");
@@ -94,6 +98,37 @@ void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp
             resp->setHeader("Content-Type", "application/json");
             resp->writeHead(200);
             resp->end(jsondoc.toJson());
+        }
+        else if (name == "session")
+        {
+            QJsonDocument jsondoc(QJsonDocument::fromJson(req->body()));
+            QJsonObject json = jsondoc.object();
+            if (json.contains("action") && json["action"] == "open_console_session")
+            {
+                // TODO: now just guests
+                QString id = json["id"].toString();
+                QString name = json["name"].toString();
+
+                QString token("abc");
+                token.append(QString::number(_tokenCounter++));
+                GuestPlayerSession session(name, token); // TODO: just fixed token
+                _sessionManager.insertSession(session);
+
+                QJsonObject respJson;
+                respJson["response_type"] = "ok";
+                respJson["token"] = session.token();
+
+                resp->setHeader("Content-Type", "application/json");
+                resp->writeHead(200);
+                resp->end(QJsonDocument(respJson).toJson());
+            }
+            else
+            {
+                // validation error
+                resp->writeHead(403);
+                QString msg("Invalid json message");
+                resp->end(QByteArray(msg.toLatin1()));
+            }
         }
         else
         {

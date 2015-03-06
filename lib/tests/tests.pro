@@ -20,7 +20,9 @@ SOURCES += main.cpp \
     utils/testsystemservices.cpp \
     test_systemservices.cpp \
     test_websockets.cpp \
-    test_integration_test.cpp
+    test_integration_test.cpp \
+    test_rest_communication.cpp \
+    test_playersession.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 

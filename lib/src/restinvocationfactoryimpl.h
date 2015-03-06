@@ -20,7 +20,7 @@ class RESTInvocationFactoryImpl : public RESTInvocationFactory
 
 public:
     RESTInvocationFactoryImpl(QNetworkAccessManager* qnam = NULL);
-    ~RESTInvocationFactoryImpl();
+    virtual ~RESTInvocationFactoryImpl();
 
     QNetworkAccessManager* getQNetworkAccessManager() const { return _qnam; }
     QUrl buildUrl(QString invocationPath) const;

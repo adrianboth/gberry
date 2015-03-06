@@ -13,7 +13,7 @@ public:
 
     void open(const QUrl &url);
     void close();
-    bool isConnected();
+    bool isConnected() const;
     void sendMessage(QString message);
 
 signals:

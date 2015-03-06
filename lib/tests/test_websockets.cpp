@@ -25,7 +25,7 @@ TEST(WebSockets, ConnectDisconnectWithEchoImpl)
               .WillOnce( Return(GuestPlayerSession("Guest1", "abc123")));
 
     WebsocketServer server(&sessionManager, 8888);
-    QObject::connect(&server, &WebsocketServer::onPlayerMessageReceived,
+    QObject::connect(&server, &WebsocketServer::playerMessageReceived,
                      [&] (int playerId, QString msg) { server.sendPlayerMessage(playerId, msg);} );
 
     server.start();

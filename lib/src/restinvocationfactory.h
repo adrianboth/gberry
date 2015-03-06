@@ -14,7 +14,7 @@ class RESTInvocationFactory : public QObject
     Q_OBJECT
 public:
     explicit RESTInvocationFactory(QObject *parent = 0);
-    ~RESTInvocationFactory();
+    virtual ~RESTInvocationFactory();
 
     virtual RESTInvocation* newInvocation() = 0;
 

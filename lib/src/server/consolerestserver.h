@@ -2,6 +2,7 @@
 #define CONSOLERESTSERVER_H
 
 #include <QObject>
+#include "server/playersessionmanager.h"
 
 class QHttpServer;
 class QHttpRequest;
@@ -12,7 +13,7 @@ class ConsoleRESTServer : public QObject
     Q_OBJECT
 
 public:
-    ConsoleRESTServer();
+    ConsoleRESTServer(PlayerSessionManager& sessionManager);
     ~ConsoleRESTServer();
 
 private slots:
@@ -23,6 +24,8 @@ private:
     void handlePostRequest(QHttpRequest *req, QHttpResponse *resp);
 
     QHttpServer * _server;
+    PlayerSessionManager& _sessionManager;
+    int _tokenCounter;
 };
 
 #endif // CONSOLERESTSERVER_H

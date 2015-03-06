@@ -32,3 +32,15 @@ PlayerSession& PlayerSession::operator =(const PlayerSession& other)
     this->_token = other._token;
     return *this;
 }
+
+// ----------------
+
+namespace
+{
+    static int __guestIdCounter = -2;
+}
+
+GuestPlayerSession::GuestPlayerSession(QString guestName, QString token) :
+    PlayerSession(__guestIdCounter--, guestName, token)
+{
+}

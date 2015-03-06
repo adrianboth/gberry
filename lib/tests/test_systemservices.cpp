@@ -2,7 +2,7 @@
 
 #include "systemservices.h"
 
-#include "utils/signalrecorder.h"
+#include "testutils/signalrecorder.h"
 
 
 TEST(SystemServices, defaultInstance)

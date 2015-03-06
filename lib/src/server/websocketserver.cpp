@@ -82,7 +82,7 @@ void WebsocketServer::onNewConnection()
             this, &WebsocketServer::onConnectionMessageReceived);
 
     _connectionByPlayerId[session.playerId()] = connection;
-    emit newPlayerConnection(session.playerId());
+    emit newPlayerConnection(session);
 }
 
 // command
@@ -114,5 +114,5 @@ void WebsocketServer::sendPlayerMessage(int playerId, QString message)
 
 void WebsocketServer::onConnectionMessageReceived(int playerId, QString message)
 {
-    emit onPlayerMessageReceived(playerId, message);
+    emit playerMessageReceived(playerId, message);
 }

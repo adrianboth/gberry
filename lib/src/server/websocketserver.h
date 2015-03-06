@@ -4,6 +4,9 @@
 #include <QObject>
 #include <QMap>
 
+#include "server/playersession.h"
+
+
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
 class WebsocketConnection;
 class PlayerSessionManager;
@@ -22,8 +25,8 @@ public:
 
 signals:
     void playerConnectionClosed(int playerId);
-    void newPlayerConnection(int playerId);
-    void onPlayerMessageReceived(int playerId, QString message);
+    void newPlayerConnection(PlayerSession newSession);
+    void playerMessageReceived(int playerId, QString message);
 
 private slots:
     void onNewConnection();

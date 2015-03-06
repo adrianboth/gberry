@@ -11,7 +11,9 @@
 #include "client/websocketclient.h"
 #include "restinvocationfactoryimpl.h"
 #include "restinvocation.h"
+
 #include "testutils/waiter.h"
+#include "mocks/mock_playersessionmanager.h"
 
 
 TEST(Websockets, OpenConnectionAndTransmitData)
@@ -23,7 +25,7 @@ TEST(Websockets, OpenConnectionAndTransmitData)
 
     int newPlayerId = -1;
     QObject::connect(&server, &WebsocketServer::newPlayerConnection,
-                     [&] (int playerId) { newPlayerId = playerId; } );
+                     [&] (PlayerSession s) { newPlayerId = s.playerId(); } );
 
     int exitPlayerId = -1;
     QObject::connect(&server, &WebsocketServer::playerConnectionClosed,
@@ -31,7 +33,7 @@ TEST(Websockets, OpenConnectionAndTransmitData)
 
     int serverReceivedMsgPlayerId = -1;
     QString serverReceivedMsg;
-    QObject::connect(&server, &WebsocketServer::onPlayerMessageReceived,
+    QObject::connect(&server, &WebsocketServer::playerMessageReceived,
                      [&] (int playerId, QString msg) {
         serverReceivedMsgPlayerId = playerId;
         serverReceivedMsg = msg;
@@ -90,7 +92,8 @@ TEST(Websockets, OpenConnectionAndTransmitData)
 
 TEST(RESTAPI, OpenGuestSession)
 {
-    ConsoleRESTServer restServer;
+    MockPlayerSessionManager mockSessionManager;
+    ConsoleRESTServer restServer(mockSessionManager);
 
     RESTInvocationFactoryImpl factory;
     factory.setProperty("url_prefix", "http://localhost:8050/console/v1");

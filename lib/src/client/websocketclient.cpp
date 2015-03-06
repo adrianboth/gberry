@@ -27,7 +27,7 @@ void WebsocketClient::close()
     m_webSocket.close();
 }
 
-bool WebsocketClient::isConnected()
+bool WebsocketClient::isConnected() const
 {
     return _isConnected;
 }
