@@ -6,6 +6,11 @@
 #include "server/serversidechannelmanager.h"
 #include "server/serversidecontrolchannel.h"
 #include "server/connectionmanager.h"
+#include "server/playerconnectionmanager.h"
+
+#include <server/playersessionmanager.h>
+#include <server/consolerestserver.h>
+#include <server/websocketserver.h>
 
 
 class ServerSetup : public QObject
@@ -18,11 +23,19 @@ public:
 
     void start();
 
+    void startSouthSide();
+    void startNorthSide();
+
     CommTcpServer tcpServer;
     ServerSideChannelManager channelManager;
     ServerSideControlChannel controlChannel;
     ConnectionManager* connectionManager;
 
+    PlayerSessionManager sessionManager;
+    ConsoleRESTServer restServer;
+    WebsocketServer websocketServer;
+
+    PlayerConnectionManager playerConnectionManager;
 };
 
 #endif // SERVERSETUP_H

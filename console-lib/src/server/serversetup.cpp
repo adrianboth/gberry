@@ -1,7 +1,12 @@
 #include "serversetup.h"
 
 ServerSetup::ServerSetup(QObject* parent)
-    : QObject(parent), tcpServer(7777)
+    : QObject(parent),
+      tcpServer(7777),
+      sessionManager(),
+      restServer(sessionManager),
+      websocketServer(&sessionManager),
+      playerConnectionManager(websocketServer, channelManager)
 {
     connectionManager = new ConnectionManager(&tcpServer, &channelManager, &controlChannel, this);
 
@@ -24,6 +29,9 @@ ServerSetup::ServerSetup(QObject* parent)
 
     channelManager.registerChannel(&controlChannel);
 
+    // -- setup north side
+
+    // ... nothing specific yet
 }
 
 ServerSetup::~ServerSetup()
@@ -34,5 +42,17 @@ ServerSetup::~ServerSetup()
 
 void ServerSetup::start()
 {
+    startSouthSide();
+    startNorthSide();
+}
+
+void ServerSetup::startSouthSide()
+{
     tcpServer.open();
+}
+
+
+void ServerSetup::startNorthSide()
+{
+    websocketServer.start();
 }
