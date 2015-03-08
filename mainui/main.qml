@@ -12,7 +12,6 @@ Window {
 
         property string numberOfPlayers: playersManager.numberOfPlayers
         property string playersText: "Players: " + playersManager.numberOfPlayers
-        //property string messageText: "..."
         property string commsStatusText: comms.isOpen() ? "OK" : "NOK"
 
         mouseArea.onClicked: {
@@ -24,32 +23,41 @@ Window {
     MessageBoard {
         id: messageBoard
 
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 25
+        anchors.rightMargin: 25
     }
 
     Timer {
          interval: 500; running: true; repeat: true
-         onTriggered: time.text = Date().toString()
+         onTriggered: {
+             time.text = Date().toString()
+             ui.commsStatusText = comms.isOpen() ? "OK" : "NOK"
+         }
      }
 
-     Text { id: time
-     anchors.bottom: parent
+     Text {
+         id: time
+         anchors.top: parent.top
+         anchors.right: parent.right
      }
 
     function onPlayerIn(pid)
     {
         console.log("New player in: id = " + pid)
-        var pname = playersManager.playerName(pid)
-        ui.messageText = "New player in: " + pname + "(" + pid + ")"
+        messageBoard.insertPlayerMessage(pid, "New player")
     }
     function onPlayerOut(pid)
     {
         console.log("Player left: id = " + pid)
-        ui.messageText = "Player left: id = " + pid
+        messageBoard.insertPlayerMessage(pid, "Player left")
     }
     function onPlayerMessageReceived(pid, data)
     {
         console.log("Player message: id = " + pid)
-        ui.messageText = "" + pid + ": " + data
+        messageBoard.insertPlayerMessage(pid, data)
     }
 
     Component.onCompleted: {

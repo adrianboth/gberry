@@ -18,17 +18,6 @@ Rectangle {
             anchors.bottom: parent.bottom
         }
 
-        Text {
-            id: message
-            x: 356
-            y: 585
-            text: messageText
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 0
-            font.pixelSize: 12
-        }
-
         Row {
             id: row1
             height: 400
