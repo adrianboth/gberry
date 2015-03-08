@@ -22,7 +22,9 @@ SOURCES += main.cpp \
     test_websockets.cpp \
     test_integration_test.cpp \
     test_rest_communication.cpp \
-    test_playersession.cpp
+    test_playersession.cpp \
+    test_log.cpp \
+    utils/testlogmsghandler.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 
@@ -34,4 +36,5 @@ PRE_TARGETDEPS += ../src/libgberrylib.a
 
 HEADERS += \
     utils/testhttpserver.h \
-    utils/testsystemservices.h
+    utils/testsystemservices.h \
+    utils/testlogmsghandler.h

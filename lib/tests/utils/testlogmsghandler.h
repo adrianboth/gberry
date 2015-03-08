@@ -3,12 +3,12 @@
 
 #include <QString>
 
-#include <ilogmsghandler.h>
+#include <log/ilogmsghandler.h>
 
 class TestLogMsgHandler : public ILogMsgHandler
 {
 public:
-    TestLogMsgHandler();
+    TestLogMsgHandler(int logLevel = Log::TRACE);
 
     QString getLatestMsg() const { return lastLogMsg.text; }
 
