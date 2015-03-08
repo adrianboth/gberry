@@ -33,7 +33,7 @@ WebsocketServer::~WebsocketServer()
 void WebsocketServer::start()
 {
     if (_server->listen(QHostAddress::Any, _port)) {
-        qDebug() << "Websocket server listening on port" << _port;
+        qDebug() << "[WebsocketServer] Listening on 0.0.0.0:" << _port;
         connect(_server, &QWebSocketServer::newConnection,
                 this, &WebsocketServer::onNewConnection);
 

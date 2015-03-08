@@ -36,7 +36,11 @@ HEADERS += \
     server/consolerestserver.h \
     client/application.h \
     client/consoledevice.h \
-    client/consolesessionmanager.h
+    client/consolesessionmanager.h \
+    log/ilogmsghandler.h \
+    log/log.h \
+    log/logcontrol.h \
+    log/stdoutlogmsghandler.h
 
 lib_headers.path    = $${INSTALLDIR}/include
 lib_headers.files   += $$HEADERS
@@ -63,7 +67,10 @@ SOURCES += \
     server/consolerestserver.cpp \
     client/application.cpp \
     client/consoledevice.cpp \
-    client/consolesessionmanager.cpp
+    client/consolesessionmanager.cpp \
+    log/log.cpp \
+    log/logcontrol.cpp \
+    log/stdoutlogmsghandler.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

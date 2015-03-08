@@ -23,8 +23,9 @@ ConsoleRESTServer::ConsoleRESTServer(PlayerSessionManager &sessionManager) :
             this, SLOT(handleRequest(QHttpRequest*, QHttpResponse*)));
 
     // TODO: configurable port
-    _server->listen(QHostAddress::Any, 8050);
-    qDebug() << "SERVER: Listening on  0.0.0.0:8050";
+    int port = 8050;
+    _server->listen(QHostAddress::Any, port);
+    qDebug() << "[ConsoleRESTServer]: Listening on  0.0.0.0:" << port;
 }
 
 ConsoleRESTServer::~ConsoleRESTServer()

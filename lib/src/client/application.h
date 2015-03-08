@@ -17,12 +17,13 @@ public:
     explicit Application(QObject *parent = 0);
     ~Application();
 
-    void loginGuest(QString guestName);
-    void openConsoleConnection(ConsoleDevice console);
-    void closeConsoleConnection();
-    bool isConsoleConnectionOpen() const;
+    Q_INVOKABLE void loginGuest(QString guestName);
+    Q_INVOKABLE void openConsoleConnection(ConsoleDevice console);
+    Q_INVOKABLE void openConsoleConnection(QString hostName);
+    Q_INVOKABLE void closeConsoleConnection();
+    Q_INVOKABLE bool isConsoleConnectionOpen() const;
 
-    void sendMessage(QString message);
+    Q_INVOKABLE void sendMessage(QString message);
 
 signals:
     void consoleConnectionOpened();

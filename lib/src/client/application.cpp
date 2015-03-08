@@ -30,6 +30,14 @@ void Application::openConsoleConnection(ConsoleDevice console)
     _consoleSession.open(console, _currentPlayerName);
 }
 
+void Application::openConsoleConnection(QString hostName)
+{
+    // TODO: temporary until we know better
+    // TODO: does console device has proper copy constructors
+
+    _consoleSession.open(ConsoleDevice(hostName), _currentPlayerName);
+}
+
 void Application::closeConsoleConnection()
 {
     _consoleSession.close();
