@@ -1,5 +1,7 @@
 #include "channel.h"
 
+#define LOG_AREA "Channel"
+#include "log/log.h"
 
 Channel::Channel(
         int channelId,
@@ -11,7 +13,7 @@ Channel::Channel(
 
 Channel::~Channel()
 {
-    qDebug("### ~ChannelHandler");
+    TRACE("~Channel");
     if (_channelParent)
         _channelParent->channelDestroyed(_id);
 }
@@ -19,6 +21,11 @@ Channel::~Channel()
 void Channel::setChannelHandlerParent(IChannelParent *channelParent)
 {
     _channelParent = channelParent;
+}
+
+void Channel::detachChannelHandlerParent()
+{
+    _channelParent = NULL;
 }
 
 int Channel::channelId()

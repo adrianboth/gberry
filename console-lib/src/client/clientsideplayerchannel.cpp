@@ -1,7 +1,7 @@
 #include "clientsideplayerchannel.h"
 
-ClientSidePlayerChannel::ClientSidePlayerChannel(int channelId, QObject* qparent) :
-    PlayerChannel(channelId, NULL, qparent)
+ClientSidePlayerChannel::ClientSidePlayerChannel(int channelId, PlayerMetadata& metdata, QObject* qparent) :
+    PlayerChannel(channelId, NULL, qparent), _playerMeta(metdata)
 {
 }
 

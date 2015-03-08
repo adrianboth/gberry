@@ -31,6 +31,7 @@ void CommTcpServer::open()
         return;
     }
 
+    qDebug() << "[CommTcpServer] Listening on 0.0.0.0:" << _port;
     connect(_server, &QTcpServer::newConnection,
             this,    &CommTcpServer::newConnection);
 }

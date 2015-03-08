@@ -50,26 +50,28 @@ public:
 class PlayersManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(int numberOfPlayers READ numberOfPlayers NOTIFY numberOfPlayersChanged)
 
 public:
     explicit PlayersManager(QObject *parent = 0);
     ~PlayersManager();
 
     int numberOfPlayers() const;
-    QList<int> playerIds() const;
-    QString playerName(int playerId) const;
+    Q_INVOKABLE QList<int> playerIds() const;
+    Q_INVOKABLE QString playerName(int playerId) const;
 
     // TODO: for now player id matches to channel id, but later it should be different
     //       as player might disconnect for awhile (in phone, e.g.) but then come
     //       back and channel id will change -> game might have kept some information
     //       stored and player can continue if player ids match
 
-    void sendPlayerMessage(int playerId, QByteArray msg);
+    Q_INVOKABLE void sendPlayerMessage(int playerId, QByteArray msg);
 
 signals:
     void playerIn(int playerId);
     void playerOut(int playerId);
-    void playerMessageReceived(int playerId, QByteArray msg);
+    void numberOfPlayersChanged();
+    void playerMessageReceived(int playerId, QByteArray msg); // TODO: might need to be string
 
 public slots:
     void newPlayer(PlayerChannel* channel, PlayerMetadata metadata);

@@ -1,6 +1,8 @@
 #include "serversidechannelmanager.h"
 #include "serversideplayerchannel.h"
 
+#define LOG_AREA "ChannelManager"
+#include "log/log.h"
 
 ServerSideChannelManager::ServerSideChannelManager(QObject* parent) :
     ChannelManager(parent), _channelIdCount(1)
@@ -31,6 +33,7 @@ void ServerSideChannelManager::applicationClosed()
 
 PlayerChannel* ServerSideChannelManager::openPlayerChannel(PlayerMetadata meta)
 {
+    DEBUG("Open new player channel: pid=" << meta.playerId);
     ServerSidePlayerChannel* channel = new ServerSidePlayerChannel(nextFreeChannelId(), meta);
     registerChannel(channel);
     channel->open();
@@ -39,6 +42,8 @@ PlayerChannel* ServerSideChannelManager::openPlayerChannel(PlayerMetadata meta)
 
 void ServerSideChannelManager::reopenPlayerChannels()
 {
+    DEBUG("Reopening all player channels");
+
     foreach(int cid, allChannelIds())
     {
         // currently we assume all other than root are player channels

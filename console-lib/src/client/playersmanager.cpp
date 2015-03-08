@@ -49,6 +49,7 @@ void PlayersManager::newPlayer(PlayerChannel* channel, PlayerMetadata metadata)
 
         _playerCount++; // TODO: could be removed
         emit playerIn(metadata.playerId);
+        emit numberOfPlayersChanged();
     }
 }
 
@@ -66,6 +67,7 @@ void PlayersManager::playerExit(int channelId)
         // TODO: would game need meta data still after exit?
         //       - principle yes (if he will come back) but whose responsibility is to store info?
         emit playerOut(playerId);
+        emit numberOfPlayersChanged();
     }
 }
 

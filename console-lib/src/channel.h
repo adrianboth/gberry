@@ -23,6 +23,7 @@ public:
     Channel(int channelId, IChannelParent* channelParent = 0, QObject* qParent = 0);
     virtual ~Channel();
     void setChannelHandlerParent(IChannelParent* channelParent);
+    void detachChannelHandlerParent();
 
     int channelId();
 
@@ -30,7 +31,7 @@ public:
     virtual void setState(ChannelState newState);
     virtual void reopen() = 0;
 
-    virtual bool isOpen();
+    Q_INVOKABLE virtual bool isOpen();
     virtual void close();
 
 public slots:

@@ -38,8 +38,7 @@ void MessageReader::socketReadyRead()
 
     _data.clear();
     in >> _data;
-    //_data.append(_socket->r)
-    qDebug() << "### MessageReader: cid=" << _channelId << QString(_data);
+    //qDebug() << "### MessageReader: cid=" << _channelId << QString(_data);
     emit received(_channelId, _data);
 
     _blockSize = 0;
@@ -65,5 +64,5 @@ void MessageReader::write(int channelId, const QByteArray msg)
     out << (quint32)(block.size() - sizeof(quint32)*2);
 
     _socket->write(block);
-    qDebug() << "### MessageReader wrote: " << QString(msg);
+    //qDebug() << "### MessageReader wrote: " << QString(msg);
 }

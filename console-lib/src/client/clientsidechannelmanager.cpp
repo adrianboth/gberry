@@ -4,7 +4,7 @@
 #include <QJsonObject>
 #include <QDebug>
 
-#include "server/serversideplayerchannel.h"
+#include "client/clientsideplayerchannel.h"
 
 
 ClientSideChannelManager::ClientSideChannelManager(QObject* parent) :
@@ -38,8 +38,8 @@ void ClientSideChannelManager::processMessage(int channelId, const QByteArray ms
 
             // note controls created by ChannelManager will be deleted when
             // ChannelManager is destroyed (if not specifically before that)
-            ServerSidePlayerChannel* playerControl =
-                    new ServerSidePlayerChannel(channelId, playerMeta);
+            ClientSidePlayerChannel* playerControl =
+                    new ClientSidePlayerChannel(channelId, playerMeta);
             registerChannel(playerControl);
 
             playerControl->setState(Channel::CHANNEL_OPEN);
@@ -71,7 +71,7 @@ void ClientSideChannelManager::channelCloseReceived(int channelId)
     // on client side we delete channels
     Channel* handler = unregisterChannel(channelId);
     if (handler)
-        delete handler;
+        handler->deleteLater();
 
     ChannelManager::channelCloseReceived(channelId);
 }

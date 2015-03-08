@@ -5,6 +5,8 @@
 #include <QJsonObject>
 #include "playerchannel.h"
 
+#define LOG_AREA "ChannelManager"
+#include "log/log.h"
 
 ChannelManager::ChannelManager(QObject *parent) :
     QObject(parent)
@@ -14,7 +16,7 @@ ChannelManager::ChannelManager(QObject *parent) :
 
 ChannelManager::~ChannelManager()
 {
-    qDebug("### ~ChannelManager");
+    TRACE("~ChannelManager");
 }
 
 QList<int> ChannelManager::allChannelIds()
@@ -38,12 +40,13 @@ Channel* ChannelManager::unregisterChannel(int channelId)
 {
     if (_channels.contains(channelId))
     {
-        qDebug("### unregistering handler");
+        TRACE("Unregistering handler: cid=" << channelId);
         Channel* handler = _channels[channelId];
         if (handler->state() == Channel::CHANNEL_OPEN)
             closeChannel(channelId);
 
         _channels.remove(channelId);
+        handler->detachChannelHandlerParent(); // no more callbacks
         return handler;
     }
     return NULL;
@@ -51,7 +54,8 @@ Channel* ChannelManager::unregisterChannel(int channelId)
 
 void ChannelManager::processMessage(int channelId, const QByteArray msg)
 {
-    qDebug() << "### ChannelManager::processMessage: cid=" << channelId;
+    TRACE("processMessage(): cid=" << channelId << ", data=" << msg);
+
     if (_channels.contains(channelId))
     {
         Channel* handler = _channels[channelId];
@@ -62,7 +66,6 @@ void ChannelManager::processMessage(int channelId, const QByteArray msg)
             handler->receiveMessage(msg);
         }
     }
-    qDebug() << "### OUT ChannelManager::processMessage: cid=" << channelId;
 }
 
 void ChannelManager::channelSendMessage(int channelId, const QByteArray msg)
