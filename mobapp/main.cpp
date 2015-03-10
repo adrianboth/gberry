@@ -8,6 +8,8 @@
 
 #include "serverconnectionmodel.h"
 
+#include "client/application.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +32,7 @@ int main(int argc, char *argv[])
                      &model,            &ServerConnectionModel::serverConnected);
     QObject::connect(&serverConnection, &ServerConnectionImpl::disconnected,
                      &model,            &ServerConnectionModel::serverDisconnected);
-
+/*
     RESTInvocationFactoryImpl factory2;
     factory2.setProperty("url_prefix", "http://localhost:8050/console/v1");
 
@@ -44,14 +46,26 @@ int main(int argc, char *argv[])
                      &model,            &ServerConnectionModel::consoleConnected);
     QObject::connect(&consoleConnection, &ServerConnectionImpl::disconnected,
                      &model,            &ServerConnectionModel::consoleDisconnected);
+*/
+    mobile::Application mobapp;
+
+    //mobile::ConsoleDevice console("localhost");
+
+    //mobapp.loginGuest("GuestFoo");
+    //mobapp.openConsoleConnection(console);
+
+
+    //WAIT_CUSTOM_AND_ASSERT(northApplication1.isConsoleConnectionOpen(), 5000, 50);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("app", &model);
+    engine.rootContext()->setContextProperty("mobapp", &mobapp);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    serverConnection.open();
-    consoleConnection.open();
+    // TODO: temp disable
+    //serverConnection.open();
+    //consoleConnection.open();
 
     return app.exec();
 }

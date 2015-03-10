@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick network
+QT += qml quick network websockets
 
 CONFIG += c++11
 
