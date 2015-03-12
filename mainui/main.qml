@@ -1,23 +1,24 @@
 import QtQuick 2.4
 import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.2
 
 Window {
+    id: root
     visible: true
     width: 800
     height: 600
 
+    InfoBar {
+        id: infobar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        z: 100
+    }
+
     MainForm {
         id: ui
         anchors.fill: parent
-
-        property string numberOfPlayers: playersManager.numberOfPlayers
-        property string playersText: "Players: " + playersManager.numberOfPlayers
-        property string commsStatusText: comms.isOpen() ? "OK" : "NOK"
-
-        mouseArea.onClicked: {
-            Qt.quit();
-        }
-
     }
 
     MessageBoard {
@@ -30,19 +31,12 @@ Window {
         anchors.rightMargin: 25
     }
 
-    Timer {
-         interval: 500; running: true; repeat: true
-         onTriggered: {
-             time.text = Date().toString()
-             ui.commsStatusText = comms.isOpen() ? "OK" : "NOK"
-         }
-     }
+    Menu {
+        id: menu
+        focus: true
+        anchors.centerIn: ui
+    }
 
-     Text {
-         id: time
-         anchors.top: parent.top
-         anchors.right: parent.right
-     }
 
     function onPlayerIn(pid)
     {
@@ -58,11 +52,80 @@ Window {
     {
         console.log("Player message: id = " + pid)
         messageBoard.insertPlayerMessage(pid, data)
+
+        var js  = JSON.parse(data)
+        if (js["action"] === "SelectBasicControlAction")
+        {
+            if (js["id"] === "Up")
+                menu.moveFocusToNext()
+            else if (js["id"] === "Down")
+                menu.moveFocusToPrevious()
+            else if (js["id"] === "OK")
+                menu.selectCurrent()
+        }
+        if (js["action"] === "ConfirmationQuestionResponse")
+        {
+            // TODO: case when multiple possible confirmations
+            if (exitConfirmationDialog.visible) {
+                if (js["ref"] === "Yes") {
+                    // this is not in official docs
+                    exitConfirmationDialog.click(StandardButton.Yes)
+                }
+                if (js["ref"] === "No") {
+                    exitConfirmationDialog.click(StandardButton.No)
+                }
+            }
+
+        }
+    }
+
+    function playGameSelected() {
+        console.debug("Play selected")
+    }
+    function exitGameSelected() {
+        console.debug("Exit selected")
+
+        // as demo send confirmation to clients
+
+        // TODO: how localization of these texts would go?
+
+        var js = {action: "ConfirmationQuestion",
+                  title: "Confirmation",
+                  text: "Are you sure to exit this game?",
+                  options: [{id: "Yes", text: "Yes"}, {id: "No", text: "No"}]
+                 }
+
+        // TODO: should be send only for controlling player but that is not yet implemented)
+        //    * Now for first player
+
+        // TODO: gets really strange player id list (not list at all??)
+        playersManager.sendPlayerMessage(playersManager.playerIds(), JSON.stringify(js))
+
+        // show also on big screen the question
+        exitConfirmationDialog.visible = true
+
+        // TODO: disable everything else -> record state
+    }
+
+    MessageDialog {
+        id: exitConfirmationDialog
+        visible: false // initial state
+        title: "Exit Confirmation"
+        text: "Are you sure to exit this game?"
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onNo: exitConfirmationDialog.close()
+        onYes: Qt.quit()
     }
 
     Component.onCompleted: {
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
+
+        menu.playGameSelected.connect(root.playGameSelected)
+        menu.exitGameSelected.connect(root.exitGameSelected)
+
+
+        //menu.forceActiveFocus()
     }
 }

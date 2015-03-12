@@ -18,27 +18,6 @@ Rectangle {
             anchors.bottom: parent.bottom
         }
 
-        Row {
-            id: row1
-            height: 400
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
 
-            Text {
-                id: players
-                text: playersText
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-
-            Text {
-                id: commsStatus
-                text: qsTr("Comms: ") + commsStatusText
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                font.pixelSize: 12
-            }
-        }
     }
 }
