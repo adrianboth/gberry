@@ -8,5 +8,6 @@
         <file>TopBar.qml</file>
         <file>BasicControls.qml</file>
         <file>DeveloperLog.js</file>
+        <file>BasicControlsButton.qml</file>
     </qresource>
 </RCC>

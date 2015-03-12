@@ -2,171 +2,60 @@ import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
 
+// TODO: using mousearea (just for history), but didn't realize that may have blocked normal press feedback
+//       (button haven't received events)
+
 Rectangle {
     width: 100
     height: 62
 
-    signal upPressed()
-    signal leftPressed()
-    signal rightPressed()
-    signal downPressed()
-    signal okPressed()
+    id: basicControls
 
-    Button {
+    // "Up", "Down", "Right", "Left", "OK"
+    signal buttonPressed(var buttonID)
+
+    BasicControlsButton {
         id: ok
-        width: 50 // TODO: how to adjust to text size
-        height:50
+        buttonText: "OK"
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-
-        Text {
-            text: "OK"
-            anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                okPressed()
-            }
-        }
+        onButtonPressed: basicControls.buttonPressed("OK")
     }
 
-    Button {
+    BasicControlsButton {
         id: up
-        property alias control: up
-        property string buttonGradientStartColor: "#eee"
-        property string buttonGradientStopColor: "#ccc"
-
-        //GradientStop { position: 0 ; color: up.pressed ? "#ccc" : "#eee" }
-        //GradientStop { position: 1 ; color: up.pressed ? "#aaa" : "#ccc" }
-        width: 50 // TODO: how to adjust to text size
-        height: 50
+        buttonText: "U"
         anchors.bottom: ok.top
         anchors.horizontalCenter: ok.horizontalCenter
         anchors.bottomMargin: 15
-        style: ButtonStyle {
-            background: Rectangle {
-                        implicitWidth: 100
-                        implicitHeight: 25
-                        border.width: control.activeFocus ? 2 : 1
-                        border.color: "#888"
-                        radius: 4
-                        gradient: Gradient {
-                            GradientStop { position: 0 ; color: up.buttonGradientStartColor }
-                            GradientStop { position: 1 ; color: up.buttonGradientStopColor }
-                        }
-                    }
-        }
-        //GradientStop { position: 0 ; color: up.pressed ? "#ccc" : "#eee" }
-        //GradientStop { position: 1 ; color: up.pressed ? "#aaa" : "#ccc" }
-        Text {
-            text: "U"
-            anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                upPressed()
-                up.buttonGradientStartColor = "#ccc"
-                up.buttonGradientStopColor = "#aaa"
-                upPressedTimer.running = true
-            }
-        }
-        Timer {
-            id: upPressedTimer
-            interval: 100
-            running: false
-            repeat: false
-            onTriggered: { up.buttonGradientStartColor = "#eee"
-                           up.buttonGradientStopColor = "#ccc"
-                         }
-        }
-
-        /*
-        style: ButtonStyle {
-            background: Rectangle {
-
-            }
-        }*/
-
-        // TODO: press animation (feedback)
-
+        onButtonPressed: basicControls.buttonPressed("Up")
     }
 
-    Button {
+    BasicControlsButton {
         id: right
-        width: 50 // TODO: how to adjust to text size
-        height:50
+        buttonText: "R"
         anchors.left: ok.right
         anchors.verticalCenter: ok.verticalCenter
         anchors.leftMargin: 15
-
-        Text {
-            text: "R"
-            anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                rightPressed()
-            }
-        }
+        onButtonPressed: basicControls.buttonPressed("Right")
     }
 
-    Button {
+    BasicControlsButton {
         id: left
-        width: 50 // TODO: how to adjust to text size
-        height:50
+        buttonText: "L"
         anchors.right: ok.left
         anchors.verticalCenter: ok.verticalCenter
         anchors.rightMargin: 15
-
-        Text {
-            text: "L"
-            anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                leftPressed()
-            }
-        }
-
+        onButtonPressed: basicControls.buttonPressed("Left")
     }
 
-    Button {
+    BasicControlsButton {
         id: down
-        width: 50 // TODO: how to adjust to text size
-        height:50
         anchors.top: ok.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.topMargin: 15
-
-        Text {
-            text: "D"
-            anchors.fill: parent
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
-        }
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                downPressed()
-            }
-        }
+        buttonText: "D"
+        onButtonPressed: basicControls.buttonPressed("Down")
     }
 
 }

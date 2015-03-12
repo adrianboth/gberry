@@ -5,6 +5,7 @@ import QtQuick.Controls 1.2
 
 import "DeveloperLog.js" as Log
 
+
 Window {
     visible: true
     width: 320
@@ -15,11 +16,24 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
+
+        Button {
+            id: bc
+            text: "BC"
+            onPressedChanged: {
+                if (bc.pressed) {
+                    basicControls.visible = !basicControls.visible
+                    ui.visible = !ui.visible
+                }
+
+            }
+
+        }
     }
 
     MainForm {
         id: ui
-        visible: false
+        visible: true
         anchors.top: topbar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -61,43 +75,43 @@ Window {
 
     BasicControls {
         id: basicControls
+        visible: false
         anchors.top: topbar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: bottombar.top
 
         Component.onCompleted: {
-            basicControls.upPressed.connect(function () {basicControlButtonPressed("Up")})
-            basicControls.rightPressed.connect(function () {basicControlButtonPressed("Right")})
-            basicControls.downPressed.connect(function () {basicControlButtonPressed("Down")})
-            basicControls.leftPressed.connect(function () {basicControlButtonPressed("Left")})
-            basicControls.okPressed.connect(function () {basicControlButtonPressed("OK")})
+            basicControls.buttonPressed.connect(function (buttonID) {basicControlButtonPressed(buttonID)})
         }
     }
 
-    /*
+
     MessageDialog {
         id: msgDiag
-        title: "May I have your attention please"
-        text: "It's so cool that you are using Qt Quick."
-        Component.onCompleted: visible = true
+        visible: false
+
+        standardButtons: StandardButton.Yes | StandardButton.No
+
+        onYes: {
+            msgDiag.visible = false
+            var js = { action: "ConfirmationQuestionResponse",
+                       ref: "Yes" }
+            mobapp.sendMessage(JSON.stringify(js))
+        }
+        onNo: {
+            msgDiag.visible = false
+            var js = { action: "ConfirmationQuestionResponse",
+                       ref: "No" }
+            mobapp.sendMessage(JSON.stringify(js))
+        }
     }
-    */
-/*
-    Rectangle {
-        id: bottombar
-        opacity: 0.5
-        color: "blue"
-        height: 25
-        anchors.left: parent.left
-        anchors.right: parent. right
-        anchors.bottom: parent.bottom
-    }
-*/
+
+
     StatusBar {
         id: bottombar
         anchors.left: parent.left
-        anchors.right: parent. right
+        anchors.right: parent.right
         anchors.bottom: parent.bottom
     }
 
@@ -114,6 +128,20 @@ Window {
         mobapp.sendMessage("hello world")
     }
 
+    function onPlayerMessageReceived(data) {
+        console.log("PLAYER MESSAGE: " + data)
+
+        var js = JSON.parse(data)
+        if (js["action"] === "ConfirmationQuestion") {
+            msgDiag.title = js["title"]
+            msgDiag.text = js["text"]
+            // TODO: Use StandardButtons or custom impl for handling option (Yes/No),
+            //       now using built in
+            msgDiag.visible = true
+        }
+    }
+
+
     function updateTexts()
     {
         ui.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
@@ -128,5 +156,7 @@ Window {
         app.serverStatusChanged.connect(updateTexts)
         app.consoleCounterChanged.connect(updateTexts)
         app.consoleStatusChanged.connect(updateTexts)
+
+        mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
     }
 }
