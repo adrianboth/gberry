@@ -2,6 +2,9 @@ import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 
+import "AppBoxMaster.js" as AppBoxMaster
+
+
 Window {
     id: root
     visible: true
@@ -81,6 +84,22 @@ Window {
 
     function playGameSelected() {
         console.debug("Play selected")
+        // TODO: appbox version handshaking at some point
+
+        var js = {action: "DefineAppBox",
+                  data: AppBoxMaster.dataStr()}
+
+        playersManager.sendAllPlayersMessage(JSON.stringify(js))
+
+        js = {action: "ShowAppBox"}
+        playersManager.sendAllPlayersMessage(JSON.stringify(js))
+
+        // TODO: waiting response from player (every one ready)
+
+        // TODO: create timer to enable buttons
+        // TODO: wait button presses -> !inform whose came first
+        // TODO:   - ?? how to move to next
+
     }
     function exitGameSelected() {
         console.debug("Exit selected")
@@ -117,6 +136,7 @@ Window {
         onYes: Qt.quit()
     }
 
+
     Component.onCompleted: {
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
@@ -125,7 +145,8 @@ Window {
         menu.playGameSelected.connect(root.playGameSelected)
         menu.exitGameSelected.connect(root.exitGameSelected)
 
-
         //menu.forceActiveFocus()
+
+        AppBoxMaster.loadAppBoxResources()
     }
 }

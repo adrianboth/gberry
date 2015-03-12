@@ -5,5 +5,7 @@
         <file>MessageBoard.qml</file>
         <file>Menu.qml</file>
         <file>InfoBar.qml</file>
+        <file>appbox/AppBox.qml</file>
+        <file>AppBoxMaster.js</file>
     </qresource>
 </RCC>
