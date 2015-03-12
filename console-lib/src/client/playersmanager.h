@@ -66,6 +66,8 @@ public:
     //       stored and player can continue if player ids match
 
     Q_INVOKABLE void sendPlayerMessage(int playerId, QByteArray msg);
+    Q_INVOKABLE void sendAllPlayersMessage(QByteArray msg);
+
 
 signals:
     void playerIn(int playerId);

@@ -79,6 +79,14 @@ void PlayersManager::sendPlayerMessage(int playerId, QByteArray msg)
     }
 }
 
+void PlayersManager::sendAllPlayersMessage(QByteArray msg)
+{
+    foreach(int pid, _channelIdsByPlayerIds.keys())
+    {
+        _channelsByPlayerId[pid]->sendPlayerMessage(msg);
+    }
+}
+
 void PlayersManager::playerMessage(int channelId, QByteArray msg)
 {
     if (_playerIdsByChannelId.contains(channelId))
