@@ -9,5 +9,6 @@
         <file>BasicControls.qml</file>
         <file>DeveloperLog.js</file>
         <file>BasicControlsButton.qml</file>
+        <file>AppBox.js</file>
     </qresource>
 </RCC>

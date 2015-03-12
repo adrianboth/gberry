@@ -2,8 +2,10 @@ import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
+import QtQuick.Layouts 1.1
 
 import "DeveloperLog.js" as Log
+import "AppBox.js" as AppBox
 
 
 Window {
@@ -17,17 +19,59 @@ Window {
         anchors.right: parent.right
         anchors.top: parent.top
 
-        Button {
-            id: bc
-            text: "BC"
-            onPressedChanged: {
-                if (bc.pressed) {
-                    basicControls.visible = !basicControls.visible
-                    ui.visible = !ui.visible
-                }
+        RowLayout {
+            spacing: 2
 
+            Button {
+                id: bc
+                text: "BC"
+                onPressedChanged: {
+                    if (bc.pressed) {
+                        basicControls.visible = !basicControls.visible
+                        ui.visible = !basicControls.visible
+                        appbox.visible = false
+                    }
+
+                }
             }
 
+            Button {
+                id: test
+                text: "T1"
+                onPressedChanged: {
+                    if (test.pressed) {
+                        appbox.visible = !appbox.visible
+                    }
+                }
+            }
+            Button {
+                id: test2
+                text: "T2"
+                onPressedChanged: {
+                    if (test2.pressed) {
+                        var qmlContent2 = 'import QtQuick 2.0;\
+            Rectangle {\
+            color: "lightgrey";\
+            border.width: 1;\
+            border.color: "black";\
+            width: 200;\
+            height: 50;\
+            anchors.centerIn: parent;\
+            Text {\
+              text: "CONTENT";\
+              anchors.centerIn: parent;\
+            }\
+            signal outgoingMessage(var data);\
+            function incomingMessage(data) {\n\
+            console.debug("### APPBOX MSG55555: " + data)\n\
+            outgoingMessage("got appbox msg")\n\
+            }\n\
+            }'
+                        AppBox.createContent(qmlContent2) // for testing
+                        AppBox.showContent()
+                    }
+                }
+            }
         }
     }
 
@@ -107,6 +151,54 @@ Window {
         }
     }
 
+    Rectangle {
+        id: appbox
+        visible: false
+        color: "pink"
+        anchors.top: topbar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: bottombar.top
+
+        Component.onCompleted: {
+            AppBox.initialiaze(appbox)
+
+            var qmlContent = 'import QtQuick 2.0; Rectangle {color: "red"; width: 20; height: 20}'
+            var qmlContent2 = 'import QtQuick 2.0;\
+Rectangle {\
+color: "lightgrey";\
+border.width: 1;\
+border.color: "black";\
+width: 200;\
+height: 50;\
+anchors.centerIn: parent;\
+Text {\
+  text: "CONTENT";\
+  anchors.centerIn: parent;\
+}\
+signal outgoingMessage(var data);\
+function incomingMessage(data) {\n\
+console.debug("### APPBOX MSG1111: " + data)\n\
+outgoingMessage("got appbox msg")\n\
+}\n\
+}'
+            AppBox.connectOutgoingMessageTo(receiveFromAppBox)
+            //AppBox.createContent(qmlContent2) // for testing
+
+            //AppBox.showContent()
+            //AppBox.releaseContent()
+            //AppBox.showContent()
+            //AppBox.connectOutgoingMessageTo(receiveFromAppBox)
+            //AppBox.sendMessage("hello appbox")
+        }
+
+        function receiveFromAppBox(message) {
+            console.debug("### RECEIVED FROM APPBOX: " + message)
+            var js = {action: "AppBoxMessage",
+                      data: message}
+            mobapp.sendMessage(JSON.stringify(js))
+        }
+    }
 
     StatusBar {
         id: bottombar
@@ -138,6 +230,70 @@ Window {
             // TODO: Use StandardButtons or custom impl for handling option (Yes/No),
             //       now using built in
             msgDiag.visible = true
+        }
+
+        if (js["action"] === "DefineAppBox") {
+            // TODO: naming not best
+            console.debug("#### CREATING CONTENT")
+            var qmlContent2 = 'import QtQuick 2.0;\
+Rectangle {\
+color: "lightgrey";\
+border.width: 1;\
+border.color: "black";\
+width: 200;\
+height: 50;\
+anchors.centerIn: parent;\
+Text {\
+  text: "CONTENT";\
+  anchors.centerIn: parent;\
+}\
+signal outgoingMessage(var data);\
+function incomingMessage(data) {\n\
+console.debug("### APPBOX MSG3333: " + data)\n\
+outgoingMessage("got appbox msg")\n\
+}\n\
+}'
+            //AppBox.createContent(qmlContent2) // testing
+            AppBox.createContent(js["data"])
+            var qmlContent3 = 'import QtQuick 2.0;\
+Rectangle {\
+color: "lightgrey";\
+border.width: 1;\
+border.color: "black";\
+width: 200;\
+height: 50;\
+anchors.centerIn: parent;\
+Text {\
+  text: "CONTENT";\
+  anchors.centerIn: parent;\
+}\
+signal outgoingMessage(var data);\
+function incomingMessage(data) {\n\
+console.debug("### APPBOX MSG9999: " + data)\n\
+outgoingMessage("got appbox msg")\n\
+}\n\
+}'
+            //AppBox.createContent(qmlContent3) // for testing
+            //AppBox.showContent()
+        }
+
+        if (js["action"] === "ShowAppBox") {
+            appbox.visible = true
+            AppBox.showContent() // TODO: should appbox be also set visible here??
+            basicControls.visible = false
+            ui.visible = false
+            msgDiag.visible = false
+        }
+
+        if (js["action"] === "AppBoxMessage") {
+            AppBox.sendMessage(js["data"])
+        }
+
+        if (js["action"] === "ShowBasicControls") {
+            appbox.visible = false
+            basicControls.visible = true
+            ui.visible = false
+            msgDiag.visible = false
         }
     }
 
