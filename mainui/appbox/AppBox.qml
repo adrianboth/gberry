@@ -20,7 +20,7 @@ Rectangle {
         onPressed: outgoingMessage("hello mainui")
     }
 
-    // -- THIS IS API --
+    // -- API --
 
     signal outgoingMessage(var data)
 

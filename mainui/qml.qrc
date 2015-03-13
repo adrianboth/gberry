@@ -1,11 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>MainForm.ui.qml</file>
         <file>MessageBoard.qml</file>
         <file>Menu.qml</file>
         <file>InfoBar.qml</file>
         <file>appbox/AppBox.qml</file>
         <file>AppBoxMaster.js</file>
+        <file>AppBoxUI.qml</file>
+        <file>js/Messages.js</file>
     </qresource>
 </RCC>
