@@ -5,7 +5,6 @@ Rectangle {
     id: rectangle2
     property alias mouseArea: mouseArea
     property alias connectButton: connectButton
-    property alias connectButton1: connectButton1
 
     width: 360
     height: 360
@@ -58,13 +57,5 @@ Rectangle {
             enabled: true
             opacity: 0.5
         }
-    }
-
-    ConnectButton {
-        id: connectButton1
-        x: 130
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: buttonFrame.bottom
-        anchors.topMargin: 6
     }
 }

@@ -10,5 +10,6 @@
         <file>DeveloperLog.js</file>
         <file>BasicControlsButton.qml</file>
         <file>AppBox.js</file>
+        <file>GeneralActions.qml</file>
     </qresource>
 </RCC>

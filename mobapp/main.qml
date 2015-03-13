@@ -45,30 +45,21 @@ Window {
                 }
             }
             Button {
-                id: test2
-                text: "T2"
+                id: reloadButton
+                text: "R"
                 onPressedChanged: {
-                    if (test2.pressed) {
-                        var qmlContent2 = 'import QtQuick 2.0;\
-            Rectangle {\
-            color: "lightgrey";\
-            border.width: 1;\
-            border.color: "black";\
-            width: 200;\
-            height: 50;\
-            anchors.centerIn: parent;\
-            Text {\
-              text: "CONTENT";\
-              anchors.centerIn: parent;\
-            }\
-            signal outgoingMessage(var data);\
-            function incomingMessage(data) {\n\
-            console.debug("### APPBOX MSG55555: " + data)\n\
-            outgoingMessage("got appbox msg")\n\
-            }\n\
-            }'
-                        AppBox.createContent(qmlContent2) // for testing
-                        AppBox.showContent()
+                    if (reloadButton.pressed) {
+                        // TODO
+                    }
+                }
+            }
+
+            Button {
+                id: showGeneralActionsButton
+                text: "..."
+                onPressedChanged: {
+                    if (showGeneralActionsButton.pressed) {
+                        toggleGeneralActions()
                     }
                 }
             }
@@ -91,20 +82,6 @@ Window {
         }
 
         connectButton.onClicked: { console.log("CONNECT"); connectToConsole() }
-
-
-        Component.onCompleted: {
-            connectButton1.connectButtonClicked.connect(sendMessage)
-        }
-
-        /*
-        Connections {
-            target: connectButton1
-            onConnectButtonClicked: {
-                console.log("SEND MESSAGE")
-            }
-        }
-*/
     }
 
     function basicControlButtonPressed(button)
@@ -162,34 +139,7 @@ Window {
 
         Component.onCompleted: {
             AppBox.initialiaze(appbox)
-
-            var qmlContent = 'import QtQuick 2.0; Rectangle {color: "red"; width: 20; height: 20}'
-            var qmlContent2 = 'import QtQuick 2.0;\
-Rectangle {\
-color: "lightgrey";\
-border.width: 1;\
-border.color: "black";\
-width: 200;\
-height: 50;\
-anchors.centerIn: parent;\
-Text {\
-  text: "CONTENT";\
-  anchors.centerIn: parent;\
-}\
-signal outgoingMessage(var data);\
-function incomingMessage(data) {\n\
-console.debug("### APPBOX MSG1111: " + data)\n\
-outgoingMessage("got appbox msg")\n\
-}\n\
-}'
             AppBox.connectOutgoingMessageTo(receiveFromAppBox)
-            //AppBox.createContent(qmlContent2) // for testing
-
-            //AppBox.showContent()
-            //AppBox.releaseContent()
-            //AppBox.showContent()
-            //AppBox.connectOutgoingMessageTo(receiveFromAppBox)
-            //AppBox.sendMessage("hello appbox")
         }
 
         function receiveFromAppBox(message) {
@@ -200,6 +150,14 @@ outgoingMessage("got appbox msg")\n\
         }
     }
 
+    GeneralActions {
+        id: generalActions
+        visible: false
+
+        anchors.top: topbar.bottom
+        anchors.right: parent.right
+    }
+
     StatusBar {
         id: bottombar
         anchors.left: parent.left
@@ -207,17 +165,24 @@ outgoingMessage("got appbox msg")\n\
         anchors.bottom: parent.bottom
     }
 
+    function toggleGeneralActions() {
+        generalActions.visible = !generalActions.visible
+    }
+
+    function onGeneralActionSelected(actionId) {
+        var js = {action: "GeneralAction",
+                  id: actionId}
+        mobapp.sendMessage(JSON.stringify(js))
+
+        // TODO: action button should have a feedback
+        // TODO: and because of that dropdown menu shouldn't close immediately
+        generalActions.visible = false
+    }
+
     function connectToConsole()
     {
         mobapp.loginGuest("Foobar")
         mobapp.openConsoleConnection("localhost")
-        //mobapp.sendMessage()
-    }
-
-    function sendMessage()
-    {
-        console.log("SEND MESSAGE")
-        mobapp.sendMessage("hello world")
     }
 
     function onPlayerMessageReceived(data) {
@@ -230,70 +195,32 @@ outgoingMessage("got appbox msg")\n\
             // TODO: Use StandardButtons or custom impl for handling option (Yes/No),
             //       now using built in
             msgDiag.visible = true
-        }
 
-        if (js["action"] === "DefineAppBox") {
-            // TODO: naming not best
-            console.debug("#### CREATING CONTENT")
-            var qmlContent2 = 'import QtQuick 2.0;\
-Rectangle {\
-color: "lightgrey";\
-border.width: 1;\
-border.color: "black";\
-width: 200;\
-height: 50;\
-anchors.centerIn: parent;\
-Text {\
-  text: "CONTENT";\
-  anchors.centerIn: parent;\
-}\
-signal outgoingMessage(var data);\
-function incomingMessage(data) {\n\
-console.debug("### APPBOX MSG3333: " + data)\n\
-outgoingMessage("got appbox msg")\n\
-}\n\
-}'
-            //AppBox.createContent(qmlContent2) // testing
+        } else if (js["action"] === "CloseQuestion") {
+            // currently we may have only one dialog instanceof
+            msgDiag.visible = false
+
+        } else if (js["action"] === "DefineAppBox") {
             AppBox.createContent(js["data"])
-            var qmlContent3 = 'import QtQuick 2.0;\
-Rectangle {\
-color: "lightgrey";\
-border.width: 1;\
-border.color: "black";\
-width: 200;\
-height: 50;\
-anchors.centerIn: parent;\
-Text {\
-  text: "CONTENT";\
-  anchors.centerIn: parent;\
-}\
-signal outgoingMessage(var data);\
-function incomingMessage(data) {\n\
-console.debug("### APPBOX MSG9999: " + data)\n\
-outgoingMessage("got appbox msg")\n\
-}\n\
-}'
-            //AppBox.createContent(qmlContent3) // for testing
-            //AppBox.showContent()
-        }
 
-        if (js["action"] === "ShowAppBox") {
+        } else if (js["action"] === "ShowAppBox") {
             appbox.visible = true
             AppBox.showContent() // TODO: should appbox be also set visible here??
             basicControls.visible = false
             ui.visible = false
             msgDiag.visible = false
-        }
 
-        if (js["action"] === "AppBoxMessage") {
+        } else if (js["action"] === "AppBoxMessage") {
             AppBox.sendMessage(js["data"])
-        }
 
-        if (js["action"] === "ShowBasicControls") {
+        } else if (js["action"] === "ShowBasicControls") {
             appbox.visible = false
             basicControls.visible = true
             ui.visible = false
             msgDiag.visible = false
+
+        } else if (js["action"] === "DefineGeneralActions") {
+            generalActions.setActions(js["actions"])
         }
     }
 
@@ -314,5 +241,7 @@ outgoingMessage("got appbox msg")\n\
         app.consoleStatusChanged.connect(updateTexts)
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
+
+        generalActions.actionSelected.connect(onGeneralActionSelected)
     }
 }
