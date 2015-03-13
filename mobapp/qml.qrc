@@ -11,5 +11,6 @@
         <file>BasicControlsButton.qml</file>
         <file>AppBox.js</file>
         <file>GeneralActions.qml</file>
+        <file>js/MobileClientMessages.js</file>
     </qresource>
 </RCC>

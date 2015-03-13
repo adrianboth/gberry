@@ -6,7 +6,7 @@ import QtQuick.Layouts 1.1
 
 import "DeveloperLog.js" as Log
 import "AppBox.js" as AppBox
-
+import "js/MobileClientMessages.js" as Messages
 
 Window {
     visible: true
@@ -19,22 +19,25 @@ Window {
         anchors.right: parent.right
         anchors.top: parent.top
 
-        RowLayout {
-            spacing: 2
+        Button {
+            id: toggleLocalGeneralActionsButton
+            text: "M"
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.margins: 5
 
-            Button {
-                id: bc
-                text: "BC"
-                onPressedChanged: {
-                    if (bc.pressed) {
-                        basicControls.visible = !basicControls.visible
-                        ui.visible = !basicControls.visible
-                        appbox.visible = false
-                    }
-
+            onPressedChanged: {
+                if (toggleLocalGeneralActionsButton.pressed) {
+                    //basicControls.visible = !basicControls.visible
+                    //ui.visible = !basicControls.visible
+                    //appbox.visible = false
+                    toggleLocalGeneralActions()
+                    toggleGeneralActions(false)
                 }
-            }
 
+            }
+        }
+/*
             Button {
                 id: test
                 text: "T1"
@@ -53,36 +56,131 @@ Window {
                     }
                 }
             }
+*/
+        Button {
+            id: toggleGeneralActionsButton
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 5
+            enabled: generalActions.hasActions
 
-            Button {
-                id: showGeneralActionsButton
-                text: "..."
-                onPressedChanged: {
-                    if (showGeneralActionsButton.pressed) {
-                        toggleGeneralActions()
-                    }
+            text: "..."
+            onPressedChanged: {
+                if (toggleGeneralActionsButton.pressed) {
+                    toggleGeneralActions()
+                    toggleLocalGeneralActions(false)
                 }
             }
         }
+
     }
 
-    MainForm {
-        id: ui
-        visible: true
+    MouseArea {
+        id: mainMouseArea
         anchors.top: topbar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: bottombar.top
 
-        // TODO: not sure if this right way to configure ui side
-        property string serverTextStr: "Server (INIT)"
-        property string consoleTextStr: "Console (INIT)"
-        mouseArea.onClicked: {
-            Qt.quit();
+        onClicked: {
+            console.debug("MOUSE CLICKED ON MAIN MOUSEAREA")
+
+            // make sure dropdown menus are closed
+            toggleGeneralActions(false)
+            toggleLocalGeneralActions(false)
         }
 
-        connectButton.onClicked: { console.log("CONNECT"); connectToConsole() }
+
+        MainForm {
+            id: ui
+            visible: true
+            anchors.fill: parent
+
+            // TODO: not sure if this right way to configure ui side
+            property string serverTextStr: "Server (INIT)"
+            property string consoleTextStr: "Console (INIT)"
+            mouseArea.onClicked: {
+                Qt.quit();
+            }
+
+            connectButton.onClicked: { console.log("CONNECT"); connectToConsole() }
+        }
+
+
+
+        BasicControls {
+            id: basicControls
+            visible: false
+            anchors.fill: parent
+
+            Component.onCompleted: {
+                basicControls.buttonPressed.connect(function (buttonID) {basicControlButtonPressed(buttonID)})
+            }
+        }
+
+
+        MessageDialog {
+            id: msgDiag
+            visible: false
+
+            standardButtons: StandardButton.Yes | StandardButton.No
+
+            onYes: {
+                msgDiag.visible = false
+                var js = { action: "ConfirmationQuestionResponse",
+                           ref: "Yes" }
+                mobapp.sendMessage(JSON.stringify(js))
+            }
+            onNo: {
+                msgDiag.visible = false
+                var js = { action: "ConfirmationQuestionResponse",
+                           ref: "No" }
+                mobapp.sendMessage(JSON.stringify(js))
+            }
+        }
+
+        Rectangle {
+            id: appbox
+            visible: false
+            color: "pink"
+            anchors.fill: parent
+
+            Component.onCompleted: {
+                AppBox.initialiaze(appbox)
+                AppBox.connectOutgoingMessageTo(receiveFromAppBox)
+            }
+
+            function receiveFromAppBox(message) {
+                console.debug("### RECEIVED FROM APPBOX: " + message)
+                var js = {action: "AppBoxMessage",
+                          data: message}
+                mobapp.sendMessage(JSON.stringify(js))
+            }
+        }
     }
+
+    GeneralActions {
+        id: generalActions
+        visible: false
+        anchors.top: topbar.bottom
+        anchors.right: parent.right
+    }
+
+    GeneralActions {
+        id: localGeneralActions
+        visible: false
+        anchors.top: topbar.bottom
+        anchors.left: parent.left
+    }
+
+    StatusBar {
+        id: bottombar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+    }
+
+    // -------------------- FUNCTIONS -------------------
 
     function basicControlButtonPressed(button)
     {
@@ -94,89 +192,32 @@ Window {
         mobapp.sendMessage(data)
     }
 
-    BasicControls {
-        id: basicControls
-        visible: false
-        anchors.top: topbar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: bottombar.top
-
-        Component.onCompleted: {
-            basicControls.buttonPressed.connect(function (buttonID) {basicControlButtonPressed(buttonID)})
-        }
-    }
-
-
-    MessageDialog {
-        id: msgDiag
-        visible: false
-
-        standardButtons: StandardButton.Yes | StandardButton.No
-
-        onYes: {
-            msgDiag.visible = false
-            var js = { action: "ConfirmationQuestionResponse",
-                       ref: "Yes" }
-            mobapp.sendMessage(JSON.stringify(js))
-        }
-        onNo: {
-            msgDiag.visible = false
-            var js = { action: "ConfirmationQuestionResponse",
-                       ref: "No" }
-            mobapp.sendMessage(JSON.stringify(js))
-        }
-    }
-
-    Rectangle {
-        id: appbox
-        visible: false
-        color: "pink"
-        anchors.top: topbar.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: bottombar.top
-
-        Component.onCompleted: {
-            AppBox.initialiaze(appbox)
-            AppBox.connectOutgoingMessageTo(receiveFromAppBox)
-        }
-
-        function receiveFromAppBox(message) {
-            console.debug("### RECEIVED FROM APPBOX: " + message)
-            var js = {action: "AppBoxMessage",
-                      data: message}
-            mobapp.sendMessage(JSON.stringify(js))
-        }
-    }
-
-    GeneralActions {
-        id: generalActions
-        visible: false
-
-        anchors.top: topbar.bottom
-        anchors.right: parent.right
-    }
-
-    StatusBar {
-        id: bottombar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-    }
-
-    function toggleGeneralActions() {
-        generalActions.visible = !generalActions.visible
+    // 'show' is optional, forces visibility to true/false
+    function toggleGeneralActions(show) {
+        if (typeof show !== 'undefined')
+            generalActions.visible = show
+        else
+            generalActions.visible = !generalActions.visible
     }
 
     function onGeneralActionSelected(actionId) {
-        var js = {action: "GeneralAction",
-                  id: actionId}
-        mobapp.sendMessage(JSON.stringify(js))
+        mobapp.sendMessage(Messages.createGeneralActionMessage(actionId))
 
         // TODO: action button should have a feedback
         // TODO: and because of that dropdown menu shouldn't close immediately
         generalActions.visible = false
+    }
+
+    // 'show' is optional, forces visibility to true/false
+    function toggleLocalGeneralActions(show) {
+        if (typeof show !== 'undefined')
+            localGeneralActions.visible = show
+        else
+            localGeneralActions.visible = !localGeneralActions.visible
+    }
+
+    function onLocalGeneralActionSelected(actionId) {
+        console.debug("LOCAL GENERAL ACTION: " + actionId)
     }
 
     function connectToConsole()
@@ -243,5 +284,12 @@ Window {
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
 
         generalActions.actionSelected.connect(onGeneralActionSelected)
+
+        localGeneralActions.setActions(
+            [{actionId: "Login", actionName: "Login"},
+             {actionId: "Settings", actionName: "Settings"},
+             {actionId: "Reconnect", actionName: "Reconnect"}
+        ])
+        localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
     }
 }

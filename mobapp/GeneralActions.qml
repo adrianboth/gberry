@@ -1,9 +1,11 @@
 import QtQuick 2.0
 
 Rectangle {
-    width: 200
+    width: 200 + 2*2 // margins
     height: listModel.count * 35
     color: "darkgrey"
+
+    property bool hasActions: listModel.count > 0
 
     signal actionSelected(var actionId)
 
@@ -15,6 +17,8 @@ Rectangle {
                               actionId: actionJson["actionId"]})
         })
     }
+
+
 
     ListModel {
         id: listModel
@@ -57,7 +61,7 @@ Rectangle {
 
     ListView {
         anchors.fill: parent
-        anchors.leftMargin: 5
+        anchors.margins: 2
 
         model: listModel
         delegate: actionDelegate
