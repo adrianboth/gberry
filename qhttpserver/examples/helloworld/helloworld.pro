@@ -1,5 +1,4 @@
 TARGET = helloworld
-QMAKE_CXX = ccache g++
 
 QT += network
 QT -= gui

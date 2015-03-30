@@ -1,5 +1,4 @@
 TARGET = bodydata
-QMAKE_CXX = ccache g++
 
 QT += network
 QT -= gui

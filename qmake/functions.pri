@@ -6,14 +6,36 @@ isEmpty(PROJECTS_ROOT_DIR) {
 }
 BUILDS_DIR=$${PROJECTS_ROOT_DIR}/builds
 
-# BUILD_NAME is defined via commandline when qmake is invoked
+
+# BUILD_NAME is defined via commandline when qmake is invoked.
 isEmpty(BUILD_NAME) {
     # When building through QtCreator we use Build name defined by creator
     # but how to get it?
-    #   -> now there just needs to be match with BUILD_NAME an dQtCreator
+    #   -> now there just needs to be match with BUILD_NAME an QtCreator
 
+    #message("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    #message($$QMAKESPEC)
+    #message($$CONFIG)
+    #error(test)
+
+    # TODO: what is android x86
     # TODO: also with QtCreator build name can change
-    BUILD_NAME=Desktop_Qt_5_4_0_GCC_64bit-Debug
+    android-g++ {
+        BUILD_NAME=Android_for_armeabi_v7a_GCC_4_8_Qt_5_4_0
+    }
+    linux-g++ {
+        BUILD_NAME=Desktop_Qt_5_4_0_GCC_64bit
+    }
+    linux-rasp-pi-g++ {
+        BUILD_NAME=Raspberry
+    }
+
+    debug {
+        BUILD_NAME="$${BUILD_NAME}-Debug"
+    } else {
+        BUILD_NAME="$${BUILD_NAME}-Release"
+    }
+
     message("BUILD_NAME not defined -> using default")
 }
 message(" -- BUILD_NAME: $${BUILD_NAME}")

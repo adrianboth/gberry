@@ -1,6 +1,7 @@
 #include "restinvocationfactoryimpl.h"
 
 #include <QNetworkAccessManager>
+#include <QVariant>
 
 #include "restinvocation.h"
 #include "restinvocationimpl.h"

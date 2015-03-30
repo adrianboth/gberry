@@ -1,7 +1,7 @@
 TARGET = gberrylib
 TEMPLATE = lib
 
-include(../../global.pri)
+#include(../../global.pri)
 
 QT += core network websockets
 QT -= gui

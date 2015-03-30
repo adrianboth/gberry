@@ -5,8 +5,6 @@ TEMPLATE = lib
 
 TARGET = qhttpserver
 
-QMAKE_CXX = ccache g++
-
 !win32:VERSION = 0.1.0
 
 QT += network
