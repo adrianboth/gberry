@@ -4,6 +4,7 @@ TARGET = mainui
 QT += qml quick network
 CONFIG += c++11
 
+include(project.pri)
 SOURCES += main.cpp
 
 RESOURCES += qml.qrc
