@@ -1,0 +1,14 @@
+prefix=/usr/local/qt5pi
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 Help
+Description: Qt Help module
+Version: 5.4.1
+Libs: -L${libdir} -lQt5Help 
+Libs.private: -L/mnt/rasp-pi-rootfs/opt/vc/lib -L/usr/local/qt5pi/lib -lQt5Widgets -lQt5Gui -lQt5Core -lpthread -lQt5Network -L/usr/local/qt5pi/lib -lQt5Sql -L/usr/local/qt5pi/lib -lQt5CLucene -lQt5Core -lpthread -lGLESv2  
+Cflags: -I${includedir}/QtHelp -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5Widgets
+

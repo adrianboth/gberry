@@ -1,0 +1,14 @@
+prefix=/usr/local/qt5pi
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 MultimediaQuick_p
+Description: Qt MultimediaQuick_p module
+Version: 5.4.1
+Libs: -L${libdir} -lQt5MultimediaQuick_p 
+Libs.private: -L/mnt/rasp-pi-rootfs/opt/vc/lib -L/usr/local/qt5pi/lib -lQt5Quick -L/usr/local/qt5pi/lib -L/usr/local/qt5pi/lib -lQt5Multimedia -lQt5Gui -lQt5Qml -lQt5Network -lQt5Core -lpthread -lGLESv2  
+Cflags: -I${includedir}/QtMultimediaQuick_p -I${includedir}
+Requires: Qt5Core Qt5Quick Qt5Multimedia
+
