@@ -17,6 +17,20 @@ HEADERS += \
 
 DEPENDPATH += .
 
+target.path = $${DEPLOY_DIR}/bin/
+INSTALLS += target
+
+# this would affect all files, but now just scripts are installed
+QMAKE_INSTALL_FILE = install -m 6755
+scripts.files = ../scripts/*
+scripts.path = $$DEPLOY_DIR/bin/
+INSTALLS += scripts
+
+#filerightsCommand = chmod -R u+x $$DEPLOY_DIR/bin/
+#filerights.commands = $$filerightsCommand
+#filerights.depends = scripts
+#QMAKE_EXTRA_TARGETS += filerights
+
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 

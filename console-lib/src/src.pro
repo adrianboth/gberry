@@ -54,10 +54,9 @@ HEADERS +=\
     ichannelparent.h \
     server/playerconnectionmanager.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
+
+target.path = $${DEPLOY_DIR}/lib/
+INSTALLS += target
 
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
