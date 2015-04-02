@@ -4,11 +4,15 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
+import "settings"
+import "login"
+
 import "DeveloperLog.js" as Log
 import "AppBox.js" as AppBox
 import "js/MobileClientMessages.js" as Messages
 
 Window {
+    id: mainwindow
     visible: true
     width: 320
     height: 400
@@ -37,26 +41,7 @@ Window {
 
             }
         }
-/*
-            Button {
-                id: test
-                text: "T1"
-                onPressedChanged: {
-                    if (test.pressed) {
-                        appbox.visible = !appbox.visible
-                    }
-                }
-            }
-            Button {
-                id: reloadButton
-                text: "R"
-                onPressedChanged: {
-                    if (reloadButton.pressed) {
-                        // TODO
-                    }
-                }
-            }
-*/
+
         Button {
             id: toggleGeneralActionsButton
             anchors.right: parent.right
@@ -157,6 +142,16 @@ Window {
                 mobapp.sendMessage(JSON.stringify(js))
             }
         }
+
+        Settings {
+            id: settings
+            visible: false // initial state
+        }
+
+        LoginView {
+            id: loginview
+            visible: false // initial state
+        }
     }
 
     GeneralActions {
@@ -218,6 +213,21 @@ Window {
 
     function onLocalGeneralActionSelected(actionId) {
         console.debug("LOCAL GENERAL ACTION: " + actionId)
+        toggleLocalGeneralActions(false) // hide
+
+        if (actionId === "Settings") {
+            settings.visible = true
+            // TODO: state?
+            loginview.visible = false
+
+        } else if (actionId === "Login") {
+            loginview.visible = true
+            settings.visible = false
+
+        } else if (actionId === "Reconnect") {
+            mobapp.closeConsoleConnection()
+            mobapp.openConsoleConnection(settings.consoleAddress()) // TODO: use defined profiles
+        }
     }
 
     function connectToConsole()
@@ -272,6 +282,21 @@ Window {
         ui.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
     }
 
+    function onLoginViewClosed()
+    {
+        loginview.visible = false
+    }
+    function onLogin(username, password, guest, rememberPassword)
+    {
+        console.debug("LOGIN: " + username + ", " + password + ", " + (guest ? "GUEST" : "NORMAL") + ", " + (rememberPassword ? "REMEMBER" : "-"))
+        mobapp.loginGuest(username)
+        console.debug("USING CONSOLE ADDRESS: " + settings.consoleAddress())
+        mobapp.openConsoleConnection(settings.consoleAddress())
+        loginview.visible = false
+
+        // TODO: how to show login errors?
+    }
+
     Component.onCompleted: {
         Log.initLog("main", Log.DEBUG_LEVEL)
 
@@ -291,5 +316,9 @@ Window {
              {actionId: "Reconnect", actionName: "Reconnect"}
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
+
+
+        loginview.viewClosed.connect(onLoginViewClosed)
+        loginview.login.connect(onLogin)
     }
 }

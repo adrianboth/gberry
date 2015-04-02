@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
+    qDebug() << "QQmlEngine::offlineStoragePath()" << engine.offlineStoragePath();
     // TODO: temp disable
     //serverConnection.open();
     //consoleConnection.open();

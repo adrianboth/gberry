@@ -12,5 +12,7 @@
         <file>AppBox.js</file>
         <file>GeneralActions.qml</file>
         <file>js/MobileClientMessages.js</file>
+        <file>settings/Settings.qml</file>
+        <file>login/LoginView.qml</file>
     </qresource>
 </RCC>

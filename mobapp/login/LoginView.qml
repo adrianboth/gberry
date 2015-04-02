@@ -5,8 +5,8 @@ import QtQuick.Layouts 1.1
 
 Rectangle {
     id: root
-    width: parent.width - 100
-    height: 300 // TODO: other calculation
+    width: parent.width - 50
+    height: 4*60 // TODO: other calculation
     anchors.centerIn: parent
     color: "lightblue"
 
@@ -17,14 +17,16 @@ Rectangle {
 
     Rectangle {
         id: titlebar
-        height: 20
+        height: titleTextLabel.implicitHeight + 4
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
         color: "darkgrey"
 
         Text {
+            id: titleTextLabel
             text: titleText
+            font.pointSize: 14
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 2
@@ -33,8 +35,8 @@ Rectangle {
 
         Rectangle {
             id: closeButton
-            width: 15
-            height: 15
+            width: closeButton.height
+            height: parent.height - 6
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: 2
@@ -52,87 +54,174 @@ Rectangle {
     }
 
     ColumnLayout {
-        anchors.top: title.bottom
+        id: column
+
+        anchors.top: titlebar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.margins: 5
+
+        property int labelColumnWidth: 100 // TODO: somekind of adjustment
 
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
+            spacing: 5
 
-            Label {
-                text: "User name"
+            // adding rectable as label itself doesn't take width
+            Rectangle {
+                id: userNameRect
+                //color: "yellow"
+                color: "lightblue"
+                height: userNameLabel.implicitHeight
+                width: column.labelColumnWidth
+
+                Label {
+                    id: userNameLabel
+                    text: "User name"
+                    width: 200; //column.labelColumnWidth
+                }
             }
+
             ComboBox {
                 id: userNameField
-                width: 200
+                anchors.right: parent.right
+                anchors.left: userNameRect.right
+
                 editable: true
                 model: profileModel
+
+                onActivated: {
+                    var item = profileModel.get(index)
+                    passwordField.text = item.password
+                    guestCheckbox.checked = item.guest
+                    rememberPasswordCheckbox.checked = item.rememberPassword
+                }
+
+                onAccepted: {
+                     if (find(currentText) === -1) {
+                         model.append({text: editText})
+                         currentIndex = find(editText)
+                     }
+                 }
             }
 
             ListModel {
                 id: profileModel
-                ListElement { text: "Banana"; color: "Yellow" }
-                ListElement { text: "Apple"; color: "Green" }
-                ListElement { text: "Coconut"; color: "Brown" }
+                // test data
+                ListElement { text: "Banana"; password: "Yellow"; guest: false; rememberPassword: true }
+                ListElement { text: "Apple"; password: ""; guest: true }
+                ListElement { text: "Coconut"; password: ""; guest: false; rememberPassword: false }
             }
         }
 
-        CheckBox {
-            id: guestCheckbox
-            text: qsTr("Guest")
-            anchors.right: parent.right
-            checked: false
-            onCheckedChanged: {
+        RowLayout {
+            Item {
+                width: column.labelColumnWidth
+            }
 
+            CheckBox {
+                id: guestCheckbox
+                text: qsTr("Guest")
+                anchors.right: parent.right
+                checked: false
+                onCheckedChanged: {
+
+                }
             }
         }
 
         RowLayout {
             id: passwordRow
-            anchors.left: parent.left
-            anchors.right: parent.right
+            //anchors.left: parent.left
+            //anchors.right: parent.right
             enabled: !guestCheckbox.checked
 
-            Label {
-                text: "Password"
+            Rectangle {
+                id: passwordRect
+                //color: "yellow"
+                color: "lightblue"
+                height: passwordLabel.implicitHeight
+                width: column.labelColumnWidth
+
+                Label {
+                    id: passwordLabel
+                    text: "Password"
+                }
             }
+
+            // TODO: Problems to get TextInput (has password mode) to work (background)
             TextField {
                 id: passwordField
-                // TODO: how password field
-                //displayText: "<password>"
+                anchors.right: parent.right
+                anchors.left: passwordRect.right
+                height: passwordLabel.implicitHeight
+                /*
+                color: "red"
+                border.width: 1
+                border.color: "gray"
+                */
+
+
+                /*
+                TextField {
+                    //anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.fill: parent
+                    text: "test"
+                    echoMode: TextInput.Password
+
+
+                }*/
             }
         }
 
-        CheckBox {
-            id: rememberPasswordCheckbox
-            text: qsTr("Remember password")
-            anchors.right: parent.right
-            enabled: !guestCheckbox.checked
+        RowLayout {
+            Item {
+                width: column.labelColumnWidth
+            }
+
+            CheckBox {
+                id: rememberPasswordCheckbox
+                text: qsTr("Remember password")
+                anchors.right: parent.right
+                enabled: !guestCheckbox.checked
+            }
         }
+    }
 
-        Rectangle {
-            id: buttonArea
-            height: 100 // TODO
+    Rectangle {
+        id: buttonArea
+        height: loginButton.implicitHeight + 2*5 // + margin
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        color: "steelblue"
 
-            RowLayout {
-                anchors.top: parent.top
-                anchors.left: parent.left
-                anchors.horizontalCenter: parent.horizontalCenter
+        RowLayout {
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: 5
 
-                Button {
-                    text: qsTr("Login")
-                    onClicked: {
-                        console.debug("LOGIN PRESSED")
-                        login(userNameField.currentText,
-                              passwordField.text,
-                              guestCheckbox.checked,
-                              rememberPasswordCheckbox.checked)
-                    }
+            Button {
+                id: loginButton
+                text: qsTr("Login")
+                onClicked: {
+                    console.debug("LOGIN PRESSED")
+                    login(userNameField.editText,
+                          passwordField.text,
+                          guestCheckbox.checked,
+                          rememberPasswordCheckbox.checked)
                 }
             }
         }
+    }
+
+    Component.onCompleted: {
+        userNameField.currentIndex = 0
+        var item = profileModel.get(userNameField.currentIndex)
+        passwordField.text = item.password
+        guestCheckbox.checked = item.guest
+        rememberPasswordCheckbox.checked = item.rememberPassword
     }
 }
 
