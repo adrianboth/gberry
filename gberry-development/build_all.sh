@@ -6,7 +6,6 @@ BUILDS_DIR=$THIS_DIR/../builds
 # TODO: x86
 # TODO: arm
 # TODO: android
-# TODO: clean
 
 die() { echo "$@" 1>&2 ; exit 1; }
 
@@ -26,7 +25,7 @@ if [ ! -e $BUILDS_DIR ]; then
   mkdir -p $BUILDS_DIR
 fi
 
-./build_console_desktop.sh || die "Building gberry-console failed!"
-./build_mobapp_desktop.sh || die "Building gberry-mobile failed!"
+./build_console.sh both all || die "Building gberry-console failed!"
+./build_mobapp.sh both all || die "Building gberry-mobile failed!"
 
 echo "[DONE]"

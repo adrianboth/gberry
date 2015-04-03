@@ -3,6 +3,10 @@ THIS_DIR=`cd $(dirname $0) && pwd`
 WORKSPACE_ROOT=`cd $THIS_DIR/.. && pwd`
 BUILDS_DIR=$THIS_DIR/../builds
 
+if [ "$1" == "help" ]; then
+  echo "USAGE: $0 rpi|desktop|both(default)] [debug|release|all(default)]"
+fi
+
 # -- Build
 
 die() { echo "$@" 1>&2 ; exit 1; }
@@ -30,8 +34,13 @@ function build {
 
 function build_desktop {
   QMAKE=/home/tevuore/Qt5.4/5.4/gcc_64/bin/qmake
-  BUILD_NAME=Desktop_Qt_5_4_0_GCC_64bit-Debug
-  CONFIG="CONFIG+=debug CONFIG+=declarative_debug CONFIG+=qml_debug BUILD_NAME=$BUILD_NAME"
+  BUILD_NAME=Desktop_Qt_5_4_0_GCC_64bit-$1
+  
+  if [ "$1" == "Debug" ]; then
+    CONFIG="CONFIG+=debug CONFIG+=declarative_debug CONFIG+=qml_debug BUILD_NAME=$BUILD_NAME"
+  else
+    CONFIG="BUILD_NAME=$BUILD_NAME"
+  fi
   SPEC="-spec linux-g++"
 
   build gberry-lib gberry-lib/gberry-lib.pro
@@ -39,7 +48,7 @@ function build_desktop {
   build comms gberry-console/comms/comms.pro
   build mainui gberry-console/mainui/mainui.pro
   
-  $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh desktop || die "Failed to deploy Qt!"
+  $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh desktop $1 || die "Failed to deploy Qt!"
 }
 
 function build_rpi {
@@ -49,8 +58,12 @@ function build_rpi {
     echo "USE:   sudo mount -o loop,offset=62914560 2014-12-24-wheezy-raspbian.img /mnt/rasp-pi-rootfs"
     exit 1
   fi
-  BUILD_NAME=Raspberry-Debug
-  CONFIG="CONFIG+=debug CONFIG+=declarative_debug CONFIG+=qml_debug BUILD_NAME=$BUILD_NAME"
+  BUILD_NAME=Raspberry-$1
+  if [ "$1" == "Debug" ]; then
+    CONFIG="CONFIG+=debug CONFIG+=declarative_debug CONFIG+=qml_debug BUILD_NAME=$BUILD_NAME"
+  else
+    CONFIG="BUILD_NAME=$BUILD_NAME"
+  fi
   #SPEC=linux-g++
   SPEC=""
   
@@ -58,16 +71,33 @@ function build_rpi {
   build console-lib gberry-console/console-lib/console-lib.pro
   build comms gberry-console/comms/comms.pro
   build mainui gberry-console/mainui/mainui.pro
-  $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh rpi || die "Failed to deploy Qt!"
+  
+  # deployment happens for both debug and release if requested
+  $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh rpi $1 || die "Failed to deploy Qt!"
 }
 
-# TODO: These are debug builds: release also
+function run_build {
+  # $1 is run command, it is function
+  # $2 is <empty>|debug|release|all
+  
+  if [ "$2" == "release" ]; then
+    $1 Release
+  elif [ "$2" == "all" ]; then
+    $1 Debug
+    $1 Release
+  elif [ "$2" == "debug"] || [ "$2" == "" ]; then
+    $1 Debug
+  else
+    echo "ERROR: Unknown build request: $2"
+    exit 1
+  fi
+}
 
 if [ "$1" == "desktop" ]; then
-  build_desktop
+  run_build build_desktop $2
 elif [ "$1" == "rpi" ]; then
-  build_rpi
+  run_build build_rpi $2
 else
-  build_desktop
-  build_rpi
+  run_build build_desktop $2
+  run_build build_rpi $2
 fi
