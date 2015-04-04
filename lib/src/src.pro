@@ -42,11 +42,11 @@ HEADERS += \
     log/logcontrol.h \
     log/stdoutlogmsghandler.h
 
-lib_headers.path    = $${INSTALLDIR}/include
-lib_headers.files   += $$HEADERS
+#lib_headers.path    = $${INSTALLDIR}/include
+#lib_headers.files   += $$HEADERS
 
-target.path = $${INSTALLDIR}/lib/
-INSTALLS += target lib_headers
+#target.path = $${INSTALLDIR}/lib/
+#INSTALLS += target lib_headers
 
 SOURCES += \
     restinvocation.cpp \
@@ -74,3 +74,7 @@ SOURCES += \
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
+
+DISTFILES += \
+    ui/qml/GButton.qml \
+    ui/js/DeveloperLog.js
