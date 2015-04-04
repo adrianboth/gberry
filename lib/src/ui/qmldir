@@ -1,4 +1,5 @@
 module GBerry
 GButton 1.0 qml/GButton.qml
+GDisplayProfile 1.0 qml/GDisplayProfile.qml
 #DeveloperLog 1.0 js/DeveloperLog.js
 Log 1.0 js/DeveloperLog.js

@@ -3,7 +3,7 @@
  */
 import QtQuick 2.0
 
-import "qrc:/ui/gberry-lib/js/DeveloperLog.js" as Log
+import "../js/DeveloperLog.js" as Log
 
 // TODO: how to adjust text size according to screen size
 // TODO: what about different text size in different languages
@@ -26,7 +26,7 @@ Rectangle {
         text: label
         anchors.centerIn: parent
         font.bold: true
-        font.pixelSize: dimensions.defaultTextPixelSize * dimensions.textScale
+        font.pixelSize: gdisplay.smallSize * gdisplay.ppmmText
     }
 
     MouseArea {
@@ -39,7 +39,7 @@ Rectangle {
     }
 
     Component.onCompleted: {
-        Log.initLog("Button/" + buttonLabel.text, _CONSTANTS.logLevel)
+        Log.initLog("Button/" + buttonLabel.text, gsettings.logLevel)
         Log.debug("width: " + width + ", height: " + height)
     }
 }
