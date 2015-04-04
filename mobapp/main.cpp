@@ -1,6 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlPropertyMap>
+#include <QProcessEnvironment>
 
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -57,10 +59,30 @@ int main(int argc, char *argv[])
 
     //WAIT_CUSTOM_AND_ASSERT(northApplication1.isConsoleConnectionOpen(), 5000, 50);
 
+    QQmlPropertyMap screenProps;
+    screenProps.insert("name", QVariant(QString("John Smith")));
+
+    // TODO: read for environment
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    if (env.contains("PREF_WINDOW_WIDTH")) {
+        screenProps.insert("preferredWindowWidth", QVariant(env.value("PREF_WINDOW_WIDTH").toInt()));
+    } else {
+        screenProps.insert("preferredWindowWidth", QVariant(320));
+    }
+
+    if (env.contains("PREF_WINDOW_HEIGHT")) {
+        screenProps.insert("preferredWindowHeight", QVariant(env.value("PREF_WINDOW_HEIGHT").toInt()));
+    } else {
+        screenProps.insert("preferredWindowHeight", QVariant(400));
+    }
+
+    // TODO: env for login -> faster setup
+
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("app", &model);
     engine.rootContext()->setContextProperty("mobapp", &mobapp);
-
+    engine.rootContext()->setContextProperty("screen", &screenProps);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     qDebug() << "QQmlEngine::offlineStoragePath()" << engine.offlineStoragePath();

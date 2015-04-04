@@ -14,8 +14,8 @@ import "js/MobileClientMessages.js" as Messages
 Window {
     id: mainwindow
     visible: true
-    width: 320
-    height: 400
+    width: screen.preferredWindowWidth
+    height: screen.preferredWindowHeight
 
     ToolBar {
         id: topbar
@@ -233,6 +233,7 @@ Window {
     function connectToConsole()
     {
         mobapp.loginGuest("Foobar")
+        //mobapp.openConsoleConnection("192.168.1.248")
         mobapp.openConsoleConnection("localhost")
     }
 
@@ -320,5 +321,16 @@ Window {
 
         loginview.viewClosed.connect(onLoginViewClosed)
         loginview.login.connect(onLogin)
+
+        Log.debug("TEST: " + screen.name)
+        Log.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
+
+        Log.debug("screen.preferredWindowWidth: " + screen.preferredWindowWidth)
+        Log.debug("screen.preferredWindowHeight: " + screen.preferredWindowHeight)
+
+        // TODO: how to impl dynamic binding for devenv
+        //mainwindow.width = screen.preferredWindowWidth
+        //mainwindow.height = screen.preferredWindowHeight
+        // TODO: more info
     }
 }
