@@ -8,13 +8,19 @@
         <file>TopBar.qml</file>
         <file>BasicControls.qml</file>
         <file>BasicControlsButton.qml</file>
-        <file>AppBox.js</file>
         <file>GeneralActions.qml</file>
-        <file>js/MobileClientMessages.js</file>
         <file>settings/Settings.qml</file>
         <file>login/LoginView.qml</file>
-        <file>ui/gberry-lib/js/DeveloperLog.js</file>
-        <file>ui/gberry-lib/qml/GButton.qml</file>
-        <file>ui/gberry-lib/qmldir</file>
+        <file>ApplicationSettings.qml</file>
+    </qresource>
+    <qresource prefix="/js">
+        <file alias="AppBox.js">js/AppBox.js</file>
+        <file alias="MobileClientMessages.js">js/MobileClientMessages.js</file>
+    </qresource>
+    <qresource prefix="/ui/gberry-lib">
+        <file alias="qmldir">ui/gberry-lib/qmldir</file>
+        <file alias="js/DeveloperLog.js">ui/gberry-lib/js/DeveloperLog.js</file>
+        <file alias="qml/GButton.qml">ui/gberry-lib/qml/GButton.qml</file>
+        <file alias="qml/GDisplayProfile.qml">ui/gberry-lib/qml/GDisplayProfile.qml</file>
     </qresource>
 </RCC>

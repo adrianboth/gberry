@@ -4,18 +4,17 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-import "settings"
-import "login"
-
-import "AppBox.js" as AppBox
-import "js/MobileClientMessages.js" as Messages
-
 // both imports as ok, but for statefull *.js you need to refer consistently
 // otherwise you get different instances.
 import "ui/gberry-lib" as GBerry
 import "ui/gberry-lib"
 
-//import "ui/gberry-lib/js/DeveloperLog.js" as Log
+import "settings"
+import "login"
+
+import "js/MobileClientMessages.js" as Messages
+import "js/AppBox.js" as AppBox
+
 
 Window {
     id: mainwindow
@@ -23,7 +22,19 @@ Window {
     width: screen.preferredWindowWidth
     height: screen.preferredWindowHeight
 
-    GBerry.GButton {}
+    GBerry.GButton { label: "Test1"; anchors.centerIn: parent; z: 1000 }
+    GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
+
+    // global settings
+    ApplicationSettings { id: gsettings }
+    GDisplayProfile { id: gdisplay }
+
+    // for desktop development - easy test of scaling
+    onHeightChanged: { gdisplay.adjust(width, height) }
+    onWidthChanged: { gdisplay.adjust(width, height) }
+
+
+
 
     ToolBar {
         id: topbar
@@ -97,6 +108,12 @@ Window {
             }
 
             connectButton.onClicked: { console.log("CONNECT"); connectToConsole() }
+
+            border.color: "slategray"
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "lightsteelblue" }
+                GradientStop { position: 1.0; color: "slategray" }
+            }
         }
 
 
@@ -152,7 +169,7 @@ Window {
         }
 
         Settings {
-            id: settings
+            id: settingsView
             visible: false // initial state
         }
 
@@ -224,17 +241,17 @@ Window {
         toggleLocalGeneralActions(false) // hide
 
         if (actionId === "Settings") {
-            settings.visible = true
+            settingsView.visible = true
             // TODO: state?
             loginview.visible = false
 
         } else if (actionId === "Login") {
             loginview.visible = true
-            settings.visible = false
+            settingsView.visible = false
 
         } else if (actionId === "Reconnect") {
             mobapp.closeConsoleConnection()
-            mobapp.openConsoleConnection(settings.consoleAddress()) // TODO: use defined profiles
+            mobapp.openConsoleConnection(settingsView.consoleAddress()) // TODO: use defined profiles
         }
     }
 
@@ -299,8 +316,8 @@ Window {
     {
         console.debug("LOGIN: " + username + ", " + password + ", " + (guest ? "GUEST" : "NORMAL") + ", " + (rememberPassword ? "REMEMBER" : "-"))
         mobapp.loginGuest(username)
-        console.debug("USING CONSOLE ADDRESS: " + settings.consoleAddress())
-        mobapp.openConsoleConnection(settings.consoleAddress())
+        console.debug("USING CONSOLE ADDRESS: " + settingsView.consoleAddress())
+        mobapp.openConsoleConnection(settingsView.consoleAddress())
         loginview.visible = false
 
         // TODO: how to show login errors?
