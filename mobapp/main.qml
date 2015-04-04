@@ -7,7 +7,7 @@ import QtQuick.Layouts 1.1
 import "settings"
 import "login"
 
-import "DeveloperLog.js" as Log
+import "ui/gberry-lib/js/DeveloperLog.js" as Log
 import "AppBox.js" as AppBox
 import "js/MobileClientMessages.js" as Messages
 

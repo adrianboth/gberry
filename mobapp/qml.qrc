@@ -7,12 +7,13 @@
         <file>ConnectButton.qml</file>
         <file>TopBar.qml</file>
         <file>BasicControls.qml</file>
-        <file>DeveloperLog.js</file>
         <file>BasicControlsButton.qml</file>
         <file>AppBox.js</file>
         <file>GeneralActions.qml</file>
         <file>js/MobileClientMessages.js</file>
         <file>settings/Settings.qml</file>
         <file>login/LoginView.qml</file>
+        <file>ui/gberry-lib/js/DeveloperLog.js</file>
+        <file>ui/gberry-lib/qml/GButton.qml</file>
     </qresource>
 </RCC>
