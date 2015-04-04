@@ -8,14 +8,21 @@ import "settings"
 import "login"
 
 import "ui/gberry-lib/js/DeveloperLog.js" as Log
+
 import "AppBox.js" as AppBox
 import "js/MobileClientMessages.js" as Messages
+
+import "ui/gberry-lib/qml" as GBerry
+//import "ui/gberry-lib/qml"
 
 Window {
     id: mainwindow
     visible: true
     width: screen.preferredWindowWidth
     height: screen.preferredWindowHeight
+
+    GBerry.GButton {}
+    //GButton {}
 
     ToolBar {
         id: topbar

@@ -15,5 +15,6 @@
         <file>login/LoginView.qml</file>
         <file>ui/gberry-lib/js/DeveloperLog.js</file>
         <file>ui/gberry-lib/qml/GButton.qml</file>
+        <file>ui/gberry-lib/qml/qmldir</file>
     </qresource>
 </RCC>
