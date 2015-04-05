@@ -17,6 +17,7 @@ Rectangle {
         id: commsStatus
         text: qsTr("Comms: ") + commsStatusText
         anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
         anchors.leftMargin: 5
         font.pixelSize: 12
     }
@@ -25,13 +26,13 @@ Rectangle {
         id: players
         text: playersText
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
+        anchors.verticalCenter: parent.verticalCenter
     }
 
     Text {
         id: time
-        anchors.top: parent.top
         anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
         text: timeText
     }
 
