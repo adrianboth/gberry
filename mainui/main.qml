@@ -1,6 +1,22 @@
 import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
+import QtQuick.Layouts 1.1
+
+import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule"
+//import "file:/ExampleModule" 1.0
+//import ExampleModule 1.0
+import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule/" 1.0
+
+//import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib/" 1.0
+//import "file:ui/gberry-lib" as Test
+//import "gb:." 1.0 as Test
+// this works
+import "gb:/qml/." 1.0 as GBerry
+//import "gb:/qml/GDisplayProfile.qml"
+import "gb:/js/DeveloperLog.js" as Log
+//import "/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib"
+//import GBerry 1.0
 
 import "AppBoxMaster.js" as AppBoxMaster
 import "js/Messages.js" as MessagesJS
@@ -10,35 +26,45 @@ Window {
     visible: true
     width: 800
     height: 600
+    MyButton {}
+    ApplicationSettings { id: gsettings }
+    GBerry.GDisplayProfile { id: gdisplay }
 
+    GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
+    //Test.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
+
+    // TODO: column layout
     InfoBar {
         id: infobar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         z: 100
+
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "snow" }
+            GradientStop { position: 1.0; color: "gray" }
+        }
     }
 
-    MessageBoard {
-        id: messageBoard
 
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: 25
-        anchors.rightMargin: 25
-    }
 
     Rectangle {
         id: mainarea
+
         anchors.top: infobar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: messageBoard.top
+        anchors.bottom: parent.bottom
 
-        Menu {
-            id: menu
-            focus: true // TODO: needed?
+        border.color: "slategray"
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "lightsteelblue" }
+            GradientStop { position: 1.0; color: "slategray" }
+        }
+
+        MainMenu {
+            id: mainmenu
             anchors.centerIn: parent
         }
 
@@ -53,7 +79,7 @@ Window {
                 State {
                     name: "MENU"
                     PropertyChanges { target: appboxui; visible: false }
-                    PropertyChanges { target: menu; visible: true }
+                    PropertyChanges { target: mainmenu; visible: true }
                     StateChangeScript {
                             name: "myScript1"
                             script: {
@@ -66,7 +92,7 @@ Window {
                 State {
                     name: "GAME"
                     PropertyChanges { target: appboxui; visible: true}
-                    PropertyChanges { target: menu; visible: false}
+                    PropertyChanges { target: mainmenu; visible: false}
 
                     StateChangeScript {
                             name: "myScript"
@@ -144,6 +170,17 @@ Window {
         }
     }
 
+    MessageBoard {
+        id: messageBoard
+        opacity: 0.5
+
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 25
+        anchors.rightMargin: 25
+    }
+
     function playGameSelected() {
         console.debug("Play selected")
         // TODO: appbox version handshaking at some point
@@ -206,8 +243,8 @@ Window {
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
-        menu.playGameSelected.connect(root.playGameSelected)
-        menu.exitGameSelected.connect(root.exitGameSelected)
+        mainmenu.playGameSelected.connect(root.playGameSelected)
+        mainmenu.exitGameSelected.connect(root.exitGameSelected)
 
         AppBoxMaster.loadAppBoxResources()
     }
