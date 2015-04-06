@@ -9,5 +9,6 @@
         <file>js/Messages.js</file>
         <file>ApplicationSettings.qml</file>
         <file>MainMenu.qml</file>
+        <file>MainMenuItem.qml</file>
     </qresource>
 </RCC>

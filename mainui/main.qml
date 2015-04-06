@@ -3,20 +3,10 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
-import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule"
-//import "file:/ExampleModule" 1.0
-//import ExampleModule 1.0
-import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule/" 1.0
-
-//import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib/" 1.0
-//import "file:ui/gberry-lib" as Test
-//import "gb:." 1.0 as Test
 // this works
 import "gb:/qml/." 1.0 as GBerry
 //import "gb:/qml/GDisplayProfile.qml"
 import "gb:/js/DeveloperLog.js" as Log
-//import "/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib"
-//import GBerry 1.0
 
 import "AppBoxMaster.js" as AppBoxMaster
 import "js/Messages.js" as MessagesJS
@@ -26,12 +16,12 @@ Window {
     visible: true
     width: 800
     height: 600
-    MyButton {}
+
     ApplicationSettings { id: gsettings }
     GBerry.GDisplayProfile { id: gdisplay }
 
-    GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
-    //Test.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
+    // testing
+    //GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
 
     // TODO: column layout
     InfoBar {
@@ -66,6 +56,17 @@ Window {
         MainMenu {
             id: mainmenu
             anchors.centerIn: parent
+
+            items: [
+                MainMenuItem {
+                    text: qsTr("Play Game")
+                    onSelected: playGameSelected()
+                },
+                MainMenuItem {
+                    text: qsTr("Exit")
+                    onSelected: exitGameSelected()
+                }
+            ]
         }
 
         AppBoxUI {
@@ -142,11 +143,11 @@ Window {
         if (js["action"] === "SelectBasicControlAction")
         {
             if (js["id"] === "Up")
-                menu.moveFocusToNext()
+                mainmenu.moveFocusToNext()
             else if (js["id"] === "Down")
-                menu.moveFocusToPrevious()
+                mainmenu.moveFocusToPrevious()
             else if (js["id"] === "OK")
-                menu.selectCurrent()
+                mainmenu.selectCurrent()
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
             // TODO: case when multiple possible confirmations
@@ -242,9 +243,6 @@ Window {
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
-
-        mainmenu.playGameSelected.connect(root.playGameSelected)
-        mainmenu.exitGameSelected.connect(root.exitGameSelected)
 
         AppBoxMaster.loadAppBoxResources()
     }
