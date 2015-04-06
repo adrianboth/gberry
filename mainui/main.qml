@@ -150,20 +150,15 @@ Window {
         } else if (js["action"] === "ConfirmationQuestionResponse") {
             // TODO: case when multiple possible confirmations
             if (exitConfirmationDialog.visible) {
-                if (js["ref"] === "Yes") {
-                    // this is not in official docs
-                    exitConfirmationDialog.click(StandardButton.Yes)
-                }
-                if (js["ref"] === "No") {
-                    exitConfirmationDialog.click(StandardButton.No)
-                }
+                exitConfirmationDialog.selectOption(js["ref"])
+
                 // just to make sure everyones dialogs are closed
                 playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
             }
 
         } else if (js["action"] === "GeneralAction") {
             if (js["id"] === "GameMenu") {
-                console.debug("GAME MENU GENERAL ACTION     ")
+                console.debug("GAME MENU GENERAL ACTION")
                 mainarea.state = "MENU"
             }
         }
@@ -209,9 +204,12 @@ Window {
         // TODO: how localization of these texts would go?
 
         var js = {action: "ConfirmationQuestion",
-                  title: "Confirmation",
-                  text: "Are you sure to exit this game?",
-                  options: [{id: "Yes", text: "Yes"}, {id: "No", text: "No"}]
+                  title: exitConfirmationDialog.titleText,
+                  text: exitConfirmationDialog.questionText,
+                  options: [{id:   exitConfirmationDialog.option1Id,
+                             text: exitConfirmationDialog.option1Text},
+                            {id:   exitConfirmationDialog.option2Id,
+                             text: exitConfirmationDialog.option2Text}]
                  }
 
         // TODO: should be send only for controlling player but that is not yet implemented)
@@ -227,6 +225,7 @@ Window {
         // TODO: disable everything else -> record state
     }
 
+    /*
     MessageDialog {
         id: exitConfirmationDialog
         visible: false // initial state
@@ -235,6 +234,25 @@ Window {
         standardButtons: StandardButton.Yes | StandardButton.No
         onNo: exitConfirmationDialog.close()
         onYes: Qt.quit()
+    }
+    */
+
+    GBerry.ConfirmationDialog {
+        id: exitConfirmationDialog
+        visible: false // initial state
+
+        questionText: qsTr("Exit?") // "Are you sure to exit the game?"
+        option1Text: qsTr("Yes")
+        option2Text: qsTr("No")
+
+        onOption1Selected: {
+            // Yes
+            Qt.quit()
+        }
+
+        onOption2Selected: {
+            exitConfirmationDialog.visible = false
+        }
     }
 
     Component.onCompleted: {
