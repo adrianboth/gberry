@@ -13,8 +13,6 @@ Rectangle {
     color: "#2db6e1"
     width: buttonLabel.width + (25*2)
     height: buttonLabel.height + (12*2)
-    //width: 107
-    //height: 55
     antialiasing: true
     property string label
 
@@ -26,7 +24,7 @@ Rectangle {
         text: label
         anchors.centerIn: parent
         font.bold: true
-        font.pixelSize: gdisplay.smallSize * gdisplay.ppmmText
+        font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
     }
 
     MouseArea {

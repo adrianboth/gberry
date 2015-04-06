@@ -76,7 +76,7 @@ INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
 
 DISTFILES += \
-    ui/qml/qmldir \
+    ui/qmldir \
     ui/qml/GButton.qml \
     ui/js/DeveloperLog.js \
     ui/qml/GDisplayProfile.qml
