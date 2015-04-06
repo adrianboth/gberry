@@ -1,3 +1,18 @@
+// ---
+// MainMenu is list of vertical menu items
+//
+// Usage:
+//   MainMenu {
+//       id: mainmenu
+//       anchors.centerIn: parent
+//       items: [
+//           MainMenuItem { text: qsTr("Play Game"); onSelected: playGameSelected() },
+//           MainMenuItem { text: qsTr("Exit"); onSelected: exitGameSelected() }
+//       ]
+//   }
+//
+
+
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
@@ -68,13 +83,13 @@ Rectangle {
         // implicit size is set by default for Text
         var maxW = 0
         for (var i = 0; i < items.length; i++) {
-            Log.debug("Check width: " + items[i].implicitWidth)
-            Log.debug("Check height: " + items[i].implicitWidth)
+            Log.trace("Check width: " + items[i].implicitWidth)
+            Log.trace("Check height: " + items[i].implicitWidth)
 
             if (items[i].implicitWidth > maxW)
                 maxW = items[i].implicitWidth
         }
-        Log.debug("Found max width: " + maxW)
+        Log.trace("Found max width: " + maxW)
         return maxW
     }
 
@@ -84,7 +99,7 @@ Rectangle {
 
         property int textPixelHeight: gdisplay.mediumSize * gdisplay.ppmText
         property int itemHeight: textPixelHeight + (textPixelHeight * 0.25 *2) // with margins
-        property int maxTextWidth: calculateMaxMenuTextWidth()
+        property int maxTextWidth: 100 // temporary default value, proper value is calculated
 
         anchors.centerIn: parent
         spacing: itemHeight * 0.5
@@ -110,4 +125,3 @@ Rectangle {
         items[0].focused = true
     }
 }
-

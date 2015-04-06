@@ -37,8 +37,6 @@ Window {
         }
     }
 
-
-
     Rectangle {
         id: mainarea
 
