@@ -17,13 +17,13 @@ import "js/AppBox.js" as AppBox
 
 
 Window {
-    id: mainwindow
+    id: root
     visible: true
     width: screen.preferredWindowWidth
     height: screen.preferredWindowHeight
 
-    GBerry.GButton { label: "Test1"; anchors.centerIn: parent; z: 1000 }
-    GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
+    //GBerry.GButton { label: "Test1"; anchors.centerIn: parent; z: 1000 }
+    //GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
 
     // global settings
     ApplicationSettings { id: gsettings }
@@ -129,6 +129,7 @@ Window {
         }
 
 
+        /*
         MessageDialog {
             id: msgDiag
             visible: false
@@ -147,6 +148,26 @@ Window {
                            ref: "No" }
                 mobapp.sendMessage(JSON.stringify(js))
             }
+        }
+        */
+
+        GBerry.ConfirmationDialog {
+            id: msgDiag
+            visible: false
+
+            onOption1Selected: {
+                msgDiag.visible = false
+                var js = { action: "ConfirmationQuestionResponse",
+                           ref: msgDiag.option1Id }
+                mobapp.sendMessage(JSON.stringify(js))
+            }
+            onOption2Selected: {
+                msgDiag.visible = false
+                var js = { action: "ConfirmationQuestionResponse",
+                           ref: msgDiag.option2Id }
+                mobapp.sendMessage(JSON.stringify(js))
+            }
+
         }
 
         Rectangle {
@@ -267,10 +288,16 @@ Window {
 
         var js = JSON.parse(data)
         if (js["action"] === "ConfirmationQuestion") {
-            msgDiag.title = js["title"]
-            msgDiag.text = js["text"]
-            // TODO: Use StandardButtons or custom impl for handling option (Yes/No),
-            //       now using built in
+            msgDiag.titleText = js["title"]
+            msgDiag.questionText = js["text"]
+
+            // we expect exactly two options (might be dangerous)
+            msgDiag.option1Id = js["options"][0]["id"]
+            msgDiag.option1Text = js["options"][0]["text"]
+
+            msgDiag.option2Id = js["options"][1]["id"]
+            msgDiag.option2Text = js["options"][1]["text"]
+
             msgDiag.visible = true
 
         } else if (js["action"] === "CloseQuestion") {
@@ -354,8 +381,8 @@ Window {
         Log.debug("screen.preferredWindowHeight: " + screen.preferredWindowHeight)
 
         // TODO: how to impl dynamic binding for devenv
-        //mainwindow.width = screen.preferredWindowWidth
-        //mainwindow.height = screen.preferredWindowHeight
+        //root.width = screen.preferredWindowWidth
+        //root.height = screen.preferredWindowHeight
         // TODO: more info
     }
 }

@@ -22,5 +22,6 @@
         <file alias="js/DeveloperLog.js">ui/gberry-lib/js/DeveloperLog.js</file>
         <file alias="qml/GButton.qml">ui/gberry-lib/qml/GButton.qml</file>
         <file alias="qml/GDisplayProfile.qml">ui/gberry-lib/qml/GDisplayProfile.qml</file>
+        <file alias="qml/ConfirmationDialog.qml">ui/gberry-lib/qml/ConfirmationDialog.qml</file>
     </qresource>
 </RCC>

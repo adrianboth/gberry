@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
     // TODO: env for login -> faster setup
 
     QQmlApplicationEngine engine;
+
     engine.rootContext()->setContextProperty("app", &model);
     engine.rootContext()->setContextProperty("mobapp", &mobapp);
     engine.rootContext()->setContextProperty("screen", &screenProps);

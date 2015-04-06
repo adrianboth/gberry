@@ -21,7 +21,7 @@ Rectangle {
 
         ColumnLayout {
             Text { text: "Settings"; font.pointSize: 16 }
-            width: mainwindow.width
+            width: root.width
             //anchors.left: parent.left
             //anchors.right: parent.right
             //anchors.fill: parent
@@ -65,7 +65,7 @@ Rectangle {
 
             GroupBox {
                 title: "Server"
-                width: mainwindow.width
+                width: root.width
                 Layout.fillWidth: true
                 RowLayout {
                     anchors.fill: parent
