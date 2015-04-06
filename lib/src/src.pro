@@ -40,7 +40,8 @@ HEADERS += \
     log/ilogmsghandler.h \
     log/log.h \
     log/logcontrol.h \
-    log/stdoutlogmsghandler.h
+    log/stdoutlogmsghandler.h \
+    ui/displayprofile.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -70,7 +71,8 @@ SOURCES += \
     client/consolesessionmanager.cpp \
     log/log.cpp \
     log/logcontrol.cpp \
-    log/stdoutlogmsghandler.cpp
+    log/stdoutlogmsghandler.cpp \
+    ui/displayprofile.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
@@ -79,4 +81,5 @@ DISTFILES += \
     ui/qmldir \
     ui/qml/GButton.qml \
     ui/js/DeveloperLog.js \
-    ui/qml/GDisplayProfile.qml
+    ui/qml/GDisplayProfile.qml \
+    ui/qml/ConfirmationDialog.qml
