@@ -2,8 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>MainForm.ui.qml</file>
-        <file>LoginPopup.qml</file>
-        <file>LoginPopupForm.ui.qml</file>
         <file>ConnectButton.qml</file>
         <file>TopBar.qml</file>
         <file>BasicControls.qml</file>

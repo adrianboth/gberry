@@ -4,10 +4,6 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 
-// both imports as ok, but for statefull *.js you need to refer consistently
-// otherwise you get different instances.
-//import "ui/gberry-lib" as GBerry
-//import "ui/gberry-lib"
 import GBerry 1.0
 
 import "settings"
@@ -16,15 +12,11 @@ import "login"
 import "js/MobileClientMessages.js" as Messages
 import "js/AppBox.js" as AppBox
 
-
 Window {
     id: root
     visible: true
     width: screen.preferredWindowWidth
     height: screen.preferredWindowHeight
-
-    //GBerry.GButton { label: "Test1"; anchors.centerIn: parent; z: 1000 }
-    //GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
 
     // global settings
     ApplicationSettings { id: gsettings }
@@ -33,8 +25,6 @@ Window {
     // for desktop development - easy test of scaling
     onHeightChanged: { gdisplay.adjust(width, height) }
     onWidthChanged: { gdisplay.adjust(width, height) }
-
-
 
 
     ToolBar {
