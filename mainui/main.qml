@@ -3,14 +3,9 @@ import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
-// this works
-//import "gb:/qml/." 1.0 as GBerry
-//import "gb:/qml/GDisplayProfile.qml"
-//import "gb:/js/DeveloperLog.js" as Log
 import GBerry 1.0
+import GBerryConsole 1.0
 
-import "AppBoxMaster.js" as AppBoxMaster
-import "js/Messages.js" as MessagesJS
 
 Window {
     id: root
@@ -168,12 +163,31 @@ Window {
     MessageBoard {
         id: messageBoard
         opacity: 0.5
+        visible: gsettings.developmentMode
 
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.leftMargin: 25
         anchors.rightMargin: 25
+    }
+
+    GConfirmationDialog {
+        id: exitConfirmationDialog
+        visible: false // initial state
+        //text: "Are you sure to exit this game?"
+        questionText: qsTr("Exit?") // "Are you sure to exit the game?"
+        option1Text: qsTr("Yes")
+        option2Text: qsTr("No")
+
+        onOption1Selected: {
+            // Yes
+            Qt.quit()
+        }
+
+        onOption2Selected: {
+            exitConfirmationDialog.visible = false
+        }
     }
 
     function playGameSelected() {
@@ -226,41 +240,11 @@ Window {
         // TODO: disable everything else -> record state
     }
 
-    /*
-    MessageDialog {
-        id: exitConfirmationDialog
-        visible: false // initial state
-        title: "Exit Confirmation"
-        text: "Are you sure to exit this game?"
-        standardButtons: StandardButton.Yes | StandardButton.No
-        onNo: exitConfirmationDialog.close()
-        onYes: Qt.quit()
-    }
-    */
-
-    GConfirmationDialog {
-        id: exitConfirmationDialog
-        visible: false // initial state
-
-        questionText: qsTr("Exit?") // "Are you sure to exit the game?"
-        option1Text: qsTr("Yes")
-        option2Text: qsTr("No")
-
-        onOption1Selected: {
-            // Yes
-            Qt.quit()
-        }
-
-        onOption2Selected: {
-            exitConfirmationDialog.visible = false
-        }
-    }
-
     Component.onCompleted: {
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
-        AppBoxMaster.loadAppBoxResources()
+        AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
     }
 }

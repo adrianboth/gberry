@@ -1,8 +1,13 @@
 TARGET = consolelib
 TEMPLATE = lib
 
-QT       += network websockets
-QT       -= gui
+QT       += network websockets gui qml quick
+# TODO: console lib should be split
+#  - common (static)
+#  - server (shared), core Qt
+#  - client (shared), QtGui
+#  but now quick fix
+#QT       -= gui
 
 CONFIG += c++11
 
@@ -29,7 +34,8 @@ SOURCES += \
     playerchannel.cpp \
     controlchannel.cpp \
     channel.cpp \
-    server/playerconnectionmanager.cpp
+    server/playerconnectionmanager.cpp \
+    client/consoleapplication.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -52,13 +58,23 @@ HEADERS +=\
     controlchannel.h \
     channel.h \
     ichannelparent.h \
-    server/playerconnectionmanager.h
+    server/playerconnectionmanager.h \
+    client/consoleapplication.h
 
 
 target.path = $${DEPLOY_DIR}/lib/
 INSTALLS += target
 
-
+DISTFILES += \
+    ui/qml/GBerryConsole/qmldir \
+    ui/qml/GBerryConsole/MessageBoard.qml \
+    ui/qml/GBerryConsole/InfoBar.qml \
+    ui/qml/GBerryConsole/MainMenuItem.qml \
+    ui/qml/GBerryConsole/MainMenu.qml \
+    ui/qml/GBerryConsole/AppBoxUI.qml \
+    ui/qml/GBerryConsole/js/AppBoxMaster.js \
+    ui/qml/GBerryConsole/js/Messages.js
+    
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 
 includeStaticLibrary("qhttpserver", $${QHTTPSERVER_SRC_DIR}, $${QHTTPSERVER_BUILD_DIR})

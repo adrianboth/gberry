@@ -6,7 +6,3 @@ function createCloseQuestionMsg() {
 }
 
 var CLOSE_QUESTION_MSG = createCloseQuestionMsg()
-
-
-
-
