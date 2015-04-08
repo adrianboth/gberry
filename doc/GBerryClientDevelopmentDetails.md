@@ -52,3 +52,6 @@ NOTE: You need to define alias for added files into qrc or otherwise paths
       
 By defing QML_IMPORT_TRACE=1 environment variable you can troubleshoot import
 problems.
+
+Refs:
+http://doc.qt.io/qt-5/resources.html
