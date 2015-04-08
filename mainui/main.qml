@@ -4,9 +4,10 @@ import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 
 // this works
-import "gb:/qml/." 1.0 as GBerry
+//import "gb:/qml/." 1.0 as GBerry
 //import "gb:/qml/GDisplayProfile.qml"
-import "gb:/js/DeveloperLog.js" as Log
+//import "gb:/js/DeveloperLog.js" as Log
+import GBerry 1.0
 
 import "AppBoxMaster.js" as AppBoxMaster
 import "js/Messages.js" as MessagesJS
@@ -18,7 +19,7 @@ Window {
     height: 600
 
     ApplicationSettings { id: gsettings }
-    GBerry.GDisplayProfile { id: gdisplay }
+    GDisplayProfile { id: gdisplay }
 
     // testing
     //GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
@@ -237,7 +238,7 @@ Window {
     }
     */
 
-    GBerry.ConfirmationDialog {
+    GConfirmationDialog {
         id: exitConfirmationDialog
         visible: false // initial state
 

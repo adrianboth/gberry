@@ -1,6 +1,6 @@
 import QtQuick 2.0
 
-import "gb:/js/DeveloperLog.js" as Log
+import GBerry 1.0 // 'Log'
 
 Item {
     property int logLevel: Log.DEBUG_LEVEL

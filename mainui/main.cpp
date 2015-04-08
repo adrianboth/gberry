@@ -14,11 +14,10 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-
-    QDir::setSearchPaths("gb", QStringList("/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib"));
+    //QDir::setSearchPaths("gb", QStringList("/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib"));
 
     engine.addImportPath("/home/tevuore/workspace/gberry/gberry-console/mainui/ui/gberry-lib");
-    engine.addImportPath("/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule");
+    //engine.addImportPath("/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule");
     qDebug()<< "Import paths" << engine.importPathList();
     qDebug() << "baseUrl" << engine.rootContext()->baseUrl();
     engine.rootContext()->setContextProperty("playersManager", &(setup.playersManager));

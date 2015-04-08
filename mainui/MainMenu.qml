@@ -16,7 +16,7 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
-import "gb:/js/DeveloperLog.js" as Log
+import GBerry 1.0 // 'Log' comes here
 
 Rectangle {
     id: mainmenu
