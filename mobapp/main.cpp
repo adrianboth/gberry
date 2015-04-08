@@ -56,13 +56,10 @@ int main(int argc, char *argv[])
     //mobapp.loginGuest("GuestFoo");
     //mobapp.openConsoleConnection(console);
 
-
-    //WAIT_CUSTOM_AND_ASSERT(northApplication1.isConsoleConnectionOpen(), 5000, 50);
-
     QQmlPropertyMap screenProps;
     screenProps.insert("name", QVariant(QString("John Smith")));
 
-    // TODO: read for environment
+
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
     if (env.contains("PREF_WINDOW_WIDTH")) {
