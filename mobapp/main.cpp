@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
     // TODO: env for login -> faster setup
 
     QQmlApplicationEngine engine;
+    engine.addImportPath("qrc:/ui/gberry-lib");
 
     engine.rootContext()->setContextProperty("app", &model);
     engine.rootContext()->setContextProperty("mobapp", &mobapp);

@@ -6,8 +6,9 @@ import QtQuick.Layouts 1.1
 
 // both imports as ok, but for statefull *.js you need to refer consistently
 // otherwise you get different instances.
-import "ui/gberry-lib" as GBerry
-import "ui/gberry-lib"
+//import "ui/gberry-lib" as GBerry
+//import "ui/gberry-lib"
+import GBerry 1.0
 
 import "settings"
 import "login"
@@ -151,7 +152,7 @@ Window {
         }
         */
 
-        GBerry.ConfirmationDialog {
+        GConfirmationDialog {
             id: msgDiag
             visible: false
 
