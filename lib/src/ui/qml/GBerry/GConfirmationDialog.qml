@@ -6,10 +6,6 @@ import QtQuick.Layouts 1.1
 
 import "js/DeveloperLog.js" as Log
 
-//import "gb:/qml" 1.0 as GBerry // for mainui
-//import ".." 1.0 as GBerry // for mobapp
-//import GBerry 1.0
-
 Rectangle {
     id: dialog
 

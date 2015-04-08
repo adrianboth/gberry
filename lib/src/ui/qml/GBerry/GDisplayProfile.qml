@@ -1,7 +1,6 @@
 import QtQuick 2.2
 import QtQuick.Window 2.2
 
-
 import "js/DeveloperLog.js" as Log
 
 Item {

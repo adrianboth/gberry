@@ -3,8 +3,7 @@
  */
 import QtQuick 2.0
 
-// TODO: this doesn't work with current import path setup
-//import "../js/DeveloperLog.js" as Log
+import "js/DeveloperLog.js" as Log
 
 // TODO: how to adjust text size according to screen size
 // TODO: what about different text size in different languages
@@ -33,13 +32,13 @@ Rectangle {
         id: buttonMouseArea
         anchors.fill: parent
         onClicked: { buttonClicked();
-            //Log.debug("button w: " + (button.width - buttonLabel.width))
-            //Log.debug("button h: " + (button.height - buttonLabel.height))
+            Log.debug("button w: " + (button.width - buttonLabel.width))
+            Log.debug("button h: " + (button.height - buttonLabel.height))
         }
     }
 
     Component.onCompleted: {
-        //Log.initLog("Button/" + buttonLabel.text, gsettings.logLevel)
-        //Log.debug("width: " + width + ", height: " + height)
+        Log.initLog("Button/" + buttonLabel.text, gsettings.logLevel)
+        Log.debug("width: " + width + ", height: " + height)
     }
 }
