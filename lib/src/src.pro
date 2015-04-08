@@ -78,8 +78,8 @@ INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
 
 DISTFILES += \
-    ui/qmldir \
-    ui/qml/GButton.qml \
-    ui/js/DeveloperLog.js \
-    ui/qml/GDisplayProfile.qml \
-    ui/qml/ConfirmationDialog.qml
+    ui/qml/GBerry/qmldir \
+    ui/qml/GBerry/GButton.qml \
+    ui/qml/GBerry/js/DeveloperLog.js \
+    ui/qml/GBerry/GDisplayProfile.qml \
+    ui/qml/GBerry/ConfirmationDialog.qml

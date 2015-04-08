@@ -4,10 +4,11 @@
 import QtQuick 2.4
 import QtQuick.Layouts 1.1
 
-import "../js/DeveloperLog.js" as Log
+import "js/DeveloperLog.js" as Log
 
 //import "gb:/qml" 1.0 as GBerry // for mainui
-import ".." 1.0 as GBerry // for mobapp
+//import ".." 1.0 as GBerry // for mobapp
+//import GBerry 1.0
 
 Rectangle {
     id: dialog
@@ -75,12 +76,12 @@ Rectangle {
             anchors.centerIn: parent
             // TODO: fix
             spacing: 50
-            GBerry.GButton {
+            GButton {
                 id: option1Button
                 label: option1Text
                 onButtonClicked: option1Selected()
             }
-            GBerry.GButton {
+            GButton {
                 id: option2Button
                 label: option2Text
                 onButtonClicked: option2Selected()
