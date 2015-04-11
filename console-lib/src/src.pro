@@ -61,9 +61,11 @@ HEADERS +=\
     server/playerconnectionmanager.h \
     client/consoleapplication.h
 
+qml.files = ui/qml/*
+qml.path = $$DEPLOY_DIR/lib/qml/
 
 target.path = $${DEPLOY_DIR}/lib/
-INSTALLS += target
+INSTALLS += target qml
 
 DISTFILES += \
     ui/qml/GBerryConsole/qmldir \
