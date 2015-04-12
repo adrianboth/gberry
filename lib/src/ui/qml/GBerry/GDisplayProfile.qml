@@ -8,11 +8,16 @@ Item {
     property real ppmX: Screen.pixelDensity
     property real ppmY: Screen.pixelDensity
     property real ppmText: Screen.pixelDensity
+    property real scaleFactor: 1
 
     // size on millimeters
-    property real smallSize: 5
-    property real mediumSize: 10
-    property real largeSize: 20
+    property real smallSize: 5 * scaleFactor
+    property real mediumSize: 10 * scaleFactor
+    property real largeSize: 20 * scaleFactor
+
+    function text_mm(size_mm) {
+        return size_mm * ppmText
+    }
 
     // TODO: do I yet physical dimensions somewhere? to calculate x & y separately
 
