@@ -18,8 +18,6 @@ Rectangle {
         })
     }
 
-
-
     ListModel {
         id: listModel
         /*

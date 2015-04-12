@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>MainForm.ui.qml</file>
         <file>ConnectButton.qml</file>
         <file>TopBar.qml</file>
         <file>BasicControls.qml</file>
@@ -10,6 +9,8 @@
         <file>settings/Settings.qml</file>
         <file>login/LoginView.qml</file>
         <file>ApplicationSettings.qml</file>
+        <file>DebugView.qml</file>
+        <file>DefaultMainArea.qml</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="AppBox.js">js/AppBox.js</file>

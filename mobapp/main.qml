@@ -20,7 +20,7 @@ Window {
 
     // global settings
     ApplicationSettings { id: gsettings }
-    GDisplayProfile { id: gdisplay }
+    GDisplayProfile { id: gdisplay; scaleFactor: 0.5 }
 
     // for desktop development - easy test of scaling
     onHeightChanged: { gdisplay.adjust(width, height) }
@@ -85,29 +85,31 @@ Window {
             toggleLocalGeneralActions(false)
         }
 
-
-        MainForm {
+        DefaultMainArea {
             id: ui
             visible: true
             anchors.fill: parent
 
-            // TODO: not sure if this right way to configure ui side
-            property string serverTextStr: "Server (INIT)"
-            property string consoleTextStr: "Console (INIT)"
-            mouseArea.onClicked: {
-                Qt.quit();
-            }
+            Rectangle {
+                id: buttonFrame
+                x: 132
+                width: 74
+                height: 50
+                color: "#f81e1e"
+                anchors.centerIn: parent
+                //anchors.horizontalCenter: parent.horizontalCenter
+                //anchors.top: consoleText.bottom
+                //anchors.topMargin: 2
 
-            connectButton.onClicked: { console.log("CONNECT"); connectToConsole() }
-
-            border.color: "slategray"
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "lightsteelblue" }
-                GradientStop { position: 1.0; color: "slategray" }
+                GButton {
+                    id: connectButtonText
+                    label: qsTr("Connect")
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    onButtonClicked: { console.log("CONNECT"); connectToConsole() }
+                }
             }
         }
-
-
 
         BasicControls {
             id: basicControls
@@ -118,29 +120,6 @@ Window {
                 basicControls.buttonPressed.connect(function (buttonID) {basicControlButtonPressed(buttonID)})
             }
         }
-
-
-        /*
-        MessageDialog {
-            id: msgDiag
-            visible: false
-
-            standardButtons: StandardButton.Yes | StandardButton.No
-
-            onYes: {
-                msgDiag.visible = false
-                var js = { action: "ConfirmationQuestionResponse",
-                           ref: "Yes" }
-                mobapp.sendMessage(JSON.stringify(js))
-            }
-            onNo: {
-                msgDiag.visible = false
-                var js = { action: "ConfirmationQuestionResponse",
-                           ref: "No" }
-                mobapp.sendMessage(JSON.stringify(js))
-            }
-        }
-        */
 
         GConfirmationDialog {
             id: msgDiag
@@ -160,6 +139,25 @@ Window {
             }
 
         }
+
+        /*
+        GConfirmationDialog {
+            id: testConfirmationDialog
+            visible: true // initial state
+            questionText: qsTr("Are you sure to exit the game")
+            option1Text: qsTr("Yes")
+            option2Text: qsTr("No")
+
+            onOption1Selected: {
+                // Yes
+                Qt.quit()
+            }
+
+            onOption2Selected: {
+                testConfirmationDialog.visible = false
+            }
+        }
+        */
 
         Rectangle {
             id: appbox
@@ -187,6 +185,11 @@ Window {
 
         LoginView {
             id: loginview
+            visible: false // initial state
+        }
+
+        DebugView {
+            id: debugview
             visible: false // initial state
         }
     }
@@ -256,15 +259,23 @@ Window {
             settingsView.visible = true
             // TODO: state?
             loginview.visible = false
+            debugview.visible = false
 
         } else if (actionId === "Login") {
             loginview.visible = true
             settingsView.visible = false
+            debugview.visible = false
 
         } else if (actionId === "Reconnect") {
             mobapp.closeConsoleConnection()
             mobapp.openConsoleConnection(settingsView.consoleAddress()) // TODO: use defined profiles
+
+        } else if (actionId === "DebugInfo") {
+            debugview.visible = true
+            loginview.visible = false
+            settingsView.visible = false
         }
+        // TODO: other kind of list, now always need to add if
     }
 
     function connectToConsole()
@@ -322,8 +333,8 @@ Window {
 
     function updateTexts()
     {
-        ui.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
-        ui.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
+        debugview.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
+        debugview.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
     }
 
     function onLoginViewClosed()
@@ -357,7 +368,8 @@ Window {
         localGeneralActions.setActions(
             [{actionId: "Login", actionName: "Login"},
              {actionId: "Settings", actionName: "Settings"},
-             {actionId: "Reconnect", actionName: "Reconnect"}
+             {actionId: "Reconnect", actionName: "Reconnect"},
+             {actionId: "DebugInfo", actionName: "Debug Info"}
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
 
