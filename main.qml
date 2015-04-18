@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.1
 import GBerry 1.0
 import GBerryConsole 1.0
 
+import "ReactGameModel.js" as ReactGameModel
 
 Window {
     id: root
@@ -77,13 +78,25 @@ Window {
             ]
         }
 
-        AppBoxUI {
+        GameView {
             id: appboxui
-            color: "orange"
             anchors.fill: parent
         }
 
+        CountDown {
+            id: startcountdown
+            visible: false
+            anchors.centerIn: parent
+
+            onFinished: {
+                ReactGameModel.start()
+            }
+        }
+
         state: "MENU"
+        // TODO: temporary
+        //state: "GAME"
+
         states: [
                 State {
                     name: "MENU"
@@ -107,13 +120,22 @@ Window {
                             name: "myScript"
                             script: {
                                 console.debug("STATE CHANGE SCRIPT: INTO GAME")
-                                var js = {action: "ShowAppBox"}
-                                playersManager.sendAllPlayersMessage(JSON.stringify(js))
+                                //var js = {action: "ShowAppBox"}
+                                //playersManager.sendAllPlayersMessage(JSON.stringify(js))
+                                ReactGameModel.initializePlayers()
+                                appboxui.setNumbers(ReactGameModel.numbers())
+                                startcountdown.start()
                             }
                         }
+                },
+                State {
+                    // game ended state
+                    name: "END"
+                    // keep still game area visible
                 }
             ]
     }
+
 
     function onPlayerIn(pid)
     {
@@ -137,11 +159,23 @@ Window {
             playersManager.sendAllPlayersMessage(JSON.stringify(js))
         }
     }
+
     function onPlayerOut(pid)
     {
         console.log("Player left: id = " + pid)
         messageBoard.insertPlayerMessage(pid, "Player left")
+
+        if (playersManager.numberOfPlayers === 0) {
+            // last player left
+
+            // if in game -> return to menu
+            if (mainarea.state === "GAME") {
+                messageBoard.insertMessage("Last player left -> back to menu")
+                mainarea.state = "MENU"
+            }
+        }
     }
+
     function onPlayerMessageReceived(pid, data)
     {
         console.log("Player message: id = " + pid)
@@ -158,12 +192,18 @@ Window {
                 mainmenu.selectCurrent()
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
-            // TODO: case when multiple possible confirmations
-            if (exitConfirmationDialog.visible) {
-                exitConfirmationDialog.selectOption(js["ref"])
+            // TODO: could it be possible to have more object oriented questions
+            //       (i.e. if visible it has been registered as listener)
 
-                // just to make sure everyones dialogs are closed
-                playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
+            if (js["questionId"] === "exitgame") {
+                if (exitConfirmationDialog.visible) {
+                    exitConfirmationDialog.selectOption(js["ref"])
+
+                    // just to make sure everyones dialogs are closed
+                    playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
+                }
+            } else if (js["questionId"] === "playanother") {
+                playedwonDialog.selectOption(js["ref"])
             }
 
         } else if (js["action"] === "GeneralAction") {
@@ -171,6 +211,8 @@ Window {
                 console.debug("GAME MENU GENERAL ACTION")
                 mainarea.state = "MENU"
             }
+        } else if (js["action"] === "AppBoxMessage") {
+            ReactGameModel.playerMessageReceived(pid, js["data"])
         }
     }
 
@@ -233,6 +275,7 @@ Window {
         // TODO: how localization of these texts would go?
 
         var js = {action: "ConfirmationQuestion",
+                  questionId: "exitgame",
                   title: exitConfirmationDialog.titleText,
                   text: exitConfirmationDialog.questionText,
                   options: [{id:   exitConfirmationDialog.option1Id,
@@ -254,11 +297,89 @@ Window {
         // TODO: disable everything else -> record state
     }
 
+
+
+    GConfirmationDialog {
+        id: playedwonDialog
+        questionText: "xxx"
+        option1Id: "Yes"
+        option1Text: qsTr("Yes")
+        option2Id: "No"
+        option2Text: qsTr("No")
+
+        function declarePlayerWon(pid) {
+            var name = playersManager.playerName(pid)
+            playedwonDialog.questionText = qsTr("Player " + name + " won!\n\nPlay another?")
+            playedwonDialog.visible = true
+
+            // TODO: GConfirmationDialog could have a helper ...
+            var js = {action: "ConfirmationQuestion",
+                      questionId: "playanother", // TODO: client needs to return this
+                      title: playedwonDialog.titleText,
+                      text: playedwonDialog.questionText,
+                      options: [{id:   playedwonDialog.option1Id,
+                                 text: playedwonDialog.option1Text},
+                                {id:   playedwonDialog.option2Id,
+                                 text: playedwonDialog.option2Text}]
+                     }
+
+            playersManager.sendAllPlayersMessage(JSON.stringify(js))
+        }
+
+        onOption1Selected: {
+            // yes
+            playedwonDialog.visible = false
+            mainarea.state = "GAME"
+        }
+
+        onOption2Selected: {
+            // no
+            mainarea.state = "MENU"
+            playedwonDialog.visible = false
+        }
+    }
+
+    function onPlayerWon(pid) {
+        mainarea.state = "END"
+        playedwonDialog.declarePlayerWon(pid)
+    }
+    function onPlayerCorrectNumber(pid) {
+        // TODO: correct feedback
+        messageBoard.insertPlayerMessage(pid, "Correct number!")
+    }
+    function onPlayerInvalidNumber(pid) {
+        // TODO: invalid feedback
+        messageBoard.insertPlayerMessage(pid, "Invalid number!")
+    }
+
+    // TODO: sound when game starts
+    // TODO: sound when timer ticks
+    // TODO: sound when game ends
+
     Component.onCompleted: {
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
+        ReactGameModel.callbacks.playerWon.connect(onPlayerWon)
+        ReactGameModel.callbacks.playerCorrectNumber.connect(onPlayerCorrectNumber)
+        ReactGameModel.callbacks.playerInvalidNumber.connect(onPlayerInvalidNumber)
+
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
     }
 }
+
+// TODO: credits main page
+// TODO: why timer text not center
+
+// TODO: UI candy
+//   - timer number size changing, going smaller
+//   - at least zero fading
+//
+// some indicator who has type what
+
+// TODO: confirmation dialog doesn't work; why ? I thought ready; check mainui
+
+// TODO: get fancy background image (1920x1080)
+
+// TODO: record running time: stop clock when winner

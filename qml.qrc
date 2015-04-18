@@ -1,7 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-	<file>ApplicationSettings.qml</file>
+        <file>ApplicationSettings.qml</file>
         <file>appbox/AppBox.qml</file>
+        <file>GameView.qml</file>
+        <file>NumberBox.qml</file>
+        <file>ReactGameModel.js</file>
+        <file>ApplicationSettingsJS.js</file>
+        <file>CountDown.qml</file>
     </qresource>
 </RCC>

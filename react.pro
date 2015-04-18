@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = mainui
+TARGET = reactgame
 
 QT += qml quick network
 CONFIG += c++11
