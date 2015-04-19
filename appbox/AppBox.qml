@@ -5,32 +5,69 @@ import QtQuick.Layouts 1.1
 
 Rectangle {
     id: self
-    color: "lightgrey"
-    border.width: 1
-    border.color: "black"
-    width: 200
-    height: 50
-    anchors.centerIn: parent
-    Text {
-      text: "CONTENT FROM MAINUI"
-      anchors.centerIn: parent
+    anchors.fill: parent
+    gradient: Gradient {
+        GradientStop { position: 0.0; color: "lightsteelblue" }
+        GradientStop { position: 1.0; color: "slategray" }
     }
-    property real buttonOpacity: 0.5
 
-    MouseArea {
-        id: mouseArea
-        anchors.fill: parent
-        onPressed: outgoingMessage("hello mainui")
-    }
+    property real buttonOpacity: 0.5
 
     ColumnLayout {
         anchors.centerIn: parent
 
-        Rectangle {
-            color: "gray"
+        Item {
+            id: feedback
             Layout.fillWidth: true
             Layout.preferredHeight: feedbackText.implicitHeight * 2
-            visible: true // TODO
+
+            Rectangle {
+                id: feedbackBox
+                anchors.fill: parent
+                radius: 10
+            }
+
+            function setWaitMode() {
+                feedbackText.text = "Wait..."
+                feedbackBox.visible = true
+                feedbackBox.color = "red"
+                feedbackBox.border.width = 1
+                feedbackBox.border.color = Qt.lighter(feedbackBox.color)
+                feedbackBox.opacity = 1.0
+                feedbackText.opacity = 1.0
+            }
+            function setNowMode() {
+                feedbackText.text = "Now"
+                feedbackBox.visible = true
+                feedbackBox.color = "green"
+                feedbackBox.border.width = 1
+                feedbackBox.border.color = Qt.lighter(feedbackBox.color)
+                feedbackBox.opacity = 1.0
+                feedbackText.opacity = 1.0
+                nowFadeTimer.running = true
+            }
+
+            function setNormalMode() {
+                // no box visible, text will fade in normal mode
+                feedbackBox.visible = false
+                if (nowFadeTimer.running == true)
+                    nowFadeTimer.running = false
+            }
+
+            Timer {
+                id: nowFadeTimer
+                interval: 100; repeat: true
+                onTriggered: {
+                    if (feedbackBox.opacity == 0) {
+                        nowFadeTimer.running = false
+                    } else {
+                        feedbackBox.opacity -= 0.1
+                        feedbackText.opacity -= 0.1
+                    }
+
+                }
+            }
+
             Text {
                 id: feedbackText
                 text: "" // "undefined"
@@ -42,8 +79,8 @@ Rectangle {
                     // onTextChanged() doesn't work as text is not every time really
                     // chaning, just same text again
 
+                    feedback.setNormalMode()
                     feedbackText.text = txt
-                    console.debug("Feedback text changed!")
                     feedbackText.opacity = 1.0
                     feedbackTimer.running = true
                 }
@@ -53,7 +90,6 @@ Rectangle {
                     interval: 100
                     repeat: true
                     onTriggered: {
-                        console.debug("Timer triggered!")
                         if (feedbackText.opacity == 0) {
                             feedbackTimer.running = false
                         } else {
@@ -76,6 +112,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -102,6 +139,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -128,6 +166,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -157,6 +196,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -183,6 +223,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -209,6 +250,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -237,6 +279,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -263,6 +306,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -289,6 +333,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -323,6 +368,7 @@ Rectangle {
                 border.color: "darkgrey"
                 border.width: 1
                 radius: 10
+                antialiasing: true
                 opacity: buttonOpacity
 
                 Text {
@@ -364,17 +410,14 @@ Rectangle {
         }
 
         if (js["action"] === "DisableControls") {
-            self.color = "green"
-
             // do not fade this text
-            feedbackText.text = "Wait..."
+            feedback.setWaitMode()
             buttonOpacity = 0.5
             self.enabled = false
 
         } else if (js["action"] === "EnableControls") {
-            self.color = "blue"
             self.enabled = true
-            feedbackText.setFeedback("Now!")
+            feedback.setNowMode()
             buttonOpacity = 1.0
 
         } else if (js["action"] === "CorrectNumberFeedback") {

@@ -92,9 +92,9 @@ Window {
                 // commands from mobile clients
                 function processControlAction(action) {
                     if (action === "Up")
-                        mainmenu.moveFocusToNext()
-                    else if (action === "Down")
                         mainmenu.moveFocusToPrevious()
+                    else if (action === "Down")
+                        mainmenu.moveFocusToNext()
                     else if (action === "OK")
                         mainmenu.selectCurrent()
                 }
@@ -209,7 +209,8 @@ Window {
                             name: "myScript1"
                             script: {
                                 console.debug("STATE CHANGE SCRIPT: INTO MENU")
-                                var js = {action: "ShowBasicControls"}
+                                var js = {action: "ShowBasicControls",
+                                          enable: ["Up", "Down", "OK"]}
                                 playersManager.sendAllPlayersMessage(JSON.stringify(js))
 
                                 // TODO: could this be embedded to setup() but what is UI effect
@@ -264,7 +265,9 @@ Window {
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         if (mainarea.state === "MENU") {
-            js = {action: "ShowBasicControls"}
+            // TODO: we should ask from view what basic controls should be enabled
+            js = {action: "ShowBasicControls",
+                  enable: ["Up", "Down", "OK"]}
             playersManager.sendPlayerMessage(pid, JSON.stringify(js))
         } else if (mainarea.state === "GAME") {
             js = {action: "DefineAppBox",

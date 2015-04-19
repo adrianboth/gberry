@@ -33,8 +33,8 @@ function setup() {
         var color = _color[i] // index defines color
 
         // create box
-        var component = Qt.createComponent("NameBox.qml");
-        var box = component.createObject(mainarea, {name: playerName, color: color});
+        var component = Qt.createComponent("NameBox.qml")
+        var box = component.createObject(mainarea, {name: playerName, bgColor: color})
 
         if (box == null) {
             // Error Handling

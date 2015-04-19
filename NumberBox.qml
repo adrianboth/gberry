@@ -11,6 +11,12 @@ Rectangle {
     color: "gray"
     border.width: 2
     border.color: "lightgray"
+    radius: 5
+
+    gradient: Gradient {
+        GradientStop { position: 0.0; color: "lightgray" }
+        GradientStop { position: 1.0; color: "darkgray" }
+    }
 
     Text {
         anchors.centerIn: parent
