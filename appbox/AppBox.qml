@@ -15,6 +15,7 @@ Rectangle {
       text: "CONTENT FROM MAINUI"
       anchors.centerIn: parent
     }
+    property real buttonOpacity: 0.5
 
     MouseArea {
         id: mouseArea
@@ -36,7 +37,32 @@ Rectangle {
                 anchors.centerIn: parent
                 // TODO: get resolution from parent
                 font.pixelSize: 24
+
+                function setFeedback(txt) {
+                    // onTextChanged() doesn't work as text is not every time really
+                    // chaning, just same text again
+
+                    feedbackText.text = txt
+                    console.debug("Feedback text changed!")
+                    feedbackText.opacity = 1.0
+                    feedbackTimer.running = true
+                }
+                Timer {
+                    id: feedbackTimer
+                    running: false
+                    interval: 100
+                    repeat: true
+                    onTriggered: {
+                        console.debug("Timer triggered!")
+                        if (feedbackText.opacity == 0) {
+                            feedbackTimer.running = false
+                        } else {
+                            feedbackText.opacity -= 0.1
+                        }
+                    }
+                }
             }
+
         }
 
         RowLayout {
@@ -49,6 +75,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -73,6 +101,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -97,6 +127,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -124,6 +156,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -148,6 +182,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -172,6 +208,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -198,6 +236,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -222,6 +262,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -246,6 +288,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -263,6 +307,12 @@ Rectangle {
             }
         }
         RowLayout {
+            Item { // to get last button into middle
+                // TODO: make physically square
+                width: buttonText0.implicitHeight
+                height: buttonText0.implicitHeight
+            }
+
             Rectangle {
                 id: button0
                 property int number: 0
@@ -272,6 +322,8 @@ Rectangle {
                 color: "slategray"
                 border.color: "darkgrey"
                 border.width: 1
+                radius: 10
+                opacity: buttonOpacity
 
                 Text {
                     anchors.centerIn: parent
@@ -313,15 +365,23 @@ Rectangle {
 
         if (js["action"] === "DisableControls") {
             self.color = "green"
+
+            // do not fade this text
+            feedbackText.text = "Wait..."
+            buttonOpacity = 0.5
             self.enabled = false
+
         } else if (js["action"] === "EnableControls") {
             self.color = "blue"
             self.enabled = true
+            feedbackText.setFeedback("Now!")
+            buttonOpacity = 1.0
+
         } else if (js["action"] === "CorrectNumberFeedback") {
             // TODO: how localization of these would go? ... game provides, but client selects?
-            feedbackText.text = "OK!"
+            feedbackText.setFeedback("OK!")
         } else if (js["action"] === "InvalidNumberFeedback") {
-            feedbackText.text = "Try again!"
+            feedbackText.setFeedback("Try again!")
         }
     }
 
