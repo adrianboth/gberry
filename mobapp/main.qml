@@ -11,6 +11,7 @@ import "login"
 
 import "js/MobileClientMessages.js" as Messages
 import "js/AppBox.js" as AppBox
+import "settings/SettingsModel.js" as SettingsModel
 
 Window {
     id: root
@@ -89,26 +90,6 @@ Window {
             id: ui
             visible: true
             anchors.fill: parent
-
-            Rectangle {
-                id: buttonFrame
-                x: 132
-                width: 74
-                height: 50
-                color: "#f81e1e"
-                anchors.centerIn: parent
-                //anchors.horizontalCenter: parent.horizontalCenter
-                //anchors.top: consoleText.bottom
-                //anchors.topMargin: 2
-
-                GButton {
-                    id: connectButtonText
-                    label: qsTr("Connect")
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    onButtonClicked: { console.log("CONNECT"); connectToConsole() }
-                }
-            }
         }
 
         BasicControls {
@@ -128,12 +109,14 @@ Window {
             onOption1Selected: {
                 msgDiag.visible = false
                 var js = { action: "ConfirmationQuestionResponse",
+                           questionId: msgDiag.questionId,
                            ref: msgDiag.option1Id }
                 mobapp.sendMessage(JSON.stringify(js))
             }
             onOption2Selected: {
                 msgDiag.visible = false
                 var js = { action: "ConfirmationQuestionResponse",
+                           questionId: msgDiag.questionId,
                            ref: msgDiag.option2Id }
                 mobapp.sendMessage(JSON.stringify(js))
             }
@@ -167,14 +150,16 @@ Window {
 
             Component.onCompleted: {
                 AppBox.initialiaze(appbox)
+                // make connection between dynamic content and our function
+                // (this is not direct connect, we just define function that should
+                //  be connected when dynamic content is in place)
                 AppBox.connectOutgoingMessageTo(receiveFromAppBox)
             }
 
             function receiveFromAppBox(message) {
                 console.debug("### RECEIVED FROM APPBOX: " + message)
-                var js = {action: "AppBoxMessage",
-                          data: message}
-                mobapp.sendMessage(JSON.stringify(js))
+                var js = Messages.createCustomAppBoxMsg(message)
+                mobapp.sendMessage(js)
             }
         }
 
@@ -274,15 +259,26 @@ Window {
             debugview.visible = true
             loginview.visible = false
             settingsView.visible = false
+
+        } else if (actionId === "Home") {
+            ui.hostNameToConnect = SettingsModel.consoleAddress()
+            debugview.visible = false
+            loginview.visible = false
+            settingsView.visible = false
+            // TODO: could we use stacked view?
         }
+
         // TODO: other kind of list, now always need to add if
     }
 
-    function connectToConsole()
+    function connectToConsole(consoleAddress)
     {
+        Log.debug("ConnectToConsole: " + consoleAddress)
+
+        // TODO: use current user
         mobapp.loginGuest("Foobar")
         //mobapp.openConsoleConnection("192.168.1.248")
-        mobapp.openConsoleConnection("localhost")
+        mobapp.openConsoleConnection(consoleAddress)
     }
 
     function onPlayerMessageReceived(data) {
@@ -292,6 +288,7 @@ Window {
         if (js["action"] === "ConfirmationQuestion") {
             msgDiag.titleText = js["title"]
             msgDiag.questionText = js["text"]
+            msgDiag.questionId = js["questionId"]
 
             // we expect exactly two options (might be dangerous)
             msgDiag.option1Id = js["options"][0]["id"]
@@ -322,6 +319,13 @@ Window {
         } else if (js["action"] === "ShowBasicControls") {
             appbox.visible = false
             basicControls.visible = true
+            console.debug("### " + js['enable'].toString())
+            if (js.hasOwnProperty("enable")) {
+                basicControls.enable(js['enable']) // list
+            } else {
+                basicControls.enable([]) // all buttons
+            }
+
             ui.visible = false
             msgDiag.visible = false
 
@@ -341,6 +345,7 @@ Window {
     {
         loginview.visible = false
     }
+
     function onLogin(username, password, guest, rememberPassword)
     {
         console.debug("LOGIN: " + username + ", " + password + ", " + (guest ? "GUEST" : "NORMAL") + ", " + (rememberPassword ? "REMEMBER" : "-"))
@@ -366,7 +371,8 @@ Window {
         generalActions.actionSelected.connect(onGeneralActionSelected)
 
         localGeneralActions.setActions(
-            [{actionId: "Login", actionName: "Login"},
+            [{actionId: "Home", actionName: "Home"},
+             {actionId: "Login", actionName: "Login"},
              {actionId: "Settings", actionName: "Settings"},
              {actionId: "Reconnect", actionName: "Reconnect"},
              {actionId: "DebugInfo", actionName: "Debug Info"}
@@ -376,6 +382,9 @@ Window {
 
         loginview.viewClosed.connect(onLoginViewClosed)
         loginview.login.connect(onLogin)
+
+        ui.connectToConsoleRequested.connect(connectToConsole)
+        ui.hostNameToConnect = SettingsModel.consoleAddress()
 
         Log.debug("TEST: " + screen.name)
         Log.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
@@ -389,3 +398,5 @@ Window {
         // TODO: more info
     }
 }
+
+// TODO: could camera be used to take user photo

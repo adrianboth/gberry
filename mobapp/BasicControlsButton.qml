@@ -12,6 +12,15 @@ Button {
     property string buttonGradientStopColor: "#ccc"
     property string buttonText: "-" // default
 
+    function enable() {
+        button.enabled = true
+        button.opacity = 1.0
+    }
+    function disable() {
+        button.enabled = false
+        button.opacity = 0.5
+    }
+
     width: 50 // TODO: how to adjust to text size
     height: 50
 
