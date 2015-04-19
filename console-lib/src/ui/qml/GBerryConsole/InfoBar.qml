@@ -39,7 +39,7 @@ Rectangle {
     Timer {
          interval: 500; running: true; repeat: true
          onTriggered: {
-             time.text = Date().toString()
+             time.text = new Date().toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
              infobar.commsStatusText = comms.isOpen() ? "OK" : "NOK"
          }
      }
