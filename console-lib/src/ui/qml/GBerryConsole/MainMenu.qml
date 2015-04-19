@@ -110,9 +110,9 @@ Rectangle {
     Keys.onPressed: {
         console.debug("######## KEY PRESSED (menu)")
         if (event.key === Qt.Key_Up)
-            moveFocusToNext()
-        if (event.key === Qt.Key_Down)
             moveFocusToPrevious()
+        if (event.key === Qt.Key_Down)
+            moveFocusToNext()
         if (event.key === Qt.Key_Return)
             selectCurrent()
     }
