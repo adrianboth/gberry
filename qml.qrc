@@ -12,5 +12,6 @@
         <file>ProgressFeedback.js</file>
         <file>GameTime.qml</file>
         <file>HighScore.js</file>
+        <file>GameModeSelectionView.qml</file>
     </qresource>
 </RCC>

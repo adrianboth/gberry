@@ -54,12 +54,13 @@ Window {
                 GradientStop { position: 1.0; color: "slategray" }
             }
 
-            Rectangle {
+            Item {
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: mainmenu.top
-                color: "red"
+                //color: "red"
+                //opacity: 0
 
                 Text {
                     text: "React!"
@@ -78,11 +79,56 @@ Window {
                         onSelected: playGameSelected()
                     },
                     MainMenuItem {
+                        text: qsTr("Game Mode")
+                        onSelected: gameModeSelected()
+                    },
+                    MainMenuItem {
                         text: qsTr("Exit")
                         onSelected: exitGameSelected()
                     }
                 ]
 
+                // TODO:could this be embedded to MainMenu?
+                // commands from mobile clients
+                function processControlAction(action) {
+                    if (action === "Up")
+                        mainmenu.moveFocusToNext()
+                    else if (action === "Down")
+                        mainmenu.moveFocusToPrevious()
+                    else if (action === "OK")
+                        mainmenu.selectCurrent()
+                }
+            }
+
+            // TODO: just skeleton
+            Text {
+                id: currentgamemode
+                text: qsTr("Game mode: 4 boxes")
+                font.pixelSize: gdisplay.smallSize * gdisplay.ppmText
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: mainmenu.bottom
+                //anchors.topMargin: 50 // TODO: somehow changing size
+            }
+
+            GameModeSelectionView {
+                id: gamemodeview
+                visible: false
+                anchors.centerIn: parent
+
+                function processControlAction(action) {
+                    /*
+                    if (action === "Up")
+                        // TODO
+
+                    else if (action === "Down")
+                        // TODO
+                    else
+                    */
+                    if (action === "OK") {
+                        // close popup
+                        mainarea.state = "MENU"
+                    }
+                }
             }
 
             // TODO: width should adapt to available size
@@ -106,6 +152,8 @@ Window {
                     }
                 }
             }
+
+
         }
 
         // --- alternative view
@@ -155,6 +203,7 @@ Window {
                     name: "MENU"
                     PropertyChanges { target: appboxui; visible: false }
                     PropertyChanges { target: menuview; visible: true }
+                    PropertyChanges { target: gamemodeview; visible: false }
                     StateChangeScript {
                             name: "myScript1"
                             script: {
@@ -168,6 +217,14 @@ Window {
                             }
                         }
                 },
+                State {
+                    name: "GAMEMODESELECTION"
+                    // show on top of menu
+                    PropertyChanges { target: gamemodeview; visible: true }
+                    PropertyChanges { target: appboxui; visible: false }
+                    PropertyChanges { target: menuview; visible: true }
+                },
+
                 State {
                     name: "GAME"
                     PropertyChanges { target: appboxui; visible: true}
@@ -243,12 +300,11 @@ Window {
         var js  = JSON.parse(data)
         if (js["action"] === "SelectBasicControlAction")
         {
-            if (js["id"] === "Up")
-                mainmenu.moveFocusToNext()
-            else if (js["id"] === "Down")
-                mainmenu.moveFocusToPrevious()
-            else if (js["id"] === "OK")
-                mainmenu.selectCurrent()
+            if (mainarea.state === "MENU") {
+                mainmenu.processControlAction(js["id"])
+            } else if (mainarea.state === "GAMEMODESELECTION") {
+                gamemodeview.processControlAction(js["id"])
+            }
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
             // TODO: could it be possible to have more object oriented questions
@@ -326,6 +382,16 @@ Window {
         mainarea.state = "GAME"
 
     }
+
+    function gameModeSelected() {
+        Log.debug("Game mode selected")
+        // TODO: show game mode list to select
+        //   a) number lenght
+        //   b) random buttons
+
+        mainarea.state = "GAMEMODESELECTION"
+    }
+
     function exitGameSelected() {
         console.debug("Exit selected")
 
