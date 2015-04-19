@@ -190,6 +190,7 @@ Window {
                 onFinished: {
                     ReactGameModel.start()
                     gametimelabel.start()
+                    appboxui.start()
                 }
             }
         }
@@ -473,6 +474,7 @@ Window {
     function onPlayerWon(pid) {
         mainarea.state = "END"
         gametimelabel.stop()
+        appboxui.stop()
         HighScore.recordWinningResult(playersManager.playerName(pid), gametimelabel.finalTime())
         playedwonDialog.declarePlayerWon(pid, gametimelabel.finalTime())
     }
@@ -484,6 +486,7 @@ Window {
     }
     function onPlayerInvalidNumber(pid) {
         messageBoard.insertPlayerMessage(pid, "Invalid number!")
+        ProgressFeedback.invalidInput(pid)
         var msg = {action: "InvalidNumberFeedback"}
         playersManager.sendPlayerMessage(pid, Messages.createCustomAppBoxMsg(msg))
     }

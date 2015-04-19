@@ -76,3 +76,8 @@ function updatePlayer(pid) {
     box.x = box.x + _stepX
 }
 
+function invalidInput(pid) {
+    var box = _boxes[_pidToIndexMap[pid]]
+    box.shake()
+}
+
