@@ -8,5 +8,7 @@
         <file>ReactGameModel.js</file>
         <file>ApplicationSettingsJS.js</file>
         <file>CountDown.qml</file>
+        <file>NameBox.qml</file>
+        <file>ProgressFeedback.js</file>
     </qresource>
 </RCC>

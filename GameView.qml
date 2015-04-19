@@ -12,7 +12,21 @@ Rectangle {
         fourthbox.number = listOfNumbers[3]
     }
 
+    // relative coords
+    function xForLeftMostBox() {
+        return boxline.x + firstbox.x
+    }
+    // relative coords
+    function yForBoxLine() {
+        return boxline.y + firstbox.y
+    }
+    function stepSize() {
+        // box width + margin
+        return firstbox.width + boxline.spacing
+    }
+
     RowLayout {
+        id: boxline
         anchors.centerIn: parent
         spacing: gdisplay.largeSize * gdisplay.ppmText
 

@@ -7,6 +7,7 @@ import GBerry 1.0
 import GBerryConsole 1.0
 
 import "ReactGameModel.js" as ReactGameModel
+import "ProgressFeedback.js" as ProgressFeedback
 
 Window {
     id: root
@@ -81,6 +82,20 @@ Window {
         GameView {
             id: appboxui
             anchors.fill: parent
+
+            onVisibleChanged: {
+                if (appboxui.visible) {
+                    // TODO: now just fixed, can we even get coords before gameview visible
+                    var topY = appboxui.yForBoxLine()
+                    var initialX = appboxui.xForLeftMostBox()
+                    var stepX = appboxui.stepSize()
+                    Log.debug("appboxui visible: topY=" + topY + ", initialX=" + initialX + ", stepX=" + stepX)
+                    ProgressFeedback.init(ReactGameModel, topY, initialX, stepX)
+                } else {
+                    ProgressFeedback.teardown()
+                }
+            }
+
         }
 
         CountDown {
@@ -108,6 +123,9 @@ Window {
                                 console.debug("STATE CHANGE SCRIPT: INTO MENU")
                                 var js = {action: "ShowBasicControls"}
                                 playersManager.sendAllPlayersMessage(JSON.stringify(js))
+
+                                // TODO: could this be embedded to setup() but what is UI effect
+                                ProgressFeedback.teardown()
                             }
                         }
                 },
@@ -123,6 +141,7 @@ Window {
                                 //var js = {action: "ShowAppBox"}
                                 //playersManager.sendAllPlayersMessage(JSON.stringify(js))
                                 ReactGameModel.initializePlayers()
+                                ProgressFeedback.setup()
                                 appboxui.setNumbers(ReactGameModel.numbers())
                                 startcountdown.start()
                             }
@@ -344,12 +363,15 @@ Window {
         playedwonDialog.declarePlayerWon(pid)
     }
     function onPlayerCorrectNumber(pid) {
-        // TODO: correct feedback
         messageBoard.insertPlayerMessage(pid, "Correct number!")
+        ProgressFeedback.updatePlayer(pid)
+        var msg = {action: "CorrectNumberFeedback"}
+        playersManager.sendPlayerMessage(pid, Messages.createCustomAppBoxMsg(msg))
     }
     function onPlayerInvalidNumber(pid) {
-        // TODO: invalid feedback
         messageBoard.insertPlayerMessage(pid, "Invalid number!")
+        var msg = {action: "InvalidNumberFeedback"}
+        playersManager.sendPlayerMessage(pid, Messages.createCustomAppBoxMsg(msg))
     }
 
     // TODO: sound when game starts

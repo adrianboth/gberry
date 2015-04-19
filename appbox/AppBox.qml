@@ -25,6 +25,20 @@ Rectangle {
     ColumnLayout {
         anchors.centerIn: parent
 
+        Rectangle {
+            color: "gray"
+            Layout.fillWidth: true
+            Layout.preferredHeight: feedbackText.implicitHeight * 2
+            visible: true // TODO
+            Text {
+                id: feedbackText
+                text: "" // "undefined"
+                anchors.centerIn: parent
+                // TODO: get resolution from parent
+                font.pixelSize: 24
+            }
+        }
+
         RowLayout {
             Rectangle {
                 id: button1
@@ -303,6 +317,11 @@ Rectangle {
         } else if (js["action"] === "EnableControls") {
             self.color = "blue"
             self.enabled = true
+        } else if (js["action"] === "CorrectNumberFeedback") {
+            // TODO: how localization of these would go? ... game provides, but client selects?
+            feedbackText.text = "OK!"
+        } else if (js["action"] === "InvalidNumberFeedback") {
+            feedbackText.text = "Try again!"
         }
     }
 

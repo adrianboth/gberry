@@ -30,6 +30,10 @@ function debugInit(messageBoard) {
     _messageBoard = messageBoard
 }
 
+function gameRunning() {
+    return _gameState === "STARTED"
+}
+
 var _playersIDs = []
 var _playerIndexes = {}
 var _playersNumberQueue = []
@@ -65,6 +69,10 @@ function initializePlayers() {
     _gameState = "COUNTDOWN"
 }
 
+function playerList() {
+    return _playersIDs
+}
+
 function numbers() {
     return _numbers
 }
@@ -81,6 +89,13 @@ function start() {
     for (var i = 0; i < _playersIDs.length; i++) {
         _sendMessageToPlayer(_playersIDs[i], msg)
     }
+}
+
+// returns what number box needs to be filled next
+function playerPosition(pid) {
+    var playerIndex = _playerIndexes[pid]
+    var playerNumberQueue = _playersNumberQueue[playerIndex]
+    return playerNumberQueue.length
 }
 
 function _sendMessageToPlayer(pid, msgJson) {
