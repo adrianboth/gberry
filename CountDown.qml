@@ -2,7 +2,7 @@ import QtQuick 2.4
 
 Rectangle {
     id: self
-    property int countFrom: 5 // seconds, counting downwards
+    property int countFrom: 3 // seconds, counting downwards
     property int _currentNumber: 0
 
     signal finished()

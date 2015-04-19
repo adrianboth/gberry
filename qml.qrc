@@ -10,5 +10,7 @@
         <file>CountDown.qml</file>
         <file>NameBox.qml</file>
         <file>ProgressFeedback.js</file>
+        <file>GameTime.qml</file>
+        <file>HighScore.js</file>
     </qresource>
 </RCC>

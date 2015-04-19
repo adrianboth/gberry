@@ -8,6 +8,7 @@ import GBerryConsole 1.0
 
 import "ReactGameModel.js" as ReactGameModel
 import "ProgressFeedback.js" as ProgressFeedback
+import "HighScore.js" as HighScore
 
 Window {
     id: root
@@ -37,47 +38,77 @@ Window {
 
     Rectangle {
         id: mainarea
-
         anchors.top: infobar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
-        border.color: "slategray"
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "lightsteelblue" }
-            GradientStop { position: 1.0; color: "slategray" }
-        }
 
         Rectangle {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: mainmenu.top
-            color: "red"
+            id: menuview // TODO: menuview
+            anchors.fill: parent
 
-            Text {
-                text: "ReactGame"
-                font.pixelSize: gdisplay.text_mm(25)
+            border.color: "slategray"
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "lightsteelblue" }
+                GradientStop { position: 1.0; color: "slategray" }
+            }
+
+            Rectangle {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: mainmenu.top
+                color: "red"
+
+                Text {
+                    text: "React!"
+                    font.pixelSize: gdisplay.text_mm(25)
+                    anchors.centerIn: parent
+                }
+            }
+
+            MainMenu {
+                id: mainmenu
                 anchors.centerIn: parent
+
+                items: [
+                    MainMenuItem {
+                        text: qsTr("Play Game")
+                        onSelected: playGameSelected()
+                    },
+                    MainMenuItem {
+                        text: qsTr("Exit")
+                        onSelected: exitGameSelected()
+                    }
+                ]
+
+            }
+
+            // TODO: width should adapt to available size
+            Text {
+                id: todaysbestlabel
+                text: "undefined"
+                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+                z: 100
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                function update() {
+                    if (HighScore.hasTodaysFastest()) {
+                        Log.debug("HighScore exists!")
+                        todaysbestlabel.visible = true
+                        var hs = HighScore.todaysFastest()
+                        todaysbestlabel.text = qsTr("Todays best:") + " " + hs.time + " seconds by " + hs.name
+                    } else {
+                        Log.debug("No HighScore yet!")
+                        todaysbestlabel.visible = false
+                    }
+                }
             }
         }
 
-        MainMenu {
-            id: mainmenu
-            anchors.centerIn: parent
-
-            items: [
-                MainMenuItem {
-                    text: qsTr("Play Game")
-                    onSelected: playGameSelected()
-                },
-                MainMenuItem {
-                    text: qsTr("Exit")
-                    onSelected: exitGameSelected()
-                }
-            ]
-        }
+        // --- alternative view
 
         GameView {
             id: appboxui
@@ -96,15 +127,22 @@ Window {
                 }
             }
 
-        }
+            // game time (seconds) on top
+            GameTime {
+                id: gametimelabel
+                anchors.top: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
 
-        CountDown {
-            id: startcountdown
-            visible: false
-            anchors.centerIn: parent
+            CountDown {
+                id: startcountdown
+                visible: false
+                anchors.centerIn: parent
 
-            onFinished: {
-                ReactGameModel.start()
+                onFinished: {
+                    ReactGameModel.start()
+                    gametimelabel.start()
+                }
             }
         }
 
@@ -116,7 +154,7 @@ Window {
                 State {
                     name: "MENU"
                     PropertyChanges { target: appboxui; visible: false }
-                    PropertyChanges { target: mainmenu; visible: true }
+                    PropertyChanges { target: menuview; visible: true }
                     StateChangeScript {
                             name: "myScript1"
                             script: {
@@ -126,13 +164,14 @@ Window {
 
                                 // TODO: could this be embedded to setup() but what is UI effect
                                 ProgressFeedback.teardown()
+                                todaysbestlabel.update()
                             }
                         }
                 },
                 State {
                     name: "GAME"
                     PropertyChanges { target: appboxui; visible: true}
-                    PropertyChanges { target: mainmenu; visible: false}
+                    PropertyChanges { target: menuview; visible: false}
 
                     StateChangeScript {
                             name: "myScript"
@@ -143,6 +182,7 @@ Window {
                                 ReactGameModel.initializePlayers()
                                 ProgressFeedback.setup()
                                 appboxui.setNumbers(ReactGameModel.numbers())
+                                gametimelabel.reset()
                                 startcountdown.start()
                             }
                         }
@@ -326,16 +366,22 @@ Window {
         option2Id: "No"
         option2Text: qsTr("No")
 
-        function declarePlayerWon(pid) {
+        // pid:  player ID
+        // time: how much time it was used to complete game
+        function declarePlayerWon(pid, time) {
             var name = playersManager.playerName(pid)
-            playedwonDialog.questionText = qsTr("Player " + name + " won!\n\nPlay another?")
+            // TODO: localization of this is screwed!!!FIX
+            playedwonDialog.questionText = qsTr("Player " + name + " won!\n\nCompleted in +" + time.toString() + " seconds.\n\nPlay another?")
             playedwonDialog.visible = true
 
+            // note that we are not showing exactly same info in question that
+            // on client side
+            var clientQuestionText = qsTr("Play another?")
             // TODO: GConfirmationDialog could have a helper ...
             var js = {action: "ConfirmationQuestion",
                       questionId: "playanother", // TODO: client needs to return this
                       title: playedwonDialog.titleText,
-                      text: playedwonDialog.questionText,
+                      text: clientQuestionText,
                       options: [{id:   playedwonDialog.option1Id,
                                  text: playedwonDialog.option1Text},
                                 {id:   playedwonDialog.option2Id,
@@ -360,7 +406,9 @@ Window {
 
     function onPlayerWon(pid) {
         mainarea.state = "END"
-        playedwonDialog.declarePlayerWon(pid)
+        gametimelabel.stop()
+        HighScore.recordWinningResult(playersManager.playerName(pid), gametimelabel.finalTime())
+        playedwonDialog.declarePlayerWon(pid, gametimelabel.finalTime())
     }
     function onPlayerCorrectNumber(pid) {
         messageBoard.insertPlayerMessage(pid, "Correct number!")
@@ -379,6 +427,7 @@ Window {
     // TODO: sound when game ends
 
     Component.onCompleted: {
+        Log.initLog("main", gsettings.logLevel)
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
@@ -388,6 +437,8 @@ Window {
         ReactGameModel.callbacks.playerInvalidNumber.connect(onPlayerInvalidNumber)
 
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
+
+        todaysbestlabel.update()
     }
 }
 
@@ -405,3 +456,5 @@ Window {
 // TODO: get fancy background image (1920x1080)
 
 // TODO: record running time: stop clock when winner
+
+// copyright: Developed by GBerry Project

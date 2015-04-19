@@ -115,15 +115,15 @@ function playerMessageReceived(pid, js) {
         // TODO: how to catch parsing errors?
         var n = parseInt(js["number"])
 
-        GBerry.Log.debug("Player " + pid.toString() + " pressed " + n.toString())
+        GBerry.Log.trace("Player " + pid.toString() + " pressed " + n.toString())
         var playerIndex = _playerIndexes[pid]
-        GBerry.Log.debug("Player " + pid.toString() + ": playerIndex=" + playerIndex)
+        GBerry.Log.trace("Player " + pid.toString() + ": playerIndex=" + playerIndex)
         var playerNumberQueue = _playersNumberQueue[playerIndex]
         var nextIndexOfPlayerNumber = playerNumberQueue.length
-        GBerry.Log.debug("Player " + pid.toString() + ": nextIndexOfPlayerNumber=" + nextIndexOfPlayerNumber)
+        GBerry.Log.trace("Player " + pid.toString() + ": nextIndexOfPlayerNumber=" + nextIndexOfPlayerNumber)
         var referenceNumber = _numbers[nextIndexOfPlayerNumber]
-        GBerry.Log.debug("_numbers=" + _numbers.toString())
-        GBerry.Log.debug("Player " + pid.toString() + ": " + n.toString() + " vs " + referenceNumber.toString())
+        GBerry.Log.trace("_numbers=" + _numbers.toString())
+        GBerry.Log.trace("Player " + pid.toString() + ": " + n.toString() + " vs " + referenceNumber.toString())
 
         if (n === referenceNumber) {
             // correct number pushed
