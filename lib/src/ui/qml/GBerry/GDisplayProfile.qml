@@ -15,6 +15,13 @@ Item {
     property real mediumSize: 10 * scaleFactor
     property real largeSize: 20 * scaleFactor
 
+    function touchCellWidth() {
+        return mediumSize * ppmText
+    }
+    function touchCellHeight() {
+        return mediumSize * ppmText
+    }
+
     function text_mm(size_mm) {
         return size_mm * ppmText
     }

@@ -10,9 +10,15 @@ import "js/DeveloperLog.js" as Log
 
 Rectangle {
     id: button
+
     color: "#2db6e1"
-    width: buttonLabel.width + (25*2)
-    height: buttonLabel.height + (12*2)
+
+    property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
+    //width: buttonLabel.implicitWidth //+ gdisplay.touchCellHeight() / 4 // TODO: x/y resolution, not pixels squares
+
+    property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
+    //height: gdisplay.touchCellHeight() * 2
+
     radius: 20
     antialiasing: true
     property string label
@@ -25,7 +31,7 @@ Rectangle {
         text: label
         anchors.centerIn: parent
         font.bold: true
-        font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+        font.pixelSize: gdisplay.touchCellHeight()
     }
 
     MouseArea {

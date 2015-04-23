@@ -6,11 +6,15 @@ import QtQuick.Layouts 1.1
 
 import "js/DeveloperLog.js" as Log
 
+
 Rectangle {
     id: dialog
+    visible: false // by default hidden
+    z: 1000 // tries to be always top most item
 
     // public
     property string questionText: "<undefined>"
+    property string questionId: "<undefined>"
     property string titleText: "<undefined>"
     property bool showTitle: false
     property string option1Text: "<answer1>"
@@ -33,7 +37,14 @@ Rectangle {
 
     // private
     property int textMargin: 0.2 * confirmationText.height // from one text line height
-    property int buttonMargin: textMargin
+    //property int buttonMargin: textMargin
+
+    function debug() {
+        console.debug("confirmationText.height: " + confirmationText.height)
+        console.debug("confirmationText.width: " + confirmationText.width)
+        console.debug("option1Button w+h:" + option1Button.width + "x" + option1Button.height + ", text=" + option1Button.label)
+        console.debug("option2Button w+h:" + option2Button.width + "x" + option2Button.height + ", text=" + option2Button.label)
+    }
 
     height: column.height
     width: column.width
@@ -45,11 +56,14 @@ Rectangle {
 
     ColumnLayout {
         id: column
+        anchors.centerIn: parent
+        spacing: 0
 
         Item {
             id: textarea
             Layout.preferredHeight: confirmationText.contentHeight + 2 * textMargin // margin is based on line height
             Layout.preferredWidth: confirmationText.width + 2 * textMargin
+            Layout.fillWidth: true
 
             Text {
                 id: confirmationText
@@ -70,23 +84,37 @@ Rectangle {
         }
 
         Item  {
+            //color: "red"
             id: buttonRow
-            Layout.preferredHeight: option1Button.height + 2* buttonMargin
-            Layout.preferredWidth: option1Button.width + option2Button.width +  3 * buttonMargin
-            Layout.alignment: Qt.AlignHCenter
+
+            Layout.preferredHeight: buttonRowLayout.maxButtonHeight + gdisplay.touchCellHeight()
+            Layout.preferredWidth: buttonRowLayout.width + buttonRowLayout.spacing * 2
+            Layout.alignment: Qt.AlignHCenter || Qt.AlignVCenter
 
             RowLayout {
+                id: buttonRowLayout
                 //anchors.fill: parent
                 anchors.centerIn: parent
-                spacing: option1Button.height * 0.5
+                spacing: gdisplay.touchCellWidth()
+
+                property int maxButtonWidth: Math.max(option1Button.buttonWidth, option2Button.buttonWidth)
+                property int maxButtonHeight: option1Button.height // buttons have same height
+
                 GButton {
                     id: option1Button
                     label: option1Text
+                    Layout.preferredWidth: parent.maxButtonWidth
+                    Layout.preferredHeight: buttonHeight
+                    Layout.fillWidth: true
                     onButtonClicked: option1Selected()
                 }
+
                 GButton {
                     id: option2Button
                     label: option2Text
+                    Layout.preferredWidth: parent.maxButtonWidth
+                    Layout.preferredHeight: buttonHeight
+                    Layout.fillWidth: true
                     onButtonClicked: {
                         //console.debug("dialog height: " + dialog.height)
                         //console.debug("buttonRow height: " + buttonRow.height)
