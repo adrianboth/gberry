@@ -2,7 +2,7 @@ module GBerry
 GButton 		1.0 GButton.qml
 GDisplayProfile 	1.0 GDisplayProfile.qml
 GConfirmationDialog 	1.0 GConfirmationDialog.qml
-
+GErrorDialog            1.0 GErrorDialog.qml
 GLog			1.0 js/DeveloperLog.js
 # alias
 Log 			1.0 js/DeveloperLog.js
