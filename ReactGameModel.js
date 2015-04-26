@@ -109,6 +109,7 @@ function playerMessageReceived(pid, js) {
 
     if (_gameState != "STARTED") {
         GBerry.Log.debug("Discarded message as game is not running")
+        return
     }
 
     if (js.hasOwnProperty('number')) {
