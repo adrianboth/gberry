@@ -39,6 +39,9 @@ UserModel::UserModel(ApplicationStorage* storage, QObject* parent) :
         if (_ini->contains(REMEMBER_PASSWORD_KEY)) _currentInfo.rememberPassword = _ini->value(REMEMBER_PASSWORD_KEY).toBool();
 
         DEBUG("Read user: '" << _currentInfo.userName << "'");
+
+        // as this is initial read, we are not notifying about the change
+
     } else {
         // just use defaults set by UserInfo constructor
         DEBUG("No saved data -> using defaults");
@@ -76,6 +79,7 @@ void UserModel::setCurrent(UserInfo& userInfo)
 
     DEBUG("Saved user info");
     emit currentUserInfoChanged();
+    emit currentUserNameChanged();
 }
 
 void UserModel::setCurrent(QString userName, QString password, bool guest, bool rememberPassword)

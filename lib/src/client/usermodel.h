@@ -37,7 +37,7 @@ class UserModel : public QObject
     Q_OBJECT
 
     // intefacing towards QML happens through properties
-    Q_PROPERTY(QString currentUserName READ currentUserName)
+    Q_PROPERTY(QString currentUserName READ currentUserName NOTIFY currentUserNameChanged)
     Q_PROPERTY(QString currentPassword READ currentPassword)
     Q_PROPERTY(QString currentIsGuest READ currentIsGuest)
     Q_PROPERTY(QString currentIsRememberPassword READ currentIsRememberPassword)
@@ -61,6 +61,7 @@ public:
 
 signals:
     void currentUserInfoChanged();
+    void currentUserNameChanged();
 
 private:
     ApplicationStorage* _storage;
