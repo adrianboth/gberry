@@ -3,14 +3,14 @@
 
 #include <QObject>
 
-class DisplayProfile
+class DisplayProfile : public QObject
 {
     Q_OBJECT
 public:
     DisplayProfile();
     ~DisplayProfile();
 
-
+/*
     QQmlPropertyMap screenProps;
     screenProps.insert("name", QVariant(QString("John Smith")));
 
@@ -28,6 +28,7 @@ public:
     } else {
         screenProps.insert("preferredWindowHeight", QVariant(400));
     }
+*/
 };
 
 #endif // DISPLAYPROFILE_H

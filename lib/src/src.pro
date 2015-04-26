@@ -4,6 +4,9 @@ TEMPLATE = lib
 #include(../../global.pri)
 
 QT += core network websockets
+# for client classes (TODO: should be split to own lib)
+QT += qml quick
+
 QT -= gui
 
 CONFIG += c++11 staticlib
@@ -34,14 +37,17 @@ HEADERS += \
     server/websocketconnection.h \
     mocks/mock_playersessionmanager.h \
     server/consolerestserver.h \
-    client/application.h \
     client/consoledevice.h \
     client/consolesessionmanager.h \
     log/ilogmsghandler.h \
     log/log.h \
     log/logcontrol.h \
     log/stdoutlogmsghandler.h \
-    ui/displayprofile.h
+    ui/displayprofile.h \
+    client/applicationstorage.h \
+    client/qmlapplication.h \
+    client/cppapplication.h \
+    client/usermodel.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -75,13 +81,16 @@ SOURCES += \
     server/playersession.cpp \
     server/websocketconnection.cpp \
     server/consolerestserver.cpp \
-    client/application.cpp \
     client/consoledevice.cpp \
     client/consolesessionmanager.cpp \
     log/log.cpp \
     log/logcontrol.cpp \
     log/stdoutlogmsghandler.cpp \
-    ui/displayprofile.cpp
+    ui/displayprofile.cpp \
+    client/applicationstorage.cpp \
+    client/qmlapplication.cpp \
+    client/cppapplication.cpp \
+    client/usermodel.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

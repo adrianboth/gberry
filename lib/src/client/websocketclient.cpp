@@ -2,6 +2,9 @@
 
 #include <QDebug>
 
+#define LOG_AREA "WebsocketClient"
+#include "log/log.h"
+
 WebsocketClient::WebsocketClient(QObject *parent) :
     QObject(parent),
     m_url(QUrl("")),
@@ -49,7 +52,7 @@ void WebsocketClient::onConnected()
 
 void WebsocketClient::onTextMessageReceived(QString message)
 {
-    qDebug() << "Message received:" << message;
+    TRACE("Message received:" << message);
     // keep open
     //m_webSocket.close();
     emit messageReceived(message);

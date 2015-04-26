@@ -36,15 +36,19 @@ Rectangle {
     }
 
     // private
-    property int textMargin: 0.2 * confirmationText.height // from one text line height
+    property int textMargin: gdisplay.touchCellHeight() // from one text line height
     //property int buttonMargin: textMargin
 
     function debug() {
         console.debug("confirmationText.height: " + confirmationText.height)
+        console.debug("confirmationText.contentHeight: " + confirmationText.contentHeight)
+        console.debug("confirmationText.implicitHeight: " + confirmationText.implicitHeight)
         console.debug("confirmationText.width: " + confirmationText.width)
         console.debug("option1Button w+h:" + option1Button.width + "x" + option1Button.height + ", text=" + option1Button.label)
         console.debug("option2Button w+h:" + option2Button.width + "x" + option2Button.height + ", text=" + option2Button.label)
     }
+
+    onVisibleChanged: debug()
 
     height: column.height
     width: column.width

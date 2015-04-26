@@ -1,36 +1,36 @@
-#include "application.h"
+#include "qmlapplication.h"
 
 namespace mobile
 {
 
-Application::Application(QObject *parent) : QObject(parent)
+QmlApplication::QmlApplication(QObject *parent) : QObject(parent)
 {
     connect(&_consoleSession, &ConsoleSessionManager::consoleSessionOpened,
-            this, &Application::onConsoleSessionOpened);
+            this, &QmlApplication::onConsoleSessionOpened);
 
     connect(&(_consoleSession.websocket()), &WebsocketClient::messageReceived,
-            this, &Application::onWebsocketMessageReceived);
+            this, &QmlApplication::onWebsocketMessageReceived);
 
     connect(&(_consoleSession.websocket()), &WebsocketClient::closed,
-            this, &Application::onWebsocketClosed);
+            this, &QmlApplication::onWebsocketClosed);
 }
 
-Application::~Application()
+QmlApplication::~QmlApplication()
 {
 }
 
-void Application::loginGuest(QString guestName)
+void QmlApplication::loginGuest(QString guestName)
 {
     // TODO: deeper impl, no all players are guests
     _currentPlayerName = guestName;
 }
 
-void Application::openConsoleConnection(ConsoleDevice console)
+void QmlApplication::openConsoleConnection(ConsoleDevice console)
 {
     _consoleSession.open(console, _currentPlayerName);
 }
 
-void Application::openConsoleConnection(QString hostName)
+void QmlApplication::openConsoleConnection(QString hostName)
 {
     // TODO: temporary until we know better
     // TODO: does console device has proper copy constructors
@@ -38,17 +38,17 @@ void Application::openConsoleConnection(QString hostName)
     _consoleSession.open(ConsoleDevice(hostName), _currentPlayerName);
 }
 
-void Application::closeConsoleConnection()
+void QmlApplication::closeConsoleConnection()
 {
     _consoleSession.close();
 }
 
-bool Application::isConsoleConnectionOpen() const
+bool QmlApplication::isConsoleConnectionOpen() const
 {
     return _consoleSession.isOpen();
 }
 
-void Application::sendMessage(QString message)
+void QmlApplication::sendMessage(QString message)
 {
     if (_consoleSession.isOpen())
     {
@@ -56,17 +56,17 @@ void Application::sendMessage(QString message)
     }
 }
 
-void Application::onConsoleSessionOpened()
+void QmlApplication::onConsoleSessionOpened()
 {
     emit consoleConnectionOpened();
 }
 
-void Application::onWebsocketMessageReceived(QString message)
+void QmlApplication::onWebsocketMessageReceived(QString message)
 {
     emit playerMessageReceived(message);
 }
 
-void Application::onWebsocketClosed()
+void QmlApplication::onWebsocketClosed()
 {
     emit consoleConnectionClosed();
 }

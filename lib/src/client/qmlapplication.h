@@ -10,12 +10,17 @@
 namespace mobile
 {
 
-class Application : public QObject
+/**
+ * @brief Application abstraction for QML side
+ *
+ * Exposes properties and function to root QML context.
+ */
+class QmlApplication : public QObject
 {
     Q_OBJECT
 public:
-    explicit Application(QObject *parent = 0);
-    ~Application();
+    explicit QmlApplication(QObject *parent = 0);
+    ~QmlApplication();
 
     Q_INVOKABLE void loginGuest(QString guestName);
     Q_INVOKABLE void openConsoleConnection(ConsoleDevice console);
