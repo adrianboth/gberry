@@ -127,9 +127,9 @@ Window {
         GConfirmationDialog {
             id: testConfirmationDialog
             visible: true // initial state
-            questionText: qsTr("Are you sure to exit the game")
-            option1Text: qsTr("Yes")
-            option2Text: qsTr("No")
+            //questionText: qsTr("Play another?")
+            //option1Text: qsTr("Yes")
+            //option2Text: qsTr("No")
 
             onOption1Selected: {
                 // Yes
@@ -139,8 +139,18 @@ Window {
             onOption2Selected: {
                 testConfirmationDialog.visible = false
             }
+
+            Component.onCompleted:  {
+                debug()
+                questionText = "Play another? asd fasf as  sar easr eae "
+                option1Text = "Yes"
+                option2Text = "No"
+                debug()
+            }
         }
         */
+
+
 
         Rectangle {
             id: appbox
@@ -346,12 +356,19 @@ Window {
         loginview.visible = false
     }
 
-    function onLogin(username, password, guest, rememberPassword)
+    function onLogin()
     {
+        var username = UserModel.currentUserName
+        var password = UserModel.currentPassword
+        var guest = UserModel.currentIsGuest
+        var rememberPassword = UserModel.currentIsRememberPassword
+
         console.debug("LOGIN: " + username + ", " + password + ", " + (guest ? "GUEST" : "NORMAL") + ", " + (rememberPassword ? "REMEMBER" : "-"))
+        // TODO: so far only guest login supported
         mobapp.loginGuest(username)
-        console.debug("USING CONSOLE ADDRESS: " + settingsView.consoleAddress())
-        mobapp.openConsoleConnection(settingsView.consoleAddress())
+
+        console.debug("USING CONSOLE ADDRESS: " + SettingsModel.consoleAddress())
+        mobapp.openConsoleConnection(SettingsModel.consoleAddress())
         loginview.visible = false
 
         // TODO: how to show login errors?
@@ -386,7 +403,6 @@ Window {
         ui.connectToConsoleRequested.connect(connectToConsole)
         ui.hostNameToConnect = SettingsModel.consoleAddress()
 
-        Log.debug("TEST: " + screen.name)
         Log.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
 
         Log.debug("screen.preferredWindowWidth: " + screen.preferredWindowWidth)
@@ -396,6 +412,11 @@ Window {
         //root.width = screen.preferredWindowWidth
         //root.height = screen.preferredWindowHeight
         // TODO: more info
+
+        if (UserModel.autoLoginEnabled) {
+            Log.debug("Auto login enabled")
+            onLogin()
+        }
     }
 }
 

@@ -1,9 +1,10 @@
 import QtQuick 2.0
 
-import GBerry 1.0 // 'Log' from here
+//import GBerry 1.0 // 'Log' from here
+import "ApplicationSettingsJS.js" as ApplicationSettingsJS
 
 Item {
-    property int logLevel: Log.DEBUG_LEVEL
+    property int logLevel: ApplicationSettingsJS.logLevel
 
     // can be used during development enable helper functionality
     property bool developmentMode: true

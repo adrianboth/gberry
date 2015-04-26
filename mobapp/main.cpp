@@ -10,12 +10,25 @@
 
 #include "serverconnectionmodel.h"
 
-#include "client/application.h"
+#include <client/qmlapplication.h>
+#include <client/cppapplication.h>
+
+#define LOG_AREA "MobApp"
+#include "log/log.h"
+#include <log/logcontrol.h>
+#include <log/stdoutlogmsghandler.h>
 
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
+
+    StdoutLogMsgHandler handler(Log::TRACE);
+    LogControl logControl;
+    logControl.registerMsgHandler(&handler);
+    Log::singleton().use(&logControl);
+
+    DEBUG("Starting");
 
     RealSystemServices systemServices;
     systemServices.registerItself();
@@ -49,16 +62,9 @@ int main(int argc, char *argv[])
     QObject::connect(&consoleConnection, &ServerConnectionImpl::disconnected,
                      &model,            &ServerConnectionModel::consoleDisconnected);
 */
-    mobile::Application mobapp;
-
-    //mobile::ConsoleDevice console("localhost");
-
-    //mobapp.loginGuest("GuestFoo");
-    //mobapp.openConsoleConnection(console);
+    mobile::QmlApplication mobapp;
 
     QQmlPropertyMap screenProps;
-    screenProps.insert("name", QVariant(QString("John Smith")));
-
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
@@ -74,9 +80,10 @@ int main(int argc, char *argv[])
         screenProps.insert("preferredWindowHeight", QVariant(400));
     }
 
-    // TODO: env for login -> faster setup
-
     QQmlApplicationEngine engine;
+
+    CppApplication cppApp(&engine);
+
     engine.addImportPath("qrc:/ui/gberry-lib");
 
     engine.rootContext()->setContextProperty("app", &model);
@@ -84,7 +91,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("screen", &screenProps);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    qDebug() << "QQmlEngine::offlineStoragePath()" << engine.offlineStoragePath();
+
     // TODO: temp disable
     //serverConnection.open();
     //consoleConnection.open();

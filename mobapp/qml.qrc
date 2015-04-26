@@ -11,6 +11,8 @@
         <file>ApplicationSettings.qml</file>
         <file>DebugView.qml</file>
         <file>DefaultMainArea.qml</file>
+        <file>settings/SettingsModel.js</file>
+        <file>ApplicationSettingsJS.js</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="AppBox.js">js/AppBox.js</file>

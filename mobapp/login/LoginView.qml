@@ -13,7 +13,19 @@ Rectangle {
     property string titleText: "Login"
 
     signal viewClosed()
-    signal login(var username, var password, var guest, var rememberPassword)
+    //signal login(var username, var password, var guest, var rememberPassword)
+    signal login()
+
+    onVisibleChanged: {
+        if (root.visible) {
+            userNameField.editText = UserModel.currentUserName
+            guestCheckbox.checked = UserModel.currentIsGuest
+            if (!guestCheckbox.checked) {
+                passwordField.text = UserModel.currentPassword
+            }
+            rememberPasswordCheckbox.checked = UserModel.currentIsRememberPassword
+        }
+    }
 
     Rectangle {
         id: titlebar
@@ -48,6 +60,7 @@ Rectangle {
                 onClicked: {
                     console.debug("CLOSED PRESSED")
                     root.viewClosed()
+                    // TODO: we are not storing possibly changed values
                 }
             }
         }
@@ -96,6 +109,7 @@ Rectangle {
                     passwordField.text = item.password
                     guestCheckbox.checked = item.guest
                     rememberPasswordCheckbox.checked = item.rememberPassword
+                    loginButton.updateState()
                 }
 
                 onAccepted: {
@@ -104,6 +118,10 @@ Rectangle {
                          currentIndex = find(editText)
                      }
                  }
+
+                onEditTextChanged: {
+                    loginButton.updateState()
+                }
             }
 
             ListModel {
@@ -205,12 +223,27 @@ Rectangle {
             Button {
                 id: loginButton
                 text: qsTr("Login")
+                enabled: false
                 onClicked: {
                     console.debug("LOGIN PRESSED")
+
+                    // TODO: set current userinfo
+                    UserModel.setCurrent(userNameField.editText,
+                                         passwordField.text,
+                                         guestCheckbox.checked,
+                                         rememberPasswordCheckbox.checked)
+
+                    /*
                     login(userNameField.editText,
                           passwordField.text,
                           guestCheckbox.checked,
                           rememberPasswordCheckbox.checked)
+                    */
+                    login()
+                }
+                function updateState() {
+                    console.debug("CONDITION " + userNameField.editText.length > 0)
+                    loginButton.enabled = userNameField.editText.length > 0
                 }
             }
         }
@@ -222,6 +255,8 @@ Rectangle {
         passwordField.text = item.password
         guestCheckbox.checked = item.guest
         rememberPasswordCheckbox.checked = item.rememberPassword
+
+        loginButton.updateState()
     }
 }
 

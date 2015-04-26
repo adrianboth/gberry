@@ -3,6 +3,8 @@ import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
 import QtQuick.LocalStorage 2.0
 
+import "SettingsModel.js" as SettingsModel
+
 Rectangle {
     anchors.fill: parent
     //color: "blue"
@@ -20,19 +22,10 @@ Rectangle {
         anchors.fill: parent
 
         ColumnLayout {
-            Text { text: "Settings"; font.pointSize: 16 }
             width: root.width
-            //anchors.left: parent.left
-            //anchors.right: parent.right
-            //anchors.fill: parent
-/*
-            Rectangle {
-                color: "red"
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: 50
-            }
-*/
+
+            Text { text: "Settings"; font.pointSize: 16 }
+
             GroupBox {
                 title: "Console"
                 //Layout.fillWidth: true
@@ -41,16 +34,20 @@ Rectangle {
 
                 RowLayout {
                     anchors.fill: parent
-                    Label { text: "Console address"; }
+                    Label { text: "Console address" }
                     ComboBox {
                         id: consoleAddress
                         editable: true
                         Layout.fillWidth: true
                         model: consoleModel
+                        onActivated: {
+                            SettingsModel.setActiveConsole(currentIndex)
+                        }
 
                         onAccepted: {
                              if (find(currentText) === -1) {
-                                 model.append({text: editText})
+                                 SettingsModel.addConsole(editText)
+                                 refreshConsoleListModel()
                                  currentIndex = find(editText)
                              }
                          }
@@ -59,7 +56,7 @@ Rectangle {
 
                 ListModel {
                     id: consoleModel
-                    ListElement { text: "localhost" }
+                    //ListElement { text: "localhost" }
                 }
             }
 
@@ -97,25 +94,23 @@ Rectangle {
                     //ListElement { text: "localhost" }
                 }
             }
-/*
-            Rectangle {
-                id: test
-                color: "red"
-                height: 50
-                width: mainwindow.width
-            }
-*/
 
-            Text {
-                id: dbTest
-                text: "?"
-                anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
 
-            }
+    function refreshConsoleListModel() {
+        var consoles = SettingsModel.consoles
+        consoleModel.clear() // remove all previous
+        for (var i = 0; i < consoles.length; i++) {
+            // data is already in correct format (text: )
+            consoleModel.append(consoles[i])
         }
     }
 
     Component.onCompleted: {
+        refreshConsoleListModel()
+
+
         var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
 
         db.transaction(

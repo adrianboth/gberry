@@ -39,6 +39,18 @@ repository (`gberry-mobile`).
  * Static library and headers are looked for
  * .qml and .js files are looked via symbolic link
 
+== Env Vars
+
+There are couple of environment variables to support development on 
+development machine.
+
+**MOBAPP_ID** 
+ * Used to define identity for MobApp running instance. Identity is used
+   to define where application settings are saved.
+   
+**MOBAPP_AUTO_LOGIN**
+ * If '1' or 'true' then MobApp tries to make login automatically using
+   last saved information. Boosts run & test cycle.
  
  
 
