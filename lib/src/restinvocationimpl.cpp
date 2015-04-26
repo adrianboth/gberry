@@ -112,6 +112,9 @@ void RESTInvocationImpl::httpFinished()
         _httpStatus = RESTInvocation::UNDEFINED;
         _invocationStatus = RESTInvocation::RESPONSE_RECEIVED;
 
+        // get possible return data
+        _data = _reply->readAll();
+
         emit finishedError(this);
     }
     else
