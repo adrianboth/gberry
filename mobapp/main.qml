@@ -53,6 +53,15 @@ Window {
             }
         }
 
+        Text {
+            id: currentPlayerLabel
+
+            color: mobapp.loggedIn ? "black" : "grey"
+            anchors.centerIn: parent
+            font.pixelSize: toggleLocalGeneralActionsButton.height - 4
+            text: UserModel.currentUserName
+        }
+
         Button {
             id: toggleGeneralActionsButton
             anchors.right: parent.right
@@ -150,6 +159,18 @@ Window {
         }
         */
 
+        GErrorDialog {
+            id: errorDialog
+            visible: false
+
+            /*
+            Component.onCompleted: {
+                // testing. To test dynamic size adjustment we can set 'text' property
+                // directly
+                errorMessage = "Error occurred"
+            }
+            */
+        }
 
 
         Rectangle {
@@ -261,9 +282,8 @@ Window {
             settingsView.visible = false
             debugview.visible = false
 
-        } else if (actionId === "Reconnect") {
-            mobapp.closeConsoleConnection()
-            mobapp.openConsoleConnection(settingsView.consoleAddress()) // TODO: use defined profiles
+        } else if (actionId === "Logout") {
+            onLogout()
 
         } else if (actionId === "DebugInfo") {
             debugview.visible = true
@@ -279,16 +299,6 @@ Window {
         }
 
         // TODO: other kind of list, now always need to add if
-    }
-
-    function connectToConsole(consoleAddress)
-    {
-        Log.debug("ConnectToConsole: " + consoleAddress)
-
-        // TODO: use current user
-        mobapp.loginGuest("Foobar")
-        //mobapp.openConsoleConnection("192.168.1.248")
-        mobapp.openConsoleConnection(consoleAddress)
     }
 
     function onPlayerMessageReceived(data) {
@@ -358,6 +368,10 @@ Window {
 
     function onLogin()
     {
+        if (mobapp.loggedIn) {
+            onLogout()
+        }
+
         var username = UserModel.currentUserName
         var password = UserModel.currentPassword
         var guest = UserModel.currentIsGuest
@@ -368,10 +382,32 @@ Window {
         mobapp.loginGuest(username)
 
         console.debug("USING CONSOLE ADDRESS: " + SettingsModel.consoleAddress())
-        mobapp.openConsoleConnection(SettingsModel.consoleAddress())
+        mobapp.openConsoleConnection(SettingsModel.consoleAddress()) // if opening fails then signal is emitted
         loginview.visible = false
 
+        // TODO: if connection takes time, we should actually show some kind of status bar
+
+        // TODO: widget should take care by itself a status
+        //currentPlayerLabel.text = username
+
         // TODO: how to show login errors?
+    }
+
+    function onLoginFailed(errorMsg) {
+        console.debug("Login failed: " + errorMsg)
+        errorDialog.errorMessage = errorMsg
+        errorDialog.visible = true
+    }
+
+    function onLogout() {
+        mobapp.closeConsoleConnection()
+
+        // TODO: we should have some kind of stacked view -> no matter what is open
+        loginview.visible = false
+        settingsView.visible = false
+        debugview.visible = false
+        basicControls.visible = false
+        ui.visible = true
     }
 
     Component.onCompleted: {
@@ -384,14 +420,15 @@ Window {
         app.consoleStatusChanged.connect(updateTexts)
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
+        mobapp.consoleConnectionOpenFailed.connect(onLoginFailed)
 
         generalActions.actionSelected.connect(onGeneralActionSelected)
 
         localGeneralActions.setActions(
             [{actionId: "Home", actionName: "Home"},
              {actionId: "Login", actionName: "Login"},
+             {actionId: "Logout", actionName: "Logout"},
              {actionId: "Settings", actionName: "Settings"},
-             {actionId: "Reconnect", actionName: "Reconnect"},
              {actionId: "DebugInfo", actionName: "Debug Info"}
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
@@ -400,7 +437,7 @@ Window {
         loginview.viewClosed.connect(onLoginViewClosed)
         loginview.login.connect(onLogin)
 
-        ui.connectToConsoleRequested.connect(connectToConsole)
+        ui.connectToConsoleRequested.connect(onLogin)
         ui.hostNameToConnect = SettingsModel.consoleAddress()
 
         Log.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)

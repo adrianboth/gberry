@@ -24,5 +24,6 @@
         <file alias="GBerry/GButton.qml">ui/gberry-lib/GBerry/GButton.qml</file>
         <file alias="GBerry/GDisplayProfile.qml">ui/gberry-lib/GBerry/GDisplayProfile.qml</file>
         <file alias="GBerry/GConfirmationDialog.qml">ui/gberry-lib/GBerry/GConfirmationDialog.qml</file>
+        <file alias="GBerry/GErrorDialog.qml">ui/gberry-lib/GBerry/GErrorDialog.qml</file>
     </qresource>
 </RCC>
