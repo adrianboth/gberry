@@ -3,10 +3,13 @@
 namespace mobile
 {
 
-QmlApplication::QmlApplication(QObject *parent) : QObject(parent)
+QmlApplication::QmlApplication(QObject *parent) : QObject(parent), _loggedIn(false)
 {
     connect(&_consoleSession, &ConsoleSessionManager::consoleSessionOpened,
             this, &QmlApplication::onConsoleSessionOpened);
+
+    connect(&_consoleSession, &ConsoleSessionManager::consoleSessionOpenFailed,
+            this, &QmlApplication::onConsoleSessionOpenFailed);
 
     connect(&(_consoleSession.websocket()), &WebsocketClient::messageReceived,
             this, &QmlApplication::onWebsocketMessageReceived);
@@ -59,6 +62,13 @@ void QmlApplication::sendMessage(QString message)
 void QmlApplication::onConsoleSessionOpened()
 {
     emit consoleConnectionOpened();
+    _loggedIn = true;
+    emit loggedInChanged();
+}
+
+void QmlApplication::onConsoleSessionOpenFailed(QString message)
+{
+    emit consoleConnectionOpenFailed(message);
 }
 
 void QmlApplication::onWebsocketMessageReceived(QString message)
@@ -69,6 +79,8 @@ void QmlApplication::onWebsocketMessageReceived(QString message)
 void QmlApplication::onWebsocketClosed()
 {
     emit consoleConnectionClosed();
+    _loggedIn = false;
+    emit loggedInChanged();
 }
 
 } // eon

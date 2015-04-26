@@ -18,6 +18,8 @@ namespace mobile
 class QmlApplication : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool loggedIn READ loggedIn NOTIFY loggedInChanged)
+
 public:
     explicit QmlApplication(QObject *parent = 0);
     ~QmlApplication();
@@ -30,19 +32,26 @@ public:
 
     Q_INVOKABLE void sendMessage(QString message);
 
+    bool loggedIn() const { return _loggedIn; }
+
 signals:
     void consoleConnectionOpened();
     void consoleConnectionClosed();
+    void consoleConnectionOpenFailed(QString errorMsg);
     void playerMessageReceived(QString message);
+
+    void loggedInChanged();
 
 public slots:
     void onConsoleSessionOpened();
+    void onConsoleSessionOpenFailed(QString message);
     void onWebsocketMessageReceived(QString message);
     void onWebsocketClosed();
 
 private:
     ConsoleSessionManager _consoleSession;
     QString _currentPlayerName;
+    bool _loggedIn; // using separate var, as isConsoleConnectionOpen() is about websocket
 };
 
 } // eon
