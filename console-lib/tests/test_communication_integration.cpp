@@ -14,7 +14,7 @@
 #include "client/clientsidecontrolchannel.h"
 #include "client/commtcpclient.h"
 #include "client/clientsetup.h"
-#include <client/application.h>
+#include <client/qmlapplication.h>
 #include <client/consoledevice.h>
 
 // TEST
@@ -300,15 +300,15 @@ TEST(CommunicationIntegration, FullPipeFromSouthToNorth)
 
     // -- north side client
 
-    mobile::Application northApplication;
+    mobile::QmlApplication northApplication;
 
     bool consoleConnectionIsOpen = false;
-    QObject::connect(&northApplication, &mobile::Application::consoleConnectionOpened,
+    QObject::connect(&northApplication, &mobile::QmlApplication::consoleConnectionOpened,
                      [&] () { consoleConnectionIsOpen = true; });
 
     bool northSideClientMessageReceived = false;
     QString northSideClientMessage;
-    QObject::connect(&northApplication, &mobile::Application::playerMessageReceived,
+    QObject::connect(&northApplication, &mobile::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClientMessageReceived = true; northSideClientMessage = msg; });
 
     northApplication.loginGuest("GuestFoo");
@@ -367,22 +367,22 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
 
     // -- north side clients
 
-    mobile::Application northApplication1;
+    mobile::QmlApplication northApplication1;
 
     QString northSideClient1Message;
-    QObject::connect(&northApplication1, &mobile::Application::playerMessageReceived,
+    QObject::connect(&northApplication1, &mobile::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient1Message = msg; });
 
-    mobile::Application northApplication2;
+    mobile::QmlApplication northApplication2;
 
     QString northSideClient2Message;
-    QObject::connect(&northApplication2, &mobile::Application::playerMessageReceived,
+    QObject::connect(&northApplication2, &mobile::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient2Message = msg; });
 
-    mobile::Application northApplication3;
+    mobile::QmlApplication northApplication3;
 
     QString northSideClient3Message;
-    QObject::connect(&northApplication3, &mobile::Application::playerMessageReceived,
+    QObject::connect(&northApplication3, &mobile::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient3Message = msg; });
 
 
