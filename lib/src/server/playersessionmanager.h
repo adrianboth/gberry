@@ -15,7 +15,9 @@ public:
     explicit PlayerSessionManager(QObject *parent = 0);
     ~PlayerSessionManager();
 
+    virtual bool isPlayerNameReserved(QString& playerName) const;
     virtual void insertSession(PlayerSession& session);
+    virtual void removeSession(int playerId);
     virtual PlayerSession sessionByToken(QString token);
 
 signals:

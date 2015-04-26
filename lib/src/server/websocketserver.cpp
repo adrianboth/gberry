@@ -93,6 +93,7 @@ void WebsocketServer::closePlayerConnection(int playerId)
         WebsocketConnection* conn = _connectionByPlayerId[playerId];
         _connectionByPlayerId.remove(playerId);
         delete conn; // closes connection
+        _sessionManager->removeSession(playerId);
         emit playerConnectionClosed(playerId);
     }
 }
