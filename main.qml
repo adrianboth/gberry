@@ -427,9 +427,9 @@ Window {
     }
 
 
-
     GConfirmationDialog {
         id: playedwonDialog
+        visible: false
         questionText: "xxx"
         option1Id: "Yes"
         option1Text: qsTr("Yes")
@@ -441,7 +441,7 @@ Window {
         function declarePlayerWon(pid, time) {
             var name = playersManager.playerName(pid)
             // TODO: localization of this is screwed!!!FIX
-            playedwonDialog.questionText = qsTr("Player " + name + " won!\n\nCompleted in +" + time.toString() + " seconds.\n\nPlay another?")
+            playedwonDialog.questionText = qsTr("Player " + name + " won!\nCompleted in +" + time.toString() + " seconds.\n\nPlay another?")
             playedwonDialog.visible = true
 
             // note that we are not showing exactly same info in question that
@@ -511,6 +511,9 @@ Window {
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
 
         todaysbestlabel.update()
+
+        // testing dialog
+        //playedwonDialog.declarePlayerWon(0, 0)
     }
 }
 
