@@ -38,6 +38,9 @@ void ConsoleSessionManager::open(ConsoleDevice console, QString playerName)
     connect(inv, &RESTInvocation::finishedOK,
             this, &ConsoleSessionManager::onOpenConsoleSessionFinished);
 
+    connect(inv, &RESTInvocation::finishedError,
+            this, &ConsoleSessionManager::onOpenConsoleSessionError);
+
     inv->post("/session", jsondoc);
 }
 
@@ -69,7 +72,7 @@ void ConsoleSessionManager::onOpenConsoleSessionFinished(RESTInvocation* inv)
 
 void ConsoleSessionManager::onOpenConsoleSessionError(RESTInvocation* inv)
 {
-    // TODO:
+    emit consoleSessionOpenFailed(QString(inv->responseString().toLatin1()));
 }
 
 void ConsoleSessionManager::openWebsocket(QString token)

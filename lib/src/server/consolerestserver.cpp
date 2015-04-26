@@ -110,6 +110,20 @@ void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp
                 QString id = json["id"].toString();
                 QString name = json["name"].toString();
 
+                // identical names are not allow
+                // TODO: should each player has some kind of nick that can be adjusted, or even several ones
+                if (_sessionManager.isPlayerNameReserved(name))
+                {
+                    // TODO: return error, json
+                    resp->writeHead(403);
+                    // TODO: how to localize these error messages?
+                    QString msg("Player nick name %1 already used. Please provide other one.");
+                    msg = msg.arg(name);
+
+                    resp->end(QByteArray(msg.toLatin1()));
+                    // TODO: this if()-else() could be refactored to some nicer...
+                    return;
+                }
                 QString token("abc");
                 token.append(QString::number(_tokenCounter++));
                 GuestPlayerSession session(name, token); // TODO: just fixed token
