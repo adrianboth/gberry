@@ -201,7 +201,7 @@ Window {
 
         LoginView {
             id: loginview
-            visible: true // initial state
+            visible: false // initial state
         }
 
         DebugView {
