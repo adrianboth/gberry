@@ -36,7 +36,7 @@ Window {
 
         Button {
             id: toggleLocalGeneralActionsButton
-            text: "M"
+            text: qsTr("Menu")
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.margins: 5
@@ -201,7 +201,7 @@ Window {
 
         LoginView {
             id: loginview
-            visible: false // initial state
+            visible: true // initial state
         }
 
         DebugView {
