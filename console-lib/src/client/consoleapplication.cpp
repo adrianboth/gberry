@@ -22,6 +22,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
 
     _engine.rootContext()->setContextProperty("playersManager", &(_setup.playersManager));
     _engine.rootContext()->setContextProperty("comms", &(_setup.controlChannel));
+    _engine.rootContext()->setContextProperty("Assets", &_assets);
 
     _engine.load(QUrl(mainQmlUrl));
 

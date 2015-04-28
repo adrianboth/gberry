@@ -35,7 +35,8 @@ SOURCES += \
     controlchannel.cpp \
     channel.cpp \
     server/playerconnectionmanager.cpp \
-    client/consoleapplication.cpp
+    client/consoleapplication.cpp \
+    client/assets.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -59,7 +60,8 @@ HEADERS +=\
     channel.h \
     ichannelparent.h \
     server/playerconnectionmanager.h \
-    client/consoleapplication.h
+    client/consoleapplication.h \
+    client/assets.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

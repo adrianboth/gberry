@@ -6,6 +6,7 @@
 #include <QQmlApplicationEngine>
 
 #include <client/clientsetup.h>
+#include <client/assets.h>
 
 // trick to get define as a string
 #define xstr(s) str(s)
@@ -32,7 +33,9 @@ public:
         foreach(auto path, importPathList.split(":")) {
             _engine.addImportPath(path);
         }
-    };
+    }
+
+    Assets& assets() { return _assets; }
 
 signals:
 
@@ -41,8 +44,7 @@ public slots:
 private:
     QQmlApplicationEngine _engine;
     ClientSetup _setup;
-
-
+    Assets _assets;
 
 };
 
