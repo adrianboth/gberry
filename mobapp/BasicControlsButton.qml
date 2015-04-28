@@ -21,14 +21,13 @@ Button {
         button.opacity = 0.5
     }
 
-    width: 50 // TODO: how to adjust to text size
-    height: 50
+    width: gdisplay.largeSize * gdisplay.ppmX // TODO: how to adjust to text size
+    height: gdisplay.largeSize * gdisplay.ppmY
 
     style: ButtonStyle {
         background: Rectangle {
-                    implicitWidth: 100
-                    implicitHeight: 25
-                    border.width: control.activeFocus ? 2 : 1
+                    //border.width: button.enabled ? 2 : 1
+                    border.width: 1
                     border.color: "#888"
                     radius: 4
                     gradient: Gradient {

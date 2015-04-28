@@ -1,9 +1,12 @@
 import QtQuick 2.0
 
 Rectangle {
-    width: 200 + 2*2 // margins
-    height: listModel.count * 35
-    color: "darkgrey"
+    id: actionMenu
+    width: list.contentWidth + list.anchors.margins * 2
+    height: list.contentHeight + list.anchors.margins * 2
+    color: "snow"
+    border.width: 1
+    border.color: "lightgrey"
 
     property bool hasActions: listModel.count > 0
 
@@ -35,19 +38,28 @@ Rectangle {
     Component {
             id: actionDelegate
             Rectangle {
-                width: 200
+                width: text.implicitWidth
                 height: text.implicitHeight
-                color: "darkgrey"
-                border.width: 1
-                border.color: "lightgrey"
-
+                color: "snow"
 
                 Text {
                     id: text
-                    color: "white"
+                    color: "black"
                     text: actionName
-                    font.pointSize: 16
+                    font.pointSize: gdisplay.mediumSize * gdisplay.ppmText
                     anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Rectangle {
+                    id: divider
+                    // last item should not have divider
+                    visible: index != listModel.count -1
+                    height: 2
+                    width: 0.7 * actionMenu.width // 0.15+0.15 for left/right margins
+                    color: "lightgray"
+                    anchors.top: text.bottom
+                    anchors.left: parent.left
+                    anchors.leftMargin: 0.15 * actionMenu.width
                 }
 
                 MouseArea {
@@ -58,8 +70,14 @@ Rectangle {
         }
 
     ListView {
+        id: list
         anchors.fill: parent
-        anchors.margins: 2
+        anchors.margins: gdisplay.touchCellWidth() / 2
+
+        interactive: false
+        spacing: gdisplay.touchCellWidth() / 2
+
+        contentWidth: contentItem.childrenRect.width; contentHeight: contentItem.childrenRect.height
 
         model: listModel
         delegate: actionDelegate
@@ -71,4 +89,3 @@ Rectangle {
         //setActions(js)
     }
 }
-
