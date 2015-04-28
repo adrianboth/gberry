@@ -14,7 +14,8 @@ Rectangle {
     MediaPlayer {
         id: playMusic
         // TODO: testing: too big for qrc
-        source: "file:/home/tevuore/workspace/gberry/gberry-react-game/BeatOne.wav"
+        //source: Assets.filePath("file:/home/tevuore/workspace/gberry/gberry-react-game/assets/BeatOne.wav")
+        source: Assets.filePath("BeatOne.wav")
         // TODO: common with count down
         volume: 0
         Behavior on volume { SmoothedAnimation { velocity:  50 } }
