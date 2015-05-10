@@ -4,11 +4,14 @@
         <file>ApplicationSettings.qml</file>
         <file>appbox/AppBox.qml</file>
         <file>GameView.qml</file>
-        <file>NumberBox.qml</file>
         <file>GameModel.js</file>
         <file>ApplicationSettingsJS.js</file>
         <file>NameBox.qml</file>
-        <file>ProgressFeedback.js</file>
         <file>PlayerWaitingModel.js</file>
+        <file>BoardItem.qml</file>
+        <file>Board.qml</file>
+        <file>JoinView.qml</file>
+        <file>GameTime.qml</file>
+        <file>Player.js</file>
     </qresource>
 </RCC>

@@ -1,156 +1,289 @@
+.pragma library
+
+.import "Player.js" as Player // actually just handling objects not creating
+
 .import "ApplicationSettingsJS.js" as ApplicationSettingsJS
 .import GBerry 1.0 as GBerry
 .import GBerryConsole 1.0 as ConsoleLib
 
 GBerry.Log.initLog("GameModel", ApplicationSettingsJS.logLevel)
 
-// logic of react game
-
 // ?? how game actually starts
 //    - first timer
 
-//var _boxes = []
-var _numbers = []
-var _numberLength = 4
-var _gameState = "UNINITIALIZED"
+var _columns = []
+var _player1ID, _player2ID, _currentPlayer
+var _player1, _player2 // TODO: these will replace above *ID
+
+var _markedCells // helper variable to know draw condition
+var _gameEnded
+var _enableTurns
 
 // call back for winning
-var callbacks = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal playerWon(var pid); signal playerCorrectNumber(var pid); signal playerInvalidNumber(var pid); }', Qt.application, 'ModelCallbacks');
+var callbacks = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal playerWon(var pid); signal gameEndedDraw(); signal gameEnded(var playerNumber, var x1, var y1, var x2, var y2); signal cellMarked(var type, var x, var y) }', Qt.application, 'ModelCallbacks');
 
-/*
-function init(box1, box2, box3, box4) {
-    _boxes = [box1, box2, box3, box4]
-    _gameState = "INITIALIZED"
+var callbackTurnSwitched = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal turnSwitched(var playerNumber) }', Qt.application, 'ModelCallbacks');
+
+
+var _playersManager
+
+function initialize(playersManager) {
+    _playersManager = playersManager
+}
+
+function initGame(joinedPlayers) {
+    _player1 = joinedPlayers.player1
+    _player2 = joinedPlayers.player2
+
+    _player1ID = _player1.id // "x"
+    _player2ID = _player2.id // "o"
+    _currentPlayer = _player1ID
+    _markedCells = 0
+    _gameEnded = false
+    _enableTurns = false
+
+    _columns = []
+    for (var x = 0; x < 3; x++) {
+        var currentList = []
+        _columns.push(currentList)
+        for (var y = 0; y < 3; y++) {
+            currentList.push("_") // means not selected
+        }
+    }
     GBerry.Log.debug("Model initialized")
 }
-*/
 
-var _messageBoard;
-function debugInit(messageBoard) {
-    _messageBoard = messageBoard
+function player1() {
+    return _player1
 }
 
-function gameRunning() {
-    return _gameState === "STARTED"
+function player2() {
+    return _player2
 }
 
-var _playersIDs = []
-var _playerIndexes = {}
-var _playersNumberQueue = []
+function enableTurns() {
+    _enableTurns = true
+}
 
-function initializePlayers() {
-    // current players, no more accepted during game play
-    _playersIDs = playersManager.playerIds()
+function markCell(x, y) {
+    if (_gameEnded)
+        return false
 
-    // empty data structures for players
-    _playersNumberQueue = []
-    var appboxMsg = {action: "DisableControls"}
-    var disableControlsMsg = ConsoleLib.Messages.createCustomAppBoxMsg(appboxMsg)
-    var showAppBoxMsg = ConsoleLib.Messages.createShowAppBoxMsg()
-
-    for (var p = 0; p < _playersIDs.length; p++) {
-        _playersNumberQueue.push([])
-        _playerIndexes[_playersIDs[p]] = p
-
-        // send players game setup. 'playersManager' is in global context
-        // make sure controls are disabled until we show (after timer they are enabled)
-        playersManager.sendPlayerMessage(_playersIDs[p], disableControlsMsg)
-        playersManager.sendPlayerMessage(_playersIDs[p], showAppBoxMsg)
+    // should know which player is in turn
+    var cell = _columns[x][y]
+    if (cell !== "_") {
+        console.error("Tried to mark already marked cell:" + x.toString() + "," + y.toString())
+        return false
     }
 
-    // populate number boxes
-    _numbers = []
-    for (var i = 0; i < _numberLength; i++) {
-        _numbers.push(_randomNumber())
-        //_boxes[i].number = _numbers[i]
+    if (_currentPlayer === _player1ID) {
+        _columns[x][y] = "x"
+    } else {
+        _columns[x][y] = "o"
     }
 
-    // (view shows timer, count down then calls start())
-    _gameState = "COUNTDOWN"
+    callbacks.cellMarked(_columns[x][y], x, y)
+
+    // yes, marked -> check marking info for both players
+    var msg = {action: "MarkCell", x: x, y: y}
+    _sendMessageToPlayer(_player1ID, msg)
+    _sendMessageToPlayer(_player2ID, msg)
+
+    _markedCells++
+    debugBoard()
+
+    if (!checkGameEndCondition())
+    {
+        // game not ended yet
+        switchPlayerTurn()
+    }
+
+    return true
 }
 
-function playerList() {
-    return _playersIDs
-}
-
-function numbers() {
-    return _numbers
-}
-
-// get random number between 0-9
-function _randomNumber() {
-    return Math.round(Math.random()*9)
-}
-
-function start() {
-    _gameState = "STARTED"
-    // send activation message to all players
-    var msg = {action: "EnableControls"}
-    for (var i = 0; i < _playersIDs.length; i++) {
-        _sendMessageToPlayer(_playersIDs[i], msg)
+function debugBoard() {
+    console.debug("Board: marked=" + _markedCells.toString())
+    for (var y = 0; y < 3; y++) {
+        var row = ""
+        for (var x = 0; x < 3; x++) {
+            row = row + _columns[x][y]
+        }
+        console.debug(row)
     }
 }
 
-// returns what number box needs to be filled next
-function playerPosition(pid) {
-    var playerIndex = _playerIndexes[pid]
-    var playerNumberQueue = _playersNumberQueue[playerIndex]
-    return playerNumberQueue.length
+function isCrossItem(x, y) {
+    return _columns[x][y] === "x"
 }
+
+
+function checkGameEndCondition() {
+    if (_markedCells === 9) {
+        console.debug("Draw game!")
+        _gameEnded = true
+        callbacks.gameEndedDraw()
+        sendEndGameMessages()
+        return true
+    }
+
+    if (checkRow(0, 0, 2, 0)) return true
+    if (checkRow(0, 1, 2, 1)) return true
+    if (checkRow(0, 2, 2, 2)) return true
+
+    if (checkColumn(0, 0, 0, 2)) return true
+    if (checkColumn(1, 0, 1, 2)) return true
+    if (checkColumn(2, 0, 2, 2)) return true
+
+    if (checkDiagonal(0, 0, 2, 2)) return true
+    if (checkDiagonal(0, 2, 2, 0)) return true
+
+    return false
+}
+
+function checkRow(x1, y1, x2, y2) {
+    var type = playerMark()
+
+    // if ends are not expected type ...
+    if (_columns[x1][y1] !==  type)
+        return false
+
+    if (_columns[x2][y2] !==  type)
+        return false
+
+    // this is row - check middle cell
+    if (y1 === y2 && _columns[x2/2][y1] === type) {
+        // yes, row match
+        _gameEnded = true
+        _enableTurns = false
+        callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
+        sendEndGameMessages()
+        return true
+    }
+    return false
+}
+
+function checkColumn(x1, y1, x2, y2) {
+    var type = playerMark()
+
+    // if ends are not expected type ...
+    if (_columns[x1][y1] !==  type)
+        return false
+
+    if (_columns[x2][y2] !==  type)
+        return false
+
+    // this is row - check middle cell
+    if (x1 === x2 && _columns[x1][y2/2] === type) {
+        // yes, row match
+        _gameEnded = true
+        _enableTurns = false
+        callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
+        sendEndGameMessages()
+        return true
+    }
+    return false
+}
+
+function checkDiagonal(x1, y1, x2, y2) {
+    var type = playerMark()
+
+    // if ends are not expected type ...
+    if (_columns[x1][y1] !==  type)
+        return false
+
+    if (_columns[x2][y2] !==  type)
+        return false
+
+    // this is diagonal line - check middle cell
+    if (_columns[x2/2][Math.max(y1, y2)/2] === type) {
+        // yes, row match
+        _gameEnded = true
+        _enableTurns = false
+        callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
+        sendEndGameMessages()
+        return true
+    }
+    return false
+}
+
+function isGameEnded() {
+    return _gameEnded
+}
+
+function playerNumber() {
+    if (_currentPlayer === _player1ID)
+        return 1
+    else
+        return 2
+}
+
+function playerMark() {
+    if (_currentPlayer === _player1ID) {
+        return "x"
+    } else {
+        return "o"
+    }
+}
+
+function switchPlayerTurn() {
+    console.debug("Switching turns! current=" + _currentPlayer)
+    var msgTurn = {action: "MoveToState", state: "PLAY_GAME_MY_TURN"}
+    var msgWait = {action: "MoveToState", state: "PLAY_GAME_WAIT_TURN"}
+
+    if (_currentPlayer === _player1ID) {
+        console.debug("Next player is " + _player2ID)
+        _currentPlayer = _player2ID
+        callbackTurnSwitched.turnSwitched(2)
+
+        _sendMessageToPlayer(_player1ID, msgWait)
+        _sendMessageToPlayer(_player2ID, msgTurn)
+
+    } else {
+        console.debug("Next player is " + _player1ID)
+        _currentPlayer = _player1ID
+        callbackTurnSwitched.turnSwitched(1)
+
+        _sendMessageToPlayer(_player1ID, msgTurn)
+        _sendMessageToPlayer(_player2ID, msgWait)
+    }
+}
+
+
 
 function _sendMessageToPlayer(pid, msgJson) {
     var customMsg = ConsoleLib.Messages.createCustomAppBoxMsg(msgJson)
-    playersManager.sendPlayerMessage(pid, customMsg)
+    _playersManager.sendPlayerMessage(pid, customMsg)
+}
+
+function sendEndGameMessages() {
+    var msgEndGame = {action: "MoveToState", state: "END_GAME"}
+    _sendMessageToPlayer(_player1ID, msgEndGame)
+    _sendMessageToPlayer(_player2ID, msgEndGame)
 }
 
 // appbox custom message
 function playerMessageReceived(pid, js) {
     GBerry.Log.debug("Player message: id = " + pid)
 
-    if (_gameState != "STARTED") {
-        GBerry.Log.debug("Discarded message as game is not running")
-        return
+    if (!js.hasOwnProperty('action')) {
+        GBerry.Log.error("Invalid message: " + js.toString())
+        return false
     }
 
-    if (js.hasOwnProperty('number')) {
-        // TODO: how to catch parsing errors?
-        var n = parseInt(js["number"])
+    if (js["action"] === "SelectCell" && !_enableTurns)
+        return true // we don't handle yet turns
 
-        GBerry.Log.trace("Player " + pid.toString() + " pressed " + n.toString())
-        var playerIndex = _playerIndexes[pid]
-        GBerry.Log.trace("Player " + pid.toString() + ": playerIndex=" + playerIndex)
-        var playerNumberQueue = _playersNumberQueue[playerIndex]
-        var nextIndexOfPlayerNumber = playerNumberQueue.length
-        GBerry.Log.trace("Player " + pid.toString() + ": nextIndexOfPlayerNumber=" + nextIndexOfPlayerNumber)
-        var referenceNumber = _numbers[nextIndexOfPlayerNumber]
-        GBerry.Log.trace("_numbers=" + _numbers.toString())
-        GBerry.Log.trace("Player " + pid.toString() + ": " + n.toString() + " vs " + referenceNumber.toString())
-
-        if (n === referenceNumber) {
-            // correct number pushed
-            playerNumberQueue.push(n)
-
-            // feedback
-            var correctMsg = {action: "CorrectNumberFeedback"}
-            _sendMessageToPlayer(pid, correctMsg)
-            callbacks.playerCorrectNumber(pid)
-
-            // victory condition?
-            if (playerNumberQueue.length === _numbers.length) {
-                callbacks.playerWon(pid)
-                _gameState = "ENDED"
-            }
+    if (js["action"] === "SelectCell") {
+        // check turn
+        if (pid === _currentPlayer) {
+            markCell(js["x"], js["y"])
 
         } else {
-            // incorrect numbers
-            // feed back
-            var invalidMsg = {action: "InvalidNumberFeedback"}
-            _sendMessageToPlayer(pid, invalidMsg)
-            callbacks.playerInvalidNumber(pid)
+            GBerry.Log.error("Not player turn!")
 
         }
+        return true
     }
-}
 
-// TODO: get messages from players
-// TODO: some kind of mechanism to show who where
+    return false
+}

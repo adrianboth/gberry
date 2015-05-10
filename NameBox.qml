@@ -1,11 +1,14 @@
-import QtQuick 2.0
+import QtQuick 2.3
+import QtQuick.Layouts 1.1
+
 
 Rectangle {
     id: self
     property string name: "undefined"
-    property color bgColor: "white" // just default, each box should get own color
-    width: nameBoxText.implicitWidth + gdisplay.smallSize * gdisplay.ppmText
-    height: nameBoxText.implicitHeight + gdisplay.smallSize * gdisplay.ppmText
+    property color bgColor: isCrossItem ? "blue" : "red"
+    property bool isCrossItem: true
+    property int preferredWidth: row.width + gdisplay.smallSize * gdisplay.ppmText
+    property int preferredHeight: row.height
     antialiasing: true
     radius: 5
     border.width: 1
@@ -16,13 +19,65 @@ Rectangle {
         self.border.color = Qt.lighter(bgColor)
     }
 
-    Behavior on x { SmoothedAnimation { velocity: 200 } }
+    //Behavior on x { SmoothedAnimation { velocity: 500 } }
 
-    Text {
-        id: nameBoxText
-        text: self.name
+    // TODO: how to know when animation has ended (script animation?)
+
+    RowLayout {
+        id: row
         anchors.centerIn: parent
-        font.pixelSize: gdisplay.smallSize * gdisplay.ppmText
+        spacing: gdisplay.touchCellWidth() *0.5
+
+        Canvas {
+            id: sign
+            property int size: nameBoxText.font.pixelSize * 0.5 // pixelSize is fixed, doesn't change based on name text
+            Layout.preferredHeight: size
+            Layout.preferredWidth: size
+
+            property int crossMarginX: size * 0.1
+            property int crossMarginY: size * 0.1
+            property int circleMargin: size * 0.05
+
+            onPaint: {
+                var ctx = getContext("2d")
+                if (self.isCrossItem) {
+                    // setup the stroke
+                    ctx.lineWidth = 5
+                    ctx.strokeStyle = "black"
+
+                    ctx.beginPath()
+                    ctx.moveTo(0 + crossMarginX, 0 + crossMarginY)
+                    ctx.lineTo(this.width - crossMarginX, this.height - crossMarginY)
+                    ctx.stroke()
+
+                    ctx.beginPath()
+                    ctx.moveTo(this.width - crossMarginY, 0 + crossMarginY)
+                    ctx.lineTo(0 + crossMarginX, this.height - crossMarginY)
+                    ctx.stroke()
+
+                } else {
+                    // circle item
+                    ctx.lineWidth = 5
+                    ctx.strokeStyle = "black"
+
+                    ctx.beginPath()
+                    ctx.arc(this.width/2, this.height/2, this.width/2 - 2*circleMargin, 0, Math.PI*2, true)
+                    ctx.stroke()
+                }
+            }
+        }
+
+        Text {
+            id: nameBoxText
+            //horizontalAlignment: Text.AlignHCenter
+            Layout.preferredWidth: nameBoxText.implicitWidth + gdisplay.smallSize * gdisplay.ppmText
+            //Layout.preferredHeight: nameBoxText.implicitHeight + gdisplay.smallSize * gdisplay.ppmText
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+            text: self.name
+            font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+        }
     }
 
     function shake() {

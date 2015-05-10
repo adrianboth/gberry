@@ -1,7 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
-// TODO: create button that sends data back to mainui
 
 Rectangle {
     id: self
@@ -11,433 +10,393 @@ Rectangle {
         GradientStop { position: 1.0; color: "slategray" }
     }
 
-    property real buttonOpacity: 0.5
-
-    ColumnLayout {
+    Item {
+        id: boardview
         anchors.centerIn: parent
 
-        Item {
-            id: feedback
-            Layout.fillWidth: true
-            Layout.preferredHeight: feedbackText.implicitHeight * 2
+        visible: false
 
-            Rectangle {
-                id: feedbackBox
-                anchors.fill: parent
-                radius: 10
-            }
+        property bool myturn: false
+        property bool endgame: false
 
-            function setWaitMode() {
-                feedbackText.text = "Wait..."
-                feedbackBox.visible = true
-                feedbackBox.color = "red"
-                feedbackBox.border.width = 1
-                feedbackBox.border.color = Qt.lighter(feedbackBox.color)
-                feedbackBox.opacity = 1.0
-                feedbackText.opacity = 1.0
-            }
-            function setNowMode() {
-                feedbackText.text = "Now"
-                feedbackBox.visible = true
-                feedbackBox.color = "green"
-                feedbackBox.border.width = 1
-                feedbackBox.border.color = Qt.lighter(feedbackBox.color)
-                feedbackBox.opacity = 1.0
-                feedbackText.opacity = 1.0
-                nowFadeTimer.running = true
-            }
+        onMyturnChanged: {
+            console.debug("MyTurn changed! " + myturn.toString())
+            selectLabelText()
+        }
 
-            function setNormalMode() {
-                // no box visible, text will fade in normal mode
-                feedbackBox.visible = false
-                if (nowFadeTimer.running == true)
-                    nowFadeTimer.running = false
-            }
+        onEndgameChanged: {
+            console.debug("Endgame changed! " + endgame.toString())
+            selectLabelText()
+        }
 
-            Timer {
-                id: nowFadeTimer
-                interval: 100; repeat: true
-                onTriggered: {
-                    if (feedbackBox.opacity == 0) {
-                        nowFadeTimer.running = false
-                    } else {
-                        feedbackBox.opacity -= 0.1
-                        feedbackText.opacity -= 0.1
-                    }
-
-                }
+        function selectLabelText() {
+            if (endgame) {
+                turnTextLabel.text = qsTr("Game over!")
+            } else if (myturn) {
+                turnTextLabel.text = qsTr("Your turn!")
+            } else {
+                turnTextLabel.text = qsTr("Wait!")
             }
+        }
+
+        onVisibleChanged: {
+            if (visible) {
+                board.resetBoard()
+            }
+        }
+
+        ColumnLayout {
+            anchors.centerIn: parent
 
             Text {
-                id: feedbackText
-                text: "" // "undefined"
-                anchors.centerIn: parent
-                // TODO: get resolution from parent
+                id: turnTextLabel
+                Layout.preferredWidth: implicitWidth
+                Layout.preferredHeight: implicitHeight
+                Layout.alignment: Qt.AlignHCenter
+
+                text: qsTr("Wait!")
                 font.pixelSize: 24
+            }
 
-                function setFeedback(txt) {
-                    // onTextChanged() doesn't work as text is not every time really
-                    // chaning, just same text again
+            Canvas {
+                id: board
+                opacity: boardview.myturn ? 1 : (0.5 - boardview.endgame ? 0.4 : 0)
+                enabled: boardview.myturn
 
-                    feedback.setNormalMode()
-                    feedbackText.text = txt
-                    feedbackText.opacity = 1.0
-                    feedbackTimer.running = true
+                // canvas size
+                Layout.preferredWidth: 3*cellXSize + 2*emptyMargin + 2* linedMargin
+                Layout.preferredHeight: 3*cellYSize + 2*emptyMargin + 2* linedMargin
+
+                // on mobile device it depends from orientation
+                // TODO: expecting now portrait
+                property int cellXSize: root.width / 5
+                property int cellYSize: cellXSize
+
+                property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
+                property int linedMargin: cellXSize * 0.15
+                property int fullMargin: emptyMargin + linedMargin
+
+                // TODO: board
+                onPaint: {
+                    console.debug("onPaint(): Drawing grid")
+
+                    var ctx = getContext("2d")
+                    //ctx.clearRect ( 0 , 0 , board.width, board.height );
+
+                    // setup the stroke
+                    ctx.lineWidth = 5
+                    ctx.strokeStyle = "black"
+
+                    // total four lines
+                    // drawing direction:
+                    //   - first horizontal lines from top to bottom
+                    //   - then vertical lines from left to right
+
+                    // we have empty margin (just empty space) to have space for shadows
+                    // then lines go little bit further than is the cell size
+                    //  -> i.e x line length = 3*cellXSize + 2*linedMargin
+                    //
+                    var fullYMargin = emptyMargin + linedMargin
+                    var fullXMargin = emptyMargin + linedMargin
+
+                    // first horizontal line
+                    ctx.beginPath()
+                    ctx.moveTo(emptyMargin, cellYSize + fullYMargin)
+                    ctx.lineTo(this.width - emptyMargin, cellYSize + fullYMargin)
+                    ctx.stroke()
+
+                    ctx.beginPath()
+                    ctx.moveTo(emptyMargin, 2*cellYSize + fullYMargin)
+                    ctx.lineTo(this.width - emptyMargin, 2*cellYSize + fullYMargin)
+                    ctx.stroke()
+
+                    // first vertical linedMargin
+                    ctx.beginPath()
+                    ctx.moveTo(cellXSize + fullXMargin, 0 + emptyMargin)
+                    ctx.lineTo(cellXSize + fullXMargin, this.height - emptyMargin)
+                    ctx.stroke()
+
+                    ctx.beginPath()
+                    ctx.moveTo(2*cellXSize + fullXMargin, 0 + emptyMargin)
+                    ctx.lineTo(2*cellXSize + fullXMargin, this.height - emptyMargin)
+                    ctx.stroke()
                 }
-                Timer {
-                    id: feedbackTimer
-                    running: false
-                    interval: 100
-                    repeat: true
-                    onTriggered: {
-                        if (feedbackText.opacity == 0) {
-                            feedbackTimer.running = false
-                        } else {
-                            feedbackText.opacity -= 0.1
+
+                function initBoard() {
+                    // 3x3 grid
+                    var xStart = board.fullMargin
+                    var yStart = board.fullMargin
+                    var x, y, component, sprite
+
+                    for (var i = 0; i < 3; i++) {
+                        for (var j = 0; j < 3; j++) {
+                            console.log("Creating objects");
+                            x = xStart + i * board.cellXSize
+                            y = yStart + j * board.cellYSize
+                            var recipe = 'import QtQuick 2.0; Rectangle { opacity: 0; color: "lightgray"; '
+                            recipe += 'x: ' + (x + 2) + '; y:' + (y + 2) + '; '
+                            recipe += 'property int xx: ' + i + '; '
+                            recipe += 'property int yy: ' + j + '; '
+                            recipe += 'width: ' + (board.cellXSize - 4) + '; height: ' + (board.cellYSize - 4) + '; '
+                            recipe += 'MouseArea { anchors.fill: parent; onClicked: { board.onCellSelected(' + i + ', ' + j + ') } }'
+                            recipe += ' }'
+                            sprite = Qt.createQmlObject(recipe, board, 'BoardCell');
+                            // TODO: are these destroyed automatically or do we need to destroy
+                            //       them manually when parent is destroyed
                         }
                     }
                 }
+
+                function onCellSelected(x, y) {
+                    console.debug("Cell selected: " + x + ", " + y)
+                    self.cellSelected(x, y)
+                }
+
+                function markCell(x, y) {
+                    for (var i = 0; i < children.length; i++) {
+                        if (children[i].xx === x && children[i].yy === y) {
+                            children[i].opacity = 0.5
+                            break
+                        }
+                    }
+                }
+
+                function resetBoard() {
+                    console.debug("Reseting board")
+                    for (var i = 0; i < board.children.length; i++) {
+                        board.children[i].opacity = 0
+                    }
+                }
+
+                Component.onCompleted: {
+                    initBoard()
+                }
+
+            }
+
+            // TODO: indication of turn of other ...
+        }
+    }
+
+    // -- alternative
+
+    Item {
+        id: dialog
+        anchors.centerIn: parent
+        visible: true // by default hidden
+
+        z: 1000 // tries to be always top most item
+
+        property string text: "<undefined>"
+        property string buttonText: "<undefined>"
+        property bool showButton: true
+
+        height: column.height
+        width: column.width
+        //color: "snow"
+        //radius: 20 // TODO: should change based on screen size?
+
+        ColumnLayout {
+            id: column
+            anchors.centerIn: parent
+            spacing: gdisplay.touchCellWidth()/2
+
+            Text {
+                id: confirmationText
+                Layout.preferredHeight: confirmationText.contentHeight
+                Layout.preferredWidth: confirmationText.width
+                Layout.alignment: Qt.AlignHCenter || Qt.AlignVCenter
+                //Layout.fillWidth: true
+
+                text: dialog.text
+
+                font.bold: true
+                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText // TODO: to somewhere else
+
+                // needed for text wrapping to work
+                width: Math.min(implicitWidth, root.width * 0.75) // max width 75% from screen
+
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.WordWrap
+            }
+
+            Rectangle  {
+                //color: "red"
+                id: button
+                visible: dialog.showButton
+
+                Layout.preferredHeight: button.buttonHeight
+                Layout.preferredWidth: button.buttonWidth
+                //Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter || Qt.AlignVCenter
+
+
+                    //anchors.centerIn: parent
+                    //width: buttonWidth
+                    //height: buttonHeight
+                    color: "#2db6e1"
+
+                    property string text: "<undefined>"
+                    property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
+                    property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
+
+                    radius: 20
+                    antialiasing: true
+
+                    Text {
+                        id: buttonLabel
+                        anchors.centerIn: parent
+                        text: dialog.buttonText
+                        smooth: true
+                        font.bold: true
+                        font.pixelSize: gdisplay.touchCellHeight() * 1.5
+                    }
+
+                    MouseArea {
+                        id: buttonMouseArea
+                        anchors.fill: parent
+                        onClicked: {
+                            console.debug("Button clicked!")
+                            self.buttonClicked()
+                        }
+                    }
+                //}
             }
 
         }
-
-        RowLayout {
-            Rectangle {
-                id: button1
-                property int number: 1
-                // TODO: make physically square
-                width: buttonText1.implicitHeight
-                height: buttonText1.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText1
-                    text: button1.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button1.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button2
-                property int number: 2
-                // TODO: make physically square
-                width: buttonText2.implicitHeight
-                height: buttonText2.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText2
-                    text: button2.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button2.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button3
-                property int number: 3
-                // TODO: make physically square
-                width: buttonText3.implicitHeight
-                height: buttonText3.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText3
-                    text: button3.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button3.number)
-                    }
-                }
-            }
-        }
-
-        RowLayout {
-            Rectangle {
-                id: button4
-                property int number: 4
-                // TODO: make physically square
-                width: buttonText4.implicitHeight
-                height: buttonText4.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText4
-                    text: button4.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button4.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button5
-                property int number: 5
-                // TODO: make physically square
-                width: buttonText5.implicitHeight
-                height: buttonText5.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText5
-                    text: button5.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button5.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button6
-                property int number: 6
-                // TODO: make physically square
-                width: buttonText6.implicitHeight
-                height: buttonText6.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText6
-                    text: button6.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button6.number)
-                    }
-                }
-            }
-        }
-        RowLayout {
-            Rectangle {
-                id: button7
-                property int number: 7
-                // TODO: make physically square
-                width: buttonText7.implicitHeight
-                height: buttonText7.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText7
-                    text: button7.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button7.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button8
-                property int number: 8
-                // TODO: make physically square
-                width: buttonText8.implicitHeight
-                height: buttonText8.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText8
-                    text: button8.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button8.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button9
-                property int number: 9
-                // TODO: make physically square
-                width: buttonText9.implicitHeight
-                height: buttonText9.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText9
-                    text: button9.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button9.number)
-                    }
-                }
-            }
-        }
-        RowLayout {
-            Item { // to get last button into middle
-                // TODO: make physically square
-                width: buttonText0.implicitHeight
-                height: buttonText0.implicitHeight
-            }
-
-            Rectangle {
-                id: button0
-                property int number: 0
-                // TODO: make physically square
-                width: buttonText0.implicitHeight
-                height: buttonText0.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText0
-                    text: button0.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button0.number)
-                    }
-                }
-            }
-        }
-
     }
 
     // -- API --
 
     // Outgoing AppBoxMessages
-    //   data: json object
-    signal outgoingMessage(var data)
-
-    property bool enabled: false
+    //   js: json object
+    signal outgoingMessage(var js)
 
     // Incoming AppBoxMessages
     //   js: json object
     function incomingMessage(js) {
-        console.debug("### MAINUI APPBOX MSG: " + js)
-
-        //outgoingMessage("got appbox msg")
 
         if (!"action" in js) {
             console.error("Unknown message format: " + js)
             return
         }
+        console.debug("IncomingMessage: " + js["action"])
 
-        if (js["action"] === "DisableControls") {
-            // do not fade this text
-            feedback.setWaitMode()
-            buttonOpacity = 0.5
-            self.enabled = false
+        if (js["action"] === "MoveToState") {
+            var state  = js["state"]
+            self.state = state
 
-        } else if (js["action"] === "EnableControls") {
-            self.enabled = true
-            feedback.setNowMode()
-            buttonOpacity = 1.0
-
-        } else if (js["action"] === "CorrectNumberFeedback") {
-            // TODO: how localization of these would go? ... game provides, but client selects?
-            feedbackText.setFeedback("OK!")
-        } else if (js["action"] === "InvalidNumberFeedback") {
-            feedbackText.setFeedback("Try again!")
+        } else if (js["action"] === "MarkCell") {
+            board.markCell(js["x"], js["y"])
         }
     }
 
-    function buttonPressed(number) {
-        console.debug("Button pressed: " + number.toString())
-
-        if (self.enabled) {
-            // TODO: send
-            var js = {action: "NumberPressed", number: number.toString()}
-            console.debug("Sending message out from AppBox")
-            outgoingMessage(js)
-        }
+    function cellSelected(x, y) {
+        var js = {action: "SelectCell", x: x, y: y}
+        outgoingMessage(js)
     }
+
+    function buttonClicked() {
+        // depends from the state what button is doing
+        if (state === "WAITING_PLAYERS") {
+            joinSelected()
+        } else if (state === "JOINED_WAITING") {
+            cancelJoin()
+        } else if (state === "END_GAME") {
+            nextGame()
+        }
+
+        // TODO: end game situation
+    }
+
+    function joinSelected() {
+        var js = {action: "JoinGame"}
+        outgoingMessage(js)
+    }
+
+    function cancelJoin() {
+        var js = {action: "CancelJoin"}
+        outgoingMessage(js)
+    }
+
+    function nextGame() {
+        var js = {action: "NextGame"}
+        outgoingMessage(js)
+    }
+
+    Component.onCompleted: {
+        //dialog.text = "Join to game"
+        //button.text = "Join"
+    }
+
+    state: "INITIAL"
+
+    states: [
+            State { name: "INITIAL"
+            PropertyChanges { target: boardview; visible: false }
+            /*
+            PropertyChanges {
+                target: dialog
+                visible: true
+                text: "Please wait ..."
+                showButton: false
+            }*/
+            },
+
+            State {
+                name: "WAITING_PLAYERS"
+                PropertyChanges { target: boardview; visible: false }
+                PropertyChanges {
+                    target: dialog
+                    visible: true
+                    text: "Waiting players to join ..."
+                    showButton: true
+                    buttonText: "Join"
+                }
+            },
+            State {
+                name: "JOINED_WAITING"
+                PropertyChanges { target: boardview; visible: false }
+                PropertyChanges {
+                    target: dialog
+                    visible: true
+                    text: "Joined to game, waiting others ..."
+                    showButton: true
+                    buttonText: "Cancel"
+                }
+            },
+            State {
+                name: "PLAY_GAME_MY_TURN"
+                PropertyChanges { target: boardview; visible: true; myturn: true; endgame: false }
+                PropertyChanges { target: dialog; visible: false }
+            },
+            State {
+                name: "PLAY_GAME_WAIT_TURN"
+                PropertyChanges { target: boardview; visible: true; myturn: false; endgame: false}
+                PropertyChanges { target: dialog; visible: false }
+            },
+            State {
+                name: "WAIT_GAME"
+                PropertyChanges { target: boardview; visible: false }
+                PropertyChanges {
+                    target: dialog
+                    visible: true
+                    text: "Game ongoing, please wait ..."
+                    showButton: false
+                }
+            },
+            State {
+                name: "END_GAME"
+                PropertyChanges { target: boardview; visible: true; endgame: true }
+                PropertyChanges {
+                    target: dialog
+                    visible: true
+                    text: ""
+                    buttonText: "Next"
+                    showButton: true
+                }
+            }
+
+        ]
+
 }
-
-// TODO: try to use components defined in a pkg

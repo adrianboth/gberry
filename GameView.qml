@@ -1,188 +1,196 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
-import QtMultimedia 5.0
 
-Rectangle {
+import "GameModel.js" as GameModel
+
+Item {
     id: self
 
     // TODO: how to define in common place gradient for all views
-    gradient: Gradient {
-        GradientStop { position: 0.0; color: "lightsteelblue" }
-        GradientStop { position: 1.0; color: "slategray" }
+
+    property string player1Name: "xxx"
+    property string player2Name: "yyy"
+
+    signal gameClosed()
+
+    // TODO: make game playeable directly -> easier to develop
+
+    function reset() {
+        gametime.reset()
+        headerText.moveToCenter()
+        gameboard.enabled = false
+        gameboard.resetBoard()
     }
 
-    function start() {
-        // TODO: needed?
+    function player1Turn() {
+        gameboard.enabled = true // very first turn will enable
+        gametime.restart()
+        headerText.moveToPlayer1()
     }
-    function stop() {
-        // TODO: needed?
+
+    function player2Turn() {
+        gametime.restart()
+        headerText.moveToPlayer2()
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            player1Name = GameModel.player1.name
+            player2Name = GameModel.player2.name
+        } else {
+            reset() // prepare in advance for next game
+        }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        propagateComposedEvents: true
+        onClicked: {
+            console.debug("CLICKED MAIN AREA")
+            // handle clicks only in the end
+            if (GameModel.isGameEnded()) {
+                gameClosed()
+                mouse.accepted = true
+            }
+        }
     }
 
     Item {
-        id: boardMargins
-        anchors.centerIn: parent
-        width: board.width
-        height: board.height
+        id: header
+        //color: "green"
+        width: root.width
+        height: headerText.implicitHeight
 
-        Canvas {
-            id: board
-            anchors.centerIn: parent
-            // canvas size
-            width: 3*cellXSize + 2*emptyMargin + 2* linedMargin
-            height: 3*cellYSize + 2*emptyMargin + 2* linedMargin
+        anchors.top: self.top
+        anchors.topMargin: headerText.font.pixelSize / 2
+        //anchors.horizontalCenter: parent.horizontalCenter
 
-            // TODO: make relative calculation
-            property int cellXSize: 100
-            property int cellYSize: 100
-            property int emptyMargin: cellXSize * 0.35 // enough margins to get shadows fully visible
-            property int linedMargin: cellXSize * 0.15
-            property int fullMargin: emptyMargin + linedMargin
+        Text {
+            id: headerText
+            text: qsTr("Turn")
+            //x: playerBoxes.xMargin
+            //x: (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
+            //anchors.top: self.top
+            //anchors.topMargin: font.pixelSize
+            //anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
 
-            onPaint: {
-                var ctx = getContext("2d")
+            Behavior on x { SmoothedAnimation { velocity: 500; } }
 
-                // setup the stroke
-                ctx.lineWidth = 5
-                ctx.strokeStyle = "black"
-                ctx.shadowBlur=20;
-                ctx.shadowOffsetX=15
-                ctx.shadowOffsetY=15
-                ctx.shadowColor="black";
-
-                // total four lines
-                // drawing direction:
-                //   - first horizontal lines from top to bottom
-                //   - then vertical lines from left to right
-
-                // we have empty margin (just empty space) to have space for shadows
-                // then lines go little bit further than is the cell size
-                //  -> i.e x line length = 3*cellXSize + 2*linedMargin
-                //
-                var fullYMargin = emptyMargin + linedMargin
-                var fullXMargin = emptyMargin + linedMargin
-
-                // first horizontal line
-                ctx.beginPath()
-                ctx.moveTo(emptyMargin, cellYSize + fullYMargin)
-                ctx.lineTo(board.width - emptyMargin, cellYSize + fullYMargin)
-                ctx.stroke()
-
-                ctx.beginPath()
-                ctx.moveTo(emptyMargin, 2*cellYSize + fullYMargin)
-                ctx.lineTo(board.width - emptyMargin, 2*cellYSize + fullYMargin)
-                ctx.stroke()
-
-                // first vertical linedMargin
-                ctx.beginPath()
-                ctx.moveTo(cellXSize + fullXMargin, 0 + emptyMargin)
-                ctx.lineTo(cellXSize + fullXMargin, board.height - emptyMargin)
-                ctx.stroke()
-
-                ctx.beginPath()
-                ctx.moveTo(2*cellXSize + fullXMargin, 0 + emptyMargin)
-                ctx.lineTo(2*cellXSize + fullXMargin, board.height - emptyMargin)
-                ctx.stroke()
+            function moveToPlayer1() {
+                this.text = qsTr("Turn")
+                this.x = (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
             }
 
-            // clears all cells
-            function clear() {
-                // TODO
+            function moveToPlayer2() {
+                this.text = qsTr("Turn")
+                this.x = (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2
             }
 
-            // type=x|o
-            function drawItemTo(x, y, type) {
-                // TODO:
-
-                // this is not real model, just for drawing
-                //  -> we are not making any checks
+            function moveToCenter() {
+                this.text = qsTr("Turn")
+                this.x = parent.width / 2 - implicitWidth / 2
             }
 
+            function gameEndedDraw() {
+                this.text = qsTr("DRAW!")
+                this.x = parent.width / 2 - implicitWidth / 2
+            }
 
+            function player1Won() {
+                this.text = qsTr("WINNER!")
+                this.x = (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
+            }
 
-            Item {
-                id: cross
-                // TODO: x, y for testing
-                x: board.fullMargin
-                y: board.fullMargin
-                width: board.cellXSize
-                height: board.cellYSize
-
-                //color: "green" // for testing
-
-                property int xCoord: 0
-                property int yCoord: 0
-                property bool itemSelected: false
-                property bool isCrossItem: true
-                property bool isGrayed: false
-
-                Canvas {
-                    //x: 0 + crossMarginX
-                    //y: 0 + crossMarginY
-                    width: board.cellXSize //- 2*crossMarginX
-                    height: board.cellYSize //- 2*crossMarginY
-                    visible: parent.itemSelected
-
-                    property int crossMarginX: board.cellXSize * 0.1
-                    property int crossMarginY: board.cellYSize * 0.1
-                    property int circleMargin: board.cellXSize * 0.05
-
-                    onPaint: {
-                        var ctx = getContext("2d")
-                        if (parent.isGrayed) {
-                            ctx.fillStyle="#FF0000";
-                            ctx.fillRect(0 + crossMarginX,
-                                         0 + crossMarginY, this.width - crossMarginX, this.height - crossMarginY)
-
-                        } else if (parent.isCrossItem) {
-                            // setup the stroke
-                            ctx.lineWidth = 5
-                            ctx.strokeStyle = "blue"
-                            //ctx.shadowBlur=5;
-                            //ctx.shadowOffsetX=5
-                            //ctx.shadowOffsetY=5
-                            //ctx.shadowColor="blue";
-
-                            ctx.beginPath()
-                            ctx.moveTo(0 + crossMarginX, 0 + crossMarginY)
-                            ctx.lineTo(this.width - crossMarginX, this.height - crossMarginY)
-                            ctx.stroke()
-
-                            ctx.beginPath()
-                            ctx.moveTo(this.width - crossMarginY, 0 + crossMarginY)
-                            ctx.lineTo(0 + crossMarginX, this.height - crossMarginY)
-                            ctx.stroke()
-
-                        } else {
-                            // circle item
-                            ctx.lineWidth = 5
-                            ctx.strokeStyle = "red"
-
-                            ctx.beginPath()
-                            ctx.arc(this.width/2, this.height/2, this.width/2 - 2*circleMargin, 0, Math.PI*2, true)
-                            ctx.stroke()
-                        }
-
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (!parent.itemSelected) {
-                            console.debug("Selected: " + parent.xCoord + "," + parent.yCoord)
-                            parent.itemSelected = true
-                        }
-                    }
-                }
+            function player2Won() {
+                this.text = qsTr("WINNER!")
+                this.x = (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2
             }
         }
-
-
     }
+
+    Item {
+        //color: "yellow"
+        id: playerBoxes
+        anchors.top: header.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: gameboard.top
+
+        //height: 100
+        property int xMargin: gdisplay.touchCellWidth() / 2
+
+        NameBox {
+            id: firstPlayerBox
+            x: parent.xMargin
+            height: preferredHeight
+            width: preferredWidth
+            //Layout.alignment: Qt.AlignHCenter
+
+            name: player1Name
+            isCrossItem: true
+            //bgColor: "red"
+        }
+
+        NameBox {
+            id: secondPlayerBox
+            x: root.width - preferredWidth - parent.xMargin // initial position outside the screen on left side
+            height: preferredHeight
+            width: preferredWidth
+            //Layout.alignment: Qt.AlignHCenter
+
+            name: player2Name
+            isCrossItem: false
+            //bgColor: "red"
+        }
+    }
+
+    // TODO: Players names in boxes
+    //   Draw small circle (red) and cross (blue) next to names
+
+    Board {
+        id: gameboard
+        anchors.centerIn: parent
+    }
+
+    // game time is just a reference
+    GameTime {
+        id: gametime
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
+
+    function onTurnSwitched(playerNumber) {
+        if (playerNumber === 1) {
+            player1Turn()
+        } else {
+            player2Turn()
+        }
+    }
+
+    function onGameEndedDraw() {
+        console.debug("### GAME DRAW!")
+        gametime.stop()
+        headerText.gameEndedDraw()
+        console.debug("### GAME DRAW  2!")
+    }
+
+    function onGameEnded(playerNumber,x1, y1, x2, y2) {
+        gametime.stop()
+        if (playerNumber === 1)
+            headerText.player1Won()
+        else
+            headerText.player2Won()
+
+        gameboard.showWinningLine(x1, y1, x2, y2)
+    }
+
+    Component.onCompleted: {
+        reset()
+        GameModel.callbackTurnSwitched.turnSwitched.connect(onTurnSwitched)
+        GameModel.callbacks.gameEndedDraw.connect(onGameEndedDraw)
+        GameModel.callbacks.gameEnded.connect(onGameEnded)
+        GameModel.callbacks.cellMarked.connect(gameboard.markCell)
+    }
+
 }
-
-// ok, because of mouse click, I need to populate the whole grid
-
-// canvas size needs to be larger
-//  a) grid going little bit over cell size
-//  b) shadows not stripped

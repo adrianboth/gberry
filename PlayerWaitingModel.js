@@ -1,6 +1,9 @@
+.pragma library
+
+.import "Player.js" as Player
 .import "ApplicationSettingsJS.js" as ApplicationSettingsJS
 .import GBerry 1.0 as GBerry
-.import GBerryConsole 1.0 as ConsoleLib
+.import GBerryConsole 1.0 as ConsoleLib // TODO: needed?
 
 GBerry.Log.initLog("GameModel", ApplicationSettingsJS.logLevel)
 
@@ -13,11 +16,86 @@ GBerry.Log.initLog("GameModel", ApplicationSettingsJS.logLevel)
  */
 
 // call back for winning
-var callbacks = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal playerWon(var pid); signal playerCorrectNumber(var pid); signal playerInvalidNumber(var pid); }', Qt.application, 'PlayerWaitingModelCallbacks');
+var callbacks = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal player1Joined(var name); signal player2Joined(var name) }', Qt.application, 'PlayerWaitingModelCallbacks');
+
+var _player1 = new Player.UndefinedPlayer()
+var _player2 = new Player.UndefinedPlayer()
+var _playersManager
+
+// ".pragma library" hides visiblity to global context
+function initialize(playersManager) {
+    _playersManager = playersManager
+}
+
+function reset() {
+    _player1 = new Player.UndefinedPlayer()
+    _player2 = new Player.UndefinedPlayer()
+}
+
+function numberOfJoinedPlayers() {
+    if (!_player1.isValid()) {
+        return 0
+    } else if (!_player2.isValid()) {
+        return 1
+    } else {
+        return 2
+    }
+}
+
+function joinPlayer(playerId, playerName) {
+    if (!_player1.isValid()) {
+        _player1 = new Player.Player(playerId, playerName)
+        callbacks.player1Joined(playerName) // signal
+
+    } else if (!_player2.isValid()) {
+        _player2 = new Player.Player(playerId, playerName)
+        callbacks.player2Joined(playerName) // signal
+    }
+}
+
+function joinedPlayers() {
+    return new Player.Players(_player1, _player2)
+}
 
 
-function func() {
+function _sendMessageToPlayer(pid, msgJson) {
+    var customMsg = ConsoleLib.Messages.createCustomAppBoxMsg(msgJson)
+    _playersManager.sendPlayerMessage(pid, customMsg)
+}
 
+// appbox custom message
+function playerMessageReceived(pid, js)  {
+    if (!js.hasOwnProperty('action')) {
+        console.debug("ERROR: invalid message:" + js.toString())
+        return false
+    }
+
+    if (js["action"] === "JoinGame") {
+        joinPlayer(pid, _playersManager.playerName(pid))
+        var msgToSend
+
+        if (numberOfJoinedPlayers() === 1) {
+            msgToSend = {action: "MoveToState", state: "JOINED_WAITING"}
+             _sendMessageToPlayer(pid, msgToSend)
+        } else if (numberOfJoinedPlayers() === 2) {
+            msgToSend = {action: "MoveToState", state: "JOINED_WAITING"}
+            _sendMessageToPlayer(pid, msgToSend)
+
+            // showing game area triggers showing game screen
+        }
+
+        return true
+
+    }
+    /*
+    else if (js["action"] === "CancelJoin") {
+        // TODO: problem if first player cancels ... -> back to original situation
+        console.debug("CancelJoin unimplemented!")
+        return true
+    }
+    */
+
+    return false
 }
 
 // handle player joined message
@@ -41,6 +119,5 @@ function func() {
 
 // how about to general action for stopping game, where is the logic?
 
-/
 //  -> feedback
 // whe
