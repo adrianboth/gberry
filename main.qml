@@ -96,27 +96,14 @@ Window {
                 State {
                     name: "WAITING_PLAYERS"
 
-                    StateChangeScript {
-                            script: {
-                                PlayerWaitingModel.reset()
-                                joinview.reset()
-                                var msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
-                                playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
-                            }
-                    }
+                    StateChangeScript { script: resetWaitingPlayersState() }
                     PropertyChanges { target: joinview; visible: true }
                     PropertyChanges { target: gameview; visible: false }
-
                 },
 
                 State {
                     name: "GAME"
-                    StateChangeScript {
-                            script: {
-                                GameModel.initGame(PlayerWaitingModel.joinedPlayers())
-                            }
-                    }
-
+                    StateChangeScript { script: GameModel.initGame(PlayerWaitingModel.joinedPlayers()) }
                     PropertyChanges { target: gameview; visible: true}
                     PropertyChanges { target: opacityAnimator2; running: true}
                     PropertyChanges { target: opacityAnimator; running: true}
@@ -165,10 +152,23 @@ Window {
         // TODO:
 
         // if waiting -> then drop that player out
+        // TODO: it would be great to have temporary message what happened (just on main screen?)
+        if (mainarea.state === "WAITING_PLAYERS" && PlayerWaitingModel.hasJoined(pid)) {
+            resetWaitingPlayersState()
+        } else if (mainarea.state === "GAME" && GameModel.isPlaying(pid)) {
+            mainarea.state = "WAITING_PLAYERS"
+        }
 
         // if player in game -> cancel the game -> to beginning (TODO: what kind of message?)
 
         console.log("Player left: id = " + pid)
+    }
+
+    function resetWaitingPlayersState() {
+        PlayerWaitingModel.reset()
+        joinview.reset()
+        var msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
+        playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
     }
 
     //js = {action: "ShowAppBox"}
@@ -189,15 +189,10 @@ Window {
                 //   - and abort is selected second time in 10s
                 //   (there is room for sabotage, but is not really big issue as everyone are in a same room)
                 if (mainarea.state === "WAITING_PLAYERS") {
-                    PlayerWaitingModel.reset()
-                    joinview.reset()
-                    msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
-                    playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
+                    resetWaitingPlayersState()
                 }
                 else {
                     mainarea.state = "WAITING_PLAYERS"
-                    msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
-                    playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
                 }
             }
 
@@ -212,18 +207,11 @@ Window {
 
             if (js["data"]["action"] === "NextGame") {
                 console.debug("AppBoxMessage: NextGame")
-
                 mainarea.state = "WAITING_PLAYERS"
-                msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
-                playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
 
             } else if (js["data"]["action"] === "CancelJoin" && mainarea.state === "WAITING_PLAYERS") {
                 // if one player cancel -> return to initial joining phase
-                PlayerWaitingModel.reset()
-                joinview.reset()
-
-                msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
-                playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
+                resetWaitingPlayersState()
             }
         }
     }

@@ -29,6 +29,8 @@ var _playersManager
 
 function initialize(playersManager) {
     _playersManager = playersManager
+    _player1 = new Player.UndefinedPlayer()
+    _player2 = new Player.UndefinedPlayer()
 }
 
 function initGame(joinedPlayers) {
@@ -59,6 +61,15 @@ function player1() {
 
 function player2() {
     return _player2
+}
+
+function isPlaying(playerID) {
+    if (_player1.isValid() && _player1.id === playerID)
+        return true
+    if (_player2.isValid() && _player2.id === playerID)
+        return true
+
+    return false
 }
 
 function enableTurns() {
@@ -120,9 +131,8 @@ function isCrossItem(x, y) {
 function checkGameEndCondition() {
     if (_markedCells === 9) {
         console.debug("Draw game!")
-        _gameEnded = true
+        _endGameProcedures()
         callbacks.gameEndedDraw()
-        sendEndGameMessages()
         return true
     }
 
@@ -140,6 +150,14 @@ function checkGameEndCondition() {
     return false
 }
 
+function _endGameProcedures() {
+    _gameEnded = true
+    _enableTurns = false
+    sendEndGameMessages()
+    _player1 = new Player.UndefinedPlayer()
+    _player2 = new Player.UndefinedPlayer()
+}
+
 function checkRow(x1, y1, x2, y2) {
     var type = playerMark()
 
@@ -153,10 +171,8 @@ function checkRow(x1, y1, x2, y2) {
     // this is row - check middle cell
     if (y1 === y2 && _columns[x2/2][y1] === type) {
         // yes, row match
-        _gameEnded = true
-        _enableTurns = false
+        _endGameProcedures()
         callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
-        sendEndGameMessages()
         return true
     }
     return false
@@ -175,10 +191,8 @@ function checkColumn(x1, y1, x2, y2) {
     // this is row - check middle cell
     if (x1 === x2 && _columns[x1][y2/2] === type) {
         // yes, row match
-        _gameEnded = true
-        _enableTurns = false
+        _endGameProcedures()
         callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
-        sendEndGameMessages()
         return true
     }
     return false
@@ -197,10 +211,8 @@ function checkDiagonal(x1, y1, x2, y2) {
     // this is diagonal line - check middle cell
     if (_columns[x2/2][Math.max(y1, y2)/2] === type) {
         // yes, row match
-        _gameEnded = true
-        _enableTurns = false
+        _endGameProcedures()
         callbacks.gameEnded(playerNumber(), x1, y1, x2, y2)
-        sendEndGameMessages()
         return true
     }
     return false

@@ -57,6 +57,14 @@ function joinedPlayers() {
     return new Player.Players(_player1, _player2)
 }
 
+function hasJoined(playerID) {
+    if (_player1.isValid() && _player1.id === playerID)
+        return true
+    if (_player2.isValid() && _player2.id === playerID)
+        return true
+
+    return false
+}
 
 function _sendMessageToPlayer(pid, msgJson) {
     var customMsg = ConsoleLib.Messages.createCustomAppBoxMsg(msgJson)
