@@ -2,6 +2,8 @@ import QtQuick 2.4
 
 import "GameModel.js" as GameModel
 
+import "BoardItemRender.js" as BoardItemRender
+
 Item {
     id: self
 
@@ -17,13 +19,17 @@ Item {
     property bool isCrossItem: true
     property bool isGrayed: false
 
+    property var imageData: ""
+
     onItemSelectedChanged: {
-        canvas.requestPaint()
+        canvas.requestPaint() // todo: if rendenering in background thread then cross is visible for little time
         console.debug("### cross item changed")
     }
 
     Canvas {
         id: canvas
+        renderStrategy: Canvas.Cooperative
+
         //x: 0 + crossMarginX
         //y: 0 + crossMarginY
         width: board.cellXSize //- 2*crossMarginX
@@ -35,8 +41,16 @@ Item {
         property int circleMargin: board.cellXSize * 0.05
 
         onPaint: {
-            console.debug("### PAINTING")
-            var ctx = getContext("2d")
+            //console.debug("### PAINTING:" + toDataURL())
+            //devTimer.printTime()
+            //if (self.imageData.length > 0)
+
+            //var ctx = getContext("2d")
+            //ctx.drawImage(Render._crossImage, 0, 0)
+            BoardItemRender.drawCross(this)
+
+            /*
+            ctx.save()
             context.clearRect ( 0 , 0 , canvas.width, canvas.height );
 
             if (parent.isGrayed) {
@@ -63,6 +77,7 @@ Item {
                 ctx.lineTo(0 + crossMarginX, this.height - crossMarginY)
                 ctx.stroke()
 
+
             } else {
                 // circle item
                 ctx.lineWidth = 5
@@ -72,14 +87,25 @@ Item {
                 ctx.arc(this.width/2, this.height/2, this.width/2 - 2*circleMargin, 0, Math.PI*2, true)
                 ctx.stroke()
             }
+            ctx.save()
 
+            self.imageData = toDataURL()
+            //devTimer.printTime()
+            */
+        }
+
+        Component.onCompleted: {
+            BoardItemRender.prerender(this)
         }
     }
 
     MouseArea {
+        id: mouseArea
         anchors.fill: parent
         z: 1000 // make sure on top
         onClicked: {
+            devTimer.startWithEventQueueMarker()
+
             if (!parent.itemSelected) {
                 console.debug("Selected: " + parent.xCoord + "," + parent.yCoord)
                 //parent.itemSelected = true
@@ -92,7 +118,9 @@ Item {
                     //parent.itemSelected = true
                 }
             }
+
         }
+
     }
 }
 
