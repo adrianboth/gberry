@@ -2,8 +2,6 @@ import QtQuick 2.4
 
 import "GameModel.js" as GameModel
 
-import "BoardItemRender.js" as BoardItemRender
-
 Item {
     id: self
 
@@ -16,22 +14,14 @@ Item {
     property int xCoord: 0
     property int yCoord: 0
     property bool itemSelected: false
-    property bool isCrossItem: true
-    property bool isGrayed: false
-
-    property string imageData: ""
-    // var
-    onItemSelectedChanged: {
-        //canvas.requestPaint() // todo: if rendenering in background thread then cross is visible for little time
-        console.debug("### cross item changed")
-    }
+    property bool isCrossItem: truee
 
     Canvas {
         id: canvas
-        //renderStrategy: Canvas.Cooperative
+        renderStrategy: Canvas.Cooperative
 
-        //x: 0 + crossMarginX
-        //y: 0 + crossMarginY
+        // x & y are set when BoardItem is instantiated
+
         width: board.cellXSize //- 2*crossMarginX
         height: board.cellYSize //- 2*crossMarginY
         visible: parent.itemSelected
@@ -41,35 +31,12 @@ Item {
         property int circleMargin: board.cellXSize * 0.05
 
         onPaint: {
-            console.debug("### PAINTING") // + toDataURL())
-            //devTimer.printTime()
-            //if (self.imageData.length > 0)
-
-            //BoardItemRender.drawCross(this)
-            /*
-            var ctx = getContext("2d")
-            if (isImageLoaded(imageData)) {
-                console.debug("IMAGE LOADED")
-                ctx.drawImage(imageData, 0, 0)
-            } else {
-                console.debug(("IMAGE NOT LOADED"))
-            }*/
-
-
-            /*
-            if (isCrossItem) {
-                BoardItemRender.drawCross(this)
-            } else {
-                BoardItemRender.drawCircle(this)
-            }*/
-
             var ctx = canvas.getContext('2d')
+            ctx.save()
+            ctx.clearRect (0 , 0 , canvas.width, canvas.height)
 
             if (isCrossItem) {
-                console.debug("### PRERENDER CROSS")
-                var ctx = canvas.getContext('2d')
-                ctx.save()
-                ctx.clearRect ( 0 , 0 , canvas.width, canvas.height )
+                console.debug("### PAINT CROSS")
 
                 // setup the stroke
                 ctx.lineWidth = 5
@@ -85,12 +52,8 @@ Item {
                 ctx.lineTo(0 + canvas.crossMarginX, canvas.height - canvas.crossMarginY)
                 ctx.stroke()
 
-                ctx.restore()
             } else {
-                console.debug("### PRERENDER CIRCLE")
-
-                ctx.save()
-                ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+                console.debug("### PAINT CIRCLE")
 
                 ctx.lineWidth = 5
                 ctx.strokeStyle = "red"
@@ -98,66 +61,8 @@ Item {
                 ctx.beginPath()
                 ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2 - 2*canvas.circleMargin, 0, Math.PI*2, true)
                 ctx.stroke()
-
-                ctx.restore()
             }
-
-            /*
-            var ctx = getContext("2d")
-            ctx.save()
-            context.clearRect ( 0 , 0 , canvas.width, canvas.height );
-
-            if (parent.isGrayed) {
-                ctx.fillStyle="#FF0000";
-                ctx.fillRect(0 + crossMarginX,
-                             0 + crossMarginY, this.width - crossMarginX, this.height - crossMarginY)
-
-            } else if (parent.isCrossItem) {
-                // setup the stroke
-                ctx.lineWidth = 5
-                ctx.strokeStyle = "blue"
-                //ctx.shadowBlur=5;
-                //ctx.shadowOffsetX=5
-                //ctx.shadowOffsetY=5
-                //ctx.shadowColor="blue";
-
-                ctx.beginPath()
-                ctx.moveTo(0 + crossMarginX, 0 + crossMarginY)
-                ctx.lineTo(this.width - crossMarginX, this.height - crossMarginY)
-                ctx.stroke()
-
-                ctx.beginPath()
-                ctx.moveTo(this.width - crossMarginY, 0 + crossMarginY)
-                ctx.lineTo(0 + crossMarginX, this.height - crossMarginY)
-                ctx.stroke()
-
-
-            } else {
-                // circle item
-                ctx.lineWidth = 5
-                ctx.strokeStyle = "red"
-
-                ctx.beginPath()
-                ctx.arc(this.width/2, this.height/2, this.width/2 - 2*circleMargin, 0, Math.PI*2, true)
-                ctx.stroke()
-            }
-            ctx.save()
-            */
-            /*
-            self.imageData = toDataURL()
-            //devTimer.printTime()
-            */
-        }
-
-
-        Component.onCompleted: {
-
-            //BoardItemRender.prerenderCrossImage(this)
-            //BoardItemRender.prerenderCircleImage(this)
-
-            //console.debug("### LOAD: " + imageData)
-            //loadImage(imageData)
-
+            ctx.restore()
         }
 
     }
@@ -171,19 +76,12 @@ Item {
 
             if (!parent.itemSelected) {
                 console.debug("Selected: " + parent.xCoord + "," + parent.yCoord)
-                //parent.itemSelected = true
-
-                if (GameModel.markCell(parent.xCoord, parent.yCoord)) {
-
-                    //var cross = GameModel.isCrossItem(parent.xCoord, parent.yCoord)
-                    //console.debug("### cross: " + cross.toString())
-                    //parent.isCrossItem = GameModel.isCrossItem(parent.xCoord, parent.yCoord)
-                    //parent.itemSelected = true
-                }
+                GameModel.markCell(parent.xCoord, parent.yCoord)
+                // we are not marking visually item, game model will trigger
+                // marking if everything is ok
             }
 
         }
 
     }
 }
-

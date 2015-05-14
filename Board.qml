@@ -1,7 +1,5 @@
 import QtQuick 2.4
 
-import "BoardItemRender.js" as BoardItemRender
-
 Item {
     id: self
     width: board.width
