@@ -103,7 +103,7 @@ function markCell(x, y) {
     _markedCells++
     debugBoard()
 
-    if (!checkGameEndCondition())
+    if (!checkGameEndCondition(x, y))
     {
         // game not ended yet
         switchPlayerTurn()
@@ -128,7 +128,7 @@ function isCrossItem(x, y) {
 }
 
 
-function checkGameEndCondition() {
+function checkGameEndCondition(x, y) {
     if (_markedCells === 9) {
         console.debug("Draw game!")
         _endGameProcedures()
@@ -136,16 +136,18 @@ function checkGameEndCondition() {
         return true
     }
 
-    if (checkRow(0, 0, 2, 0)) return true
-    if (checkRow(0, 1, 2, 1)) return true
-    if (checkRow(0, 2, 2, 2)) return true
+    if (y === 0 && checkRow(0, 0, 2, 0)) return true
+    if (y === 1 && checkRow(0, 1, 2, 1)) return true
+    if (y === 2 && checkRow(0, 2, 2, 2)) return true
 
-    if (checkColumn(0, 0, 0, 2)) return true
-    if (checkColumn(1, 0, 1, 2)) return true
-    if (checkColumn(2, 0, 2, 2)) return true
+    if (x === 0 && checkColumn(0, 0, 0, 2)) return true
+    if (x === 1 && checkColumn(1, 0, 1, 2)) return true
+    if (x === 2 && checkColumn(2, 0, 2, 2)) return true
 
-    if (checkDiagonal(0, 0, 2, 2)) return true
-    if (checkDiagonal(0, 2, 2, 0)) return true
+    if (x === y) {
+        if (checkDiagonal(0, 0, 2, 2)) return true
+        if (checkDiagonal(0, 2, 2, 0)) return true
+    }
 
     return false
 }
