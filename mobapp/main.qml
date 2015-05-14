@@ -27,6 +27,19 @@ Window {
     onHeightChanged: { gdisplay.adjust(width, height) }
     onWidthChanged: { gdisplay.adjust(width, height) }
 
+    MouseArea {
+        id: mainMouseArea
+        anchors.fill: parent
+        //propagateComposedEvents: true
+
+        onClicked: {
+            console.debug("MOUSE CLICKED ON MAIN MOUSEAREA")
+
+            // make sure dropdown menus are closed
+            toggleGeneralActions(false)
+            toggleLocalGeneralActions(false)
+        }
+    }
 
     ToolBar {
         id: topbar
@@ -80,20 +93,11 @@ Window {
 
     }
 
-    MouseArea {
-        id: mainMouseArea
+    Item {
         anchors.top: topbar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: bottombar.top
-
-        onClicked: {
-            console.debug("MOUSE CLICKED ON MAIN MOUSEAREA")
-
-            // make sure dropdown menus are closed
-            toggleGeneralActions(false)
-            toggleLocalGeneralActions(false)
-        }
 
         DefaultMainArea {
             id: ui
@@ -407,8 +411,13 @@ Window {
         settingsView.visible = false
         debugview.visible = false
         basicControls.visible = false
+        appbox.visible = false
         ui.visible = true
+
+        generalActions.clearActions()
     }
+
+    // TODO: we should handle connection closed
 
     Component.onCompleted: {
         Log.initLog("main", Log.DEBUG_LEVEL)
@@ -421,6 +430,7 @@ Window {
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
         mobapp.consoleConnectionOpenFailed.connect(onLoginFailed)
+        mobapp.consoleConnectionClosed.connect(onLogout) // TODO: should we have some kind of info for user what happened
 
         generalActions.actionSelected.connect(onGeneralActionSelected)
 
