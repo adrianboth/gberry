@@ -23,23 +23,13 @@ Item {
 
     ListModel {
         id: listModel
-        /*
-        ListElement {
-               actionName: "Menu"
-               actionId: "Menu"
-        }
-        ListElement {
-               actionName: "Exit"
-               actionId: "Exit"
-        }
-        */
     }
 
     Rectangle {
         id: actionMenu
         property int marginX: gdisplay.touchCellWidth() / 2
         //property int marginY: gdisplay.touchCellHeight() / 2
-        property int marginY: 1
+        property int marginY: border.width // to prevent drawing on top of border
         width: list.contentWidth + marginX * 2
         height: list.contentHeight + marginY * 2
         color: "snow"
@@ -49,7 +39,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                console.debug("ACTION MENU MOUSEAREA")
+                //console.debug("ACTION MENU MOUSEAREA")
                 //console.debug("MouseArea::clicked " + mouse.x + "," + mouse.y)
 
                 // trick is to find item on that row (actual text item doesn't fill the full row)
@@ -83,44 +73,11 @@ Item {
             ListView {
                 id: list
                 anchors.fill: parent
-                //anchors.centerIn: parent // parent has margins
-
-                //anchors.margins: gdisplay.touchCellWidth() / 2
-                //anchors.topMargin: gdisplay.touchCellWidth() / 2
-                //anchors.bottomMargin: gdisplay.touchCellWidth() / 2
-
-
                 interactive: false
-                //spacing: gdisplay.touchCellWidth() / 2
-
                 contentWidth: contentItem.childrenRect.width; contentHeight: contentItem.childrenRect.height
 
                 model: listModel
                 delegate: actionDelegate
-
-                /*
-                MouseArea {
-                    anchors.fill: parent
-                    anchors.margins: gdisplay.touchCellWidth() / 2
-
-                    onClicked: {
-                        console.debug("ListView MouseArea::clicked " + mouse.x + "," + mouse.y)
-                        //var child = list.childAt(mouse.x, mouse.y)
-                        //console.debug("child: " + child.toString())
-
-                        // trick is to find item on that row (actual text item doesn't fill the full row)
-                        var x = 5
-                        var y = mouse.y
-                        var item = list.itemAt(x, y)
-                        if (item !== null) {
-                            console.debug("item: " + item.toString())
-                            console.debug("item id: " + item.id)
-                        }
-                        else
-                            console.debug("item null")
-                    }
-
-                }*/
             }
 
             Component {
@@ -168,21 +125,10 @@ Item {
                         anchors.left: parent.left
                         anchors.leftMargin: 0.15 * actionMenu.width - actionMenu.marginX
                     }
-
-                    /*
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: actionSelected(listModel.get(index).actionId)
-                    }
-                    */
                 }
             }
-
         }
-
     }
-
-
 
     Component.onCompleted: {
         // test data
