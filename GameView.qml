@@ -63,6 +63,8 @@ Item {
         anchors.top: self.top
         anchors.topMargin: headerText.font.pixelSize / 2
 
+        property int fullHeight: height + anchors.topMargin
+
         Text {
             id: headerText
             text: qsTr("Turn")
@@ -108,9 +110,12 @@ Item {
         anchors.top: header.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: gameboard.top
+
+        width: root.width
+        height: firstPlayerBox.height
 
         property int xMargin: gdisplay.touchCellWidth() / 2
+        property int fullHeight: height
 
         NameBox {
             id: firstPlayerBox
@@ -135,7 +140,11 @@ Item {
 
     Board {
         id: gameboard
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: playerBoxes.bottom
+
+        width: parent.width
+        height: root.height - header.fullHeight - playerBoxes.fullHeight - gametime.height
     }
 
     // game time is just a reference
@@ -143,6 +152,8 @@ Item {
         id: gametime
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
+        width: preferredWidth
+        height: preferredHeight
     }
 
     function onTurnSwitched(playerNumber) {

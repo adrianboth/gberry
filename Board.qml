@@ -1,9 +1,11 @@
 import QtQuick 2.4
 
 Item {
+    //color: "green"
     id: self
-    width: board.width
-    height: board.height
+
+    // board size calculation is relaying of defined height
+    // if this component
 
     function showWinningLine(x1, y1, x2, y2) {
         winningLinesCanvas.x1 = x1
@@ -24,7 +26,10 @@ Item {
 
         // on TV screen height is more limiting
         property int cellXSize: cellYSize
-        property int cellYSize: root.height / 6.5
+
+        //property int cellYSize: root.height / 6.5
+        // trying to show as big board as possible
+        property int cellYSize: parent.height * 0.85 / 3 // 0.85 comes from margins (0.3+0.15)/3
 
         property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
         property int linedMargin: cellXSize * 0.15
@@ -170,6 +175,7 @@ Item {
         visible: true
         //color: "yellow"
         width: board.width; height: board.height
+        anchors.centerIn: parent
     }
 
     Item {
@@ -177,6 +183,7 @@ Item {
         visible: true
         //color: "yellow"
         width: board.width; height: board.height
+        anchors.centerIn: parent
     }
 
     function initBoard() {
