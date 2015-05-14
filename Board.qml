@@ -29,9 +29,9 @@ Item {
 
         //property int cellYSize: root.height / 6.5
         // trying to show as big board as possible
-        property int cellYSize: parent.height * 0.85 / 3 // 0.85 comes from margins (0.3+0.15)/3
+        property int cellYSize: parent.height * 0.80 / 3 // 0.85 comes from margins (0.3+0.15)/3
 
-        property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
+        property int emptyMargin: cellXSize * 0.35 // enough margins to get shadows fully visible
         property int linedMargin: cellXSize * 0.15
         property int fullMargin: emptyMargin + linedMargin
         property int fullXMargin: emptyMargin + linedMargin
