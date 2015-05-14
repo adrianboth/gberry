@@ -41,56 +41,67 @@ Window {
         }
     }
 
-    ToolBar {
+    Rectangle {
         id: topbar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
 
-        Button {
-            id: toggleLocalGeneralActionsButton
-            text: qsTr("Menu")
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.margins: 5
-
-            onPressedChanged: {
-                if (toggleLocalGeneralActionsButton.pressed) {
-                    //basicControls.visible = !basicControls.visible
-                    //ui.visible = !basicControls.visible
-                    //appbox.visible = false
-                    toggleLocalGeneralActions()
-                    toggleGeneralActions(false)
-                }
-
-            }
+        width: root.width
+        height: topbarContainer.height * 1.15
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: "lightgray" }
+            GradientStop { position: 1.0; color: "gray" }
         }
 
-        Text {
-            id: currentPlayerLabel
-
-            color: mobapp.loggedIn ? "black" : "grey"
+        Item {
+            id: topbarContainer
             anchors.centerIn: parent
-            font.pixelSize: toggleLocalGeneralActionsButton.height - 4
-            text: UserModel.currentUserName
-        }
+            height: toggleLocalGeneralActionsButton.height
+            width: root.width - gdisplay.touchCellWidth() / 2
 
-        Button {
-            id: toggleGeneralActionsButton
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.margins: 5
-            enabled: generalActions.hasActions
+            Button {
+                id: toggleLocalGeneralActionsButton
+                text: qsTr("Menu")
+                anchors.left: parent.left
+                anchors.top: parent.top
 
-            text: "..."
-            onPressedChanged: {
-                if (toggleGeneralActionsButton.pressed) {
-                    toggleGeneralActions()
-                    toggleLocalGeneralActions(false)
+                onPressedChanged: {
+                    if (toggleLocalGeneralActionsButton.pressed) {
+                        //basicControls.visible = !basicControls.visible
+                        //ui.visible = !basicControls.visible
+                        //appbox.visible = false
+                        toggleLocalGeneralActions()
+                        toggleGeneralActions(false)
+                    }
+
+                }
+            }
+
+            Text {
+                id: currentPlayerLabel
+
+                color: mobapp.loggedIn ? "black" : "grey"
+                anchors.centerIn: parent
+                font.pixelSize: toggleLocalGeneralActionsButton.height - 4
+                text: UserModel.currentUserName
+            }
+
+            Button {
+                id: toggleGeneralActionsButton
+                anchors.right: parent.right
+                anchors.top: parent.top
+                enabled: generalActions.hasActions
+
+                text: "..."
+                onPressedChanged: {
+                    if (toggleGeneralActionsButton.pressed) {
+                        toggleGeneralActions()
+                        toggleLocalGeneralActions(false)
+                    }
                 }
             }
         }
-
     }
 
     Item {
