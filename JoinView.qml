@@ -1,3 +1,13 @@
+/*
+  Overview: In this view it is waited that two players join the game.
+
+  There are:
+   - titles
+   - name boxes sliding from sides when players join
+   - game start is triggered when second slide animation has finished
+
+*/
+
 import QtQuick 2.4
 import QtQuick.Layouts 1.1
 
@@ -29,30 +39,25 @@ Item {
         secondPlayerBox.reset()
     }
 
-    // TODO: text Waiting players to join ...
-
-    // TODO: boxes sliding from sides
-    //       (names)
-    //       once second on place -> start game
-    //       (already before animation other players are disabled from joining)
-    //       (joined players should have "joined!"
-
     ColumnLayout {
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.centerIn: parent
 
         Item {
-            //color: "red"
+            //color: "green"
             Layout.preferredWidth: gameTitle.implicitWidth
             Layout.preferredHeight: gameTitle.implicitHeight
             Layout.alignment: Qt.AlignHCenter
 
             Text {
                 id: gameTitle
+                anchors.fill: parent
                 text: "TicTacToe"
+                font.family: defaultFont.name
+                font.bold: true
                 font.pixelSize: gdisplay.text_mm(25)
-                anchors.centerIn: parent
             }
         }
+
         // --
 
         // some room between title and other text
@@ -64,13 +69,16 @@ Item {
 
         // ---
         Item {
+            //color: "green"
             Layout.preferredWidth: waitingText.implicitWidth
             Layout.preferredHeight: waitingText.implicitHeight
             Layout.alignment: Qt.AlignHCenter
 
             Text {
                 id: waitingText
+                anchors.fill: parent
                 text: qsTr("Waiting players to join ...")
+                font.family: defaultFont.name
                 font.pixelSize: gdisplay.text_mm(10)
             }
         }
@@ -89,7 +97,7 @@ Item {
             Layout.preferredWidth: root.width
             Layout.preferredHeight: 200 // TODO: height doesn't really matter in this case ...
 
-            // we are expecting two player
+            // we are expecting two players
             //  -> we will show widgets once player has joined and we know a name
 
             ColumnLayout {
@@ -167,7 +175,12 @@ Item {
 
     MouseArea {
         anchors.fill: parent
+        propagateComposedEvents: true
+
         onClicked: {
+            // always passing events forward
+            mouse.accepted = false
+
             // these are just for testing on dev env
             console.debug("Devenv debug click for JoinView!")
 
@@ -183,11 +196,12 @@ Item {
 
 
     Component.onCompleted: {
-        //joinFirstPlayer("foobar")
-        //joinSecondPlayer("abc")
-
         PlayerWaitingModel.callbacks.player1Joined.connect(joinFirstPlayer)
         PlayerWaitingModel.callbacks.player2Joined.connect(joinSecondPlayer)
+
+        // for dev time
+        //joinFirstPlayer("foobar")
+        //joinSecondPlayer("abc")
     }
 
 }
