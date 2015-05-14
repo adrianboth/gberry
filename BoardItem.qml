@@ -19,16 +19,16 @@ Item {
     property bool isCrossItem: true
     property bool isGrayed: false
 
-    property var imageData: ""
-
+    property string imageData: ""
+    // var
     onItemSelectedChanged: {
-        canvas.requestPaint() // todo: if rendenering in background thread then cross is visible for little time
+        //canvas.requestPaint() // todo: if rendenering in background thread then cross is visible for little time
         console.debug("### cross item changed")
     }
 
     Canvas {
         id: canvas
-        renderStrategy: Canvas.Cooperative
+        //renderStrategy: Canvas.Cooperative
 
         //x: 0 + crossMarginX
         //y: 0 + crossMarginY
@@ -41,15 +41,69 @@ Item {
         property int circleMargin: board.cellXSize * 0.05
 
         onPaint: {
-            //console.debug("### PAINTING:" + toDataURL())
+            console.debug("### PAINTING") // + toDataURL())
             //devTimer.printTime()
             //if (self.imageData.length > 0)
 
-            //var ctx = getContext("2d")
-            //ctx.drawImage(Render._crossImage, 0, 0)
-            BoardItemRender.drawCross(this)
+            //BoardItemRender.drawCross(this)
+            /*
+            var ctx = getContext("2d")
+            if (isImageLoaded(imageData)) {
+                console.debug("IMAGE LOADED")
+                ctx.drawImage(imageData, 0, 0)
+            } else {
+                console.debug(("IMAGE NOT LOADED"))
+            }*/
+
 
             /*
+            if (isCrossItem) {
+                BoardItemRender.drawCross(this)
+            } else {
+                BoardItemRender.drawCircle(this)
+            }*/
+
+            var ctx = canvas.getContext('2d')
+
+            if (isCrossItem) {
+                console.debug("### PRERENDER CROSS")
+                var ctx = canvas.getContext('2d')
+                ctx.save()
+                ctx.clearRect ( 0 , 0 , canvas.width, canvas.height )
+
+                // setup the stroke
+                ctx.lineWidth = 5
+                ctx.strokeStyle = "blue"
+
+                ctx.beginPath()
+                ctx.moveTo(0 + canvas.crossMarginX, 0 + canvas.crossMarginY)
+                ctx.lineTo(canvas.width - canvas.crossMarginX, canvas.height - canvas.crossMarginY)
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.moveTo(canvas.width - canvas.crossMarginY, 0 + canvas.crossMarginY)
+                ctx.lineTo(0 + canvas.crossMarginX, canvas.height - canvas.crossMarginY)
+                ctx.stroke()
+
+                ctx.restore()
+            } else {
+                console.debug("### PRERENDER CIRCLE")
+
+                ctx.save()
+                ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+
+                ctx.lineWidth = 5
+                ctx.strokeStyle = "red"
+
+                ctx.beginPath()
+                ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2 - 2*canvas.circleMargin, 0, Math.PI*2, true)
+                ctx.stroke()
+
+                ctx.restore()
+            }
+
+            /*
+            var ctx = getContext("2d")
             ctx.save()
             context.clearRect ( 0 , 0 , canvas.width, canvas.height );
 
@@ -88,15 +142,24 @@ Item {
                 ctx.stroke()
             }
             ctx.save()
-
+            */
+            /*
             self.imageData = toDataURL()
             //devTimer.printTime()
             */
         }
 
+
         Component.onCompleted: {
-            BoardItemRender.prerender(this)
+
+            //BoardItemRender.prerenderCrossImage(this)
+            //BoardItemRender.prerenderCircleImage(this)
+
+            //console.debug("### LOAD: " + imageData)
+            //loadImage(imageData)
+
         }
+
     }
 
     MouseArea {
