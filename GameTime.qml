@@ -4,12 +4,15 @@ import QtQuick 2.3
 Text {
     id: self
 
+    property int preferredHeight: implicitHeight
+    property int preferredWidth: implicitWidth
+
     function start() {
         _startTime = new Date().valueOf()
         timer.running = true
     }
     function reset() {
-        setTime(0.0)
+        self.text = 0.0
     }
 
     function stop() {
@@ -35,10 +38,12 @@ Text {
     z: 100 // always on top when visible
     font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
 
+    /*
     function setTime(time) {
         // 0.0 resolution
         self.text = time.toFixed(1)
     }
+    */
 
     Timer {
         id: timer
@@ -47,7 +52,7 @@ Text {
         repeat: true
         onTriggered: {
             var currentTime = new Date().valueOf() // milliseconds
-            setTime((currentTime-_startTime) / 1000)
+            self.text = ((currentTime-_startTime) / 1000).toFixed(1)
         }
     }
 }
