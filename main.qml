@@ -19,14 +19,52 @@ Window {
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay }
 
+    Timer {
+        id: devTimer
+        repeat: false
+        running: false
+        property real startTime: 0
+
+        function start() {
+            startTime = new Date().valueOf()
+        }
+
+        function startWithEventQueueMarker() {
+            start()
+            running = true
+        }
+
+        function printTime() {
+            var totalTime = new Date().valueOf() - startTime
+            console.debug("###### DevTimer: current " + totalTime.toString() + " ms ######")
+        }
+
+        onTriggered: {
+            var totalTime = new Date().valueOf() - startTime
+            console.debug("###### DevTimer: final " + totalTime.toString() + " ms ######")
+        }
+    }
+
+    FontLoader { id: defaultFont; name: "FreeSans" }
+
+    // invisible area that can be used during dev time to exit app
+    MouseArea {
+        id: topRightExitArea
+        anchors.top: parent.top; anchors.right: parent.right
+        width: 25; height: 25
+        onClicked: Qt.quit()
+    }
 
     Rectangle {
         id: mainarea
         anchors.fill: parent
+        color: "steelblue"
+        /* Gradient doesn't look good on Raspi
         gradient: Gradient {
             GradientStop { position: 0.0; color: "lightsteelblue" }
             GradientStop { position: 1.0; color: "slategray" }
         }
+        */
 
         // --- alternative view
 
@@ -124,24 +162,28 @@ Window {
     {
         console.log("Player in: id = " + pid)
 
-        var js = {action: "DefineGeneralActions",
-                  actions: [{actionId: "AbortGame", actionName: "Abort Game"}]}
-        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
-
         js = {action: "DefineAppBox", data: AppBoxMaster.dataStr()}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         // in our case all actions happen in appbox -> we can show it all the time
-        js = {action: "ShowAppBox"}
+        var js = {action: "ShowAppBox"}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         if (mainarea.state === "WAITING_PLAYERS") {
             js = {action: "MoveToState", state: "WAITING_PLAYERS"}
             playersManager.sendPlayerMessage(pid, Messages.createCustomAppBoxMsg(js))
 
+            js = {action: "DefineGeneralActions",
+                      actions: [{actionId: "ExitGame", actionName: "Exit Game"}]}
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
         } else if (mainarea.state === "GAME") {
             js = {action: "MoveToState", state: "WAIT_GAME"}
             playersManager.sendPlayerMessage(pid, Messages.createCustomAppBoxMsg(js))
+
+            js = {action: "DefineGeneralActions",
+                      actions: [{actionId: "AbortGame", actionName: "Abort Game"}]}
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
         }
 
         // TODO: what about end game view
@@ -169,10 +211,10 @@ Window {
         joinview.reset()
         var msgToSend = {action: "MoveToState", state: "WAITING_PLAYERS"}
         playersManager.sendAllPlayersMessage(Messages.createCustomAppBoxMsg(msgToSend))
+        msgToSend = {action: "DefineGeneralActions",
+                     actions: [{actionId: "ExitGame", actionName: "Exit Game"}]}
+        playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
     }
-
-    //js = {action: "ShowAppBox"}
-    //playersManager.sendAllPlayersMessage(JSON.stringify(js))
 
     function onPlayerMessageReceived(pid, data)
     {
@@ -194,6 +236,8 @@ Window {
                 else {
                     mainarea.state = "WAITING_PLAYERS"
                 }
+            } else if (js["id"] === "ExitGame") {
+                Qt.quit()
             }
 
         } else if (js["action"] === "AppBoxMessage") {
@@ -235,6 +279,10 @@ Window {
         msgToSend = {action: "MoveToState", state: "WAIT_GAME"}
         var msg = Messages.createCustomAppBoxMsg(msgToSend)
 
+        msgToSend = {action: "DefineGeneralActions",
+                     actions: [{actionId: "AbortGame", actionName: "Abort Game"}]}
+        playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+
         for (var i = 0; i < allIds.length; i++) {
             if (allIds[i] !== players.player1.id && allIds[i] !== players.player2.id) {
                 playersManager.sendPlayerMessage(allIds[i], msg)
@@ -266,4 +314,6 @@ Window {
         //joinview.joinSecondPlayer("foobar")
         //GameModel.initGame(1, 2)
     }
+
+
 }
