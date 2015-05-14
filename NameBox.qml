@@ -86,7 +86,7 @@ Rectangle {
     }
 
     Behavior on rotation {
-        SmoothedAnimation { velocity: 500 }
+        SmoothedAnimation { velocity: root.width / 2 }
     }
 
     Timer {
