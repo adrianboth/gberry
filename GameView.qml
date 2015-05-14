@@ -6,14 +6,10 @@ import "GameModel.js" as GameModel
 Item {
     id: self
 
-    // TODO: how to define in common place gradient for all views
-
     property string player1Name: "xxx"
     property string player2Name: "yyy"
 
     signal gameClosed()
-
-    // TODO: make game playeable directly -> easier to develop
 
     function reset() {
         gametime.reset()
@@ -51,7 +47,10 @@ Item {
             if (GameModel.isGameEnded()) {
                 gameClosed()
                 mouse.accepted = true
+            } else {
+                mouse.accepted = false
             }
+
         }
     }
 
@@ -63,19 +62,13 @@ Item {
 
         anchors.top: self.top
         anchors.topMargin: headerText.font.pixelSize / 2
-        //anchors.horizontalCenter: parent.horizontalCenter
 
         Text {
             id: headerText
             text: qsTr("Turn")
-            //x: playerBoxes.xMargin
-            //x: (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
-            //anchors.top: self.top
-            //anchors.topMargin: font.pixelSize
-            //anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
 
-            Behavior on x { SmoothedAnimation { velocity: 500; } }
+            Behavior on x { SmoothedAnimation { velocity: root.width / 2; } }
 
             function moveToPlayer1() {
                 this.text = qsTr("Turn")
@@ -117,7 +110,6 @@ Item {
         anchors.right: parent.right
         anchors.bottom: gameboard.top
 
-        //height: 100
         property int xMargin: gdisplay.touchCellWidth() / 2
 
         NameBox {
@@ -125,11 +117,9 @@ Item {
             x: parent.xMargin
             height: preferredHeight
             width: preferredWidth
-            //Layout.alignment: Qt.AlignHCenter
 
             name: player1Name
             isCrossItem: true
-            //bgColor: "red"
         }
 
         NameBox {
@@ -137,16 +127,11 @@ Item {
             x: root.width - preferredWidth - parent.xMargin // initial position outside the screen on left side
             height: preferredHeight
             width: preferredWidth
-            //Layout.alignment: Qt.AlignHCenter
 
             name: player2Name
             isCrossItem: false
-            //bgColor: "red"
         }
     }
-
-    // TODO: Players names in boxes
-    //   Draw small circle (red) and cross (blue) next to names
 
     Board {
         id: gameboard
@@ -172,7 +157,6 @@ Item {
         console.debug("### GAME DRAW!")
         gametime.stop()
         headerText.gameEndedDraw()
-        console.debug("### GAME DRAW  2!")
     }
 
     function onGameEnded(playerNumber,x1, y1, x2, y2) {
