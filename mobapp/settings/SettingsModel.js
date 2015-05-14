@@ -1,3 +1,5 @@
+.pragma library
+
 // TODO: how js shared between components?
 .import QtQuick.LocalStorage 2.0 as LocalStorageAPI
 
@@ -35,7 +37,9 @@ function addConsole(consoleAddress) {
 
 function setActiveConsole(consoleAddress) {
     for (var i = 0; i < consoles.length; i++) {
+        console.debug("COMPARE: " + consoles[i].text + " vs " + consoleAddress)
         if (consoles[i].text === consoleAddress) {
+            console.debug("activeConsoleIndex=" + i)
             activeConsoleIndex = i
         }
     }

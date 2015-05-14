@@ -41,7 +41,8 @@ Rectangle {
                         Layout.fillWidth: true
                         model: consoleModel
                         onActivated: {
-                            SettingsModel.setActiveConsole(currentIndex)
+                            console.debug("Set active console to " + textAt(index))
+                            SettingsModel.setActiveConsole(textAt(index))
                         }
 
                         onAccepted: {

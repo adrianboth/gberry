@@ -56,10 +56,11 @@ Rectangle {
             }
         }
     }
-
+/*
     ListModel {
         id: serverModel
         ListElement { text: "localhost" }
     }
+    */
 }
 
