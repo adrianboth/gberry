@@ -1,16 +1,16 @@
 import QtQuick 2.0
 
-Rectangle {
-    id: actionMenu
-    width: list.contentWidth + list.anchors.margins * 2
-    height: list.contentHeight + list.anchors.margins * 2
-    color: "snow"
-    border.width: 1
-    border.color: "lightgrey"
+Item {
+    id: self
+    width: actionMenu.width; height: actionMenu.height
 
     property bool hasActions: listModel.count > 0
 
     signal actionSelected(var actionId)
+
+    function clearActions() {
+        listModel.clear()
+    }
 
     function setActions(actionList) {
         listModel.clear()
@@ -35,53 +35,154 @@ Rectangle {
         */
     }
 
-    Component {
-            id: actionDelegate
-            Rectangle {
-                width: text.implicitWidth
-                height: text.implicitHeight
-                color: "snow"
+    Rectangle {
+        id: actionMenu
+        property int marginX: gdisplay.touchCellWidth() / 2
+        //property int marginY: gdisplay.touchCellHeight() / 2
+        property int marginY: 1
+        width: list.contentWidth + marginX * 2
+        height: list.contentHeight + marginY * 2
+        color: "snow"
+        border.width: 1
+        border.color: "lightgrey"
 
-                Text {
-                    id: text
-                    color: "black"
-                    text: actionName
-                    font.pointSize: gdisplay.mediumSize * gdisplay.ppmText
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                console.debug("ACTION MENU MOUSEAREA")
+                //console.debug("MouseArea::clicked " + mouse.x + "," + mouse.y)
 
-                Rectangle {
-                    id: divider
-                    // last item should not have divider
-                    visible: index != listModel.count -1
-                    height: 2
-                    width: 0.7 * actionMenu.width // 0.15+0.15 for left/right margins
-                    color: "lightgray"
-                    anchors.top: text.bottom
-                    anchors.left: parent.left
-                    anchors.leftMargin: 0.15 * actionMenu.width
-                }
+                // trick is to find item on that row (actual text item doesn't fill the full row)
+                // also take space of margins out
+                var x = 0 // just on ListView item side
+                var y = mouse.y - actionMenu.marginY
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: actionSelected(listModel.get(index).actionId)
+                // clicking upper margin area is same as selecting first item
+                // clicking bottom margin area is same as selecting last item
+                if ( y < 0 )
+                    y = 0
+                else if (y > list.contentHeight)
+                    y = list.contentHeight
+
+                //console.debug("ListView " + x + "," + y)
+                var item = list.itemAt(x, y)
+                if (item !== null) {
+                    //console.debug("item: " + item.toString())
+                    console.debug("item id: " + item.id)
+                    actionSelected(item.id)
                 }
             }
         }
 
-    ListView {
-        id: list
-        anchors.fill: parent
-        anchors.margins: gdisplay.touchCellWidth() / 2
+        // additional item needed as centerIn for ListView doesn't work properly ...
+        Item {
+            width: list.contentWidth
+            height: list.contentHeight
+            anchors.centerIn: parent
 
-        interactive: false
-        spacing: gdisplay.touchCellWidth() / 2
+            ListView {
+                id: list
+                anchors.fill: parent
+                //anchors.centerIn: parent // parent has margins
 
-        contentWidth: contentItem.childrenRect.width; contentHeight: contentItem.childrenRect.height
+                //anchors.margins: gdisplay.touchCellWidth() / 2
+                //anchors.topMargin: gdisplay.touchCellWidth() / 2
+                //anchors.bottomMargin: gdisplay.touchCellWidth() / 2
 
-        model: listModel
-        delegate: actionDelegate
+
+                interactive: false
+                //spacing: gdisplay.touchCellWidth() / 2
+
+                contentWidth: contentItem.childrenRect.width; contentHeight: contentItem.childrenRect.height
+
+                model: listModel
+                delegate: actionDelegate
+
+                /*
+                MouseArea {
+                    anchors.fill: parent
+                    anchors.margins: gdisplay.touchCellWidth() / 2
+
+                    onClicked: {
+                        console.debug("ListView MouseArea::clicked " + mouse.x + "," + mouse.y)
+                        //var child = list.childAt(mouse.x, mouse.y)
+                        //console.debug("child: " + child.toString())
+
+                        // trick is to find item on that row (actual text item doesn't fill the full row)
+                        var x = 5
+                        var y = mouse.y
+                        var item = list.itemAt(x, y)
+                        if (item !== null) {
+                            console.debug("item: " + item.toString())
+                            console.debug("item id: " + item.id)
+                        }
+                        else
+                            console.debug("item null")
+                    }
+
+                }*/
+            }
+
+            Component {
+                id: actionDelegate
+
+                Rectangle {
+                    width: text.implicitWidth
+                    height: text.implicitHeight + divider.height + gdisplay.touchCellHeight() / 2
+                    color: "snow"
+                    //color: "red"
+                    property string id: actionId
+
+                    Item {
+                        id: upperEmptySpace
+                        height: gdisplay.touchCellHeight()/4
+                        width: 1
+                        //color: "green"
+                    }
+
+                    Text {
+                        id: text
+                        color: "black"
+                        text: actionName
+                        font.pointSize: gdisplay.mediumSize * gdisplay.ppmText
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: upperEmptySpace.bottom
+                    }
+
+                    Item {
+                        id: bottomEmptySpace
+                        height: gdisplay.touchCellHeight()/4
+                        width: 1
+                        //color: "green"
+                        anchors.top: text.bottom
+                    }
+
+                    Rectangle {
+                        id: divider
+                        // last item should not have divider
+                        visible: index != listModel.count -1
+                        height: 2
+                        width: 0.7 * actionMenu.width // 0.15+0.15 for left/right margins
+                        color: "lightgray"
+                        anchors.top: bottomEmptySpace.bottom
+                        anchors.left: parent.left
+                        anchors.leftMargin: 0.15 * actionMenu.width - actionMenu.marginX
+                    }
+
+                    /*
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: actionSelected(listModel.get(index).actionId)
+                    }
+                    */
+                }
+            }
+
+        }
+
     }
+
+
 
     Component.onCompleted: {
         // test data
