@@ -11,4 +11,10 @@ Item {
 
     // color names: http://www.w3.org/TR/css3-color/#svg-color
     //property color elementBackground: "snow"
+
+    Gradient {
+        id: titleGradient
+        GradientStop { position: 0.0; color: "gray" }
+        GradientStop { position: 1.0; color: "snow" }
+    }
 }

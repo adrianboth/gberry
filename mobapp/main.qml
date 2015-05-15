@@ -222,6 +222,8 @@ Window {
         DebugView {
             id: debugview
             visible: false // initial state
+
+            onViewClosed: visible = false
         }
     }
 
@@ -301,9 +303,13 @@ Window {
             onLogout()
 
         } else if (actionId === "DebugInfo") {
-            debugview.visible = true
-            loginview.visible = false
-            settingsView.visible = false
+            if (!debugview.visible) {
+                debugview.visible = true
+
+                // we keep other view as it is on the background
+                //loginview.visible = false
+                //settingsView.visible = false
+            }
 
         } else if (actionId === "Home") {
             ui.hostNameToConnect = SettingsModel.consoleAddress()
@@ -450,7 +456,7 @@ Window {
              {actionId: "Login", actionName: "Login"},
              {actionId: "Logout", actionName: "Logout"},
              {actionId: "Settings", actionName: "Settings"},
-             {actionId: "DebugInfo", actionName: "Debug Info"}
+             {actionId: "DebugInfo", actionName: "About"}
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
 
