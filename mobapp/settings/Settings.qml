@@ -17,6 +17,26 @@ Rectangle {
         return consoleAddress.editText
     }
 
+    onVisibleChanged: {
+        // when hidden make sure we do closing actions
+        if (!visible)
+            close()
+    }
+
+    // should be called when this view is closed externally
+    function close() {
+        // it might be that settings were edited but not accepted
+        // (especially on desktop devenv when you need to press Enter to 'accept'
+
+        //console.debug("CLOSE CALLED: " + consoleAddress.currentText)
+        //console.debug("INDEX: " + consoleAddress.currentIndex)
+        //console.debug("EDIT TEXT: " + consoleAddress.editText)
+
+        // if address already listed - doesn't do anything
+        SettingsModel.addConsole(consoleAddress.editText)
+        SettingsModel.setActiveConsole(consoleAddress.editText)
+    }
+
     ScrollView {
         id: page
         anchors.fill: parent
@@ -48,6 +68,7 @@ Rectangle {
                         onAccepted: {
                              if (find(currentText) === -1) {
                                  SettingsModel.addConsole(editText)
+                                 SettingsModel.setActiveConsole(editText)
                                  refreshConsoleListModel()
                                  currentIndex = find(editText)
                              }
@@ -103,39 +124,11 @@ Rectangle {
         var consoles = SettingsModel.consoles
         consoleModel.clear() // remove all previous
         for (var i = 0; i < consoles.length; i++) {
-            // data is already in correct format (text: )
-            consoleModel.append(consoles[i])
+            consoleModel.append({text: consoles[i].address})
         }
     }
 
     Component.onCompleted: {
         refreshConsoleListModel()
-
-
-        var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
-
-        db.transaction(
-            function(tx) {
-                // Create the database if it doesn't already exist
-                tx.executeSql('CREATE TABLE IF NOT EXISTS ServerAddress(address TEXT)');
-                // Add (another) greeting row
-                tx.executeSql('INSERT INTO ServerAddress VALUES(?)', [ 'localhost' ]);
-            }
-        )
-
-        db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
-
-        db.transaction(
-            function(tx) {
-                // Show all added greetings
-                var rs = tx.executeSql('SELECT * FROM ServerAddress');
-
-                for(var i = 0; i < rs.rows.length; i++) {
-                    serverModel.append({text: rs.rows.item(i).address})
-                }
-            }
-        )
-
     }
 }
-
