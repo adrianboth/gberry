@@ -37,72 +37,13 @@ mobile application that is used together with GBerry console. See
             anchors.top: parent.top
             spacing: 0
 
-
-            Item {
+            ViewTitleBar {
                 id: titleBar
-                //Layout.fillWidth: true
+                titleText: qsTr("About")
                 Layout.preferredWidth: view.width - 2 * view.anchors.margins
-                Layout.preferredHeight: gdisplay.touchCellHeight() * 2
-                //color: "red"
-                //gradient: gsettings.titleGradient
+                Layout.preferredHeight: preferredHeight
 
-                Text {
-                    text: qsTr("About")
-                    font.pixelSize: gdisplay.touchCellHeight()
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: gdisplay.touchCellHeight() / 2
-                }
-
-                Rectangle {
-                    id: closeButton
-                    width: closeButton.height
-                    height: parent.height * 0.65
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    anchors.rightMargin: gdisplay.touchCellHeight() / 2
-                    radius: 50 // circle
-                    border.width: 1
-                    border.color: "grey"
-                    color: "lightgrey"
-
-                    Canvas {
-                        id: cross
-                        // canvas size
-                        width: parent.width; height: parent.height
-                        // handler to override for drawing
-                        property real crossLineMarginX: 0.3 * cross.width
-                        property real crossLineMarginY: 0.3 * cross.height
-
-                        onPaint: {
-                            // get context to draw with
-                            var ctx = getContext("2d")
-                            // setup the stroke
-                            ctx.lineWidth = 2
-                            ctx.strokeStyle = "black"
-                            // setup the fill
-                            ctx.fillStyle = "steelblue"
-                            // begin a new path to draw
-                            ctx.beginPath()
-
-                            ctx.moveTo(0 + crossLineMarginX, 0 + crossLineMarginY)
-                            ctx.lineTo(cross.width - crossLineMarginX, cross.height - crossLineMarginY)
-                            ctx.stroke()
-
-                            ctx.beginPath()
-                            ctx.moveTo(cross.width - crossLineMarginX, 0 + crossLineMarginY)
-                            ctx.lineTo(0 + crossLineMarginX, cross.height - crossLineMarginY)
-                            ctx.stroke()
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            self.viewClosed()
-                        }
-                    }
-                }
+                onCloseSelected: viewClosed()
             }
 
             // divider between titlebar and other content
