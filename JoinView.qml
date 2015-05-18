@@ -48,14 +48,16 @@ Item {
             Layout.preferredHeight: gameTitle.implicitHeight
             Layout.alignment: Qt.AlignHCenter
 
+            FontLoader { id: fixedFont; name: "FreeSans" }
             Text {
                 id: gameTitle
-                anchors.fill: parent
+                anchors.centerIn: parent
                 text: "TicTacToe"
-                font.family: defaultFont.name
+                font.family: fixedFont.name
                 font.bold: true
-                font.pixelSize: gdisplay.text_mm(25)
+                font.pixelSize: gdisplay.text_mm(15)
             }
+            Component.onCompleted: console.debug("font pixel size: " + gameTitle.font.pixelSize)
         }
 
         // --
@@ -178,8 +180,11 @@ Item {
         propagateComposedEvents: true
 
         onClicked: {
+            console.debug("JOINVIEW MOUSEAREA")
             // always passing events forward
             mouse.accepted = false
+            //gameTitle.font.pixelSize++
+            //console.debug("NEW PIX SIZE: " + gameTitle.font.pixelSize)
 
             // these are just for testing on dev env
             console.debug("Devenv debug click for JoinView!")
@@ -191,6 +196,7 @@ Item {
                 //joinSecondPlayer("abc")
                 PlayerWaitingModel.joinPlayer(-2, "abc")
             }
+
         }
     }
 
