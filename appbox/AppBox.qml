@@ -1,5 +1,6 @@
 import QtQuick 2.0
 import QtQuick.Layouts 1.1
+import QtQuick.Window 2.2
 
 
 Rectangle {
@@ -55,7 +56,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
 
                 text: qsTr("Wait!")
-                font.pixelSize: 24
+                font.pixelSize: gdisplay.mediumSizeText
             }
 
             Canvas {
@@ -69,7 +70,7 @@ Rectangle {
 
                 // on mobile device it depends from orientation
                 // TODO: expecting now portrait
-                property int cellXSize: root.width / 5
+                property int cellXSize: Screen.primaryOrientation === Qt.PortraitOrientation ? root.width / 5 : root.height / 5
                 property int cellYSize: cellXSize
 
                 property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
@@ -134,10 +135,13 @@ Rectangle {
                             x = xStart + i * board.cellXSize
                             y = yStart + j * board.cellYSize
                             var recipe = 'import QtQuick 2.0; Rectangle { opacity: 0; color: "lightgray"; '
-                            recipe += 'x: ' + (x + 2) + '; y:' + (y + 2) + '; '
+                            //recipe += 'x: ' + (x + 2) + '; y:' + (y + 2) + '; '
+                            recipe += 'x: board.fullMargin + xx * board.cellXSize + 2; y: board.fullMargin + yy * board.cellYSize + 2; '
                             recipe += 'property int xx: ' + i + '; '
                             recipe += 'property int yy: ' + j + '; '
-                            recipe += 'width: ' + (board.cellXSize - 4) + '; height: ' + (board.cellYSize - 4) + '; '
+                            //recipe += 'width: ' + (board.cellXSize - 4) + '; height: ' + (board.cellYSize - 4) + '; '
+                            recipe += 'width: board.cellXSize - 4; height: board.cellYSize - 4; '
+
                             recipe += 'MouseArea { anchors.fill: parent; onClicked: { board.onCellSelected(' + i + ', ' + j + ') } }'
                             recipe += ' }'
                             sprite = Qt.createQmlObject(recipe, board, 'BoardCell');
