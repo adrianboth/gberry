@@ -8,4 +8,6 @@ Item {
     // can be used during development enable helper functionality
     property bool developmentMode: false
 
+    property color crossColor: "mediumblue"
+    property color circleColor: "red"
 }

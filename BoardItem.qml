@@ -40,7 +40,7 @@ Item {
 
                 // setup the stroke
                 ctx.lineWidth = 5
-                ctx.strokeStyle = "blue"
+                ctx.strokeStyle = gsettings.crossColor
 
                 ctx.beginPath()
                 ctx.moveTo(0 + canvas.crossMarginX, 0 + canvas.crossMarginY)
@@ -56,7 +56,7 @@ Item {
                 console.debug("### PAINT CIRCLE")
 
                 ctx.lineWidth = 5
-                ctx.strokeStyle = "red"
+                ctx.strokeStyle = gsettings.circleColor
 
                 ctx.beginPath()
                 ctx.arc(canvas.width/2, canvas.height/2, canvas.width/2 - 2*canvas.circleMargin, 0, Math.PI*2, true)

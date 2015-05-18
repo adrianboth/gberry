@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.1
 Rectangle {
     id: self
     property string name: "undefined"
-    property color bgColor: isCrossItem ? "blue" : "red"
+    property color bgColor: isCrossItem ? gsettings.crossColor : gsettings.circleColor
     property bool isCrossItem: true
     property int preferredWidth: row.width + gdisplay.smallSize * gdisplay.ppmText
     property int preferredHeight: row.height
@@ -86,7 +86,7 @@ Rectangle {
     }
 
     Behavior on rotation {
-        SmoothedAnimation { velocity: root.width / 2 }
+        SmoothedAnimation { duration: 500 } // ms
     }
 
     Timer {
