@@ -129,12 +129,7 @@ function isCrossItem(x, y) {
 
 
 function checkGameEndCondition(x, y) {
-    if (_markedCells === 9) {
-        console.debug("Draw game!")
-        _endGameProcedures()
-        callbacks.gameEndedDraw()
-        return true
-    }
+    console.debug("END GAME CHECK")
 
     if (y === 0 && checkRow(0, 0, 2, 0)) return true
     if (y === 1 && checkRow(0, 1, 2, 1)) return true
@@ -144,9 +139,17 @@ function checkGameEndCondition(x, y) {
     if (x === 1 && checkColumn(1, 0, 1, 2)) return true
     if (x === 2 && checkColumn(2, 0, 2, 2)) return true
 
-    if (x === y) {
-        if (checkDiagonal(0, 0, 2, 2)) return true
-        if (checkDiagonal(0, 2, 2, 0)) return true
+    if (x === y && checkDiagonal(0, 0, 2, 2)) return true
+
+    if (checkDiagonal(0, 2, 2, 0)) return true
+
+    // checking draw needs to be last as the last selection
+    // might be winning entry
+    if (_markedCells === 9) {
+        console.debug("Draw game!")
+        _endGameProcedures()
+        callbacks.gameEndedDraw()
+        return true
     }
 
     return false
@@ -201,13 +204,14 @@ function checkColumn(x1, y1, x2, y2) {
 }
 
 function checkDiagonal(x1, y1, x2, y2) {
+    console.debug("CHECK DIAGONAL: " + x1 + "," + y1 + " - " + x2 + "," + y2)
     var type = playerMark()
 
     // if ends are not expected type ...
-    if (_columns[x1][y1] !==  type)
+    if (_columns[x1][y1] !== type)
         return false
 
-    if (_columns[x2][y2] !==  type)
+    if (_columns[x2][y2] !== type)
         return false
 
     // this is diagonal line - check middle cell
