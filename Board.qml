@@ -156,7 +156,7 @@ Item {
             //console.debug("x1Coord:" + x1Coord.toString() + ", y1Coord:" + y1Coord.toString())
             //console.debug("x2Coord:" + x2Coord.toString() + ", y2Coord:" + y2Coord.toString())
 
-            ctx.lineWidth = 10
+            ctx.lineWidth = 15
             ctx.strokeStyle = "black"
 
             ctx.beginPath()
