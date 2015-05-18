@@ -70,7 +70,7 @@ Item {
             text: qsTr("Turn")
             font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
 
-            Behavior on x { SmoothedAnimation { velocity: root.width / 2; } }
+            Behavior on x { SmoothedAnimation { duration: 500; } } // ms
 
             function moveToPlayer1() {
                 this.text = qsTr("Turn")
