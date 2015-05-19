@@ -7,7 +7,7 @@ QTDIR=`cd $THIS_DIR/../lib/Qt/5.4.0 && pwd`
 export LD_LIBRARY_PATH=$CONSOLE_ROOT/lib:$QTDIR/lib:$CONSOLE_ROOT/apps/$1
 export QML2_IMPORT_PATH=$CONSOLE_ROOT/lib/qml
 
-QTCONF=$THIS_DIR/qt.conf
+QTCONF=$CONSOLE_ROOT/apps/$1/qt.conf
 if [ ! -e $QTCONF ]; then
     echo "[Paths]" > $QTCONF
     echo "Prefix = $QTDIR" >> $QTCONF
