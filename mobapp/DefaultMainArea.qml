@@ -10,8 +10,11 @@ Rectangle {
     anchors.fill: parent
 
     property string hostNameToConnect: "<undefined>"
+    property string buttonText: qsTr("Connect")
+    property string messageText: hostNameToConnect
 
     signal connectToConsoleRequested(var hostName)
+    signal disconnectFromConsoleRequested()
 
     border.color: "slategray"
     gradient: Gradient {
@@ -26,13 +29,17 @@ Rectangle {
         Item {
             //color: "green"
             Layout.fillWidth: true
-            Layout.preferredHeight: hostNameLabel.implicitHeight
+            Layout.preferredHeight: messageLabel.implicitHeight
 
             Text {
-                id: hostNameLabel
-                text: hostNameToConnect
+                id: messageLabel
+                text: messageText
                 anchors.centerIn: parent
+                wrapMode: Text.WordWrap
+                width: Math.min(parent.width * 0.85, implicitWidth)
                 font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+                horizontalAlignment: Text.AlignHCenter // center dispate of word wrapping
+                onTextChanged: doLayout() // re-align after text changes (otherwise doesn't center correctly)
             }
         }
 
@@ -46,21 +53,51 @@ Rectangle {
                 id: connectButton
                 width: buttonWidth
                 height: buttonHeight
+                enabled: state != "CONNECTING"
 
-                label: qsTr("Connect")
+                label: buttonText
                 anchors.centerIn: parent
                 onButtonClicked: {
-                    console.log("CONNECT TO " + self.hostNameToConnect)
-                    connectToConsoleRequested(self.hostNameToConnect)
+                    if (self.state === "DISCONNECTED") {
+                        console.log("CONNECT TO " + self.hostNameToConnect)
+                        connectToConsoleRequested(self.hostNameToConnect)
+                    } else {
+                        disconnectFromConsoleRequested()
+                    }
                 }
             }
         }
     }
-/*
-    ListModel {
-        id: serverModel
-        ListElement { text: "localhost" }
-    }
-    */
+
+    state: "DISCONNECTED" // initial state
+
+    states: [
+        State {
+            name: "DISCONNECTED"
+            PropertyChanges { target: self
+                              buttonText: qsTr("Connect")
+                              messageText: hostNameToConnect }
+        },
+        State {
+            name: "CONNECTING"
+            PropertyChanges { target: self
+                              buttonText: qsTr("Disconnect")
+                              messageText: qsTr("Connecting") + " " + hostNameToConnect }
+        },
+        State {
+            name: "CONNECTED"
+            PropertyChanges { target: self
+                              buttonText: qsTr("Disconnect")
+                              messageText: qsTr("Connected") + " " + hostNameToConnect }
+        },
+        State {
+            name: "CONNECTED_NO_APP"
+            PropertyChanges { target: self
+                              buttonText: qsTr("Disconnect")
+                              messageText: qsTr("Connected to") + " " + hostNameToConnect + " " + qsTr("but no application running. Waiting ...") }
+        }
+
+    ]
+
 }
 

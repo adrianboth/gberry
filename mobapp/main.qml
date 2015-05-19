@@ -50,8 +50,8 @@ Window {
         width: root.width
         height: topbarContainer.height * 1.15
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "lightgray" }
-            GradientStop { position: 1.0; color: "gray" }
+            GradientStop { position: 0.0; color: "gray" }
+            GradientStop { position: 1.0; color: "snow" }
         }
 
         Item {
@@ -78,13 +78,35 @@ Window {
                 }
             }
 
-            Text {
-                id: currentPlayerLabel
+            Item {
+                //color: "green"
+                anchors.left: toggleLocalGeneralActionsButton.right
+                anchors.right: toggleGeneralActionsButton.left
+                anchors.leftMargin: gdisplay.touchCellWidth()/2
+                anchors.rightMargin: gdisplay.touchCellWidth()/2
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
 
-                color: mobapp.loggedIn ? "black" : "grey"
-                anchors.centerIn: parent
-                font.pixelSize: toggleLocalGeneralActionsButton.height - 4
-                text: UserModel.currentUserName
+                Text {
+                    id: currentPlayerLabel
+
+                    color: mobapp.loggedIn ? "black" : "grey"
+                    anchors.centerIn: parent
+                    font.pixelSize: toggleLocalGeneralActionsButton.height - 4
+                    text: UserModel.currentUserIsActive ? UserModel.currentUserName : " --- "
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    propagateComposedEvents: true
+                    onClicked: {
+                        if (!anyGeneralActionsVisible()) {
+                            onUserManagementSelected()
+                        } else {
+                            mouse.accepted = false // propagate
+                        }
+                    }
+                }
             }
 
             Button {
@@ -108,7 +130,7 @@ Window {
         anchors.top: topbar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: bottombar.top
+        anchors.bottom: parent.bottom
 
         DefaultMainArea {
             id: ui
@@ -147,32 +169,24 @@ Window {
 
         }
 
-        /*
+
         GConfirmationDialog {
-            id: testConfirmationDialog
-            visible: true // initial state
-            //questionText: qsTr("Play another?")
-            //option1Text: qsTr("Yes")
-            //option2Text: qsTr("No")
+            id: disconnectConsoleDialog
+            visible: false
+            questionText: qsTr("You are logged in. Disconnect?")
+            option1Text: qsTr("Yes")
+            option2Text: qsTr("No")
 
             onOption1Selected: {
-                // Yes
-                Qt.quit()
+                visible = false
+                onDisconnectRequested()
             }
 
             onOption2Selected: {
-                testConfirmationDialog.visible = false
-            }
-
-            Component.onCompleted:  {
-                debug()
-                questionText = "Play another? asd fasf as  sar easr eae "
-                option1Text = "Yes"
-                option2Text = "No"
-                debug()
+                visible = false
             }
         }
-        */
+
 
         GErrorDialog {
             id: errorDialog
@@ -187,6 +201,34 @@ Window {
             */
         }
 
+        GFeedbackDialog {
+            id: feedbackDialog
+            visible: false
+            //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
+            showingTime: 2000 // ms
+            height: preferredHeight
+            initialOpacity: 0.6 // show partly what is behind
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+        }
+
+        /*
+        Window {
+            id: testWindow
+            visible: true
+            flags: Qt.Dialog | Qt.FramelessWindowHint
+            modality: Qt.WindowModal
+            width: 100
+            height: 100
+
+
+            Rectangle {
+                color: "red"
+                anchors.fill: parent
+            }
+        }
+        */
 
         Rectangle {
             id: appbox
@@ -241,11 +283,45 @@ Window {
         anchors.left: parent.left
     }
 
+    /*
     StatusBar {
         id: bottombar
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+    }*/
+
+    Item {
+        id: modalDialog
+        anchors.fill: parent
+        visible: false
+
+        Rectangle {
+            id: fadeBackground
+            anchors.fill: parent
+            opacity: 0.2
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            // steal all events
+            onClicked: console.debug("robber of events!")
+        }
+
+        Rectangle {
+            color: "red"
+            opacity: 1
+            width: 100
+            height: 100
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenterOffset: 50
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: console.debug("red rectangle mousearea")
+            }
+        }
     }
 
     // -------------------- FUNCTIONS -------------------
@@ -284,6 +360,22 @@ Window {
             localGeneralActions.visible = !localGeneralActions.visible
     }
 
+    function anyGeneralActionsVisible() {
+        return generalActions.visible || localGeneralActions.visible
+    }
+
+    function onUserManagementSelected(show) {
+        if (typeof show === 'undefined' || show === true) {
+            // TODO: if already logged in then show logout dialog
+            loginview.visible = true
+            settingsView.visible = false
+            debugview.visible = false
+        } else {
+            loginview.visible = false
+            // TODO: view model not good one, we don't know what to show
+        }
+    }
+
     function onLocalGeneralActionSelected(actionId) {
         console.debug("LOCAL GENERAL ACTION: " + actionId)
         toggleLocalGeneralActions(false) // hide
@@ -294,13 +386,9 @@ Window {
             loginview.visible = false
             debugview.visible = false
 
-        } else if (actionId === "Login") {
-            loginview.visible = true
-            settingsView.visible = false
-            debugview.visible = false
-
         } else if (actionId === "Logout") {
-            onLogout()
+            // TODO: remove
+            onDisconnectRequested()
 
         } else if (actionId === "DebugInfo") {
             if (!debugview.visible) {
@@ -312,12 +400,31 @@ Window {
             }
 
         } else if (actionId === "Home") {
-            ui.hostNameToConnect = SettingsModel.consoleAddress()
+            // first put to unvisible to that hooks may set model
             debugview.visible = false
             loginview.visible = false
             settingsView.visible = false
+
+            ui.hostNameToConnect = SettingsModel.consoleAddress()
+            console.debug("UPDATING CONSOLE ADDRES TO " + ui.hostNameToConnect)
+
             // TODO: could we use stacked view?
+
+        } else if (actionId === "Console") {
+            if (mobapp.loggedIn) {
+                disconnectConsoleDialog.visible = true
+            }
+
+            // first put to unvisible to that hooks may set model
+            /*
+            debugview.visible = false
+            loginview.visible = false
+            settingsView.visible = false
+            ui.visible = true
+            appbox.visible = false
+            */
         }
+
 
         // TODO: other kind of list, now always need to add if
     }
@@ -372,6 +479,9 @@ Window {
 
         } else if (js["action"] === "DefineGeneralActions") {
             generalActions.setActions(js["actions"])
+
+        } else if (js["action"] === "FeedbackMessage") {
+            feedbackDialog.show(js["message"])
         }
     }
 
@@ -384,14 +494,39 @@ Window {
 
     function onLoginViewClosed()
     {
+        // no actions, really a cancel operation of showing login view
         loginview.visible = false
     }
+    // TODO: how case when already connection but logging out and loggin in
 
-    function onLogin()
+    function onLogin(userName)
     {
+        loginview.visible = false
+
         if (mobapp.loggedIn) {
-            onLogout()
+            onDisconnectRequested()
+
+            // if valid user -> reconnect
+            if (UserModel.currentUserIsActive) {
+                UserModel.selectCurrentUser(userName)
+                onConnectRequested()
+            }
+
+        } else {
+            UserModel.selectCurrentUser(userName)
         }
+
+        // no really actions
+        //   - name on title bar should update automatically
+     }
+
+     function onConnectRequested() {
+         if (!UserModel.currentUserIsActive) {
+             errorDialog.errorMessage = qsTr("No user selected")
+             errorDialog.visible = true
+
+             return
+         }
 
         var username = UserModel.currentUserName
         var password = UserModel.currentPassword
@@ -405,6 +540,8 @@ Window {
         console.debug("USING CONSOLE ADDRESS: " + SettingsModel.consoleAddress())
         mobapp.openConsoleConnection(SettingsModel.consoleAddress()) // if opening fails then signal is emitted
         loginview.visible = false
+        ui.state = "CONNECTING"
+
 
         // TODO: if connection takes time, we should actually show some kind of status bar
 
@@ -414,13 +551,7 @@ Window {
         // TODO: how to show login errors?
     }
 
-    function onLoginFailed(errorMsg) {
-        console.debug("Login failed: " + errorMsg)
-        errorDialog.errorMessage = errorMsg
-        errorDialog.visible = true
-    }
-
-    function onLogout() {
+    function onDisconnectRequested() {
         mobapp.closeConsoleConnection()
 
         // TODO: we should have some kind of stacked view -> no matter what is open
@@ -429,9 +560,29 @@ Window {
         debugview.visible = false
         basicControls.visible = false
         appbox.visible = false
+
         ui.visible = true
+        ui.state = "DISCONNECTED"
 
         generalActions.clearActions()
+    }
+
+
+    function onLoginFailed(errorMsg) {
+        console.debug("Login failed: " + errorMsg)
+        errorDialog.errorMessage = errorMsg
+        errorDialog.visible = true
+
+        ui.state = "DISCONNECTED"
+    }
+
+    function onLogout(userName) {
+        loginview.visible = false
+
+        if (mobapp.loggedIn) {
+            onDisconnectRequested()
+        }
+        UserModel.unselectCurrentUser()
     }
 
     // TODO: we should handle connection closed
@@ -447,13 +598,13 @@ Window {
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
         mobapp.consoleConnectionOpenFailed.connect(onLoginFailed)
-        mobapp.consoleConnectionClosed.connect(onLogout) // TODO: should we have some kind of info for user what happened
+        mobapp.consoleConnectionClosed.connect(onDisconnectRequested) // TODO: should we have some kind of info for user what happened
 
         generalActions.actionSelected.connect(onGeneralActionSelected)
 
         localGeneralActions.setActions(
             [{actionId: "Home", actionName: "Home"},
-             {actionId: "Login", actionName: "Login"},
+             {actionId: "Console", actionName: "Console"},
              {actionId: "Logout", actionName: "Logout"},
              {actionId: "Settings", actionName: "Settings"},
              {actionId: "DebugInfo", actionName: "About"}
@@ -463,8 +614,9 @@ Window {
 
         loginview.viewClosed.connect(onLoginViewClosed)
         loginview.login.connect(onLogin)
+        loginview.logout.connect(onLogout)
 
-        ui.connectToConsoleRequested.connect(onLogin)
+        ui.connectToConsoleRequested.connect(onConnectRequested)
         ui.hostNameToConnect = SettingsModel.consoleAddress()
 
         Log.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
@@ -477,10 +629,18 @@ Window {
         //root.height = screen.preferredWindowHeight
         // TODO: more info
 
+        // TODO: should change name of prop!!!
         if (UserModel.autoLoginEnabled) {
             Log.debug("Auto login enabled")
-            onLogin()
+            onConnectedRequest()
         }
+
+        // debug
+        console.debug("CurrentUserActive: " + UserModel.currentUserIsActive.toString())
+        console.debug("Current user name: '" + UserModel.currentUserName + "'")
+
+        // testing
+        //feedbackDialog.show("jjadadadasdafdafa")
     }
 }
 
