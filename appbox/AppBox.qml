@@ -18,7 +18,7 @@ Rectangle {
         visible: false
 
         property bool myturn: false
-        property bool endgame: false
+        property int endgame: 0 // 0 == no end, 1 == you won, 2 == opponent won
 
         onMyturnChanged: {
             console.debug("MyTurn changed! " + myturn.toString())
@@ -31,7 +31,9 @@ Rectangle {
         }
 
         function selectLabelText() {
-            if (endgame) {
+            if (endgame === 1) {
+                turnTextLabel.text = qsTr("WINNER!")
+            } else if (endgame === 2) {
                 turnTextLabel.text = qsTr("Game over!")
             } else if (myturn) {
                 turnTextLabel.text = qsTr("Your turn!")
@@ -61,7 +63,7 @@ Rectangle {
 
             Canvas {
                 id: board
-                opacity: boardview.myturn ? 1 : (0.5 - boardview.endgame ? 0.4 : 0)
+                opacity: boardview.myturn ? 1 : (0.5 - boardview.endgame  !== 0 ? 0.4 : 0)
                 enabled: boardview.myturn
 
                 // canvas size
@@ -70,7 +72,7 @@ Rectangle {
 
                 // on mobile device it depends from orientation
                 // TODO: expecting now portrait
-                property int cellXSize: Screen.primaryOrientation === Qt.PortraitOrientation ? root.width / 5 : root.height / 5
+                property int cellXSize: Screen.primaryOrientation === Qt.PortraitOrientation ? self.width / 5 : self.height / 5
                 property int cellYSize: cellXSize
 
                 property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
@@ -142,8 +144,17 @@ Rectangle {
                             //recipe += 'width: ' + (board.cellXSize - 4) + '; height: ' + (board.cellYSize - 4) + '; '
                             recipe += 'width: board.cellXSize - 4; height: board.cellYSize - 4; '
 
-                            recipe += 'MouseArea { anchors.fill: parent; onClicked: { board.onCellSelected(' + i + ', ' + j + ') } }'
-                            recipe += ' }'
+                            recipe += 'MouseArea { property bool pressStarted: false; anchors.fill: parent; '
+                            recipe += 'onPressed: { pressStarted = true; parent.color = Qt.darker(parent.color) } '
+                            recipe += 'onExited: { pressStarted = false } '
+                            recipe += 'onReleased: { pressFeedbackTimer.restart(); if (pressStarted) { board.onCellSelected(' + i + ', ' + j + ') } } '
+                            recipe += '} '
+                            recipe += 'Timer { id: pressFeedbackTimer; running: false; repeat: false; interval: 150; '
+                            recipe += 'onTriggered: { parent.color = "lightgray"} '
+                            recipe += '}'
+
+                            recipe += '}'
+
                             sprite = Qt.createQmlObject(recipe, board, 'BoardCell');
                             // TODO: are these destroyed automatically or do we need to destroy
                             //       them manually when parent is destroyed
@@ -225,46 +236,90 @@ Rectangle {
             }
 
             Rectangle  {
-                //color: "red"
                 id: button
                 visible: dialog.showButton
 
                 Layout.preferredHeight: button.buttonHeight
                 Layout.preferredWidth: button.buttonWidth
-                //Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter || Qt.AlignVCenter
 
+                color: buttonBgColor
 
-                    //anchors.centerIn: parent
-                    //width: buttonWidth
-                    //height: buttonHeight
-                    color: "#2db6e1"
+                property string text: "<undefined>"
+                property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
+                property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
 
-                    property string text: "<undefined>"
-                    property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
-                    property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
+                property color buttonBgColor: "#2db6e1"
+                property color buttonFgColor: "black"
 
-                    radius: 20
-                    antialiasing: true
+                radius: 20
+                antialiasing: true
+                opacity: enabled ? 1 : 0.5
 
-                    Text {
-                        id: buttonLabel
-                        anchors.centerIn: parent
-                        text: dialog.buttonText
-                        smooth: true
-                        font.bold: true
-                        font.pixelSize: gdisplay.touchCellHeight() * 1.5
+                Text {
+                    id: buttonLabel
+                    anchors.centerIn: parent
+                    text: dialog.buttonText
+                    smooth: true
+                    font.bold: true
+                    font.pixelSize: gdisplay.touchCellHeight() * 1.5
+                    color: buttonFgColor
+                    onTextChanged: {
+                        // abort possible feedback if text changed
+                        buttonPressedFeedbackTimer.running = false
+                        button.color = parent.buttonBgColor
+                        buttonLabel.color = parent.buttonFgColor
+                    }
+                }
+
+                MouseArea {
+                    id: buttonMouseArea
+                    anchors.fill: parent
+                    property bool pressStarted: false
+                    /*
+                    onClicked: {
+                        console.debug("Button clicked!")
+                        self.buttonClicked()
+                    }
+                    */
+                    onPressed: {
+                        pressStarted = true
+                        button.color = Qt.darker(parent.buttonBgColor)
+                        buttonLabel.color = Qt.lighter(parent.buttonFgColor)
                     }
 
-                    MouseArea {
-                        id: buttonMouseArea
-                        anchors.fill: parent
-                        onClicked: {
-                            console.debug("Button clicked!")
+                    onExited: {
+                        pressStarted = false
+                    }
+
+                    onReleased: {
+                        if (pressStarted) {
                             self.buttonClicked()
                         }
+
+                        buttonPressedFeedbackTimer.restart()
                     }
-                //}
+                }
+
+                Timer {
+                    id: buttonPressedFeedbackTimer
+                    running: false; repeat: false
+                    interval: 150
+                    onTriggered: {
+                        button.color = parent.buttonBgColor
+                        buttonLabel.color = parent.buttonFgColor
+                    }
+                }
+
+                Timer {
+                    id: dialogButtonVisibleTimer
+                    running: false; repeat: false
+                    interval: 2000
+                    onTriggered: {
+                        //parent.color = "red"
+                        parent.enabled = true
+                    }
+                }
             }
 
         }
@@ -306,7 +361,7 @@ Rectangle {
             joinSelected()
         } else if (state === "JOINED_WAITING") {
             cancelJoin()
-        } else if (state === "END_GAME") {
+        } else if (state === "END_GAME_LOOSER" || state === "END_GAME_WINNER") {
             nextGame()
         }
 
@@ -328,10 +383,6 @@ Rectangle {
         outgoingMessage(js)
     }
 
-    Component.onCompleted: {
-        //dialog.text = "Join to game"
-        //button.text = "Join"
-    }
 
     state: "INITIAL"
 
@@ -368,15 +419,20 @@ Rectangle {
                     showButton: true
                     buttonText: "Cancel"
                 }
+                PropertyChanges { target: button; enabled: false } // keep first disabled and after some time enable (prevents accidental presses)
+                PropertyChanges {
+                    target: dialogButtonVisibleTimer
+                    running: true
+                }
             },
             State {
                 name: "PLAY_GAME_MY_TURN"
-                PropertyChanges { target: boardview; visible: true; myturn: true; endgame: false }
+                PropertyChanges { target: boardview; visible: true; myturn: true; endgame: 0 }
                 PropertyChanges { target: dialog; visible: false }
             },
             State {
                 name: "PLAY_GAME_WAIT_TURN"
-                PropertyChanges { target: boardview; visible: true; myturn: false; endgame: false}
+                PropertyChanges { target: boardview; visible: true; myturn: false; endgame: 0}
                 PropertyChanges { target: dialog; visible: false }
             },
             State {
@@ -390,8 +446,19 @@ Rectangle {
                 }
             },
             State {
-                name: "END_GAME"
-                PropertyChanges { target: boardview; visible: true; endgame: true }
+                name: "END_GAME_WINNER"
+                PropertyChanges { target: boardview; visible: true; endgame: 1 }
+                PropertyChanges {
+                    target: dialog
+                    visible: true
+                    text: ""
+                    buttonText: "Next"
+                    showButton: true
+                }
+            },
+            State {
+                name: "END_GAME_LOOSER"
+                PropertyChanges { target: boardview; visible: true; endgame: 2 }
                 PropertyChanges {
                     target: dialog
                     visible: true
