@@ -14,7 +14,7 @@ Item {
     property string consoleTextStr: "Console (INIT)"
 
     property string appNameText: "<b>GBerry MobApp</b>"
-    property string appVersionText: "v0.01"
+    property string appVersionText: "v0.01.1"
     property string genericAboutText: "<html>This is general purpose GBerry
 mobile application that is used together with GBerry console. See
 <a href=\"http://gberry.xyz\">gberry.xyz</a> for more information.
