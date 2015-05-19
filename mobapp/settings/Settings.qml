@@ -21,6 +21,8 @@ Rectangle {
         // when hidden make sure we do closing actions
         if (!visible)
             close()
+        else
+            consoleAddress.currentIndex = SettingsModel.indexOfCurrent()
     }
 
     // should be called when this view is closed externally

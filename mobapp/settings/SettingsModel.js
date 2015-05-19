@@ -15,6 +15,10 @@ function consoleAddress() {
     return consoles[activeConsoleIndex].address
 }
 
+function indexOfCurrent() {
+    return activeConsoleIndex
+}
+
 function addConsole(consoleAddress) {
     if (consoleAddress.length === 0)
         return
