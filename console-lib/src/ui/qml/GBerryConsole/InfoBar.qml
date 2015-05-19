@@ -40,7 +40,7 @@ Rectangle {
          interval: 500; running: true; repeat: true
          onTriggered: {
              time.text = new Date().toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
-             infobar.commsStatusText = comms.isOpen() ? "OK" : "NOK"
+             infobar.commsStatusText = comms.isOpen() ? qsTr("Connected") : "--"
          }
      }
 }
