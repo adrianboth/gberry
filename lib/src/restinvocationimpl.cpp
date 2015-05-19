@@ -144,3 +144,8 @@ void RESTInvocationImpl::httpFinished()
     _reply->deleteLater();
     _reply = NULL;
 }
+
+QString RESTInvocationImpl::errorString() const
+{
+    return _reply->errorString();
+}

@@ -34,6 +34,7 @@ public:
     virtual bool responseAvailable() const;
     virtual QByteArray responseByteData() const;
     virtual QString responseString() const;
+    virtual QString errorString() const;
 
 protected slots:
     void httpFinished();

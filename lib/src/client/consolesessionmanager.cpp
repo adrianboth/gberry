@@ -72,7 +72,15 @@ void ConsoleSessionManager::onOpenConsoleSessionFinished(RESTInvocation* inv)
 
 void ConsoleSessionManager::onOpenConsoleSessionError(RESTInvocation* inv)
 {
-    emit consoleSessionOpenFailed(QString(inv->responseString().toLatin1()));
+    // TODO: there can be different reasons for error
+    // TODO: how to localize them all for all (well maybe not all are needed?)
+    QString err;
+    if (inv->responseString().length() > 0)
+        err = inv->responseString();
+    else
+        err = inv->errorString();
+
+    emit consoleSessionOpenFailed(QString(err.toLatin1()));
 }
 
 void ConsoleSessionManager::openWebsocket(QString token)

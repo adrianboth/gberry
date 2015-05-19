@@ -16,6 +16,7 @@ class MockRESTInvocation : public RESTInvocation
      MOCK_CONST_METHOD0(responseAvailable, bool());
      MOCK_CONST_METHOD0(responseByteData, QByteArray());
      MOCK_CONST_METHOD0(responseString, QString());
+     MOCK_CONST_METHOD0(errorString, QString());
 
      // no need to mock signals 'cos they don't have impl and they are not called
      // TODO: we could have a macro generate following kinds of functions
