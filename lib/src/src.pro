@@ -102,4 +102,5 @@ DISTFILES += \
     ui/qml/GBerry/GDisplayProfile.qml \
     ui/qml/GBerry/ConfirmationDialog.qml \
     ui/qml/GBerry/GConfirmationDialog.qml \
-    ui/qml/GBerry/GErrorDialog.qml
+    ui/qml/GBerry/GErrorDialog.qml \
+    ui/qml/GBerry/GFeedbackDialog.qml
