@@ -67,39 +67,47 @@ Item {
 
         Text {
             id: headerText
-            text: qsTr("Turn")
-            font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+            text: qsTr("TURN")
+            font.bold: false
+            font.pixelSize: gdisplay.mediumSize* playerBoxes.sizeScaleFactor * gdisplay.ppmText
 
             Behavior on x { SmoothedAnimation { duration: 500; } } // ms
 
+            // TODO: these could be states
             function moveToPlayer1() {
-                this.text = qsTr("Turn")
-                this.x = (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
+                this.text = qsTr("TURN")
+                this.font.bold = false
+                this.x = Math.max(0, (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2)
             }
 
             function moveToPlayer2() {
-                this.text = qsTr("Turn")
-                this.x = (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2
+                this.text = qsTr("TURN")
+                this.font.bold = false
+                this.x = Math.min(root.width - implicitWidth, (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2)
             }
 
             function moveToCenter() {
-                this.text = qsTr("Turn")
+                this.text = qsTr("TURN")
+                this.font.bold = false
                 this.x = parent.width / 2 - implicitWidth / 2
             }
 
             function gameEndedDraw() {
                 this.text = qsTr("DRAW!")
+                this.font.bold = true
                 this.x = parent.width / 2 - implicitWidth / 2
             }
 
             function player1Won() {
                 this.text = qsTr("WINNER!")
-                this.x = (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2
+                this.font.bold = true
+                this.x = Math.max(0, (firstPlayerBox.x + firstPlayerBox.width/2) - implicitWidth / 2)
             }
 
             function player2Won() {
                 this.text = qsTr("WINNER!")
-                this.x = (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2
+                this.font.bold = true
+                this.x = Math.min(root.width - implicitWidth, (secondPlayerBox.x + secondPlayerBox.width/2) - implicitWidth / 2)
             }
         }
     }
@@ -116,12 +124,14 @@ Item {
 
         property int xMargin: gdisplay.touchCellWidth() / 2
         property int fullHeight: height
+        property real sizeScaleFactor: 1.5
 
         NameBox {
             id: firstPlayerBox
             x: parent.xMargin
             height: preferredHeight
             width: preferredWidth
+            sizeScaleFactor: parent.sizeScaleFactor
 
             name: player1Name
             isCrossItem: true
@@ -132,6 +142,7 @@ Item {
             x: root.width - preferredWidth - parent.xMargin // initial position outside the screen on left side
             height: preferredHeight
             width: preferredWidth
+            sizeScaleFactor: parent.sizeScaleFactor
 
             name: player2Name
             isCrossItem: false
