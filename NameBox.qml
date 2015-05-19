@@ -7,6 +7,8 @@ Rectangle {
     property string name: "undefined"
     property color bgColor: isCrossItem ? gsettings.crossColor : gsettings.circleColor
     property bool isCrossItem: true
+    property real sizeScaleFactor: 1.0
+
     property int preferredWidth: row.width + gdisplay.smallSize * gdisplay.ppmText
     property int preferredHeight: row.height
     antialiasing: true
@@ -19,10 +21,6 @@ Rectangle {
         self.border.color = Qt.lighter(bgColor)
     }
 
-    //Behavior on x { SmoothedAnimation { velocity: 500 } }
-
-    // TODO: how to know when animation has ended (script animation?)
-
     RowLayout {
         id: row
         anchors.centerIn: parent
@@ -30,13 +28,13 @@ Rectangle {
 
         Canvas {
             id: sign
-            property int size: nameBoxText.font.pixelSize * 0.5 // pixelSize is fixed, doesn't change based on name text
+            property int size: nameBoxText.font.pixelSize * 0.8 // pixelSize is fixed, doesn't change based on name text
             Layout.preferredHeight: size
             Layout.preferredWidth: size
 
-            property int crossMarginX: size * 0.1
-            property int crossMarginY: size * 0.1
-            property int circleMargin: size * 0.05
+            property int crossMarginX: size * 0.2
+            property int crossMarginY: size * 0.2
+            property int circleMargin: size * 0.1
 
             onPaint: {
                 var ctx = getContext("2d")
@@ -76,7 +74,7 @@ Rectangle {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
             text: self.name
-            font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+            font.pixelSize: gdisplay.mediumSize * self.sizeScaleFactor * gdisplay.ppmText
         }
     }
 
