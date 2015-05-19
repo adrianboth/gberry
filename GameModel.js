@@ -274,9 +274,17 @@ function _sendMessageToPlayer(pid, msgJson) {
 }
 
 function sendEndGameMessages() {
-    var msgEndGame = {action: "MoveToState", state: "END_GAME"}
-    _sendMessageToPlayer(_player1ID, msgEndGame)
-    _sendMessageToPlayer(_player2ID, msgEndGame)
+    var msgEndGameWinner = {action: "MoveToState", state: "END_GAME_WINNER"}
+    var msgEndGameLooser = {action: "MoveToState", state: "END_GAME_LOOSER"}
+    var winner = playerNumber()
+    if (winner === 1) {
+        _sendMessageToPlayer(_player1ID, msgEndGameWinner)
+        _sendMessageToPlayer(_player2ID, msgEndGameLooser)
+    } else {
+        _sendMessageToPlayer(_player1ID, msgEndGameLooser)
+        _sendMessageToPlayer(_player2ID, msgEndGameWinner)
+    }
+
 }
 
 // appbox custom message
