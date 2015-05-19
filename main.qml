@@ -45,7 +45,9 @@ Window {
         }
     }
 
-    FontLoader { id: defaultFont; name: "FreeSans" }
+    FontLoader { id: defaultFont
+                 //name: "FreeSans"
+                 source: "file:/usr/share/fonts/truetype/freefont/FreeSans.ttf"}
 
     // invisible area that can be used during dev time to exit app
     MouseArea {
@@ -192,13 +194,25 @@ Window {
     function onPlayerOut(pid)
     {
         // TODO:
-
+        var msgToSend, msg
         // if waiting -> then drop that player out
         // TODO: it would be great to have temporary message what happened (just on main screen?)
         if (mainarea.state === "WAITING_PLAYERS" && PlayerWaitingModel.hasJoined(pid)) {
             resetWaitingPlayersState()
+
+            msg = qsTr("Joined player left the game.")
+            msgToSend = {action: "FeedbackMessage",
+                         message: msg}
+            playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+            feedbackDialog.show(msg)
+
         } else if (mainarea.state === "GAME" && GameModel.isPlaying(pid)) {
             mainarea.state = "WAITING_PLAYERS"
+            msg = qsTr("Game abort because player left the game.")
+            msgToSend = {action: "FeedbackMessage",
+                         message: msg}
+            playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+            feedbackDialog.show(msg)
         }
 
         // if player in game -> cancel the game -> to beginning (TODO: what kind of message?)
@@ -220,7 +234,7 @@ Window {
     {
         console.log("Player message: id = " + pid)
         var js  = JSON.parse(data)
-        var msgToSend
+        var msgToSend, msg
 
         if (js["action"] === "GeneralAction") {
             if (js["id"] === "AbortGame") {
@@ -236,7 +250,18 @@ Window {
                 else {
                     mainarea.state = "WAITING_PLAYERS"
                 }
+
+                var msg = qsTr("Player '" + playersManager.playerName(pid) + "' aborted the game.")
+                msgToSend = {action: "FeedbackMessage",
+                             message: msg}
+                playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+
+                feedbackDialog.show(msg)
+
             } else if (js["id"] === "ExitGame") {
+                msgToSend = {action: "FeedbackMessage",
+                             message: qsTr("Player '" + playersManager.playerName(pid) + "' selected Exit Game.")}
+                playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
                 Qt.quit()
             }
 
@@ -256,10 +281,44 @@ Window {
             } else if (js["data"]["action"] === "CancelJoin" && mainarea.state === "WAITING_PLAYERS") {
                 // if one player cancel -> return to initial joining phase
                 resetWaitingPlayersState()
+
+                msg = qsTr("Player '" + playersManager.playerName(pid) + "' cancelled joining.")
+                msgToSend = {action: "FeedbackMessage",
+                             message: msg}
+                playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+                feedbackDialog.show(msg)
+
             }
         }
     }
 
+    // when animation starts mobapp states are changed to waiting
+    function onSecondPlayerJoinedAnimationStarted() {
+        var players = PlayerWaitingModel.joinedPlayers()
+
+        // both joined player will wait turn (=game to start)
+        var msgToSend = Messages.createCustomAppBoxMsg({action: "MoveToState", state: "PLAY_GAME_WAIT_TURN"})
+        playersManager.sendPlayerMessage(players.player1.id, msgToSend)
+        playersManager.sendPlayerMessage(players.player2.id, msgToSend)
+
+
+        // to other players, wait game to finish
+        var allIds = playersManager.playerIds()
+        msgToSend = {action: "MoveToState", state: "WAIT_GAME"}
+        var msg = Messages.createCustomAppBoxMsg(msgToSend)
+
+        for (var i = 0; i < allIds.length; i++) {
+            if (allIds[i] !== players.player1.id && allIds[i] !== players.player2.id) {
+                playersManager.sendPlayerMessage(allIds[i], msg)
+            }
+        }
+
+        msgToSend = {action: "DefineGeneralActions",
+                     actions: [{actionId: "AbortGame", actionName: "Abort Game"}]}
+        playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+    }
+
+    // once animation done, start playing
     function onSecondPlayerJoinedAnimationFinished() {
         gameview.visible = true
         var players = PlayerWaitingModel.joinedPlayers()
@@ -273,21 +332,41 @@ Window {
 
         msgToSend = {action: "MoveToState", state: "PLAY_GAME_WAIT_TURN"}
         playersManager.sendPlayerMessage(players.player2.id, Messages.createCustomAppBoxMsg(msgToSend))
+    }
 
-        // to other players
-        var allIds = playersManager.playerIds()
-        msgToSend = {action: "MoveToState", state: "WAIT_GAME"}
-        var msg = Messages.createCustomAppBoxMsg(msgToSend)
-
-        msgToSend = {action: "DefineGeneralActions",
-                     actions: [{actionId: "AbortGame", actionName: "Abort Game"}]}
-        playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
-
-        for (var i = 0; i < allIds.length; i++) {
-            if (allIds[i] !== players.player1.id && allIds[i] !== players.player2.id) {
-                playersManager.sendPlayerMessage(allIds[i], msg)
-            }
+    // hide inactive mouse
+    MouseArea {
+        id: hideMouseArea
+        anchors.fill: parent
+        cursorShape: Qt.BlankCursor
+        hoverEnabled: true
+        propagateComposedEvents: true
+        onPositionChanged: {
+            cursorShape = Qt.ArrowCursor
+            hideMouseCursorTimer.restart()
         }
+
+        Timer {
+            id: hideMouseCursorTimer
+            running: false
+            interval: 10000 // 10 seconds
+            repeat: false
+            onTriggered: hideMouseArea.cursorShape = Qt.BlankCursor
+        }
+
+    }
+
+    GFeedbackDialog {
+        id: feedbackDialog
+        visible: false
+        //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
+        showingTime: 3000 // ms
+        height: preferredHeight
+        textPixelSize: gdisplay.mediumSize * gdisplay.ppmText
+        initialOpacity: 0.6
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
     }
 
     Component.onCompleted: {
@@ -299,6 +378,7 @@ Window {
         GameModel.initialize(playersManager)
         PlayerWaitingModel.initialize(playersManager)
 
+        joinview.secondPlayerJoinedAnimationStarted.connect(onSecondPlayerJoinedAnimationStarted)
         joinview.secondPlayerJoinedAnimationFinished.connect(onSecondPlayerJoinedAnimationFinished)
 
         //GaneModel.callbacks.playerWon.connect(onPlayerWon)
@@ -313,7 +393,8 @@ Window {
         //joinview.joinFirstPlayer("abc")
         //joinview.joinSecondPlayer("foobar")
         //GameModel.initGame(1, 2)
-    }
 
+        //feedbackDialog.show("test message.")
+    }
 
 }
