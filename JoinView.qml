@@ -16,11 +16,14 @@ import "PlayerWaitingModel.js" as PlayerWaitingModel
 Item {
     id: self
 
+    signal secondPlayerJoinedAnimationStarted()
     signal secondPlayerJoinedAnimationFinished()
 
     function joinFirstPlayer(name) {
 
         firstPlayerBox.name = name
+        xTransitionAnimation1.enabled = true
+
         firstPlayerBox.x = root.width / 2 - firstPlayerBox.preferredWidth / 2 // move to center
         // setting 'x' meant animation started -> trigger when finished
         firstPlayerBox.visible = true
@@ -29,13 +32,17 @@ Item {
     function joinSecondPlayer(name) {
 
         secondPlayerBox.name = name
+        xTransitionAnimation2.enabled = true
         secondPlayerBox.x = root.width / 2 - secondPlayerBox.preferredWidth / 2 // move to center
         // setting 'x' meant animation started -> trigger when finished
         secondPlayerBox.visible = true
+        secondPlayerJoinedAnimationStarted()
     }
 
     function reset() {
+        xTransitionAnimation1.enabled = false
         firstPlayerBox.reset()
+        xTransitionAnimation2.enabled = false
         secondPlayerBox.reset()
     }
 
@@ -116,13 +123,18 @@ Item {
                         visible: false
                         height: preferredHeight
                         width: preferredWidth
+                        sizeScaleFactor: 1.5
                         //Layout.alignment: Qt.AlignHCenter
 
                         name: "test"
                         isCrossItem: true
                         //bgColor: "blue"
 
-                        Behavior on x { SmoothedAnimation { velocity: 500 } }
+                        Behavior on x { id: xTransitionAnimation1
+                            animation: SmoothedAnimation {
+
+                                velocity: 500
+                            } }
 
                         function reset() {
                             // hide to prevent animation while going to initial position
@@ -143,6 +155,7 @@ Item {
                         x: root.width // initial position outside the screen on left side
                         height: preferredHeight
                         width: preferredWidth
+                        sizeScaleFactor: 1.5
                         //Layout.alignment: Qt.AlignHCenter
 
                         name: "foobar"
@@ -150,7 +163,10 @@ Item {
                         //bgColor: "red"
 
                         Behavior on x {
-                            SequentialAnimation {
+                            id: xTransitionAnimation2
+
+                            animation: SequentialAnimation {
+
                                 SmoothedAnimation { velocity: 500 }
                                 ScriptAction { script: {
                                         console.debug("Animation finished!")
