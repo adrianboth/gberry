@@ -43,14 +43,26 @@ function numberOfJoinedPlayers() {
 }
 
 function joinPlayer(playerId, playerName) {
+    var msgToSend = {action: "MoveToState", state: "JOINED_WAITING"}
+
     if (!_player1.isValid()) {
         _player1 = new Player.Player(playerId, playerName)
         callbacks.player1Joined(playerName) // signal
+        _sendMessageToPlayer(playerId, msgToSend)
+        return true
 
-    } else if (!_player2.isValid()) {
+    // guard also against duplicate message
+    } else if (!_player2.isValid() && playerId !== _player1.id) {
+
         _player2 = new Player.Player(playerId, playerName)
         callbacks.player2Joined(playerName) // signal
+
+        // TODO: testing if it is ok that second player can't cancel
+        //_sendMessageToPlayer(playerId, msgToSend)
+        return true
     }
+
+    return false
 }
 
 function joinedPlayers() {
@@ -80,20 +92,7 @@ function playerMessageReceived(pid, js)  {
 
     if (js["action"] === "JoinGame") {
         joinPlayer(pid, _playersManager.playerName(pid))
-        var msgToSend
-
-        if (numberOfJoinedPlayers() === 1) {
-            msgToSend = {action: "MoveToState", state: "JOINED_WAITING"}
-             _sendMessageToPlayer(pid, msgToSend)
-        } else if (numberOfJoinedPlayers() === 2) {
-            msgToSend = {action: "MoveToState", state: "JOINED_WAITING"}
-            _sendMessageToPlayer(pid, msgToSend)
-
-            // showing game area triggers showing game screen
-        }
-
         return true
-
     }
     /*
     else if (js["action"] === "CancelJoin") {
