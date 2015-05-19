@@ -26,6 +26,9 @@ Item {
         return size_mm * ppmText
     }
 
+    property real mediumSizeText: text_mm(mediumSize)
+    property real smallSizeText: text_mm(smallSize)
+
     // TODO: do I yet physical dimensions somewhere? to calculate x & y separately
 
     function adjust(w, h) {
