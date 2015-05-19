@@ -30,7 +30,8 @@ isEmpty(BUILD_NAME) {
         BUILD_NAME=Raspberry
     }
 
-    debug {
+    #message($$CONFIG)
+    CONFIG(debug, debug|release) {
         BUILD_NAME="$${BUILD_NAME}-Debug"
     } else {
         BUILD_NAME="$${BUILD_NAME}-Release"
