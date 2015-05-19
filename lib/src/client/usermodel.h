@@ -37,6 +37,7 @@ class UserModel : public QObject
     Q_OBJECT
 
     // intefacing towards QML happens through properties
+    Q_PROPERTY(bool currentUserIsActive READ currentUserIsActive NOTIFY currentUserIsActiveChanged)
     Q_PROPERTY(QString currentUserName READ currentUserName NOTIFY currentUserNameChanged)
     Q_PROPERTY(QString currentPassword READ currentPassword)
     Q_PROPERTY(QString currentIsGuest READ currentIsGuest)
@@ -49,24 +50,42 @@ public:
     UserModel(ApplicationStorage* storage, QObject* parent = NULL);
     ~UserModel();
 
-    QString currentUserName() const { return _currentInfo.userName; }
-    QString currentPassword() const { return _currentInfo.password; }
-    bool currentIsGuest() const { return _currentInfo.guest; }
-    bool currentIsRememberPassword() const { return _currentInfo.rememberPassword; }
+    // -- properties
+    bool currentUserIsActive() { return _activeUserIndex != -1; }
+    QString currentUserName() const;
+    QString currentPassword() const ;
+    bool currentIsGuest() const;
+    bool currentIsRememberPassword() const;
 
-    bool autoLoginEnabled();
+    bool autoLoginEnabled() const;
 
-    void setCurrent(UserInfo& userInfo);
-    Q_INVOKABLE void setCurrent(QString userName, QString password, bool guest, bool rememberPassword);
+    // -- functions
+
+    Q_INVOKABLE bool selectCurrentUser(QString userName);
+    Q_INVOKABLE void unselectCurrentUser();
+
+    Q_INVOKABLE QList<QString> userNames() const;
+    Q_INVOKABLE QString password(QString userName);
+    Q_INVOKABLE bool isGuest(QString userName);
+    Q_INVOKABLE bool isRememberPassword(QString userName);
+
+    void setUser(UserInfo& userInfo);
+    Q_INVOKABLE void setUser(QString userName, QString password, bool guest, bool rememberPassword);
 
 signals:
     void currentUserInfoChanged();
     void currentUserNameChanged();
+    void currentUserIsActiveChanged();
 
 private:
+    void save();
+    bool updateCachedUser(QString& userName);
+
     ApplicationStorage* _storage;
-    UserInfo _currentInfo;
+    int _activeUserIndex;
+    QList<UserInfo> _users;
     QSettings* _ini;
+    UserInfo _cachedUser;
 
 };
 
