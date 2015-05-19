@@ -7,21 +7,41 @@ import GBerry 1.0
 import ".."
 // TODO: how to get scaling combo and edit box
 
+/*
+  This views makes possible for user
+   - select user profile
+   - edit/create user profile (TODO: now simple as no online registration)
+
+  Logic:
+   a) user can enter all data  / edit currently visible
+      - when close pressed: no login but data is remembered
+      - when login is pressed: data is saved and login is made
+   b) if user selects other profile from dropbox
+      - currently edited data is saved
+      - new data for profile is shown
+
+*/
 Item {
     id: self
     anchors.fill: parent
 
     signal viewClosed()
-    signal login()
+    signal login(string userName)
+    signal logout(string userName)
 
     onVisibleChanged: {
         if (self.visible) {
-            userNameField.editText = UserModel.currentUserName
-            guestCheckbox.checked = UserModel.currentIsGuest
-            if (!guestCheckbox.checked) {
-                passwordField.text = UserModel.currentPassword
+            refreshComboboxModel()
+
+            var index = userNameField.find(UserModel.currentUserName)
+
+            if (UserModel.currentUserIsActive && index > -1) {
+                userNameField.currentIndex = index
+
+            } else {
+                // zero is "no selection"
+                userNameField.currentIndex = 0
             }
-            rememberPasswordCheckbox.checked = UserModel.currentIsRememberPassword
         }
     }
 
@@ -29,9 +49,6 @@ Item {
         id: view
         anchors.centerIn: parent
         anchors.margins: border.width
-
-        //width: Math.min(root.width - gdisplay.touchCellHeight(), mainColumn.width) + gdisplay.touchCellWidth()
-        //height: mainColumn.height //+ column.anchors.margins
 
         width: mainColumn.width
         height: mainColumn.height
@@ -54,7 +71,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: preferredHeight
 
-                onCloseSelected: viewClosed()
+                onCloseSelected: onClose()
             }
 
             // divider between titlebar and other content
@@ -67,7 +84,7 @@ Item {
             Item { // for margins
                 id: content
                 //color: "green"
-                Layout.preferredWidth: column.width + gdisplay.touchCellHeight()
+                Layout.preferredWidth: column.width + gdisplay.touchCellWidth()
                 Layout.preferredHeight: column.height + column.anchors.topMargin
                 Layout.alignment: Qt.AlignHCenter
 
@@ -81,15 +98,40 @@ Item {
                     //anchors.margins: gdisplay.smallSize * gdisplay.ppmText
 
                     // width to have all labels same size (filled with empty)
-                    property int labelColumnWidth: Math.max(userNameLabel.implicitWidth, passwordLabel.implicitWidth) + gdisplay.touchCellWidth()//100 // TODO: somekind of adjustment
+                    // we need to recalculate width of view to avoid binding loops
+                    // (NOTE: not counting padding itself when calculating real width: just too complex)
+                    property int firstColumPadding: Math.max(0, Math.min((root.width - fullViewWidth) * 0.10, 1.5* maxLabelWidth))
+                    property int secondColumnPadding: Math.max(0, Math.min((root.width - fullViewWidth) * 0.10, 1.5* rememberPasswordCheckbox.implicitWidth))
+
+                    // formulate: 1st column, 2nd column, view margins, spacing
+                    property int fullViewWidth: maxLabelWidth + rememberPasswordCheckbox.implicitWidth + gdisplay.touchCellWidth() + columnSpacing
+                    property int maxLabelWidth: Math.max(userNameLabel.implicitWidth, passwordLabel.implicitWidth)
+
+                    // this real width that should be used
+                    property int labelColumnWidth: Math.max(userNameLabel.implicitWidth, passwordLabel.implicitWidth) + firstColumPadding// + root.width / 10//+ gdisplay.touchCellWidth()//100 // TODO: somekind of adjustment
 
                     // each row should have same height
                     property int rowHeight: userNameField.height
 
+                    property int columnSpacing: 5 //gdisplay.touchCellWidth() / 2
+
+                    //onFirstColumPaddingChanged: debugCalc()
+
+                    function debugCalc() {
+                        console.debug("userNameLabel.implicitWidth:" + userNameLabel.implicitWidth)
+                        console.debug("passwordLabel.implicitWidth:" + passwordLabel.implicitWidth)
+                        console.debug("rememberPasswordCheckbox.implicitWidth:" + rememberPasswordCheckbox.implicitWidth)
+                        console.debug("gdisplay.touchCellWidth()" + gdisplay.touchCellWidth())
+                        console.debug("fullViewWidth: " + fullViewWidth)
+                        console.debug("root.width: " + root.width)
+                        console.debug("firstColumPadding: " + firstColumPadding)
+                        console.debug("secondColumnPadding: " + secondColumnPadding)
+                    }
+
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.preferredHeight: column.rowHeight
-                        spacing: gdisplay.touchCellWidth() / 2
+                        spacing: column.columnSpacing
 
                         // adding rectable as label itself doesn't take width
                         Rectangle {
@@ -111,39 +153,82 @@ Item {
                             editable: true
                             model: profileModel
 
+                            property bool validSelection: currentIndex !== 0
+                            property bool invalidSelection: currentIndex === 0
+
+                            // user selected a profile
                             onActivated: {
-                                var item = profileModel.get(index)
-                                passwordField.text = item.password
-                                guestCheckbox.checked = item.guest
-                                rememberPasswordCheckbox.checked = item.rememberPassword
-                                loginButton.updateState()
+                                // currentIndex still contains old index
+                                saveCurrent(currentIndex)
                             }
 
+                            // on new selection update all fields on dialog
+                            onCurrentIndexChanged: {
+                                console.debug("User name currentIndex changed: " + currentIndex)
+                                // first there comes event with -1 as model doesn't have entry
+                                //  -> skip it
+                                if (currentIndex > -1) {
+
+                                    var item = profileModel.get(currentIndex)
+                                    passwordField.text = item.password
+                                    guestCheckbox.checked = item.guest
+                                    rememberPasswordCheckbox.checked = item.rememberPassword
+                                    console.debug("User name changed, guest: " + item.guest)
+                                }
+                            }
+
+                            onFocusChanged: {
+                                console.debug("on pressed")
+                                if (currentIndex === 0) {
+                                    // on edit clear default text
+                                    editText = ""
+                                }
+                            }
+
+                            // new user name entered via editing
                             onAccepted: {
-                                 if (find(currentText) === -1) {
-                                     model.append({text: editText})
-                                     currentIndex = find(editText)
+                                 if (currentText === "") {
+                                     currentIndex = 0
+
                                  }
+
+                                 // is this new user?
+                                  else if (find(currentText) === -1) {
+                                     model.append({text: editText})
+                                     // append goes always as last
+                                     saveCurrent(model.count - 1)
+                                     currentIndex = find(editText)
+                                 } else {
+
+                                     // existing user (written)
+                                     //  -> look other data of that user
+
+                                     currentIndex = find(editText)
+                                     // does this trigger activated or should we update by our selves
+                                 }
+
                              }
 
+                            /*
                             onEditTextChanged: {
                                 loginButton.updateState()
                             }
+                            */
+
+                            ListModel {
+                                id: profileModel
+                                // very initial data to avoid creation time errors
+                                ListElement {text: "foobar"; password: ""; guest: false; rememberPassword: false}
+                            }
                         }
 
-                        ListModel {
-                            id: profileModel
-                            // test data
-                            ListElement { text: "Banana"; password: "Yellow"; guest: false; rememberPassword: true }
-                            ListElement { text: "Apple"; password: ""; guest: true }
-                            ListElement { text: "Coconut"; password: ""; guest: false; rememberPassword: false }
-                        }
                     }
 
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.preferredHeight: column.rowHeight
-                        spacing: gdisplay.touchCellWidth() / 2
+                        spacing: column.columnSpacing
+
 
                         // empty slot
                         Item {
@@ -153,6 +238,7 @@ Item {
                         CheckBox {
                             id: guestCheckbox
                             text: qsTr("Guest")
+                            enabled: userNameField.validSelection
                             checked: false
                             onCheckedChanged: {
                                 // TODO
@@ -164,8 +250,9 @@ Item {
                         id: passwordRow
                         Layout.fillWidth: true
                         Layout.preferredHeight: column.rowHeight
-                        spacing: gdisplay.touchCellWidth() / 2
-                        enabled: !guestCheckbox.checked
+                        spacing: column.columnSpacing
+
+                        enabled: !guestCheckbox.checked && userNameField.validSelection
 
                         Rectangle {
                             id: passwordRect
@@ -190,7 +277,8 @@ Item {
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.preferredHeight: column.rowHeight
-                        spacing: gdisplay.touchCellWidth() / 2
+                        spacing: column.columnSpacing
+
 
                         // empty slot
                         Item {
@@ -199,9 +287,12 @@ Item {
 
                         CheckBox {
                             id: rememberPasswordCheckbox
+                            // this is longest text on second column (under text fields)
+                            // so this defines the width of second column
+                            Layout.preferredWidth: implicitWidth + column.secondColumnPadding
                             text: qsTr("Remember password")
                             //anchors.right: parent.right
-                            enabled: !guestCheckbox.checked
+                            enabled: !guestCheckbox.checked && userNameField.validSelection
                         }
                     }
 
@@ -215,26 +306,32 @@ Item {
 
                     Item {
                         id: buttonArea
-                        Layout.preferredHeight: loginButton.height + gdisplay.touchCellHeight() /2
+                        Layout.preferredHeight: loginButton.height + gdisplay.touchCellHeight()
                         Layout.fillWidth: true
 
                         GButton {
                             id: loginButton
-                            label: qsTr("Login")
-                            enabled: false
+                            label: {
+                                if (UserModel.currentUserIsActive && userNameField.invalidSelection) {
+                                    return qsTr("Logout")
+                                } else {
+                                    return qsTr("Login")
+                                }
+                            }
+
+
+                            enabled: (userNameField.editText.length > 0 && userNameField.validSelection) || (UserModel.currentUserIsActive && userNameField.invalidSelection)
                             height: buttonHeight
                             width: buttonWidth
                             anchors.centerIn: parent
                             onButtonClicked: {
-                                UserModel.setCurrent(userNameField.editText,
-                                                     passwordField.text,
-                                                     guestCheckbox.checked,
-                                                     rememberPasswordCheckbox.checked)
-                                login()
-                            }
-
-                            function updateState() {
-                                loginButton.enabled = userNameField.editText.length > 0
+                                var userName = profileModel.get(userNameField.currentIndex).text
+                                if (userNameField.validSelection) {
+                                    saveCurrent(userNameField.currentIndex)
+                                    login(userName)
+                                } else {
+                                    logout(userName)
+                                }
                             }
                         }
                     }
@@ -243,14 +340,59 @@ Item {
         }
     }
 
+
+
+    function refreshComboboxModel() {
+        var users = UserModel.userNames()
+        profileModel.clear() // remove all previous
+        // "no selection" is always first
+        profileModel.append({ text: "<no selection>",
+                              password: "",
+                              guest: false,
+                              rememberPassword: false })
+        for (var i = 0; i < users.length; i++) {
+            profileModel.append({text: users[i],
+                                 password: UserModel.password(users[i]),
+                                 guest: UserModel.isGuest(users[i]),
+                                 rememberPassword: UserModel.isRememberPassword(users[i])
+                                })
+        }
+    }
+
+    function saveCurrent(index) {
+        if (index === 0) {
+            console.debug("Not saving <no selection>")
+            return
+        }
+
+        var newData = {text: userNameField.editText,
+                       password: passwordField.text,
+                       guest: guestCheckbox.checked,
+                       rememberPassword: rememberPasswordCheckbox.checked}
+
+        profileModel.set(index, newData)
+        UserModel.setUser(newData.text, newData.password, newData.guest, newData.rememberPassword)
+    }
+
+    // actions when view is about to close
+    function onClose() {
+        /*
+        if (userNameField.currentIndex !== 0) {
+            saveCurrent(userNameField.currentIndex)
+        }
+        */
+        viewClosed() // signal
+    }
+
     Component.onCompleted: {
+        /*
         userNameField.currentIndex = 0
         var item = profileModel.get(userNameField.currentIndex)
         passwordField.text = item.password
         guestCheckbox.checked = item.guest
         rememberPasswordCheckbox.checked = item.rememberPassword
-
-        loginButton.updateState()
+        */
+        //column.debugCalc() // debug
     }
 }
 
