@@ -94,7 +94,7 @@ mobile application that is used together with GBerry console. See
 
                         text: genericAboutText
                         wrapMode: Text.WordWrap
-                        font.pixelSize: gdisplay.smallSizeText
+                        font.pixelSize: gdisplay.smallSizeText * 1.1
 
                         onLinkActivated: {
                             console.debug("LINK ACTIVATED: " + link)

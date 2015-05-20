@@ -9,11 +9,12 @@
         <file>settings/Settings.qml</file>
         <file>login/LoginView.qml</file>
         <file>ApplicationSettings.qml</file>
-        <file>DebugView.qml</file>
+        <file>AboutView.qml</file>
         <file>DefaultMainArea.qml</file>
         <file>settings/SettingsModel.js</file>
         <file>ApplicationSettingsJS.js</file>
         <file>ViewTitleBar.qml</file>
+        <file>ModalDialogFrame.qml</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="AppBox.js">js/AppBox.js</file>

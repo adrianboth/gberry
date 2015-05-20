@@ -170,48 +170,7 @@ Window {
         }
 
 
-        GConfirmationDialog {
-            id: disconnectConsoleDialog
-            visible: false
-            questionText: qsTr("You are logged in. Disconnect?")
-            option1Text: qsTr("Yes")
-            option2Text: qsTr("No")
 
-            onOption1Selected: {
-                visible = false
-                onDisconnectRequested()
-            }
-
-            onOption2Selected: {
-                visible = false
-            }
-        }
-
-
-        GErrorDialog {
-            id: errorDialog
-            visible: false
-
-            /*
-            Component.onCompleted: {
-                // testing. To test dynamic size adjustment we can set 'text' property
-                // directly
-                errorMessage = "Error occurred"
-            }
-            */
-        }
-
-        GFeedbackDialog {
-            id: feedbackDialog
-            visible: false
-            //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
-            showingTime: 2000 // ms
-            height: preferredHeight
-            initialOpacity: 0.6 // show partly what is behind
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-        }
 
         /*
         Window {
@@ -256,17 +215,6 @@ Window {
             visible: false // initial state
         }
 
-        LoginView {
-            id: loginview
-            visible: false // initial state
-        }
-
-        DebugView {
-            id: debugview
-            visible: false // initial state
-
-            onViewClosed: visible = false
-        }
     }
 
     GeneralActions {
@@ -283,46 +231,70 @@ Window {
         anchors.left: parent.left
     }
 
-    /*
-    StatusBar {
-        id: bottombar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-    }*/
+    ModalDialogFrame {
+        content: LoginView {
+            id: loginview
 
-    Item {
-        id: modalDialog
-        anchors.fill: parent
-        visible: false
-
-        Rectangle {
-            id: fadeBackground
-            anchors.fill: parent
-            opacity: 0.2
+            function show(msg) { parent.show() }
+            function hide() { parent.hide() }
         }
+    }
 
-        MouseArea {
-            anchors.fill: parent
-            // steal all events
-            onClicked: console.debug("robber of events!")
+    ModalDialogFrame {
+        //onBackgroundClicked: console.debug("robber of events!")
+        id: aboutview
+
+        content: AboutView {
+            onViewClosed: parent.hide()
         }
+    }
 
-        Rectangle {
-            color: "red"
-            opacity: 1
-            width: 100
-            height: 100
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 50
+    ModalDialogFrame {
+        id: disconnectConsoleDialog
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: console.debug("red rectangle mousearea")
+        content: GConfirmationDialog {
+            questionText: qsTr("You are logged in. Disconnect?")
+            option1Text: qsTr("Yes")
+            option2Text: qsTr("No")
+
+            onOption1Selected: {
+                parent.hide()
+                onDisconnectRequested()
+            }
+
+            onOption2Selected: {
+                parent.hide()
             }
         }
     }
+
+    ModalDialogFrame {
+        content: GErrorDialog {
+            id: errorDialog
+            visible: false
+
+            //onVisibleChanged: console.debug("VISIBLE CHANGED FOR ERROR")
+            function show(msg) { errorMessage = msg; parent.show() }
+            function hide() { parent.hide() }
+
+            onAcknowledged: { parent.hide() }
+        }
+    }
+
+
+    // aligned to bottom of view - no interaction - just fading out
+    GFeedbackDialog {
+        id: feedbackBox
+        visible: false
+        //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
+        showingTime: 2000 // ms
+        height: preferredHeight
+        initialOpacity: 0.6 // show partly what is behind
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
+
 
     // -------------------- FUNCTIONS -------------------
 
@@ -367,11 +339,11 @@ Window {
     function onUserManagementSelected(show) {
         if (typeof show === 'undefined' || show === true) {
             // TODO: if already logged in then show logout dialog
-            loginview.visible = true
+            loginview.show()
             settingsView.visible = false
-            debugview.visible = false
+            aboutview.hide()
         } else {
-            loginview.visible = false
+            loginview.hide()
             // TODO: view model not good one, we don't know what to show
         }
     }
@@ -383,26 +355,25 @@ Window {
         if (actionId === "Settings") {
             settingsView.visible = true
             // TODO: state?
-            loginview.visible = false
-            debugview.visible = false
+            loginview.hide()
+            aboutview.hide()
 
         } else if (actionId === "Logout") {
             // TODO: remove
             onDisconnectRequested()
 
-        } else if (actionId === "DebugInfo") {
-            if (!debugview.visible) {
-                debugview.visible = true
-
+        } else if (actionId === "About") {
+            if (!aboutview.visible) {
+                aboutview.show()
                 // we keep other view as it is on the background
-                //loginview.visible = false
+                //loginview.hide()
                 //settingsView.visible = false
             }
 
         } else if (actionId === "Home") {
             // first put to unvisible to that hooks may set model
-            debugview.visible = false
-            loginview.visible = false
+            aboutview.hide()
+            loginview.hide()
             settingsView.visible = false
 
             ui.hostNameToConnect = SettingsModel.consoleAddress()
@@ -412,13 +383,13 @@ Window {
 
         } else if (actionId === "Console") {
             if (mobapp.loggedIn) {
-                disconnectConsoleDialog.visible = true
+                disconnectConsoleDialog.show()
             }
 
             // first put to unvisible to that hooks may set model
             /*
-            debugview.visible = false
-            loginview.visible = false
+            aboutview.hide()
+            loginview.hide()
             settingsView.visible = false
             ui.visible = true
             appbox.visible = false
@@ -481,27 +452,27 @@ Window {
             generalActions.setActions(js["actions"])
 
         } else if (js["action"] === "FeedbackMessage") {
-            feedbackDialog.show(js["message"])
+            feedbackBox.show(js["message"])
         }
     }
 
 
     function updateTexts()
     {
-        debugview.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
-        debugview.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
+        //debugview.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
+        //debugview.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
     }
 
     function onLoginViewClosed()
     {
         // no actions, really a cancel operation of showing login view
-        loginview.visible = false
+        loginview.hide()
     }
     // TODO: how case when already connection but logging out and loggin in
 
     function onLogin(userName)
     {
-        loginview.visible = false
+        loginview.hide()
 
         if (mobapp.loggedIn) {
             onDisconnectRequested()
@@ -522,9 +493,7 @@ Window {
 
      function onConnectRequested() {
          if (!UserModel.currentUserIsActive) {
-             errorDialog.errorMessage = qsTr("No user selected")
-             errorDialog.visible = true
-
+             errorDialog.show(qsTr("No user selected"))
              return
          }
 
@@ -539,7 +508,7 @@ Window {
 
         console.debug("USING CONSOLE ADDRESS: " + SettingsModel.consoleAddress())
         mobapp.openConsoleConnection(SettingsModel.consoleAddress()) // if opening fails then signal is emitted
-        loginview.visible = false
+        loginview.hide()
         ui.state = "CONNECTING"
 
 
@@ -555,9 +524,9 @@ Window {
         mobapp.closeConsoleConnection()
 
         // TODO: we should have some kind of stacked view -> no matter what is open
-        loginview.visible = false
+        loginview.hide()
         settingsView.visible = false
-        debugview.visible = false
+        aboutview.hide()
         basicControls.visible = false
         appbox.visible = false
 
@@ -570,14 +539,12 @@ Window {
 
     function onLoginFailed(errorMsg) {
         console.debug("Login failed: " + errorMsg)
-        errorDialog.errorMessage = errorMsg
-        errorDialog.visible = true
-
+        errorDialog.show(errorMsg)
         ui.state = "DISCONNECTED"
     }
 
     function onLogout(userName) {
-        loginview.visible = false
+        loginview.hide()
 
         if (mobapp.loggedIn) {
             onDisconnectRequested()
@@ -605,9 +572,8 @@ Window {
         localGeneralActions.setActions(
             [{actionId: "Home", actionName: "Home"},
              {actionId: "Console", actionName: "Console"},
-             {actionId: "Logout", actionName: "Logout"},
              {actionId: "Settings", actionName: "Settings"},
-             {actionId: "DebugInfo", actionName: "About"}
+             {actionId: "About", actionName: "About"}
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
 
@@ -641,6 +607,7 @@ Window {
 
         // testing
         //feedbackDialog.show("jjadadadasdafdafa")
+        //errorDialog.show("Test error")
     }
 }
 
