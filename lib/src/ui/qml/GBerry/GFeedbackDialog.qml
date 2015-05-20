@@ -23,7 +23,7 @@ Rectangle {
     function show(message) {
         if (visible) {
             // TODO: now just concatenating
-            feedbackDialog.feedbackMessage += " " + js["message"]
+            feedbackBox.feedbackMessage += " " + js["message"]
             closingTimer.running = false
             fadeAnimator.running = false
             opacity = initialOpacity
