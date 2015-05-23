@@ -7,6 +7,10 @@
 
 #include <client/clientsetup.h>
 #include <client/assets.h>
+#include <ui/displayprofile.h>
+
+// TODO: this gberry client -> little bit wrong place
+#include <client/gamemodel.h>
 
 // trick to get define as a string
 #define xstr(s) str(s)
@@ -45,6 +49,8 @@ private:
     QQmlApplicationEngine _engine;
     ClientSetup _setup;
     Assets _assets;
+    DisplayProfile _displayProfile;
+    GameModel _gameModel;
 
 };
 

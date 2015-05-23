@@ -5,7 +5,9 @@
 #include <QQmlContext>
 
 
-ConsoleApplication::ConsoleApplication(QObject *parent) : QObject(parent)
+ConsoleApplication::ConsoleApplication(QObject *parent) :
+    QObject(parent),
+    _displayProfile(1920, 1080)
 {
 
 }
@@ -23,6 +25,8 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("playersManager", &(_setup.playersManager));
     _engine.rootContext()->setContextProperty("comms", &(_setup.controlChannel));
     _engine.rootContext()->setContextProperty("Assets", &_assets);
+    _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
+    _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
 
     _engine.load(QUrl(mainQmlUrl));
 
