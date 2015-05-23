@@ -5,6 +5,7 @@
 
 #include "applicationstorage.h"
 #include "usermodel.h"
+#include "ui/displayprofile.h"
 
 /**
  * @brief Internal application model
@@ -24,6 +25,7 @@ private:
     QQmlApplicationEngine* _engine;
     ApplicationStorage _appStorage;
     UserModel* _userModel;
+    DisplayProfile _displayProfile;
 };
 
 #endif // CPPAPPLICATION_H

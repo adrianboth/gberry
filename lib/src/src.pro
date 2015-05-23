@@ -47,7 +47,8 @@ HEADERS += \
     client/applicationstorage.h \
     client/qmlapplication.h \
     client/cppapplication.h \
-    client/usermodel.h
+    client/usermodel.h \
+    client/gamemodel.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -90,7 +91,8 @@ SOURCES += \
     client/applicationstorage.cpp \
     client/qmlapplication.cpp \
     client/cppapplication.cpp \
-    client/usermodel.cpp
+    client/usermodel.cpp \
+    client/gamemodel.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
