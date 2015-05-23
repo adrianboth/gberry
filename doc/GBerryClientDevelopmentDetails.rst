@@ -1,11 +1,14 @@
+*********************************
 GBerry Client Development Details
-=================================
-(tero.vuorela@iki.fi)
+*********************************
+
 
 This document contains in journal like format some development decisions.
 
 
-4.4.2015
+Sharing QML Code
+================
+
 
 It tooks so some time to find out working setup for sharing qml and js code
 via `gberry-lib`. You can't include into qrc file any files outside project.

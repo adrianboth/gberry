@@ -1,9 +1,9 @@
-GBerry Client - Development
-===========================
-(tero.vuorela@iki.fi)
+*************
+GBerry Client
+*************
 
-
-== Overview
+Overview
+========
 
 GBerry client is a general purpose client for GBerry platform. The client is
 implemented as Qt/C++ mobile application.
@@ -16,9 +16,10 @@ The client has couple of built-in control mechanisms (e.g. basic control and
 question dialog) and rest of game UI is transfered from a GBerry console.
 
 
-== Supported Devices
+Supported Devices
+=================
 
-Currently support exists only for Android devices, although with help of Qt it
+Currently support exists only for **Android** devices, although with help of Qt it
 will be future relative easy to support also other platforms.
 
 Design goal is that GBerry client can be used on variety of screen sizes.
@@ -26,10 +27,11 @@ Design goal is that GBerry client can be used on variety of screen sizes.
 For development purposes the client is possible the run on a computer. 
 Currently on Linux build is supported.
 
-
-== Settings Up Development Environment
+Development Environment
+=======================
 
 Development setup supports:
+
  * QtCreator
  * Command line build (separate scripts found from `gberry-development`)
  
@@ -39,7 +41,8 @@ repository (`gberry-mobile`).
  * Static library and headers are looked for
  * .qml and .js files are looked via symbolic link
 
-== Env Vars
+Env Vars
+--------
 
 There are couple of environment variables to support development on 
 development machine.
