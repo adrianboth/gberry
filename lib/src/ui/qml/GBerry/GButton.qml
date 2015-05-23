@@ -22,6 +22,10 @@ Rectangle {
     property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
     property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
 
+    function triggerButtonClick() {
+        emulatedMouseClickTimer.start()
+    }
+
     radius: 20
     antialiasing: true
     property string label
@@ -77,6 +81,21 @@ Rectangle {
         }
     }
 
+    Timer {
+        id: emulatedMouseClickTimer
+        running: false; repeat: false
+        interval: 100 // ms
+        onTriggered: {
+            var fakeMouse = {}
+            buttonMouseArea.onReleased(fakeMouse)
+        }
+
+        function start() {
+            var fakeMouse = {}
+            buttonMouseArea.onPressed(fakeMouse)
+            running = true
+        }
+    }
 
     Component.onCompleted: {
         Log.initLog("Button/" + buttonLabel.text, gsettings.logLevel)
