@@ -8,9 +8,9 @@ Item {
     id: self
     anchors.fill: parent
     property color fadeColor: "black"
-    property real bgFadeAreaOpacity: 0.3
-    property int verticalCenterOffset: 0
-    property var content
+    property real  bgFadeAreaOpacity: 0.3
+    property int   verticalCenterOffset: 0
+    property var   content
 
     visible: false // default, content.visible will follow
     enabled: visible
