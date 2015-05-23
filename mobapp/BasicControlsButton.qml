@@ -11,6 +11,13 @@ Button {
     property string buttonGradientStartColor: "#eee"
     property string buttonGradientStopColor: "#ccc"
     property string buttonText: "-" // default
+    property int buttonFontPixelSize: gdisplay.mediumSizeText * 1.2
+    property int buttonHorizontalMargin: gdisplay.touchCellWidth() * 1.5
+    property int buttonVerticalMargin: gdisplay.touchCellHeight() * 1.5
+    property int buttonWidth: buttonFontPixelSize + buttonHorizontalMargin
+    property int buttonHeight: buttonFontPixelSize + buttonVerticalMargin
+    property alias buttonTextImplicitWidth: buttonLabel.implicitWidth
+
 
     function enable() {
         button.enabled = true
@@ -21,12 +28,12 @@ Button {
         button.opacity = 0.5
     }
 
-    width: gdisplay.largeSize * gdisplay.ppmX // TODO: how to adjust to text size
-    height: gdisplay.largeSize * gdisplay.ppmY
+    // defaults
+    width: buttonWidth
+    height: buttonHeight
 
     style: ButtonStyle {
         background: Rectangle {
-                    //border.width: button.enabled ? 2 : 1
                     border.width: 1
                     border.color: "#888"
                     radius: 4
@@ -40,11 +47,12 @@ Button {
     }
 
     Text {
+        id: buttonLabel
         text: button.buttonText
-        anchors.fill: parent
+        anchors.centerIn: parent
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        font.pixelSize: 16
+        font.pixelSize: buttonFontPixelSize
     }
 
     MouseArea {
