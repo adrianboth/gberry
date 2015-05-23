@@ -5,7 +5,7 @@ WORKSPACE_ROOT=`cd $THIS_DIR/.. && pwd`
 BUILDS_DIR=$THIS_DIR/../builds
 
 QTDIR=/home/tevuore/Qt5.4/5.4/android_armv7
-BUILD_NAME=Android_for_armeabi_v7a_GCC_4_8_Qt_5_4_0-Debug
+BUILD_NAME=Android_for_armeabi_v7a_GCC_4_8_Qt_5_4_0-Release
 COMP=mobapp
 BUILD_DIR=$BUILDS_DIR/build-${COMP}-${BUILD_NAME}
 
