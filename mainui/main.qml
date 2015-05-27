@@ -11,8 +11,8 @@ import GBerryConsole 1.0
 Window {
     id: root
     visible: true
-    width: DisplayProfile.windowWidth
-    height: DisplayProfile.windowHeight
+    width: gdisplay.windowWidth
+    height: gdisplay.windowHeight
 
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay }
