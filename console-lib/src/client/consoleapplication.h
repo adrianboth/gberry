@@ -5,6 +5,8 @@
 #include <QString>
 #include <QQmlApplicationEngine>
 
+#include <applicationsettings.h>
+
 #include <client/clientsetup.h>
 #include <client/assets.h>
 #include <ui/displayprofile.h>
@@ -51,6 +53,7 @@ private:
     Assets _assets;
     DisplayProfile _displayProfile;
     GameModel _gameModel;
+    ApplicationSettings _settings;
 
 };
 

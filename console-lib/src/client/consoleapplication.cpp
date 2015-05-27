@@ -3,12 +3,21 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QQmlContext>
+#include <ui/targetdisplay.h>
 
 
 ConsoleApplication::ConsoleApplication(QObject *parent) :
     QObject(parent),
-    _displayProfile(1920, 1080)
+    _displayProfile(1920, 1080) // autoscale by default on
 {
+    if (!_settings.runningOnTargetDevice()) {
+        TargetDisplay* targetDisplay = new TargetDisplay(1920, 1080, 110, 110, &_displayProfile);
+        _displayProfile.useTargetDisplay(targetDisplay);
+
+        // TODO: for dev time testing
+        //_displayProfile.setMode(DisplayProfile::PixelMatch);
+        //_displayProfile.setMode(DisplayProfile::DimensionMatch);
+    }
 
 }
 
@@ -27,6 +36,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("Assets", &_assets);
     _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
     _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
+    _engine.rootContext()->setContextProperty("ApplicationSettings", &_settings);
 
     _engine.load(QUrl(mainQmlUrl));
 
