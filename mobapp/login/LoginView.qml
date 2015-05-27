@@ -300,13 +300,13 @@ Item {
                         id: divider
                         Layout.preferredHeight: 2
                         color: "gray"
-                        Layout.preferredWidth: parent.width - gdisplay.touchCellWidth()
+                        Layout.preferredWidth: parent.width - gdisplay.touchCellWidth() / 2
                         Layout.alignment: Qt.AlignHCenter
                     }
 
                     Item {
                         id: buttonArea
-                        Layout.preferredHeight: loginButton.height + gdisplay.touchCellHeight()
+                        Layout.preferredHeight: loginButton.height + gdisplay.touchCellHeight() /2
                         Layout.fillWidth: true
 
                         GButton {
@@ -318,6 +318,7 @@ Item {
                                     return qsTr("Login")
                                 }
                             }
+                            labelTextPixelSize: gdisplay.smallSizeText
 
 
                             enabled: (userNameField.editText.length > 0 && userNameField.validSelection) || (UserModel.currentUserIsActive && userNameField.invalidSelection)

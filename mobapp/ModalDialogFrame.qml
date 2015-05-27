@@ -15,8 +15,8 @@ Item {
     visible: false // default, content.visible will follow
     enabled: visible
 
-    function show() { visible = true }
-    function hide() { visible = false }
+    function show() { visible = true; content.visible = true }
+    function hide() { visible = false; content.visible = false }
 
     signal backgroundClicked()
 
@@ -41,7 +41,7 @@ Item {
             content.anchors.horizontalCenter = self.horizontalCenter
             content.anchors.verticalCenter = self.verticalCenter
             content.anchors.verticalCenterOffset = verticalCenterOffset //+topbar.height
-            content.visible = Qt.binding(function() { return parent.visible })
+            //content.visible = true // ModalFrameDialog controls visibility on parent level
         } else {
             console.error("[ModalDialogFrame] No 'content' defined!")
         }

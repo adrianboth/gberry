@@ -7,14 +7,14 @@ Item {
 
     property string titleText: "<undefined>"
     // width is adjustable
-    property int preferredHeight: gdisplay.touchCellHeight() * 2
+    property int preferredHeight: gdisplay.touchCellHeight()
 
     Text {
         text: titleText
-        font.pixelSize: gdisplay.touchCellHeight()
+        font.pixelSize: gdisplay.smallSizeText
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: gdisplay.touchCellHeight() / 2
+        anchors.leftMargin: gdisplay.touchCellHeight() / 4
     }
 
     Rectangle {
@@ -23,7 +23,7 @@ Item {
         height: parent.height * 0.65
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: parent.right
-        anchors.rightMargin: gdisplay.touchCellHeight() / 2
+        anchors.rightMargin: gdisplay.touchCellHeight() / 4
         radius: 50 // circle
         border.width: 1
         border.color: "grey"

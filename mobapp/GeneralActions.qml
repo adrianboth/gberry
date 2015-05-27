@@ -85,14 +85,14 @@ Item {
 
                 Rectangle {
                     width: text.implicitWidth
-                    height: text.implicitHeight + divider.height + gdisplay.touchCellHeight() / 2
+                    height: text.implicitHeight + divider.height + gdisplay.smallSizeText
                     color: "snow"
                     //color: "red"
                     property string id: actionId
 
                     Item {
                         id: upperEmptySpace
-                        height: gdisplay.touchCellHeight()/4
+                        height: gdisplay.smallSizeText/2
                         width: 1
                         //color: "green"
                     }
@@ -101,14 +101,14 @@ Item {
                         id: text
                         color: "black"
                         text: actionName
-                        font.pointSize: gdisplay.mediumSize * gdisplay.ppmText
+                        font.pointSize: gdisplay.smallSizeText
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: upperEmptySpace.bottom
                     }
 
                     Item {
                         id: bottomEmptySpace
-                        height: gdisplay.touchCellHeight()/4
+                        height: gdisplay.smallSizeText/2
                         width: 1
                         //color: "green"
                         anchors.top: text.bottom

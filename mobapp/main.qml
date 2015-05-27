@@ -16,12 +16,12 @@ import "settings/SettingsModel.js" as SettingsModel
 Window {
     id: root
     visible: true
-    width: screen.preferredWindowWidth
-    height: screen.preferredWindowHeight
+    width: DisplayProfile.windowWidth //screen.preferredWindowWidth
+    height: DisplayProfile.windowHeight //screen.preferredWindowHeight
 
     // global settings
     ApplicationSettings { id: gsettings }
-    GDisplayProfile { id: gdisplay; scaleFactor: 0.5 }
+    GDisplayProfile { z: 1000; id: gdisplay; } //scaleFactor: 0.5
 
     // for desktop development - easy test of scaling
     onHeightChanged: { gdisplay.adjust(width, height) }
@@ -49,10 +49,7 @@ Window {
 
         width: root.width
         height: topbarContainer.height * 1.15
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "gray" }
-            GradientStop { position: 1.0; color: "snow" }
-        }
+        gradient: gsettings.titleGradient
 
         Item {
             id: topbarContainer
@@ -151,7 +148,7 @@ Window {
         GConfirmationDialog {
             id: msgDiag
             visible: false
-
+            textPixelSize: gdisplay.smallSizeText
             onOption1Selected: {
                 msgDiag.visible = false
                 var js = { action: "ConfirmationQuestionResponse",
@@ -253,6 +250,7 @@ Window {
         id: disconnectConsoleDialog
 
         content: GConfirmationDialog {
+            textPixelSize: gdisplay.smallSizeText
             questionText: qsTr("You are logged in. Disconnect?")
             option1Text: qsTr("Yes")
             option2Text: qsTr("No")
@@ -271,7 +269,8 @@ Window {
     ModalDialogFrame {
         content: GErrorDialog {
             id: errorDialog
-            visible: false
+            //visible: false
+            textPixelSize: gdisplay.smallSizeText
 
             //onVisibleChanged: console.debug("VISIBLE CHANGED FOR ERROR")
             function show(msg) { errorMessage = msg; parent.show() }

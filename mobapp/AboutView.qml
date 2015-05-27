@@ -27,14 +27,15 @@ mobile application that is used together with GBerry console. See
         anchors.centerIn: parent
         anchors.margins: border.width
 
-        width: parent.width - gdisplay.touchCellWidth()
-        height: parent.height - gdisplay.touchCellHeight()
+        width: parent.width - gdisplay.touchCellWidth() / 4
+        height: parent.height - gdisplay.touchCellHeight() / 4
         radius: 10
         border.width: 1
         border.color: "lightgray"
 
         ColumnLayout {
             anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
             spacing: 0
 
             ViewTitleBar {
@@ -66,35 +67,35 @@ mobile application that is used together with GBerry console. See
 
                 Column {
                     anchors.top: parent.top
-                    anchors.topMargin: gdisplay.touchCellHeight() / 2
+                    anchors.topMargin: gdisplay.tinySizeText
 
                     anchors.left: parent.left
-                    anchors.leftMargin: gdisplay.touchCellHeight() / 2
+                    anchors.leftMargin: gdisplay.tinySizeText
 
                     Text {
                         text: appNameText
                         height: implicitHeight
-                        font.pixelSize: gdisplay.mediumSizeText
+                        font.pixelSize: gdisplay.tinySizeText * 1.5
                     }
 
                     Text {
                         text: appVersionText
                         height: implicitHeight
-                        font.pixelSize: gdisplay.smallSizeText
+                        font.pixelSize: gdisplay.tinySizeText
                     }
 
                     Item {
-                        height: gdisplay.touchCellHeight() / 2
+                        height: gdisplay.tinySizeText
                         width: 1 // without width is unvisible
                     }
 
                     Text {
                         // for text wrapping to work
-                        width: view.width - 2 * view.anchors.margins - gdisplay.touchCellHeight()
+                        width: view.width - 2 * view.anchors.margins - gdisplay.touchCellHeight() / 2
 
                         text: genericAboutText
                         wrapMode: Text.WordWrap
-                        font.pixelSize: gdisplay.smallSizeText * 1.1
+                        font.pixelSize: gdisplay.tinySizeText
 
                         onLinkActivated: {
                             console.debug("LINK ACTIVATED: " + link)

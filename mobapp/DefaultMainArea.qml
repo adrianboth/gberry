@@ -24,7 +24,7 @@ Rectangle {
 
     ColumnLayout {
         anchors.centerIn: parent
-        spacing: gdisplay.mediumSize * gdisplay.ppmText * 0.5
+        spacing: gdisplay.smallSizeText * 0.5
 
         Item {
             //color: "green"
@@ -37,7 +37,7 @@ Rectangle {
                 anchors.centerIn: parent
                 wrapMode: Text.WordWrap
                 width: Math.min(parent.width * 0.85, implicitWidth)
-                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+                font.pixelSize: gdisplay.smallSizeText
                 horizontalAlignment: Text.AlignHCenter // center dispate of word wrapping
                 onTextChanged: doLayout() // re-align after text changes (otherwise doesn't center correctly)
             }
@@ -56,6 +56,8 @@ Rectangle {
                 enabled: state != "CONNECTING"
 
                 label: buttonText
+                labelTextPixelSize: gdisplay.smallSizeText
+
                 anchors.centerIn: parent
                 onButtonClicked: {
                     if (self.state === "DISCONNECTED") {
