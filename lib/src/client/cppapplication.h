@@ -6,6 +6,7 @@
 #include "applicationstorage.h"
 #include "usermodel.h"
 #include "ui/displayprofile.h"
+#include "applicationsettings.h"
 
 /**
  * @brief Internal application model
@@ -26,6 +27,7 @@ private:
     ApplicationStorage _appStorage;
     UserModel* _userModel;
     DisplayProfile _displayProfile;
+    ApplicationSettings _settings;
 };
 
 #endif // CPPAPPLICATION_H

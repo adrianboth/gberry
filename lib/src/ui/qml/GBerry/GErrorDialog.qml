@@ -14,6 +14,7 @@ Rectangle {
 
     // public
     property string errorMessage: "<undefined>"
+    property int textPixelSize: gdisplay.mediumSizeText
     property bool showTitle: false
     property string acknowledgeText: qsTr("OK")
 
@@ -24,7 +25,7 @@ Rectangle {
     }
 
     // private
-    property int textMargin: gdisplay.touchCellHeight() // from one text line height
+    property int textMargin: textPixelSize // from one text line height
 
     /*
     function debug() {
@@ -65,7 +66,7 @@ Rectangle {
                 anchors.horizontalCenter: textarea.horizontalCenter
 
                 font.bold: true
-                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText // TODO: to somewhere else
+                font.pixelSize: textPixelSize // TODO: to somewhere else
 
                 // needed for text wrapping to work
                 width: Math.min(implicitWidth, root.width * 0.75) // max width 75% from screen
@@ -87,6 +88,7 @@ Rectangle {
             GButton {
                 id: acknowledgeButton
                 label: acknowledgeText
+                labelTextPixelSize: textPixelSize
                 anchors.centerIn: parent
                 width: buttonWidth
                 height: buttonHeight

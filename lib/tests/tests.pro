@@ -5,7 +5,9 @@
 #-------------------------------------------------
 
 QT       += core network websockets
-QT       -= gui
+# TODO: we should split gui and core stuff to separate libs
+#QT       -= gui
+QT += gui widgets
 
 TARGET = tests
 CONFIG   += console c++11
@@ -24,7 +26,8 @@ SOURCES += main.cpp \
     test_rest_communication.cpp \
     test_playersession.cpp \
     test_log.cpp \
-    utils/testlogmsghandler.cpp
+    utils/testlogmsghandler.cpp \
+    test_displayprofile.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 

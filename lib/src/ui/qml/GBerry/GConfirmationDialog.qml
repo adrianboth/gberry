@@ -22,6 +22,8 @@ Rectangle {
     property string option1Id: "option1"
     property string option2Id: "option2"
 
+    property int textPixelSize: gdisplay.mediumSizeText
+
     signal option1Selected()
     signal option2Selected()
 
@@ -36,7 +38,7 @@ Rectangle {
     }
 
     // private
-    property int textMargin: gdisplay.touchCellHeight() // from one text line height
+    property int textMargin: textPixelSize // from one text line height
     //property int buttonMargin: textMargin
 
     function debug() {
@@ -77,7 +79,7 @@ Rectangle {
                 anchors.horizontalCenter: textarea.horizontalCenter
 
                 font.bold: true
-                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText // TODO: to somewhere else
+                font.pixelSize: textPixelSize // TODO: to somewhere else
 
                 // needed for text wrapping to work
                 width: Math.min(implicitWidth, root.width * 0.75) // max width 75% from screen
@@ -91,7 +93,7 @@ Rectangle {
             //color: "red"
             id: buttonRow
 
-            Layout.preferredHeight: buttonRowLayout.maxButtonHeight + gdisplay.touchCellHeight()
+            Layout.preferredHeight: buttonRowLayout.maxButtonHeight + gdisplay.touchCellHeight() / 2
             Layout.preferredWidth: buttonRowLayout.width + buttonRowLayout.spacing * 2
             Layout.alignment: Qt.AlignHCenter || Qt.AlignVCenter
 
@@ -99,7 +101,7 @@ Rectangle {
                 id: buttonRowLayout
                 //anchors.fill: parent
                 anchors.centerIn: parent
-                spacing: gdisplay.touchCellWidth()
+                spacing: gdisplay.touchCellWidth() / 4
 
                 property int maxButtonWidth: Math.max(option1Button.buttonWidth, option2Button.buttonWidth)
                 property int maxButtonHeight: option1Button.height // buttons have same height
@@ -107,6 +109,7 @@ Rectangle {
                 GButton {
                     id: option1Button
                     label: option1Text
+                    labelTextPixelSize: textPixelSize
                     Layout.preferredWidth: parent.maxButtonWidth
                     Layout.preferredHeight: buttonHeight
                     Layout.fillWidth: true
@@ -116,6 +119,7 @@ Rectangle {
                 GButton {
                     id: option2Button
                     label: option2Text
+                    labelTextPixelSize: textPixelSize
                     Layout.preferredWidth: parent.maxButtonWidth
                     Layout.preferredHeight: buttonHeight
                     Layout.fillWidth: true

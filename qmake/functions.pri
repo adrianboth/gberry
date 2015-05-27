@@ -22,12 +22,15 @@ isEmpty(BUILD_NAME) {
     # TODO: also with QtCreator build name can change
     android-g++ {
         BUILD_NAME=Android_for_armeabi_v7a_GCC_4_8_Qt_5_4_0
+        DEFINES += TARGET_ANDROID
     }
     linux-g++ {
         BUILD_NAME=Desktop_Qt_5_4_0_GCC_64bit
+        DEFINES += TARGET_DESKTOP
     }
     linux-rasp-pi-g++ {
         BUILD_NAME=Raspberry
+        DEFINES += TARGET_RASPBERRYPI
     }
 
     #message($$CONFIG)

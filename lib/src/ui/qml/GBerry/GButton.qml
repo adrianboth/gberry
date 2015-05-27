@@ -13,14 +13,17 @@ Rectangle {
 
     property color buttonBgColor: "#2db6e1"
     property color buttonFgColor: "black"
+    property real sizeCellFactor: 1
+
+    property int labelTextPixelSize: gdisplay.mediumSizeText
 
     color: buttonBgColor
 
     // We don't want to define width&height directly as this button
     // could be used also in layouts where you can define width&height.
     // So we have utilility properties
-    property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
-    property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
+    property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() / 2 * sizeCellFactor // + margins
+    property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight() / 2 * sizeCellFactor
 
     function triggerButtonClick() {
         emulatedMouseClickTimer.start()
@@ -39,7 +42,7 @@ Rectangle {
         text: label
         anchors.centerIn: parent
         font.bold: true
-        font.pixelSize: gdisplay.touchCellHeight()
+        font.pixelSize: labelTextPixelSize * sizeCellFactor
         color: buttonFgColor
     }
 

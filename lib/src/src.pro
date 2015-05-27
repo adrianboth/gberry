@@ -7,7 +7,8 @@ QT += core network websockets
 # for client classes (TODO: should be split to own lib)
 QT += qml quick
 
-QT -= gui
+#QT -= gui
+QT += gui widgets
 
 CONFIG += c++11 staticlib
 
@@ -48,7 +49,11 @@ HEADERS += \
     client/qmlapplication.h \
     client/cppapplication.h \
     client/usermodel.h \
-    client/gamemodel.h
+    client/gamemodel.h \
+    ui/targetdisplay.h \
+    ui/actualdisplay.h \
+    ui/display.h \
+    applicationsettings.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -92,7 +97,10 @@ SOURCES += \
     client/qmlapplication.cpp \
     client/cppapplication.cpp \
     client/usermodel.cpp \
-    client/gamemodel.cpp
+    client/gamemodel.cpp \
+    ui/targetdisplay.cpp \
+    ui/actualdisplay.cpp \
+    applicationsettings.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
