@@ -2,7 +2,9 @@ TEMPLATE = app
 TARGET = tests
 
 QT       += core network websockets
-QT       -= gui
+# TODO: should be separated to gui and non gui libs
+#QT       -= gui
+QT += gui widgets
 
 CONFIG   += console c++11
 CONFIG   -= app_bundle

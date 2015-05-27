@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = mainui
 
-QT += qml quick network
+QT += qml quick network widgets
 CONFIG += c++11
 
 include(project.pri)

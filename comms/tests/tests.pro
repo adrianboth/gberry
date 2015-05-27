@@ -2,7 +2,9 @@ TEMPLATE = app
 TARGET = tests
 
 QT       += core
-QT       -= gui
+# TODO: temporary enabling
+#QT       -= gui
+QT       += gui widgets
 
 CONFIG   += console c++11
 CONFIG   -= app_bundle
