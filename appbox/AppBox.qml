@@ -58,7 +58,7 @@ Rectangle {
                 Layout.alignment: Qt.AlignHCenter
 
                 text: qsTr("Wait!")
-                font.pixelSize: gdisplay.mediumSizeText
+                font.pixelSize: gdisplay.smallSizeText
             }
 
             Canvas {
@@ -72,7 +72,7 @@ Rectangle {
 
                 // on mobile device it depends from orientation
                 // TODO: expecting now portrait
-                property int cellXSize: Screen.primaryOrientation === Qt.PortraitOrientation ? self.width / 5 : self.height / 5
+                property int cellXSize: Screen.primaryOrientation === Qt.PortraitOrientation ? self.width / 5.5 : self.height / 5.5
                 property int cellYSize: cellXSize
 
                 property int emptyMargin: cellXSize * 0.30 // enough margins to get shadows fully visible
@@ -214,7 +214,7 @@ Rectangle {
         ColumnLayout {
             id: column
             anchors.centerIn: parent
-            spacing: gdisplay.touchCellWidth()/2
+            spacing: gdisplay.touchCellWidth()/4
 
             Text {
                 id: confirmationText
@@ -226,7 +226,7 @@ Rectangle {
                 text: dialog.text
 
                 font.bold: true
-                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText // TODO: to somewhere else
+                font.pixelSize: gdisplay.smallSizeText
 
                 // needed for text wrapping to work
                 width: Math.min(implicitWidth, root.width * 0.75) // max width 75% from screen
@@ -246,8 +246,8 @@ Rectangle {
                 color: buttonBgColor
 
                 property string text: "<undefined>"
-                property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() // + margins
-                property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight()
+                property int buttonWidth: buttonLabel.implicitWidth + gdisplay.touchCellWidth() / 2 // + margins
+                property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight() / 2
 
                 property color buttonBgColor: "#2db6e1"
                 property color buttonFgColor: "black"
@@ -262,7 +262,7 @@ Rectangle {
                     text: dialog.buttonText
                     smooth: true
                     font.bold: true
-                    font.pixelSize: gdisplay.touchCellHeight() * 1.5
+                    font.pixelSize: gdisplay.touchCellHeight() /2
                     color: buttonFgColor
                     onTextChanged: {
                         // abort possible feedback if text changed
