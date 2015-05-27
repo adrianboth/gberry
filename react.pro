@@ -12,7 +12,7 @@ RESOURCES += qml.qrc
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH = $$PWD/ui/gberry-lib $$PWD/ui/console-lib
 
-CONFIG(debug) {
+CONFIG(debug, debug|release) {
     DEFINES += GBERRY_DEBUG_QML_IMPORT_PATH=$$PWD/ui/gberry-lib:$$PWD/ui/console-lib
     DEFINES += GBERRY_ASSETS_FIXED_ROOT_PATH=$$PWD/assets
 }
