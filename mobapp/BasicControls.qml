@@ -48,8 +48,8 @@ Rectangle {
         }
     }
 
-    property int buttonWidthMargin: gdisplay.touchCellWidth()
-    property int buttonHeightMargin: gdisplay.touchCellHeight()
+    property int buttonWidthMargin: gdisplay.touchCellWidth() / 2
+    property int buttonHeightMargin: gdisplay.touchCellHeight() / 2
     property var buttons: [back, ok, up, down, left, right]
 
     Column {
@@ -63,6 +63,7 @@ Rectangle {
             width: biggerButtonArea.width
             height: back.height
 
+
             BasicControlsButton {
                 id: back
                 width: buttonTextImplicitWidth + buttonHorizontalMargin
@@ -70,6 +71,7 @@ Rectangle {
                 buttonText: "Back"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
+                anchors.leftMargin: gdisplay.touchCellWidth() / 2
                 onButtonPressed: basicControls.buttonPressed("Back")
             }
         }
@@ -137,4 +139,3 @@ Rectangle {
     }
 
 }
-
