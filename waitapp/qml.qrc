@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>appbox/AppBox.qml</file>
+    </qresource>
+</RCC>
