@@ -53,7 +53,8 @@ HEADERS += \
     ui/targetdisplay.h \
     ui/actualdisplay.h \
     ui/display.h \
-    applicationsettings.h
+    applicationsettings.h \
+    testutils/util_enablelog.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -113,4 +114,5 @@ DISTFILES += \
     ui/qml/GBerry/ConfirmationDialog.qml \
     ui/qml/GBerry/GConfirmationDialog.qml \
     ui/qml/GBerry/GErrorDialog.qml \
-    ui/qml/GBerry/GFeedbackDialog.qml
+    ui/qml/GBerry/GFeedbackDialog.qml \
+    ui/qml/GBerry/GSettings.qml

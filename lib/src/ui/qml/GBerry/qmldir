@@ -1,6 +1,7 @@
 module GBerry
 GButton 		1.0 GButton.qml
 GDisplayProfile 	1.0 GDisplayProfile.qml
+GSettings               1.0 GSettings.qml
 GConfirmationDialog 	1.0 GConfirmationDialog.qml
 GErrorDialog            1.0 GErrorDialog.qml
 GFeedbackDialog         1.0 GFeedbackDialog.qml
