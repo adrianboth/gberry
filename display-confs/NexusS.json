@@ -1,0 +1,30 @@
+{
+"name": "NexusS",
+"model" "Samsung Nexus S",
+"description": "Portrait of Nexus S"
+"orientation": "portrait",
+"width_pixels": 480,
+"height_pixels": 800,
+"width_mm": xx,
+"height_mm": yy,
+"default_scaling": 1
+
+"modes": [
+	{
+	name: "TopInfoBarVisible",
+	"adjust_height": -12
+	}
+]
+	
+
+}
+
+
+
+
+
+
+
+
+
+}
