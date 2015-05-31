@@ -12,10 +12,27 @@ CONFIG   -= app_bundle
 include(../project.pri)
 
 SOURCES += main.cpp \
-    gberryconsoleserver.cpp
+    gberryconsoleserver.cpp \
+    uiappstatemachine.cpp \
+    waitapplicationcontroller.cpp \
+    applicationcontroller.cpp \
+    localapplications.cpp \
+    localapplicationsstorage.cpp \
+    launchcontroller.cpp
 
 HEADERS += \
-    gberryconsoleserver.h
+    gberryconsoleserver.h \
+    uiappstatemachine.h \
+    waitapplicationcontroller.h \
+    iapplicationcontroller.h \
+    applicationcontroller.h \
+    uiappstatemachine_private.h \
+    localapplications.h \
+    applicationmeta.h \
+    localapplicationsstorage.h \
+    ilaunchcontroller.h \
+    launchcontroller.h \
+    iapplications.h
 
 DEPENDPATH += .
 

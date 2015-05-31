@@ -13,11 +13,22 @@ include(../project.pri)
 
 SOURCES += main.cpp \
     utils/testtcpclient.cpp \
-    test_commchannel.cpp
+    test_commchannel.cpp \
+    test_uiappstatemachine.cpp \
+    ../src/uiappstatemachine.cpp
 
 HEADERS += \
-    utils/testtcpclient.h
+    utils/testtcpclient.h \
+    mocks/mock_iapplicationcontroller.h \
+    ../src/applicationmeta.h \
+    ../src/iapplicationcontroller.h \
+    ../src/ilaunchcontroller.h \
+    ../src/iapplications.h \
+    ../src/uiappstatemachine.h \
+    ../src/uiappstatemachine_private.h \
+    utils/util_controllerproxy.h
 
+INCLUDEPATH += ../src
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 
