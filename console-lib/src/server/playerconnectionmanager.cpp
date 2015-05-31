@@ -46,6 +46,7 @@ void PlayerConnectionManager::onNewPlayerConnection(PlayerSession session)
             qWarning() << "[PlayerConnectionManager] Received msg from south from unregistered channel:" << channelId;
     });
 
+    // TODO: if there is no app running -> send message
 }
 
 void PlayerConnectionManager::onPlayerConnectionClosed(int playerId)

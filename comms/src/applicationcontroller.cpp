@@ -7,12 +7,6 @@ ApplicationController::ApplicationController(QPointer<ApplicationMeta> meta, QOb
     ApplicationController(parent)
 {
     _appMeta = meta;
-    connect(&_process, SIGNAL(finished(int)),
-                this, SLOT(onProcessFinished(int)));
-
-    connect(&_process, &QProcess::stateChanged,
-            this, &ApplicationController::onProcessStateChanged);
-
 }
 
 ApplicationController::ApplicationController(QObject *parent) :
@@ -20,7 +14,11 @@ ApplicationController::ApplicationController(QObject *parent) :
     _currentAction(NONE),
     _running(false)
 {
+    connect(&_process, SIGNAL(finished(int)),
+                this, SLOT(onProcessFinished(int)));
 
+    connect(&_process, &QProcess::stateChanged,
+            this, &ApplicationController::onProcessStateChanged);
 }
 
 ApplicationController::~ApplicationController()
@@ -30,10 +28,15 @@ ApplicationController::~ApplicationController()
 
 void ApplicationController::launch()
 {
-    DEBUG("Launching process: " << _appMeta->applicationPath());
-    _process.setProgram(_appMeta->applicationPath());
-    _currentAction = LAUNCHING;
-    _process.start();
+    if (_appMeta) {
+        DEBUG("Launching process: " << _appMeta->applicationPath());
+        _process.setProgram(_appMeta->applicationPath());
+        _currentAction = LAUNCHING;
+        _process.start();
+    } else {
+        WARN("No ApplicationMeta defined, nothing to start")
+    }
+
 }
 
 void ApplicationController::pause()
@@ -49,8 +52,11 @@ void ApplicationController::resume()
 
 void ApplicationController::stop()
 {
-    _currentAction = NONE;
-    _process.kill();
+    if (_process.state() == QProcess::Running) {
+        DEBUG("Killing " << _appMeta->id());
+        _currentAction = STOPPING;
+        _process.kill();
+    }
 }
 
 void ApplicationController::setApplication(QPointer<ApplicationMeta> meta)
@@ -60,7 +66,7 @@ void ApplicationController::setApplication(QPointer<ApplicationMeta> meta)
 
 void ApplicationController::onProcessStateChanged(QProcess::ProcessState processState)
 {
-    DEBUG("Process state changed")
+    DEBUG("Process state changed: app_id =" << _appMeta->id());
     if (_currentAction == LAUNCHING) {
         if (processState == QProcess::Running) {
             DEBUG("RUNNING OK");
@@ -85,10 +91,14 @@ void ApplicationController::onProcessStateChanged(QProcess::ProcessState process
 
 void ApplicationController::onProcessFinished(int exitCode)
 {
-    DEBUG("Process finished with code: " << exitCode)
-    if (_running ) {
+    DEBUG("Process finished with code: app_id = " << _appMeta->id() << ", exitCode =" << exitCode);
+    if (_running && _currentAction != STOPPING) {
         DEBUG("Was expected to run");
         _running = false;
         emit died();
+
+    } else if (_currentAction == STOPPING) {
+        _currentAction = NONE;
+        emit stopped();
     }
 }

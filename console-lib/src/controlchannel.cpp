@@ -41,7 +41,7 @@ void ControlChannel::ping()
     sendMessage(PING_MESSAGE);
 }
 
-void ControlChannel::receiveMessage(const QByteArray msg)
+bool ControlChannel::receiveMessage(const QByteArray msg)
 {
     QJsonDocument doc(QJsonDocument::fromJson(msg));
     QJsonObject json(doc.object());
@@ -51,11 +51,16 @@ void ControlChannel::receiveMessage(const QByteArray msg)
         setState(Channel::CHANNEL_OPEN);
         emit pingReceived();
         sendMessage(PINGREPLY_MESSAGE);
+        return true;
     }
     else if (json.contains("command") && json["command"] == "pingreply")
     {
         setState(Channel::CHANNEL_OPEN);
         emit pingReceived();
         // but no reply to reply ...
+        return true;
     }
+
+    // not known by us
+    return false;
 }

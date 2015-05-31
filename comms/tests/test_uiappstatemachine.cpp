@@ -41,12 +41,14 @@ TEST(UIAppStateMachine, OKFlow)
     // --
     EXPECT_CALL(mainuiMock, launch()).Times(1);
     waitAppMock.emitLaunched();
+    //st.applicationConnectionValidated();
     QCoreApplication::processEvents(); verifyMocks();
 
     // --
     // no transition until explitly asked
     EXPECT_CALL(waitAppMock, pause()).Times(1);
-    mainuiMock.emitLaunched();
+    //mainuiMock.emitLaunched();
+    st.applicationConnectionValidated();
     processEvents(); verifyMocks();
 
     // --
@@ -63,7 +65,8 @@ TEST(UIAppStateMachine, OKFlow)
     // --
     // new app running
     EXPECT_CALL(waitAppMock, pause()).Times(1);
-    currentAppMock.emitLaunched();
+    //currentAppMock.emitLaunched();
+    st.applicationConnectionValidated();
     processEvents(); verifyMocks();
     EXPECT_TRUE(st.debugCurrentStateName() == "appVisible");
 
@@ -77,7 +80,8 @@ TEST(UIAppStateMachine, OKFlow)
 
     // --
     EXPECT_CALL(waitAppMock, pause()).Times(1);
-    mainuiMock.emitLaunched();
+    //mainuiMock.emitLaunched();
+    st.applicationConnectionValidated();
     processEvents(); verifyMocks();
 
     // finally mainui visible again
@@ -115,13 +119,15 @@ TEST(UIAppStateMachine, ApplicationDiedFlow)
     niceWaitAppMock.emitLaunched();
     processEvents();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
-    niceMainUIMock.emitLaunched();
+    //niceMainUIMock.emitLaunched();
+    st.applicationConnectionValidated();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_MAINUI);
     processEvents();
     st.lauchApplication("foobarAppId"); // id
     processEvents();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_APP);
-    niceCurrentAppMock.emitLaunched();
+    //niceCurrentAppMock.emitLaunched();
+    st.applicationConnectionValidated();
     processEvents();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_APP);
 
@@ -133,6 +139,7 @@ TEST(UIAppStateMachine, ApplicationDiedFlow)
     // -- app will exit (die)
     EXPECT_CALL(waitAppMock, resume()).Times(1);
     EXPECT_CALL(mainuiMock, launch()).Times(1);
+    EXPECT_CALL(currentAppMock, stop()).Times(1); // just in case
     currentAppMock.emitDied();
     processEvents(); verifyMocks();
 

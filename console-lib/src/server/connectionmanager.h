@@ -25,6 +25,7 @@ public:
     bool activeConnection();
 
 signals:    
+    void applicationConnectionValidated();
 
 public slots:
     void applicationConnected(int connectionId);

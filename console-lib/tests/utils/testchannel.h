@@ -22,7 +22,7 @@ public:
 
 public slots:
     // Channel
-    void receiveMessage(const QByteArray msg);
+    bool receiveMessage(const QByteArray msg);
 
 };
 

@@ -36,7 +36,7 @@ private:
     QPointer<ApplicationMeta> _appMeta;
     QProcess _process;
 
-    enum CurrentAction { NONE, LAUNCHING, RESUMING };
+    enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };
     int _currentAction;
     bool _running;
 };

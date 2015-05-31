@@ -38,7 +38,8 @@ UIAppStateMachine::UIAppStateMachine(
 
     // ACTION: once waiting screen visible start mainui
     connect(waitAppVisibleLaunchingMainUI, &State::entered, _mainui, &IApplicationController::launch);
-    waitAppVisibleLaunchingMainUI->addTransition(_mainui, SIGNAL(launched()), mainuiVisible);
+    //waitAppVisibleLaunchingMainUI->addTransition(_mainui, SIGNAL(launched()), mainuiVisible);
+    waitAppVisibleLaunchingMainUI->addTransition(_impl, SIGNAL(appLaunchValidated()), mainuiVisible);
 
     connect(mainuiVisible, &State::entered, [&] () {
         _waitapp->pause();
@@ -52,7 +53,8 @@ UIAppStateMachine::UIAppStateMachine(
         _currentApp->launch();
     });
 
-    waitAppVisibleLaunchingApp->addTransition(_currentApp, SIGNAL(launched()), appVisible);
+    //waitAppVisibleLaunchingApp->addTransition(_currentApp, SIGNAL(launched()), appVisible);
+    waitAppVisibleLaunchingApp->addTransition(_impl, SIGNAL(appLaunchValidated()), appVisible);
     connect(appVisible, &State::entered, [&] () {
         _waitapp->pause();
     });
@@ -98,6 +100,12 @@ void UIAppStateMachine::exitCurrentApplication()
 QString UIAppStateMachine::debugCurrentStateName() const
 {
     return _currentStateName;
+}
+
+void UIAppStateMachine::applicationConnectionValidated()
+{
+    // TODO: later call should identify what app it is about
+    _impl->emitAppLaunchValidated();
 }
 
 /*

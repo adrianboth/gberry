@@ -35,7 +35,8 @@ public:
     virtual void close();
 
 public slots:
-    virtual void receiveMessage(const QByteArray msg) = 0;
+    // true if message was handled, used in subclasses to know if parent handled to message
+    virtual bool receiveMessage(const QByteArray msg) = 0;
 
 signals:
     void channelClosed();

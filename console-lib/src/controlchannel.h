@@ -19,7 +19,7 @@ public:
 
     // Channel
     virtual void reopen() {} // // do nothing
-    virtual void receiveMessage(const QByteArray msg);
+    virtual bool receiveMessage(const QByteArray msg);
 
 signals:
     void pingReceived();

@@ -21,8 +21,8 @@ signals:
     void launchFailed();
     void resumed();
     void resumeFailed();
+    void stopped();
     void died();
 };
 
 #endif // IAPPLICATIONCONTROLLER_H
-

@@ -21,10 +21,12 @@ class UIAppStateMachinePrivate : public QObject
 public:
     void emitAppLaunchRequested() { emit appLaunchRequested(); }
     void emitAppExitRequested()   { emit appExitRequested(); }
+    void emitAppLaunchValidated() { emit appLaunchValidated(); }
 
 signals:
     void appLaunchRequested();
     void appExitRequested();
+    void appLaunchValidated();
 
 private:
 

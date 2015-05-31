@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ApplicationSettings.qml</file>
+        <file>appbox/AppBox.qml</file>
+        <file>GamesOnConsoleView.qml</file>
+    </qresource>
+</RCC>

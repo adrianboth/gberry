@@ -14,6 +14,9 @@ public:
     ClientSideControlChannel();
     ~ClientSideControlChannel();
 
+    void requestApplicationLaunch(QString appID);
+    void requestApplicationExit();
+
 };
 
 #endif // CLIENTSIDECONTROLCHANNEL_H

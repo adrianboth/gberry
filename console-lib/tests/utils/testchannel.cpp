@@ -15,10 +15,11 @@ void TestChannel::triggerOutgoingMessage(QByteArray msg)
     sendMessage(lastSentMsg);
 }
 
-void TestChannel::receiveMessage(const QByteArray msg)
+bool TestChannel::receiveMessage(const QByteArray msg)
 {
     received++;
     lastReceivedMsg = QString(msg);
+    return true;
 }
 
 // TODO: response id concept?

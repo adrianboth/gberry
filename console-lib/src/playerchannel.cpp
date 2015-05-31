@@ -15,7 +15,7 @@ PlayerChannel::~PlayerChannel()
     qDebug("### ~PlayerControlChannel()");
 }
 
-void PlayerChannel::receiveMessage(const QByteArray msg)
+bool PlayerChannel::receiveMessage(const QByteArray msg)
 {
     qDebug() << "### PlayerChannel::receiveMessage(): cid: " << _id;
     QJsonDocument doc(QJsonDocument::fromJson(msg));

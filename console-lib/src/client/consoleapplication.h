@@ -10,6 +10,7 @@
 #include <client/clientsetup.h>
 #include <client/assets.h>
 #include <ui/displayprofile.h>
+#include <client/4qml/applicationmanager.h>
 
 // TODO: this gberry client -> little bit wrong place
 #include <client/gamemodel.h>
@@ -54,6 +55,7 @@ private:
     DisplayProfile _displayProfile;
     GameModel _gameModel;
     ApplicationSettings _settings;
+    ApplicationManager* _applicationManager;
 
 };
 

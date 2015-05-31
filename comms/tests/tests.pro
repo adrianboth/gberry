@@ -15,13 +15,16 @@ SOURCES += main.cpp \
     utils/testtcpclient.cpp \
     test_commchannel.cpp \
     test_uiappstatemachine.cpp \
-    ../src/uiappstatemachine.cpp
+    ../src/uiappstatemachine.cpp \
+    ../src/applicationcontroller.cpp \
+    test_applicationcontroller.cpp
 
 HEADERS += \
     utils/testtcpclient.h \
     mocks/mock_iapplicationcontroller.h \
     ../src/applicationmeta.h \
     ../src/iapplicationcontroller.h \
+    ../src/applicationcontroller.h \
     ../src/ilaunchcontroller.h \
     ../src/iapplications.h \
     ../src/uiappstatemachine.h \

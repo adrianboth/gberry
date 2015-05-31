@@ -15,7 +15,7 @@ public:
     virtual void sendPlayerMessage(QByteArray msg);
 
     // Channel
-    virtual void receiveMessage(const QByteArray msg);
+    virtual bool receiveMessage(const QByteArray msg);
     virtual void reopen() {} // dummy impl
 
 signals:

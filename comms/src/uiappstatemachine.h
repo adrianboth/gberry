@@ -43,6 +43,9 @@ public:
     // utility for testing/debugging
     QString debugCurrentStateName() const;
 
+public slots:
+    void applicationConnectionValidated();
+
 private:
     QStateMachine _stateMachine;
     IApplicationController* _waitapp;

@@ -4,7 +4,7 @@
 var _appboxResourceString
 
 function loadAppBoxResources(appboxMainQmlUrl) {
-    Log.initLog("AppBoxMaster", gsettings.logLevel)
+    Log.initLog("AppBoxMaster", Log.DEBUG)
 
     var xhr = new XMLHttpRequest()
     xhr.onreadystatechange = function() {

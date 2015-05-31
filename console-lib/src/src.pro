@@ -36,7 +36,8 @@ SOURCES += \
     channel.cpp \
     server/playerconnectionmanager.cpp \
     client/consoleapplication.cpp \
-    client/assets.cpp
+    client/assets.cpp \
+    client/4qml/applicationmanager.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -61,7 +62,9 @@ HEADERS +=\
     ichannelparent.h \
     server/playerconnectionmanager.h \
     client/consoleapplication.h \
-    client/assets.h
+    client/assets.h \
+    client/4qml/applicationmanager.h \
+    server/readme_serverside.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

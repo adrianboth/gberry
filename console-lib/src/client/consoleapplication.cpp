@@ -19,6 +19,7 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
         //_displayProfile.setMode(DisplayProfile::DimensionMatch);
     }
 
+    _applicationManager = new ApplicationManager(&_setup.controlChannel);
 }
 
 ConsoleApplication::~ConsoleApplication()
@@ -37,6 +38,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
     _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
     _engine.rootContext()->setContextProperty("ApplicationSettings", &_settings);
+    _engine.rootContext()->setContextProperty("ApplicationManager", _applicationManager);
 
     _engine.load(QUrl(mainQmlUrl));
 

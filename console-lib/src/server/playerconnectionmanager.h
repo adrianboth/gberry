@@ -8,6 +8,7 @@
 #include <server/websocketserver.h>
 #include <server/playersession.h>
 
+// TODO: this could be moved to folder called 'northside' i.e. towards mobapps
 
 class PlayerChannel;
 

@@ -2,7 +2,6 @@ import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
-import QtQuick.Controls 1.2
 
 import GBerry 1.0
 import GBerryConsole 1.0
@@ -11,13 +10,16 @@ import GBerryConsole 1.0
 Window {
     id: root
     visible: true
-    width: gdisplay.windowWidth
-    height: gdisplay.windowHeight
+    width: 800
+    height: 600
 
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay }
 
+    // testing
+    //GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
 
+    // TODO: column layout
     InfoBar {
         id: infobar
         anchors.left: parent.left
@@ -32,42 +34,27 @@ Window {
     }
 
     Rectangle {
-        anchors.fill: parent
+        id: mainarea
+
+        anchors.top: infobar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+
         border.color: "slategray"
         gradient: Gradient {
             GradientStop { position: 0.0; color: "lightsteelblue" }
             GradientStop { position: 1.0; color: "slategray" }
         }
-    }
 
-    StackView {
-        id: mainarea
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: infobar.bottom
-        anchors.bottom: parent.bottom
-        initialItem: mainMenuView
+        MainMenu {
+            id: mainmenu
+            anchors.centerIn: parent
 
-        onCurrentItemChanged: sendControlActions()
-
-        function sendControlActions() {
-            if (currentItem !== null) {
-                var js = {action: "ShowBasicControls",
-                          enable: currentItem.enabledControlActions}
-                playersManager.sendAllPlayersMessage(JSON.stringify(js))
-            }
-        }
-
-        MainMenuView {
-            id: mainMenuView
-
-            menuItems: [
+            items: [
                 MainMenuItem {
                     text: qsTr("Games on console")
-                    onSelected: {
-                        mainarea.push({item: gamesOnConsoleView, immediate: true})
-                        //onGamesOnConsoleSelected()
-                    }
+                    onSelected: onGamesOnConsoleSelected()
                 },
                 MainMenuItem {
                     text: qsTr("Games on webstore")
@@ -76,36 +63,22 @@ Window {
                 MainMenuItem {
                     text: qsTr("Settings")
                     onSelected: exitGameSelected()
-                },
-                MainMenuItem {
-                    text: qsTr("Exit")
-                    onSelected: exitGameSelected()
                 }
             ]
         }
 
-        GamesOnConsoleView {
-            id: gamesOnConsoleView
-            visible: false
-
-            onBackSelected: {
-                mainarea.pop({immediate: true})
-            }
-
-            onLaunchRequested: {
-                console.debug("LAUNCH: " + gameId)
-                ApplicationManager.launchApplication(gameId)
-            }
-
-            onEnabledControlActionsChanged: mainarea.sendControlActions()
+        AppBoxUI {
+            id: appboxui
+            color: "orange"
+            anchors.fill: parent
         }
 
         state: "MENU"
         states: [
                 State {
                     name: "MENU"
-                    //PropertyChanges { target: appboxui; visible: false }
-                    PropertyChanges { target: mainMenuView; visible: true }
+                    PropertyChanges { target: appboxui; visible: false }
+                    PropertyChanges { target: mainmenu; visible: true }
                     StateChangeScript {
                             name: "myScript1"
                             script: {
@@ -130,14 +103,7 @@ Window {
                         }
                 }
             ]
-
-        Component.onCompleted:
-            // for dev time
-            mainarea.push({item: gamesOnConsoleView, immediate: true})
     }
-
-
-    // --- FUNCTIONS
 
     function onPlayerIn(pid)
     {
@@ -145,33 +111,41 @@ Window {
         messageBoard.insertPlayerMessage(pid, "New player")
 
         var js = {action: "DefineGeneralActions",
-                  actions: []} // {actionId: "GameMenu", actionName: "Menu"}
+                  actions: [{actionId: "GameMenu", actionName: "Menu"}]}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
-        js = {action: "ShowBasicControls",
-              enable: mainarea.currentItem.enabledControlActions}
-        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+        if (mainarea.state === "MENU") {
+            js = {action: "ShowBasicControls"}
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+        } else if (mainarea.state === "GAME") {
+            js = {action: "DefineAppBox",
+                      data: AppBoxMaster.dataStr()}
 
-        // TODO: clear up box command ?
+            playersManager.sendAllPlayersMessage(JSON.stringify(js))
+
+            js = {action: "ShowAppBox"}
+            playersManager.sendAllPlayersMessage(JSON.stringify(js))
+        }
     }
-
     function onPlayerOut(pid)
     {
         console.log("Player left: id = " + pid)
         messageBoard.insertPlayerMessage(pid, "Player left")
     }
-
     function onPlayerMessageReceived(pid, data)
     {
-        // TODO: some common framework to push move actions
-
         console.log("Player message: id = " + pid)
         messageBoard.insertPlayerMessage(pid, data)
 
         var js  = JSON.parse(data)
         if (js["action"] === "SelectBasicControlAction")
         {
-            mainarea.currentItem.processControlAction(js["id"])
+            if (js["id"] === "Up")
+                mainmenu.moveFocusToNext()
+            else if (js["id"] === "Down")
+                mainmenu.moveFocusToPrevious()
+            else if (js["id"] === "OK")
+                mainmenu.selectCurrent()
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
             // TODO: case when multiple possible confirmations
@@ -182,14 +156,18 @@ Window {
                 playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
             }
 
+        } else if (js["action"] === "GeneralAction") {
+            if (js["id"] === "GameMenu") {
+                console.debug("GAME MENU GENERAL ACTION")
+                mainarea.state = "MENU"
+            }
         }
     }
 
     MessageBoard {
         id: messageBoard
-
         opacity: 0.5
-        visible: false //gsettings.developmentMode
+        visible: gsettings.developmentMode
 
         anchors.bottom: parent.bottom
         anchors.left: parent.left
@@ -198,11 +176,11 @@ Window {
         anchors.rightMargin: 25
     }
 
-    // background fading as in other cases -> common component?
     GConfirmationDialog {
         id: exitConfirmationDialog
         visible: false // initial state
-        questionText: qsTr("Exit and stop using console? ")
+        //text: "Are you sure to exit this game?"
+        questionText: qsTr("Exit?") // "Are you sure to exit the game?"
         option1Text: qsTr("Yes")
         option2Text: qsTr("No")
 
@@ -219,8 +197,6 @@ Window {
     function onGamesOnConsoleSelected() {
         console.debug("Games on console selected")
         // TODO: appbox version handshaking at some point
-        gamesOnConsoleView.visible = true
-        // TODO: stack view??
 
         /*
         var js = {action: "DefineAppBox",

@@ -66,12 +66,22 @@ int main(int argc, char *argv[])
 
     UIAppStateMachine stateMachine(&waitAppController, &mainuiController, &currentAppController);
 
+    QObject::connect(&setup.controlChannel, &ServerSideControlChannel::applicationLaunchRequested,
+                     &stateMachine, &UIAppStateMachine::lauchApplication);
+
+    QObject::connect(&setup.controlChannel, &ServerSideControlChannel::applicationLaunchRequested,
+                     &stateMachine, &UIAppStateMachine::exitCurrentApplication);
+
+    QObject::connect(setup.connectionManager, &ConnectionManager::applicationConnectionValidated,
+                     &stateMachine, &UIAppStateMachine::applicationConnectionValidated);
+
     //WaitApplicationController waitapp(appPath);
+
     if (!testEnabled) {
         INFO("TEST ENABLED");
-        //waitapp.launch();
         stateMachine.start();
     }
+
     // TODO: pinging gberry server is missing
     INFO("Starting event queue");
 

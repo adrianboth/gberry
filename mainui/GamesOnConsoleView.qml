@@ -164,16 +164,19 @@ Item {
                 id: localGamesModel
                 ListElement {
                     name: "TicTacToe"
+                    appId: "tictactoe"
                     image: "foobar"
                     description: "TicTacToe description very long lipsul oipsum. Lopsam lopsi alpsi liie."
                 }
                 ListElement {
                     name: "React"
+                    appId: "react"
                     image: "foobar"
                     description: "React description"
                 }
                 ListElement {
                     name: "TestGame"
+                    appId: "testgame"
                     image: "foobar"
                     description: "TestGame description"
                 }
@@ -207,7 +210,7 @@ Item {
 
                     onGameLauchRequested: {
                         console.debug("GAME LAUNCH!")
-                        launchRequested(localGamesModel.get(gameList.currentIndex).name)
+                        launchRequested(localGamesModel.get(gameList.currentIndex).id)
                     }
                 }
             }

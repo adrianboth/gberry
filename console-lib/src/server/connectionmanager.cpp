@@ -94,6 +94,7 @@ void ConnectionManager::outgoingMessageFromChannel(int channelId, const QByteArr
 void ConnectionManager::pingOK()
 {
     _channelManager->reopenPlayerChannels();
+    emit applicationConnectionValidated();
 }
 
 // TODO: we can handle pinging here (timer)
