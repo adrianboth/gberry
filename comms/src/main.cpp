@@ -31,19 +31,20 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("comms");
     QCoreApplication::setApplicationVersion("0.1");
 
+    // --
     QCommandLineParser parser;
     parser.setApplicationDescription("Communication manager of GBerry game platform");
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption testOption("t", "test option");
-    parser.addOption(testOption);
+    QCommandLineOption disableWaitUIOption("disable-wait-ui", "Disables showing waiting application");
+    QCommandLineOption disableMainUIOption("disable-main-ui", "Disables showing main application");
+    parser.addOption(disableWaitUIOption);
+    parser.addOption(disableMainUIOption);
 
     parser.process(app);
 
-    bool testEnabled = parser.isSet(testOption);
-
-
+    // --
     StdoutLogMsgHandler handler(Log::TRACE);
     LogControl logControl;
     logControl.registerMsgHandler(&handler);
@@ -77,8 +78,14 @@ int main(int argc, char *argv[])
 
     //WaitApplicationController waitapp(appPath);
 
-    if (!testEnabled) {
-        INFO("TEST ENABLED");
+    if (parser.isSet(disableWaitUIOption)) {
+        waitAppController.enableSimulatedMode(true);
+        QObject::connect(&waitAppController, &ApplicationController::launched,
+                         &stateMachine, &UIAppStateMachine::applicationConnectionValidated);
+    }
+
+    if (!parser.isSet(disableMainUIOption)) {
+        INFO("Enabling UI statemachine");
         stateMachine.start();
     }
 

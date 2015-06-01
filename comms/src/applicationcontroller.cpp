@@ -1,5 +1,9 @@
 #include "applicationcontroller.h"
 
+// TODO: now linux only
+#include <sys/types.h>
+#include <signal.h>
+
 #define LOG_AREA "ApplicationController"
 #include "log/log.h"
 
@@ -12,7 +16,8 @@ ApplicationController::ApplicationController(QPointer<ApplicationMeta> meta, QOb
 ApplicationController::ApplicationController(QObject *parent) :
     IApplicationController(parent),
     _currentAction(NONE),
-    _running(false)
+    _running(false),
+    _simulated(false)
 {
     connect(&_process, SIGNAL(finished(int)),
                 this, SLOT(onProcessFinished(int)));
@@ -28,6 +33,12 @@ ApplicationController::~ApplicationController()
 
 void ApplicationController::launch()
 {
+    if (_simulated) {
+        DEBUG("No real launch as running in simulated mode");
+        emit launched();
+        return;
+    }
+
     if (_appMeta) {
         DEBUG("Launching process: " << _appMeta->applicationPath());
         _process.setProgram(_appMeta->applicationPath());
@@ -42,11 +53,20 @@ void ApplicationController::launch()
 void ApplicationController::pause()
 {
     // TODO: impl
+    if (_process.state() == QProcess::Running)
+    {
+        int result = kill(_process.pid(), SIGSTOP);
+        DEBUG("Paused " << _appMeta->id() << ", got result " << result);
+    }
 }
 
 void ApplicationController::resume()
 {
-    // TODO: impl
+    if (_process.state() == QProcess::Running)
+    {
+        int result = kill(_process.pid(), SIGCONT);
+        DEBUG("Resumed " << _appMeta->id() << ", got result " << result);
+    }
 }
 
 
@@ -101,4 +121,9 @@ void ApplicationController::onProcessFinished(int exitCode)
         _currentAction = NONE;
         emit stopped();
     }
+}
+
+void ApplicationController::enableSimulatedMode(bool enabled)
+{
+    _simulated = enabled;
 }

@@ -25,6 +25,7 @@ public:
 
     // --
     virtual void setApplication(QPointer<ApplicationMeta> meta);
+    virtual void enableSimulatedMode(bool enabled);
 
 signals:
 
@@ -39,6 +40,7 @@ private:
     enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };
     int _currentAction;
     bool _running;
+    bool _simulated;
 };
 
 
