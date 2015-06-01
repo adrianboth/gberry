@@ -32,7 +32,17 @@ Window {
             anchors.centerIn: parent
             text: qsTr("Starting ... please wait ...")
             font.pixelSize: gdisplay.mediumSizeText
+
+            // not best and smoothiest animation ... but enough for testing
+            SequentialAnimation on font.pixelSize {
+                loops: Animation.Infinite
+
+                PropertyAnimation { duration: 2000; to: gdisplay.mediumSizeText * 1.2 }
+                PropertyAnimation { duration: 2000; to: gdisplay.mediumSizeText * 0.8}
+            }
         }
+
+
     }
 
     function onPlayerIn(pid)
