@@ -5,3 +5,7 @@
 ::std::ostream& operator<<(::std::ostream& os, const QString& bar) {
   return os << qPrintable(bar);
 }
+
+::std::ostream& operator<<(::std::ostream& os, const QStringList& bar) {
+  return os << "[" << qPrintable(bar.join(", ")) << "]";
+}
