@@ -12,29 +12,43 @@ CONFIG   -= app_bundle
 include(../project.pri)
 
 SOURCES += main.cpp \
-    gberryconsoleserver.cpp \
     uiappstatemachine.cpp \
-    waitapplicationcontroller.cpp \
     applicationcontroller.cpp \
     localapplications.cpp \
     localapplicationsstorage.cpp \
-    launchcontroller.cpp
+    launchcontroller.cpp \
+    application.cpp \
+    json/jsondefinition.cpp \
+    json/jsonvalidator.cpp \
+    json/jsondefinitionbuilder.cpp
 
 HEADERS += \
-    gberryconsoleserver.h \
     uiappstatemachine.h \
-    waitapplicationcontroller.h \
-    iapplicationcontroller.h \
     applicationcontroller.h \
     uiappstatemachine_private.h \
     localapplications.h \
     applicationmeta.h \
     localapplicationsstorage.h \
-    ilaunchcontroller.h \
+    interfaces/iapplicationcontroller.h \
+    interfaces/ilaunchcontroller.h \
+    interfaces/iapplications.h \
+    interfaces/iapplicationsstorage.h \
     launchcontroller.h \
-    iapplications.h
+    application.h \
+    json/jsondefinition.h \
+    json/jsonvalidator.h \
+    json/jsondefinitionbuilder.h \
+    json/jsonvalidationresult.h \
+    interfaces/iapplicationmeta.h
 
 DEPENDPATH += .
+
+linux-g++ {
+    CONFIG(debug, debug|release) {
+        # build time definition only for desktop and debug
+        DEFINES += GBERRY_ROOTPATH=$${DEPLOY_DIR}
+    }
+}
 
 target.path = $${DEPLOY_DIR}/bin/
 INSTALLS += target

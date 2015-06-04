@@ -3,24 +3,34 @@
 
 #include <QObject>
 #include <QList>
-#include <QPointer>
+#include <QSharedPointer>
+#include <QDir>
 
+#include "interfaces/iapplicationsstorage.h"
 #include "applicationmeta.h"
 
-class LocalApplicationsStorage : public QObject
+class LocalApplicationsStoragePrivate;
+
+class LocalApplicationsStorage : public IApplicationsStorage
 {
     Q_OBJECT
+
 public:
-    explicit LocalApplicationsStorage(QObject *parent = 0);
+    explicit LocalApplicationsStorage(QString rootAppsDir, QObject *parent = 0);
     ~LocalApplicationsStorage();
 
     // reads applications from local storage. Caller takes ownership
-    virtual QList<QPointer<ApplicationMeta>> applications();
+    virtual QList<QSharedPointer<Application> > applications() override;
+
 
 signals:
     void applicationsUpdated();
 
 public slots:
+
+private:
+    LocalApplicationsStoragePrivate* _priv;
+
 };
 
 #endif // LOCALAPPLICATIONSSTORAGE_H

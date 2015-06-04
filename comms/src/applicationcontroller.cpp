@@ -7,7 +7,7 @@
 #define LOG_AREA "ApplicationController"
 #include "log/log.h"
 
-ApplicationController::ApplicationController(QPointer<ApplicationMeta> meta, QObject *parent) :
+ApplicationController::ApplicationController(QSharedPointer<IApplicationMeta> meta, QObject *parent) :
     ApplicationController(parent)
 {
     _appMeta = meta;
@@ -40,8 +40,8 @@ void ApplicationController::launch()
     }
 
     if (_appMeta) {
-        DEBUG("Launching process: " << _appMeta->applicationPath());
-        _process.setProgram(_appMeta->applicationPath());
+        DEBUG("Launching process: " << _appMeta->applicationExecutablePath());
+        _process.setProgram(_appMeta->applicationExecutablePath());
         _currentAction = LAUNCHING;
         _process.start();
     } else {
@@ -79,7 +79,7 @@ void ApplicationController::stop()
     }
 }
 
-void ApplicationController::setApplication(QPointer<ApplicationMeta> meta)
+void ApplicationController::setApplication(QSharedPointer<ApplicationMeta> meta)
 {
     _appMeta = meta;
 }

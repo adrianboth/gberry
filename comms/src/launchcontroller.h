@@ -1,8 +1,8 @@
 #ifndef LAUNCHCONTROLLER_H
 #define LAUNCHCONTROLLER_H
 
-#include "ilaunchcontroller.h"
-#include "iapplications.h"
+#include "interfaces/ilaunchcontroller.h"
+#include "interfaces/iapplications.h"
 #include "applicationcontroller.h"
 
 class LaunchController : public ILaunchController

@@ -2,8 +2,8 @@
 #define MOCK_IAPPLICATIONCONTROLLER_H
 
 
-#include "iapplicationcontroller.h"
-#include "ilaunchcontroller.h"
+#include "interfaces/iapplicationcontroller.h"
+#include "interfaces/ilaunchcontroller.h"
 
 #include <gmock/gmock.h>
 

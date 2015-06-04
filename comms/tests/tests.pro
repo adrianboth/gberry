@@ -9,26 +9,39 @@ QT       += gui widgets
 CONFIG   += console c++11
 CONFIG   -= app_bundle
 
+DEFINES += TESTDATA_ROOT=$$PWD/testdata
+
 include(../project.pri)
 
 SOURCES += main.cpp \
-    utils/testtcpclient.cpp \
-    test_commchannel.cpp \
-    test_uiappstatemachine.cpp \
+    ../src/json/jsonvalidator.cpp \
+    ../src/json/jsondefinition.cpp \
+    ../src/json/jsondefinitionbuilder.cpp \
+    ../src/application.cpp \
     ../src/uiappstatemachine.cpp \
     ../src/applicationcontroller.cpp \
-    test_applicationcontroller.cpp
+    ../src/localapplicationsstorage.cpp \
+    test_commchannel.cpp \
+    test_uiappstatemachine.cpp \
+    test_applicationcontroller.cpp \
+    test_localapplicationstorage.cpp \
+    test_jsonvalidator.cpp
 
 HEADERS += \
-    utils/testtcpclient.h \
     mocks/mock_iapplicationcontroller.h \
+    ../src/interfaces/iapplicationsstorage.h \
+    ../src/interfaces/iapplicationcontroller.h \
+    ../src/interfaces/ilaunchcontroller.h \
+    ../src/interfaces/iapplications.h \
+    ../src/json/jsonvalidator.h \
+    ../src/json/jsondefinition.h \
+    ../src/json/jsondefinitionbuilder.h \
     ../src/applicationmeta.h \
-    ../src/iapplicationcontroller.h \
+    ../src/application.h \
     ../src/applicationcontroller.h \
-    ../src/ilaunchcontroller.h \
-    ../src/iapplications.h \
     ../src/uiappstatemachine.h \
     ../src/uiappstatemachine_private.h \
+    ../src/localapplicationsstorage.h \
     utils/util_controllerproxy.h
 
 INCLUDEPATH += ../src

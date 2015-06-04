@@ -5,7 +5,7 @@
 #include <QProcess>
 #include <QPointer>
 
-#include "iapplicationcontroller.h"
+#include "interfaces/iapplicationcontroller.h"
 #include "applicationmeta.h"
 
 class ApplicationController : public IApplicationController
@@ -13,7 +13,7 @@ class ApplicationController : public IApplicationController
     Q_OBJECT
 
 public:
-    explicit ApplicationController(QPointer<ApplicationMeta> meta, QObject *parent = 0);
+    explicit ApplicationController(QSharedPointer<IApplicationMeta> meta, QObject *parent = 0);
     ApplicationController(QObject *parent = 0);
     ~ApplicationController();
 
@@ -24,7 +24,7 @@ public:
     virtual void stop();
 
     // --
-    virtual void setApplication(QPointer<ApplicationMeta> meta);
+    virtual void setApplication(QSharedPointer<ApplicationMeta> meta);
     virtual void enableSimulatedMode(bool enabled);
 
 signals:
@@ -34,7 +34,7 @@ public slots:
     void onProcessStateChanged(QProcess::ProcessState processState);
 
 private:
-    QPointer<ApplicationMeta> _appMeta;
+    QSharedPointer<IApplicationMeta> _appMeta;
     QProcess _process;
 
     enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };

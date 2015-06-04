@@ -2,10 +2,10 @@
 #define LOCALAPPLICATIONS_H
 
 #include <QObject>
-#include <QPointer>
+#include <QSharedPointer>
 #include <QMap>
 
-#include "iapplications.h"
+#include "interfaces/iapplications.h"
 #include "localapplicationsstorage.h"
 
 
@@ -16,8 +16,8 @@ public:
     explicit LocalApplications(LocalApplicationsStorage* storage, QObject *parent = 0);
     ~LocalApplications();
 
-    virtual QList<QPointer<ApplicationMeta>> applications() const;
-    virtual QPointer<ApplicationMeta> application(QString appID) const;
+    virtual QList<QSharedPointer<ApplicationMeta>> applications() const;
+    virtual QSharedPointer<ApplicationMeta> application(QString appID) const;
 
 signals:
 
@@ -28,7 +28,7 @@ private slots:
 
 private:
     LocalApplicationsStorage* _storage;
-    QMap<QString, QPointer<ApplicationMeta>> _apps;
+    QMap<QString, QSharedPointer<ApplicationMeta>> _apps;
 
 };
 

@@ -3,8 +3,8 @@
 
 #include <QPointer>
 
-#include "iapplicationcontroller.h"
-#include "ilaunchcontroller.h"
+#include "interfaces/iapplicationcontroller.h"
+#include "interfaces/ilaunchcontroller.h"
 
 class ProxyIApplicationController : public IApplicationController
 {

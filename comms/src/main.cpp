@@ -3,8 +3,6 @@
 #include <QDebug>
 #include <QCommandLineParser>
 
-#include "gberryconsoleserver.h"
-#include "waitapplicationcontroller.h"
 #include "localapplicationsstorage.h"
 #include "localapplications.h"
 #include "applicationcontroller.h"
@@ -24,6 +22,10 @@
 #include "log/stdoutlogmsghandler.h"
 #include "log/logcontrol.h"
 
+
+// trick to get define as a string
+#define xstr(s) str(s)
+#define str(s) #s
 
 int main(int argc, char *argv[])
 {
@@ -58,7 +60,19 @@ int main(int argc, char *argv[])
     ServerSetup setup;
     setup.start();
 
-    LocalApplicationsStorage appStorage;
+    // TODO: read used apps path
+    //   - TODO: how to development time path, defined in QtCreator
+
+#ifdef GBERRY_ROOTPATH
+    QString gberryRootDirBuildTime(xstr(GBERRY_ROOTPATH));
+#else
+#error "GBERRY_ROOTPATH not defined"
+    // TODO: other alternatives
+#endif
+
+    // TODO: command line option and environment variable
+
+    LocalApplicationsStorage appStorage(gberryRootDirBuildTime);// gberryRootDirBuildTime
     LocalApplications apps(&appStorage);
 
     ApplicationController waitAppController(apps.application("waitapp"));

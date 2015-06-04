@@ -9,11 +9,20 @@
 
 #include "testutils/util_enablelog.h"
 
-TEST(ApplicationController, LaunchOKWithAdvancedConstructor)
-{
+// test fixture
+class ApplicationControllerF : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
     TestUtils::enabledStdoutLogging();
+  }
+};
 
-    QPointer<ApplicationMeta> meta = new ApplicationMeta("test", "/bin/bash"); // this now linux only
+
+TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
+{
+    QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
+    meta->setName("test");
+    meta->setApplicationExecutablePath("/bin/bash");
     ApplicationController app(meta);
 
     bool launched = false;
@@ -31,11 +40,11 @@ TEST(ApplicationController, LaunchOKWithAdvancedConstructor)
     EXPECT_TRUE(stopped);
 }
 
-TEST(ApplicationController, LaunchOKWithDefaultConstructor)
+TEST_F(ApplicationControllerF, LaunchOKWithDefaultConstructor)
 {
-    TestUtils::enabledStdoutLogging(); // TODO: generic setup
-
-    QPointer<ApplicationMeta> meta = new ApplicationMeta("test", "/bin/bash"); // this now linux only
+    QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
+    meta->setName("test");
+    meta->setApplicationExecutablePath("/bin/bash");
     ApplicationController app;
     app.setApplication(meta);
 
@@ -54,11 +63,12 @@ TEST(ApplicationController, LaunchOKWithDefaultConstructor)
     EXPECT_TRUE(stopped);
 }
 
-TEST(ApplicationController, PauseAndResume)
+TEST_F(ApplicationControllerF, PauseAndResume)
 {
-    TestUtils::enabledStdoutLogging(); // TODO: generic setup
+    QSharedPointer<ApplicationMeta> meta(new ApplicationMeta); // this now linux only
+    meta->setName("test");
+    meta->setApplicationExecutablePath("/bin/bash");
 
-    QPointer<ApplicationMeta> meta = new ApplicationMeta("test", "/bin/bash"); // this now linux only
     ApplicationController app;
     app.setApplication(meta);
 

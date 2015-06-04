@@ -16,12 +16,12 @@ LocalApplications::~LocalApplications()
 
 }
 
-QList<QPointer<ApplicationMeta>> LocalApplications::applications() const
+QList<QSharedPointer<ApplicationMeta>> LocalApplications::applications() const
 {
     return _apps.values();
 }
 
-QPointer<ApplicationMeta> LocalApplications::application(QString appID) const
+QSharedPointer<ApplicationMeta> LocalApplications::application(QString appID) const
 {
     // TODO: what if not found
     return _apps[appID];
@@ -30,7 +30,8 @@ QPointer<ApplicationMeta> LocalApplications::application(QString appID) const
 void LocalApplications::onApplicationsUpdated()
 {
     _apps.clear();
-    foreach(auto meta, _storage->applications()) {
-        _apps[meta->id()] = meta;
+    foreach(QSharedPointer<Application> app, _storage->applications()) {
+        QSharedPointer<ApplicationMeta> p(app->meta());
+        _apps[app->id()] = p;
     }
 }
