@@ -151,8 +151,8 @@ TEST(DisplayProfile, TargetDisplayWithDimensionMatch_NexusS)
     TargetDisplay target(480, 800, 223, 223);
     profile.useTargetDisplay(&target);
 
-    EXPECT_EQ(profile.windowWidth(), 480 / (double) 223 * 120.8 * 1.0);
-    EXPECT_EQ(profile.windowHeight(), 800 / (double) 223 * 120.8 * 1.0);
+    EXPECT_EQ(profile.windowWidth(), (int) (480 / (double) 223 * 120.8 * 1.0));
+    EXPECT_EQ(profile.windowHeight(), (int) (800 / (double) 223 * 120.8 * 1.0));
     EXPECT_EQ(profile.sizeScaleFactor(), 1.0);
     EXPECT_EQ(profile.mode(), DisplayProfile::DimensionMatch);
 
