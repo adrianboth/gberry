@@ -54,7 +54,8 @@ HEADERS += \
     ui/actualdisplay.h \
     ui/display.h \
     applicationsettings.h \
-    testutils/util_enablelog.h
+    testutils/util_enablelog.h \
+    testutils/util_testdata.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -101,7 +102,8 @@ SOURCES += \
     client/gamemodel.cpp \
     ui/targetdisplay.cpp \
     ui/actualdisplay.cpp \
-    applicationsettings.cpp
+    applicationsettings.cpp \
+    testutils/util_enablelog.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
