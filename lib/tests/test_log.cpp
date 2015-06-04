@@ -230,4 +230,8 @@ TEST(Log, Types)
     TRACE("msg:" << bytes);
     EXPECT_TRUE(handler1.lastLogMsg.text == QString("msg: str"));
 
+    QStringList list;
+    list << "one" << "two" << "three";
+    TRACE("msg:" << list);
+    EXPECT_TRUE(handler1.lastLogMsg.text == QString("msg: [one, two, three]")) << handler1.lastLogMsg.text;
 }

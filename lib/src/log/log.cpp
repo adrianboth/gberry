@@ -33,9 +33,6 @@ public:
 
 };
 
-namespace {
-    static Log __singletonImpl;
-}
 
 const EndOfLine Log::eol;
 const NoSpace Log::nospace;
@@ -220,6 +217,13 @@ Log& Log::operator<<(const QByteArray & b)
     return *this;
 }
 
+Log& Log::operator<<(const QStringList & s)
+{
+    _impl->addSpace();
+    _impl->buffer << "[" << s.join(", ") << "]";
+    return *this;
+}
+
 Log& Log::operator<<(EndOfLine const& eol)
 {
     Q_UNUSED(eol);
@@ -249,7 +253,8 @@ Log& Log::operator <<(NoSpace const& nospace)
 
 Log& Log::singleton()
 {
-    return __singletonImpl;
+    static Log singletonImpl;
+    return singletonImpl;
 }
 
 Log::Log(const Log& other)

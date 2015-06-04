@@ -93,6 +93,7 @@ public:
     Log& operator<<( const QStringRef & s );
     Log& operator<<( const QLatin1String & s );
     Log& operator<<( const QByteArray & b );
+    Log& operator<<( const QStringList & s );
 
     Log& operator<<(EndOfLine const& eol);
     Log& operator<<(NoSpace const& nospace);
