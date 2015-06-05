@@ -12,7 +12,7 @@ class ApplicationMeta : public IApplicationMeta
 {
 
 public:
-    ApplicationMeta() : _id("") {}
+    ApplicationMeta() : _id(""),_isSystemApp(false) {}
     virtual ~ApplicationMeta() { } //qDebug() << "ApplicationMeta destructor";}
 
     // format: <id>-<version>
@@ -39,12 +39,16 @@ public:
     virtual QString catalogImageFilePath() const override { return _catalogImageFilePath; }
     virtual void setCatalogImageFilePath(QString newValue) { _catalogImageFilePath = newValue; }
 
+    virtual bool isSystemApp() const override { return _isSystemApp; }
+    virtual void setIsSystemApp(bool newValue) { _isSystemApp = newValue; }
+
 private:
     void buildID() { _id = _applicationId + "-" + _version; }
     QString _id;
 
     QString _applicationId;
     ApplicationVersion _version;
+    bool _isSystemApp;
     QString _name;
     QString _description;
     QString _applicationDirPath;

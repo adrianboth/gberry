@@ -20,12 +20,18 @@ SOURCES += main.cpp \
     ../src/application.cpp \
     ../src/uiappstatemachine.cpp \
     ../src/applicationcontroller.cpp \
+    ../src/launchcontroller.cpp \
     ../src/localapplicationsstorage.cpp \
+    ../src/localapplications.cpp \
+    ../src/cmdlineparams.cpp \
     test_commchannel.cpp \
     test_uiappstatemachine.cpp \
     test_applicationcontroller.cpp \
     test_localapplicationstorage.cpp \
-    test_jsonvalidator.cpp
+    test_jsonvalidator.cpp \
+    test_cmdlineparams.cpp \
+    test_localapplications.cpp \
+    test_launchcontroller.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \
@@ -39,10 +45,14 @@ HEADERS += \
     ../src/applicationmeta.h \
     ../src/application.h \
     ../src/applicationcontroller.h \
+    ../src/launchcontroller.h \
     ../src/uiappstatemachine.h \
     ../src/uiappstatemachine_private.h \
     ../src/localapplicationsstorage.h \
-    utils/util_controllerproxy.h
+    ../src/localapplications.h \
+    utils/util_controllerproxy.h \
+    mocks/mock_iapplicationstorage.h \
+    mocks/mock_iapplications.h
 
 INCLUDEPATH += ../src
 

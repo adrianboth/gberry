@@ -77,6 +77,7 @@ TEST(ClientSideChannelManager, NewPlayerChannelOpenedAndClosed)
     QObject::connect(&manager, &ClientSideChannelManager::newPlayerChannel,
                      [&] (PlayerChannel* channel, PlayerMetadata playerMeta)
     {
+        Q_UNUSED(playerMeta);
         newChannelIdReceived = channel->channelId();
     });
 

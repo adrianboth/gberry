@@ -1,13 +1,18 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
-#include <QCommandLineParser>
+
+#include <signal.h>
 
 #include "localapplicationsstorage.h"
 #include "localapplications.h"
 #include "applicationcontroller.h"
 #include "launchcontroller.h"
 #include "uiappstatemachine.h"
+
+#include "cmdlineparams.h"
+#include "systemservices.h"
+#include "utils/fileutils.h"
 
 #include <restinvocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -23,9 +28,9 @@
 #include "log/logcontrol.h"
 
 
-// trick to get define as a string
-#define xstr(s) str(s)
-#define str(s) #s
+using namespace Comms;
+using namespace GBerryLib;
+
 
 int main(int argc, char *argv[])
 {
@@ -34,17 +39,9 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationVersion("0.1");
 
     // --
-    QCommandLineParser parser;
-    parser.setApplicationDescription("Communication manager of GBerry game platform");
-    parser.addHelpOption();
-    parser.addVersionOption();
-
-    QCommandLineOption disableWaitUIOption("disable-wait-ui", "Disables showing waiting application");
-    QCommandLineOption disableMainUIOption("disable-main-ui", "Disables showing main application");
-    parser.addOption(disableWaitUIOption);
-    parser.addOption(disableMainUIOption);
-
-    parser.process(app);
+    EnvironmentVariables env(QProcessEnvironment::systemEnvironment());
+    CmdLineParams params(env);
+    params.parse(app.arguments());
 
     // --
     StdoutLogMsgHandler handler(Log::TRACE);
@@ -60,23 +57,26 @@ int main(int argc, char *argv[])
     ServerSetup setup;
     setup.start();
 
-    // TODO: read used apps path
-    //   - TODO: how to development time path, defined in QtCreator
+    QString rootPath(params.value(CmdLineParams::ROOT_PATH));
+    DEBUG("Root path:" << rootPath);
 
-#ifdef GBERRY_ROOTPATH
-    QString gberryRootDirBuildTime(xstr(GBERRY_ROOTPATH));
-#else
-#error "GBERRY_ROOTPATH not defined"
-    // TODO: other alternatives
-#endif
-
-    // TODO: command line option and environment variable
-
-    LocalApplicationsStorage appStorage(gberryRootDirBuildTime);// gberryRootDirBuildTime
+    LocalApplicationsStorage appStorage(joinpath(rootPath, "apps"));
     LocalApplications apps(&appStorage);
 
-    ApplicationController waitAppController(apps.application("waitapp"));
-    ApplicationController mainuiController(apps.application("mainui"));
+    auto getapp = [&] (const QString& appId) {
+        QList<QSharedPointer<ApplicationMeta>> foundApps = apps.applicationsByApplicationId(appId);
+        // TODO: we good do something nice, during development time without waitapp and mainui is ok
+        Q_ASSERT(foundApps.length() > 0);
+
+        // TODO: we should support multiple versions
+        if (foundApps.length() > 1)
+            WARN("Multiple versions found for application" << appId << ". Selecting first one.");
+
+        return foundApps[0];
+    };
+
+    ApplicationController waitAppController(getapp("waitapp"));
+    ApplicationController mainuiController(getapp("mainui"));
     LaunchController currentAppController(&apps);
 
     UIAppStateMachine stateMachine(&waitAppController, &mainuiController, &currentAppController);
@@ -90,21 +90,32 @@ int main(int argc, char *argv[])
     QObject::connect(setup.connectionManager, &ConnectionManager::applicationConnectionValidated,
                      &stateMachine, &UIAppStateMachine::applicationConnectionValidated);
 
-    //WaitApplicationController waitapp(appPath);
 
-    if (parser.isSet(disableWaitUIOption)) {
+    if (params.isSet(CmdLineParams::DISABLE_WAITAPP)) {
         waitAppController.enableSimulatedMode(true);
         QObject::connect(&waitAppController, &ApplicationController::launched,
                          &stateMachine, &UIAppStateMachine::applicationConnectionValidated);
     }
 
-    if (!parser.isSet(disableMainUIOption)) {
+    if (!params.isSet(CmdLineParams::DISABLE_MAINUI)) {
         INFO("Enabling UI statemachine");
         stateMachine.start();
     }
+
+    // quit event loop and tear down nicely when SIGTERM
+    //  - especially launched child processes get killed
+    auto sighandler = [&] (int s) {
+        Q_UNUSED(s);
+        qDebug() << "SIGTERM -> Quitting";
+        QCoreApplication::quit();
+    };
+
+    signal(SIGTERM, sighandler);
 
     // TODO: pinging gberry server is missing
     INFO("Starting event queue");
 
     return app.exec();
 }
+
+

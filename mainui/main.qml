@@ -60,6 +60,7 @@ Window {
 
         MainMenuView {
             id: mainMenuView
+            enabled: visible
 
             menuItems: [
                 MainMenuItem {
@@ -87,6 +88,11 @@ Window {
         GamesOnConsoleView {
             id: gamesOnConsoleView
             visible: false
+
+            onVisibleChanged: {
+                if (visible)
+                    forceActiveFocus()
+            }
 
             onBackSelected: {
                 mainarea.pop({immediate: true})

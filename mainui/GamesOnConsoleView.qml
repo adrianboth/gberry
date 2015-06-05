@@ -8,6 +8,7 @@ import GBerry 1.0
 
 Item {
     id: self
+    focus: true
 
     signal backSelected()
     signal launchRequested(string gameId)
@@ -218,7 +219,17 @@ Item {
 
     }
 
-
+    Keys.onPressed: {
+        console.debug("######## KEY PRESSED")
+        if (event.key === Qt.Key_Up)
+            processControlAction("Up")
+        if (event.key === Qt.Key_Down)
+            processControlAction("Down")
+        if (event.key === Qt.Key_Return)
+            processControlAction("OK")
+        if (event.key === Qt.Key_Escape)
+            processControlAction("Back")
+    }
 }
 /*
 

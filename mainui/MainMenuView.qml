@@ -4,6 +4,10 @@ import GBerryConsole 1.0
 
 Item {
     id: self
+    onVisibleChanged: {
+        if (visible)
+            mainMenu.forceActiveFocus()
+    }
 
     property var enabledControlActions: ["Up", "Down", "OK"] // defaults
 

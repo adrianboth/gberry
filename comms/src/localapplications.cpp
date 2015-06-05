@@ -1,13 +1,13 @@
 #include "localapplications.h"
 
-LocalApplications::LocalApplications(LocalApplicationsStorage* storage, QObject *parent) :
+LocalApplications::LocalApplications(IApplicationsStorage* storage, QObject *parent) :
     QObject(parent),
     _storage(storage)
 {
     // read applications first time
     onApplicationsUpdated();
 
-    connect(storage, &LocalApplicationsStorage::applicationsUpdated,
+    connect(storage, &IApplicationsStorage::applicationsUpdated,
             this, &LocalApplications::onApplicationsUpdated);
 }
 
@@ -21,10 +21,22 @@ QList<QSharedPointer<ApplicationMeta>> LocalApplications::applications() const
     return _apps.values();
 }
 
-QSharedPointer<ApplicationMeta> LocalApplications::application(QString appID) const
+QList<QSharedPointer<ApplicationMeta>> LocalApplications::applicationsByApplicationId(const QString& applicationId) const
+{
+    QList<QSharedPointer<ApplicationMeta>> found;
+    foreach (auto appmeta, _apps) {
+       if (appmeta->applicationId() == applicationId) {
+           found << appmeta;
+       }
+    }
+
+    return found;
+}
+
+QSharedPointer<ApplicationMeta> LocalApplications::application(const QString& uniqueID) const
 {
     // TODO: what if not found
-    return _apps[appID];
+    return _apps[uniqueID];
 }
 
 void LocalApplications::onApplicationsUpdated()

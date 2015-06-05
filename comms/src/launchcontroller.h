@@ -18,7 +18,8 @@ public:
     virtual void resume();
     virtual void stop();
 
-    virtual void useApplication(QString& appID);
+    // returns true if managed to take application into use (it was found and valid info)
+    virtual bool useApplication(const QString& appID);
 
 private:
     IApplications* _apps;

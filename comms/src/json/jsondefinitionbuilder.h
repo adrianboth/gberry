@@ -16,8 +16,11 @@ public:
     JsonDefinitionBuilder();
     ~JsonDefinitionBuilder();
 
-    IJsonMemberValidator& hasStringMember(QString memberName);
-    IJsonMemberValidator& hasOptionalStringMember(QString memberName);
+    IJsonMemberValidator& hasStringMember(const QString& memberName);
+    IJsonMemberValidator& hasOptionalStringMember(const QString& memberName);
+
+    IJsonMemberValidator& hasBooleanMember(const QString& memberName);
+    IJsonMemberValidator& hasOptionalBooleanMember(const QString& memberName);
 
     QSharedPointer<JsonDefinition> definition();
 
@@ -31,8 +34,21 @@ private:
 class JsonStringMemberValidator : public IJsonMemberValidator
 {
 public:
-    JsonStringMemberValidator(QString& name, bool optional = false);
+    JsonStringMemberValidator(const QString& name, bool optional = false);
     virtual ~JsonStringMemberValidator();
+
+    virtual QStringList validate(QJsonObject& json) override;
+
+private:
+    QString _name;
+    bool _optional;
+};
+
+class JsonBooleanMemberValidator : public IJsonMemberValidator
+{
+public:
+    JsonBooleanMemberValidator(const QString& name, bool optional = false);
+    virtual ~JsonBooleanMemberValidator();
 
     virtual QStringList validate(QJsonObject& json) override;
 

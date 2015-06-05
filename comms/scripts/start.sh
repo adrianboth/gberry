@@ -13,6 +13,8 @@ if [ ! -e $QTCONF ]; then
     echo "Prefix = $QTDIR" >> $QTCONF
 fi
 
+export GBERRY_ROOT_PATH=$CONSOLE_ROOT
+
 if [ -z "$1" ]; then
     $THIS_DIR/comms
 else

@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     application.cpp \
     json/jsondefinition.cpp \
     json/jsonvalidator.cpp \
-    json/jsondefinitionbuilder.cpp
+    json/jsondefinitionbuilder.cpp \
+    cmdlineparams.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -39,14 +40,15 @@ HEADERS += \
     json/jsonvalidator.h \
     json/jsondefinitionbuilder.h \
     json/jsonvalidationresult.h \
-    interfaces/iapplicationmeta.h
+    interfaces/iapplicationmeta.h \
+    cmdlineparams.h
 
 DEPENDPATH += .
 
 linux-g++ {
     CONFIG(debug, debug|release) {
         # build time definition only for desktop and debug
-        DEFINES += GBERRY_ROOTPATH=$${DEPLOY_DIR}
+        DEFINES += GBERRY_ROOT_PATH=$${DEPLOY_DIR}
     }
 }
 

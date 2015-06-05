@@ -21,6 +21,8 @@ namespace
     static const char* JSON_APPCFG_DESCRIPTION = "description";
     static const char* JSON_APPCFG_CATALOGIMAGE = "catalog_image";
     static const char* JSON_APPCFG_APPLICATIONEXE = "application_exe";
+    static const char* JSON_APPCFG_SYSTEMAPP = "system_app";
+    static const char* JSON_APPCFG_DEVELOPERCOMMENTS = "developer_comments";
 
     static const char* JSON_STATE = "state";
 }
@@ -38,6 +40,9 @@ public:
             builder.hasStringMember(JSON_APPCFG_NAME);
             builder.hasOptionalStringMember(JSON_APPCFG_CATALOGIMAGE);
             builder.hasOptionalStringMember(JSON_APPCFG_APPLICATIONEXE);
+            builder.hasOptionalStringMember(JSON_APPCFG_DEVELOPERCOMMENTS);
+
+            builder.hasOptionalBooleanMember(JSON_APPCFG_SYSTEMAPP);
 
             jsonDef = builder.definition();
         }
@@ -79,7 +84,7 @@ QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
     QList<QSharedPointer<Application>> apps;
 
     // iterate folders in apps dir
-    // read *_appcfg.json from each folder
+    // read *appcfg.json from each folder
 
     QStringList dirs = _priv->appsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     QStringList appcfgNameFilter;
@@ -90,7 +95,7 @@ QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
         d.setNameFilters(appcfgNameFilter);
         QStringList cfgFiles = d.entryList(QDir::Files);
         if (cfgFiles.length() == 0) {
-            DEBUG("Read" << d.path() << "but didn't found *_appcfg.json");
+            DEBUG("Read" << d.path() << "but didn't found *appcfg.json");
             continue;
         } else if (cfgFiles.length() > 1) {
             WARN("Application directory" << d.path() << "had several config files. Will select one:" << cfgFiles[0]);
@@ -124,6 +129,7 @@ QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
         QSharedPointer<Application> app(new Application(meta));
 
         auto readStr = [&] (const char* key) { return json[key].toString(); };
+        auto readBool = [&] (const char* key) { return json[key].toBool(); };
 
         meta->setApplicationId(readStr(JSON_APPCFG_ID));
         meta->setName(readStr(JSON_APPCFG_NAME));
@@ -139,6 +145,10 @@ QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
 
         if (json.contains(JSON_APPCFG_CATALOGIMAGE)) {
             meta->setCatalogImageFilePath(d.absoluteFilePath(readStr(JSON_APPCFG_CATALOGIMAGE)));
+        }
+
+        if (json.contains(JSON_APPCFG_SYSTEMAPP)) {
+            meta->setIsSystemApp(readBool(JSON_APPCFG_SYSTEMAPP));
         }
 
         // TODO: id in cfg in nicely mathcing to id() we are using
@@ -185,6 +195,7 @@ QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
             app->markState(Application::Valid);
         }
 
+        DEBUG("Application" << app->id() << "read successfully");
         apps.append(app);
     }
 

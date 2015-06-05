@@ -10,7 +10,7 @@ public:
     ILaunchController(QObject* parent = 0) : IApplicationController(parent) {}
     ~ILaunchController() {}
 
-    virtual void useApplication(QString& appID) = 0;
+    virtual bool useApplication(const QString& appID) = 0;
 };
 
 #endif // ILAUNCHCONTROLLER_H

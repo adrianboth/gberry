@@ -1,0 +1,9 @@
+{
+"id": "waitapp",
+"version": "0.1",
+"name": "WaitApp",
+"description": "",
+"system_app": true,
+"developer_comments":
+    "WaitApp is shown when MainUI or applications are launched."
+}

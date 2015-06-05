@@ -78,12 +78,12 @@ public:
     ~ProxyILaunchController() {}
 
     // ILaunchController
-    virtual void launch() { if (_target) _target->launch(); }
-    virtual void pause() { if (_target) _target->pause(); }
-    virtual void resume() { if (_target) _target->resume(); }
-    virtual void stop() { if (_target) _target->stop(); }
+    virtual void launch() override { if (_target) _target->launch(); }
+    virtual void pause() override { if (_target) _target->pause(); }
+    virtual void resume() override { if (_target) _target->resume(); }
+    virtual void stop() override { if (_target) _target->stop(); }
 
-    virtual void useApplication(QString& appID) { if (_target) _target->useApplication(appID); }
+    virtual bool useApplication(const QString& appID) override { if (_target) _target->useApplication(appID); }
 
     // --
     void setTarget(QPointer<ILaunchController> c)

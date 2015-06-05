@@ -17,6 +17,7 @@ public:
 
     virtual QString applicationId() const = 0;
     virtual ApplicationVersion version() const = 0;
+    virtual bool isSystemApp() const = 0;
     virtual QString name() const = 0;
     virtual QString description() const = 0;
     virtual QString applicationDirPath() const = 0;

@@ -10,7 +10,7 @@ namespace {
     static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging();
 }
 
-TEST(JsonValidator, ValidJson)
+TEST(JsonValidator, StringMemberValidJson)
 {
     JsonDefinitionBuilder builder;
     builder.hasStringMember("id");
@@ -84,6 +84,29 @@ TEST(JsonValidator, OptionalStringMember)
 
     // -- not string type;
     json["valid"] = 1;
+    EXPECT_FALSE(validator.validate(json)) << validator.errors();
+    EXPECT_EQ(validator.errors().length(), 1);
+}
+
+TEST(JsonValidator, BooleanMember)
+{
+    JsonDefinitionBuilder builder;
+    builder.hasBooleanMember("enabled");
+    builder.hasOptionalBooleanMember("disabled");
+    builder.hasOptionalBooleanMember("debugmode"); // this is not found
+    QSharedPointer<JsonDefinition> def = builder.definition(); // using pointer to delete def in the test end
+
+    QJsonObject json;
+    json["enabled"] = true;
+    json["disabled"] = false;
+
+    JsonValidator validator(def);
+    EXPECT_TRUE(validator.validate(json)) << validator.errors();
+    EXPECT_EQ(validator.errors().length(), 0);
+
+    // --
+
+    json["enabled"] = 1;
     EXPECT_FALSE(validator.validate(json)) << validator.errors();
     EXPECT_EQ(validator.errors().length(), 1);
 }

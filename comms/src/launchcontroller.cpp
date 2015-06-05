@@ -22,9 +22,13 @@ void LaunchController::pause() { _appController->pause(); }
 void LaunchController::resume() { _appController->resume(); }
 void LaunchController::stop() { _appController->stop(); }
 
-void LaunchController::useApplication(QString& appID)
+bool LaunchController::useApplication(const QString& appID)
 {
     // TODO: how to handle error, if no app found
     _appController->stop();
+    //QSharedPointer<ApplicationMeta> _apps->application(appID);
+
     _appController->setApplication(_apps->application(appID));
+// TODO:
+    return true;
 }
