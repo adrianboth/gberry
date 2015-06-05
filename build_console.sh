@@ -43,12 +43,19 @@ function build_desktop {
   fi
   SPEC="-spec linux-g++"
 
-  build gberry-lib gberry-lib/gberry-lib.pro
-  build console-lib gberry-console/console-lib/console-lib.pro
-  build comms gberry-console/comms/comms.pro
-  build mainui gberry-console/mainui/mainui.pro
+  if [ -z "$COMPONENT" ] || [ -z "$COMPONENT_PRO" ]; then
+    build gberry-lib gberry-lib/gberry-lib.pro
+    build console-lib gberry-console/console-lib/console-lib.pro
+    build comms gberry-console/comms/comms.pro
+    build mainui gberry-console/mainui/mainui.pro
+    build waitapp gberry-console/waitapp/waitapp.pro
+    
+    $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh desktop $1 || die "Failed to deploy Qt!"
+    
+  else 
+    build $COMPONENT $COMPONENT_PRO
+  fi
   
-  $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh desktop $1 || die "Failed to deploy Qt!"
 }
 
 function build_rpi {
@@ -71,6 +78,7 @@ function build_rpi {
   build console-lib gberry-console/console-lib/console-lib.pro
   build comms gberry-console/comms/comms.pro
   build mainui gberry-console/mainui/mainui.pro
+  build waitapp gberry-console/waitapp/waitapp.pro
   
   # deployment happens for both debug and release if requested
   $WORKSPACE_ROOT/gberry-console/qt5rpi/deploy_qt.sh rpi $1 || die "Failed to deploy Qt!"
