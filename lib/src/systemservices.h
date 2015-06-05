@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QCoreApplication>
 #include <QVariant>
+#include <QProcessEnvironment>
 
 
 
@@ -27,6 +28,33 @@ private:
 };
 
 //const char* SystemServices::SERVICE_NAME = "systemservices";
+
+
+
+class IEnvironmentVariables
+{
+
+public:
+    IEnvironmentVariables() {}
+    virtual ~IEnvironmentVariables() {}
+
+    virtual bool contains(const QString& key) const = 0;
+    virtual QString value(const QString& key, const QString& defaultValue = QString()) const = 0;
+};
+
+
+class EnvironmentVariables : public IEnvironmentVariables
+{
+public:
+    EnvironmentVariables(QProcessEnvironment env);
+    virtual ~EnvironmentVariables();
+
+    virtual bool contains(const QString& key) const override;
+    virtual QString value(const QString& key, const QString& defaultValue = QString()) const override;
+
+private:
+    QProcessEnvironment _env;
+};
 
 #endif // SYSTEMSERVICES_H
 

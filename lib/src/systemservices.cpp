@@ -22,3 +22,24 @@ SystemServices* SystemServices::instance()
     }
     return NULL;
 }
+
+// ---
+
+EnvironmentVariables::EnvironmentVariables(const QProcessEnvironment env) :
+    _env(env)
+{
+}
+
+EnvironmentVariables::~EnvironmentVariables()
+{
+}
+
+bool EnvironmentVariables::contains(const QString &key) const
+{
+    return _env.contains(key);
+}
+
+QString EnvironmentVariables::value(const QString &key, const QString &defaultValue) const
+{
+    return _env.value(key, defaultValue);
+}

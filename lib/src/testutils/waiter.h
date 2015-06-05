@@ -1,3 +1,23 @@
+/**
+ * Waiter class provides utility for processing Qt event loop messages while
+ * waiting certain condition to fullfill. Typical use case in unit tests is
+ * wait certain signal to be triggered.
+ *
+ * Waiter has checking interval how often it checks a condition.
+ *
+ * Typical example in unit tests:
+ *     bool stopped = false;
+ *     QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+ *
+ *     app.launch();
+ *     Waiter::wait([&] () { return stopped; });
+ *     EXPECT_TRUE(launched);
+ *
+ * Note that while Waiter checks condition it doesn't fail test if waiting
+ * timeouts. You need to use standard unit testing frameworks mechamnisms.
+ *
+ */
+
 #ifndef WAITER_H
 #define WAITER_H
 

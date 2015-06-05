@@ -55,7 +55,9 @@ HEADERS += \
     ui/display.h \
     applicationsettings.h \
     testutils/util_enablelog.h \
-    testutils/util_testdata.h
+    testutils/util_testdata.h \
+    utils/fileutils.h \
+    testutils/mock_ienvironmentvariables.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
