@@ -24,6 +24,13 @@ assets.files = assets/*
 assets.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += assets
 
+appcfg.files = tictactoe_appcfg.json
+appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
+INSTALLS += appcfg
+
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
+
+DISTFILES += \
+    tictactoe_appcfg.json
