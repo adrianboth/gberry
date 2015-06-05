@@ -68,13 +68,14 @@ function build_rpi {
 function run_build {
   # $1 is run command, it is function
   # $2 is <empty>|debug|release|all
+  # $ is game name
   
   if [ "$2" == "release" ]; then
     $1 Release $3
   elif [ "$2" == "all" ]; then
     $1 Debug $3
     $1 Release $3
-  elif [ "$2" == "debug"] || [ "$2" == "" ]; then
+  elif [ "$2" == "debug" ] || [ "$2" == "" ]; then
     $1 Debug $3
   else
     echo "ERROR: Unknown build request: $2"
