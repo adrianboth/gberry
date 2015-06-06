@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <QCoreApplication>
+#include <QScopedPointer>
 
 #include "applicationmeta.h"
 #include "applicationcontroller.h"
 
-#include "testutils/waiter.h"
+#include "testobjects/stub_systemservices.h"
 
+#include "testutils/waiter.h"
 #include "testutils/util_enablelog.h"
 
 // test fixture
@@ -92,6 +94,48 @@ TEST_F(ApplicationControllerF, PauseAndResume)
 
     // TODO: somehow validate that resume really occured
 
+    app.stop();
+    Waiter::wait([&] () { return stopped; });
+    EXPECT_TRUE(stopped);
+}
+
+TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
+{
+    QSharedPointer<ApplicationMeta> meta(new ApplicationMeta); // this now linux only
+    meta->setName("test");
+    meta->setApplicationExecutablePath("/bin/bash");
+
+    ApplicationController app;
+    app.setApplication(meta);
+
+    bool launched = false;
+    QObject::connect(&app, &ApplicationController::launched, [&] () { launched = true; });
+
+    bool stopped = false;
+    QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+
+    app.launch();
+    Waiter::wait([&] () { return launched; });
+    EXPECT_TRUE(launched);
+
+    // -- TEST
+    launched = false;
+    QScopedPointer<TestSystemServices> testservices(new TestSystemServices);
+    testservices->registerInstance();
+    app.setProperty(ApplicationController::PROCESS_KILL_WAIT_MS_PROP, 20); // timer shorter for unit tests
+
+    app.stop(); // do not process events -> immediate launch
+    app.launch();
+    QCoreApplication::processEvents();
+
+    // timer should trigger after third round of event processing
+    EXPECT_TRUE(stopped);
+    testservices->invokeSingleshotTimer();
+
+    Waiter::wait([&] () { return launched; });
+    EXPECT_TRUE(launched);
+
+    // -- CLEANUP
     app.stop();
     Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);

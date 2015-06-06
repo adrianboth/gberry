@@ -27,11 +27,17 @@ public:
     virtual void setApplication(QSharedPointer<ApplicationMeta> meta);
     virtual void enableSimulatedMode(bool enabled);
 
+    // -- dynamic properties
+    static const char* PROCESS_KILL_WAIT_MS_PROP;
+
 signals:
 
 public slots:
     void onProcessFinished(int exitCode);
     void onProcessStateChanged(QProcess::ProcessState processState);
+
+    // relaunch is done if original launch() call need to be delayed
+    void relaunchAfterDelay();
 
 private:
     QSharedPointer<IApplicationMeta> _appMeta;
@@ -41,6 +47,7 @@ private:
     int _currentAction;
     bool _running;
     bool _simulated;
+    int _timerForWaitingProcessToStopRunning;
 };
 
 

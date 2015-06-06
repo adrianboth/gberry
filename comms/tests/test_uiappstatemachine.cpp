@@ -146,3 +146,59 @@ TEST(UIAppStateMachine, ApplicationDiedFlow)
 
     // finally mainui visible again
 }
+
+TEST(UIAppStateMachine, ApplicationLaunchFailedImmediately)
+{
+    // first driving to mainui
+    MockIApplicationController waitAppMock;
+    MockIApplicationController mainuiMock;
+    MockILaunchController      currentAppMock;
+
+    ::testing::NiceMock<MockIApplicationController> niceWaitAppMock;
+    ::testing::NiceMock<MockIApplicationController> niceMainUIMock;
+    ::testing::NiceMock<MockILaunchController> niceCurrentAppMock;
+
+    ProxyIApplicationController waitAppMockProxy(&niceWaitAppMock);
+    ProxyIApplicationController mainuiMockProxy(&niceMainUIMock);
+    ProxyILaunchController currentAppMockProxy(&niceCurrentAppMock);
+
+    UIAppStateMachine st(&waitAppMockProxy, &mainuiMockProxy, &currentAppMockProxy);
+
+    auto verifyMocks = [&] () { Mock::VerifyAndClearExpectations(&waitAppMock);
+                                Mock::VerifyAndClearExpectations(&mainuiMock);
+                                Mock::VerifyAndClearExpectations(&currentAppMock); };
+
+    auto processEvents = [&] (int times=1) { for (int i=0; i < times; i++) { QCoreApplication::processEvents(); } };
+
+    // --
+    // (this case also verifies that we can really drive states quickly where we want)
+    st.start();
+    processEvents();
+    EXPECT_TRUE(st.debugCurrentStateName() == STATE_STARTUP);
+    niceWaitAppMock.emitLaunched();
+    processEvents();
+    EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
+    //niceMainUIMock.emitLaunched();
+    st.applicationConnectionValidated();
+    EXPECT_TRUE(st.debugCurrentStateName() == STATE_MAINUI);
+    processEvents();
+    st.lauchApplication("foobarAppId"); // id
+    processEvents();
+    EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_APP);
+
+    // take nice mocks away -> real mocks into play
+    waitAppMockProxy.setTarget(&waitAppMock);
+    mainuiMockProxy.setTarget(&mainuiMock);
+    currentAppMockProxy.setTarget(&currentAppMock);
+
+    // TODO: waitMock called?
+    EXPECT_CALL(mainuiMock, launch()).Times(1);
+
+    currentAppMock.emitLaunchFailed();
+    processEvents();
+    verifyMocks();
+    EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
+
+}
+
+// TODO: some kind of message from launch failed?

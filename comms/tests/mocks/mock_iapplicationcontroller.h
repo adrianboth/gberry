@@ -32,6 +32,7 @@ public:
     MOCK_METHOD1(useApplication, bool(const QString& s));
 
     void emitLaunched() { emit launched(); }
+    void emitLaunchFailed() { emit launchFailed(); }
     void emitDied() { emit died(); }
 };
 

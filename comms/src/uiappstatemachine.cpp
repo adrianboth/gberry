@@ -60,7 +60,7 @@ UIAppStateMachine::UIAppStateMachine(
     });
 
     // ACTION: when exit requested, show first waitapp then launch mainui
-    appVisible->addTransition(_impl, SIGNAL(appExitRequested()), waitAppVisibleLaunchingMainUI);
+    waitAppVisibleLaunchingApp->addTransition(_currentApp, SIGNAL(launchFailed()), waitAppVisibleLaunchingMainUI);
 
     // this works as there is no other target states, otherwise this should tight to transition
     connect(appVisible, &State::exited, [&] () {
@@ -68,8 +68,13 @@ UIAppStateMachine::UIAppStateMachine(
         _currentApp->stop();
     });
 
+    // ACTION: if launch fails then show mainui again
+    appVisible->addTransition(_impl, SIGNAL(appExitRequested()), waitAppVisibleLaunchingMainUI);
+
     // ACTION: if application dies -> launch mainui (while showing wait screen)
     appVisible->addTransition(_currentApp, SIGNAL(died()), waitAppVisibleLaunchingMainUI);
+
+    //
 
     // TODO: other states
 

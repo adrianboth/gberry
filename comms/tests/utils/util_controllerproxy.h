@@ -83,7 +83,12 @@ public:
     virtual void resume() override { if (_target) _target->resume(); }
     virtual void stop() override { if (_target) _target->stop(); }
 
-    virtual bool useApplication(const QString& appID) override { if (_target) _target->useApplication(appID); }
+    virtual bool useApplication(const QString& appID) override {
+        if (_target)
+            return _target->useApplication(appID);
+        else
+            return false;
+    }
 
     // --
     void setTarget(QPointer<ILaunchController> c)

@@ -9,6 +9,7 @@ LaunchController::LaunchController(IApplications* apps, QObject* parent) :
     connect(_appController, &ApplicationController::launchFailed, [&] () { emit this->launchFailed(); });
     connect(_appController, &ApplicationController::resumed, [&] () { emit this->resumed(); });
     connect(_appController, &ApplicationController::resumeFailed, [&] () { emit this->resumeFailed(); });
+    connect(_appController, &ApplicationController::stopped, [&] () { emit this->stopped(); });
     connect(_appController, &ApplicationController::died, [&] () { emit this->died(); });
 }
 
@@ -24,11 +25,8 @@ void LaunchController::stop() { _appController->stop(); }
 
 bool LaunchController::useApplication(const QString& appID)
 {
-    // TODO: how to handle error, if no app found
     _appController->stop();
-    //QSharedPointer<ApplicationMeta> _apps->application(appID);
-
-    _appController->setApplication(_apps->application(appID));
-// TODO:
-    return true;
+    QSharedPointer<ApplicationMeta> app(_apps->application(appID));
+    _appController->setApplication(app);
+    return !app.isNull();
 }
