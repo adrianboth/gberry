@@ -11,9 +11,7 @@
 #include <client/assets.h>
 #include <ui/displayprofile.h>
 #include <client/4qml/applicationmanager.h>
-
-// TODO: this gberry client -> little bit wrong place
-#include <client/gamemodel.h>
+#include <client/4qml/gamemodel.h>
 
 // trick to get define as a string
 #define xstr(s) str(s)

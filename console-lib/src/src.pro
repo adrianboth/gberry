@@ -37,7 +37,8 @@ SOURCES += \
     server/playerconnectionmanager.cpp \
     client/consoleapplication.cpp \
     client/assets.cpp \
-    client/4qml/applicationmanager.cpp
+    client/4qml/applicationmanager.cpp \
+    client/4qml/gamemodel.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -64,7 +65,8 @@ HEADERS +=\
     client/consoleapplication.h \
     client/assets.h \
     client/4qml/applicationmanager.h \
-    server/readme_serverside.h
+    server/readme_serverside.h \
+    client/4qml/gamemodel.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/
