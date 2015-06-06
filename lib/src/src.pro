@@ -49,7 +49,6 @@ HEADERS += \
     client/qmlapplication.h \
     client/cppapplication.h \
     client/usermodel.h \
-    client/gamemodel.h \
     ui/targetdisplay.h \
     ui/actualdisplay.h \
     ui/display.h \
@@ -102,7 +101,6 @@ SOURCES += \
     client/qmlapplication.cpp \
     client/cppapplication.cpp \
     client/usermodel.cpp \
-    client/gamemodel.cpp \
     ui/targetdisplay.cpp \
     ui/actualdisplay.cpp \
     applicationsettings.cpp \
