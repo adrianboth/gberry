@@ -18,5 +18,7 @@ export GBERRY_ROOT_PATH=$CONSOLE_ROOT
 if [ -z "$1" ]; then
     $THIS_DIR/comms
 else
-    $THIS_DIR/$1
+    APP=$1
+    shift
+    $THIS_DIR/$APP $*
 fi
