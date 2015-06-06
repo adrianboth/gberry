@@ -19,7 +19,6 @@ SOURCES += main.cpp \
     test_serverconnectionimpl.cpp \
     test_restinvocationfactoryimpl.cpp \
     utils/testhttpserver.cpp \
-    utils/testsystemservices.cpp \
     test_systemservices.cpp \
     test_websockets.cpp \
     test_integration_test.cpp \
@@ -39,5 +38,4 @@ PRE_TARGETDEPS += ../src/libgberrylib.a
 
 HEADERS += \
     utils/testhttpserver.h \
-    utils/testsystemservices.h \
     utils/testlogmsghandler.h

@@ -16,7 +16,7 @@ using ::testing::_;
 #include "mocks/mock_restinvocation.h"
 #include "mocks/mock_restinvocationfactory.h"
 #include "testutils/signalrecorder.h"
-#include "utils/testsystemservices.h"
+#include "testobjects/stub_systemservices.h"
 
 
 // TODO: better common location

@@ -57,7 +57,8 @@ HEADERS += \
     testutils/util_enablelog.h \
     testutils/util_testdata.h \
     utils/fileutils.h \
-    testutils/mock_ienvironmentvariables.h
+    testutils/mock_ienvironmentvariables.h \
+    testobjects/stub_systemservices.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -105,7 +106,8 @@ SOURCES += \
     ui/targetdisplay.cpp \
     ui/actualdisplay.cpp \
     applicationsettings.cpp \
-    testutils/util_enablelog.cpp
+    testutils/util_enablelog.cpp \
+    testobjects/stub_systemservices.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

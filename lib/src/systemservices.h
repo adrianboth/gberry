@@ -15,6 +15,12 @@ class SystemServices : public QObject
 public:
     static const char* SERVICE_NAME;
 
+    /**
+     * @brief Provides singleshot timer
+     *
+     * Usage:
+     *   singleshotTimer(PROCESS_KILL_WAIT_MS, this, SLOT(launch()));
+     */
     virtual void singleshotTimer(int msec, QObject *receiver, const char *member)
     {
         Q_UNUSED(msec); Q_UNUSED(receiver); Q_UNUSED(member);
