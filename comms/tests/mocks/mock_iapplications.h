@@ -1,9 +1,9 @@
 #ifndef MOCK_IAPPLICATIONS_H
 #define MOCK_IAPPLICATIONS_H
 
-#include "interfaces/iapplications.h"
+#include "interfaces/iapplicationmetas.h"
 
-class StubIApplications : public IApplications
+class StubIApplications : public IApplicationMetas
 {
 public:
     StubIApplications(QMap<QString, QSharedPointer<ApplicationMeta>>& apps) : _apps(apps) {}

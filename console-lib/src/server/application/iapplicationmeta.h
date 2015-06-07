@@ -3,8 +3,11 @@
 
 #include <QString>
 
-typedef QString ApplicationVersion;
+namespace GBerry {
+    namespace Console {
+        namespace Server {
 
+typedef QString ApplicationVersion;
 
 class IApplicationMeta
 {
@@ -24,6 +27,8 @@ public:
     virtual QString applicationExecutablePath() const = 0;
     virtual QString catalogImageFilePath() const = 0;
 };
+
+}}} // eon
 
 #endif // IAPPLICATIONMETA_H
 

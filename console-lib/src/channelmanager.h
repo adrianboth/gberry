@@ -3,8 +3,10 @@
 
 #include <QObject>
 #include <QMap>
+#include <QSharedPointer>
 
 #include "ichannelparent.h"
+#include "icommand.h"
 #include "channel.h"
 
 
@@ -29,6 +31,7 @@ public:
 
     QList<int> allChannelIds();
 
+    void registerCommand(QSharedPointer<ICommand> cmd);
 
     // TODO: how channel is opened towards commXX
     // TODO: how channel is closed
@@ -40,9 +43,10 @@ public:
     //        -> message to channel
 
     // from IChannelParent
-    virtual void channelSendMessage(int channelId, const QByteArray msg);
-    virtual void channelCloseReceived(int channelId);
-    virtual void channelDestroyed(int channelId);
+    virtual void channelSendMessage(int channelId, const QByteArray msg) override;
+    virtual void channelCloseReceived(int channelId) override;
+    virtual void channelDestroyed(int channelId) override;
+    virtual bool processCommand(int channelId, const QJsonObject &json) override;
 
 signals:
     void outgoingMessage(int channelId, const QByteArray msg);
@@ -54,6 +58,7 @@ public slots:
 
 protected:
     QMap<int, Channel*> _channels; // by channelId
+    QMap<QString, QSharedPointer<ICommand>> _commands;
 
 
 };

@@ -4,27 +4,19 @@
 #include <QString>
 #include <QSharedPointer>
 
-#include "applicationmeta.h"
+// TODO: we could have lib in path "console"
+#include "server/application/baseapplication.h"
 
+namespace using GBerryConsoleServer;
 
-class Application
+// TODO: now just wrapper, lets see if we need to have this at all
+class Application : public BaseApplication
 {
 
 public:
     Application(QSharedPointer<ApplicationMeta> meta);
     virtual ~Application();
 
-    enum State { Valid, Invalid, Downloading };
-    State state() const;
-    void markState(State newState);
-
-    QString id() const;
-
-    QSharedPointer<ApplicationMeta> meta() const;
-
-private:
-    QSharedPointer<ApplicationMeta> _meta;
-    State _state;
 };
 
 #endif // APPLICATION_H

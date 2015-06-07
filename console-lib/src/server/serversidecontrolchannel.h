@@ -14,7 +14,8 @@ public:
     ServerSideControlChannel();
     ~ServerSideControlChannel();
 
-    virtual bool receiveMessage(const QByteArray msg);
+    //virtual bool receiveMessage(const QByteArray msg) override;
+    virtual bool processJsonMessage(const QJsonObject& json) override;
 
 signals:
     void applicationLaunchRequested(QString appID);

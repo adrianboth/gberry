@@ -17,7 +17,9 @@ SOURCES += main.cpp \
     test_channelmanager.cpp \
     test_communication_integration.cpp \
     test_messagereader.cpp \
-    utils/testchannel.cpp
+    utils/testchannel.cpp \
+    server/application/test_application2json.cpp \
+    server/commands/test_querylocalapplicationscommand.cpp
 
 HEADERS += \
     utils/testtcpserver.h \

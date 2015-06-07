@@ -1,7 +1,11 @@
 #ifndef ICHANNELPARENT_H
 #define ICHANNELPARENT_H
 
+#include <QByteArray>
+#include <QJsonObject>
+
 class IChannelParent
+
 {
 public:
 
@@ -11,6 +15,7 @@ public:
 
     virtual void channelSendMessage(int channelId, const QByteArray msg) = 0; // TODO: remove ref
 
+    virtual bool processCommand(int channelId, const QJsonObject& json) = 0;
 };
 
 #endif // ICHANNELPARENT_H

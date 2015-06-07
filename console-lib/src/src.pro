@@ -38,7 +38,12 @@ SOURCES += \
     client/consoleapplication.cpp \
     client/assets.cpp \
     client/4qml/applicationmanager.cpp \
-    client/4qml/gamemodel.cpp
+    client/4qml/gamemodel.cpp \
+    server/commands/querylocalapplicationscommand.cpp \
+    server/application/baseapplication.cpp \
+    server/application/application2json.cpp \
+    server/application/iapplication.cpp \
+    server/application/baseapplications.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -66,7 +71,16 @@ HEADERS +=\
     client/assets.h \
     client/4qml/applicationmanager.h \
     server/readme_serverside.h \
-    client/4qml/gamemodel.h
+    client/4qml/gamemodel.h \
+    icommand.h \
+    server/commands/querylocalapplicationscommand.h \
+    server/application/iapplication.h \
+    server/application/iapplicationmeta.h \
+    server/application/baseapplication.h \
+    server/application/iapplications.h \
+    server/application/application2json.h \
+    server/application/applicationmeta.h \
+    server/application/baseapplications.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

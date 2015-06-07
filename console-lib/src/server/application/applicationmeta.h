@@ -5,7 +5,12 @@
 #include <QString>
 #include <QDebug>
 
-#include "interfaces/iapplicationmeta.h"
+#include "server/application/iapplicationmeta.h"
+
+
+namespace GBerry {
+    namespace Console {
+        namespace Server {
 
 
 class ApplicationMeta : public IApplicationMeta
@@ -43,6 +48,7 @@ public:
     virtual void setIsSystemApp(bool newValue) { _isSystemApp = newValue; }
 
 private:
+    // TODO: this could move to BaseApplication
     void buildID() { _id = _applicationId + "-" + _version; }
     QString _id;
 
@@ -55,6 +61,8 @@ private:
     QString _applicationExecutablePath;
     QString _catalogImageFilePath;
 };
+
+}}} // eon
 
 #endif // APPLICATIONMETA_H
 

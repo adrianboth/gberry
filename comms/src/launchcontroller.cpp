@@ -1,6 +1,6 @@
 #include "launchcontroller.h"
 
-LaunchController::LaunchController(IApplications* apps, QObject* parent) :
+LaunchController::LaunchController(IApplicationMetas* apps, QObject* parent) :
     ILaunchController(parent),
     _apps(apps)
 {

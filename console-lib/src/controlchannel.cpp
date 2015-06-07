@@ -41,6 +41,7 @@ void ControlChannel::ping()
     sendMessage(PING_MESSAGE);
 }
 
+// TODO: the array could be '&'
 bool ControlChannel::receiveMessage(const QByteArray msg)
 {
     QJsonDocument doc(QJsonDocument::fromJson(msg));
@@ -62,5 +63,5 @@ bool ControlChannel::receiveMessage(const QByteArray msg)
     }
 
     // not known by us
-    return false;
+    return Channel::receiveMessage(msg);
 }

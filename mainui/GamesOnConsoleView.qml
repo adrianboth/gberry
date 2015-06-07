@@ -108,8 +108,14 @@ Item {
 
                     function updateDetails() {
                         var selectedGame = localGamesModel.get(currentIndex)
-                        localGameDetails.gameName = selectedGame.name
-                        localGameDetails.gameDescription = selectedGame.description
+                        if (typeof(selectedGame) !== 'undefined') {
+                            localGameDetails.gameName = selectedGame.name
+                            localGameDetails.gameDescription = selectedGame.description
+                        } else {
+                            localGameDetails.gameName = "undefined"
+                            localGameDetails.gameDescription = "undefined description"
+                        }
+
                     }
 
                     Component {
@@ -163,27 +169,9 @@ Item {
 
             ListModel {
                 id: localGamesModel
-                ListElement {
-                    name: "TicTacToe"
-                    appId: "tictactoe"
-                    image: "foobar"
-                    description: "TicTacToe description very long lipsul oipsum. Lopsam lopsi alpsi liie."
-                }
-                ListElement {
-                    name: "React"
-                    appId: "react"
-                    image: "foobar"
-                    description: "React description"
-                }
-                ListElement {
-                    name: "TestGame"
-                    appId: "testgame"
-                    image: "foobar"
-                    description: "TestGame description"
-                }
 
                 Component.onCompleted: {
-                    localGamesModel.clear()
+                    //localGamesModel.clear()
                     var gameIds = GameModel.localGameIds()
                     for (var i = 0; i < gameIds.length; i++) {
                         localGamesModel.append(GameModel.game(gameIds[i]))

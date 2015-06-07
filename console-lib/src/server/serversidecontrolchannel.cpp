@@ -15,16 +15,17 @@ ServerSideControlChannel::~ServerSideControlChannel()
     TRACE("~ServerSideControlChannel");
 }
 
-bool ServerSideControlChannel::receiveMessage(const QByteArray msg)
+bool ServerSideControlChannel::processJsonMessage(const QJsonObject &json)
 {
     DEBUG("Processing message");
-    if (ControlChannel::receiveMessage(msg))
+
+    if (ControlChannel::processJsonMessage(json))
         return true;
 
-    QJsonDocument doc(QJsonDocument::fromJson(msg));
-    QJsonObject json(doc.object());
+    if (!json.contains("command"))
+        return false;
 
-    if (json.contains("command") && json["command"] == "LaunchApplication")
+    if (json["command"] == "LaunchApplication")
     {
         DEBUG("Processing message: LaunchApplication");
         if (json.contains("app_id"))
@@ -37,6 +38,15 @@ bool ServerSideControlChannel::receiveMessage(const QByteArray msg)
         }
         return true;
     }
+
+    /* TODO: implement as command
+    if (json["command"] == "QueryLocalApplications")
+    {
+        DEBUG("Processing message: QueryLocalApplications");
+
+        // TODO: get apps and marshal them
+    }
+    */
 
     DEBUG("Processing message: unknown");
     return false;

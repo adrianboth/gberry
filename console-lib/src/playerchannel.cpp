@@ -26,11 +26,13 @@ bool PlayerChannel::receiveMessage(const QByteArray msg)
         qDebug("### CloseChannel");
         closeReceived();
         // no responses
+        return true;
     }
     else if (json.contains("command") && json["command"] == "OpenChannelAccepted")
     {
         qDebug("### OpenChannelAccepted");
         setState(Channel::CHANNEL_OPEN);
+        return true;
     }
     else if (json.contains("command") && json["command"] == "PlayerMessage")
     {
@@ -41,6 +43,7 @@ bool PlayerChannel::receiveMessage(const QByteArray msg)
             // TODO: encode data
             QString msg = json["data"].toString();
             emit playerMessageReceived(channelId(), msg.toLatin1());
+            return true;
         }
     }
     else
@@ -48,6 +51,7 @@ bool PlayerChannel::receiveMessage(const QByteArray msg)
         qDebug("### UNKNOWN MESSAGE");
     }
     // TODO: handle channel denial
+    return false;
 }
 
 void PlayerChannel::sendPlayerMessage(QByteArray msg)

@@ -2,7 +2,7 @@
 #define LAUNCHCONTROLLER_H
 
 #include "interfaces/ilaunchcontroller.h"
-#include "interfaces/iapplications.h"
+#include "interfaces/iapplicationmetas.h"
 #include "applicationcontroller.h"
 
 class LaunchController : public ILaunchController
@@ -10,7 +10,7 @@ class LaunchController : public ILaunchController
     Q_OBJECT
 
 public:
-    LaunchController(IApplications* apps, QObject* parent = 0);
+    LaunchController(IApplicationMetas* apps, QObject* parent = 0);
     ~LaunchController();
 
     virtual void launch();
@@ -22,7 +22,7 @@ public:
     virtual bool useApplication(const QString& appID);
 
 private:
-    IApplications* _apps;
+    IApplicationMetas* _apps;
     ApplicationController* _appController;
 };
 

@@ -28,11 +28,9 @@ HEADERS += \
     applicationcontroller.h \
     uiappstatemachine_private.h \
     localapplications.h \
-    applicationmeta.h \
     localapplicationsstorage.h \
     interfaces/iapplicationcontroller.h \
     interfaces/ilaunchcontroller.h \
-    interfaces/iapplications.h \
     interfaces/iapplicationsstorage.h \
     launchcontroller.h \
     application.h \
@@ -40,7 +38,6 @@ HEADERS += \
     json/jsonvalidator.h \
     json/jsondefinitionbuilder.h \
     json/jsonvalidationresult.h \
-    interfaces/iapplicationmeta.h \
     cmdlineparams.h
 
 DEPENDPATH += .

@@ -5,11 +5,11 @@
 #include <QSharedPointer>
 #include <QMap>
 
-#include "interfaces/iapplications.h"
+#include "interfaces/iapplicationmetas.h"
 #include "interfaces/iapplicationsstorage.h"
 
 
-class LocalApplications : public QObject, public IApplications
+class LocalApplications : public QObject, public IApplicationMetas
 {
     Q_OBJECT
 public:
