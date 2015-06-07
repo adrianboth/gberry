@@ -1,6 +1,6 @@
 #include "launchcontroller.h"
 
-LaunchController::LaunchController(IApplicationMetas* apps, QObject* parent) :
+LaunchController::LaunchController(IApplications* apps, QObject* parent) :
     ILaunchController(parent),
     _apps(apps)
 {
@@ -15,7 +15,6 @@ LaunchController::LaunchController(IApplicationMetas* apps, QObject* parent) :
 
 LaunchController::~LaunchController()
 {
-
 }
 
 void LaunchController::launch() { _appController->launch(); }
@@ -26,7 +25,7 @@ void LaunchController::stop() { _appController->stop(); }
 bool LaunchController::useApplication(const QString& appID)
 {
     _appController->stop();
-    QSharedPointer<ApplicationMeta> app(_apps->application(appID));
+    QSharedPointer<IApplication> app(_apps->application(appID));
     _appController->setApplication(app);
     return !app.isNull();
 }

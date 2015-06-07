@@ -3,7 +3,9 @@
 #include <QCoreApplication>
 #include <QScopedPointer>
 
-#include "applicationmeta.h"
+#include "server/application/applicationmeta.h"
+#include "application.h"
+
 #include "applicationcontroller.h"
 
 #include "testobjects/stub_systemservices.h"
@@ -25,19 +27,21 @@ TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
-    ApplicationController app(meta);
+
+    QSharedPointer<Application> app(new Application(meta));
+    ApplicationController controller(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
-    QObject::connect(&app, &ApplicationController::launched, [&] () { launched = true; });
+    QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });
 
     bool stopped = false;
-    QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+    QObject::connect(&controller, &ApplicationController::stopped, [&] () { stopped = true; });
 
-    app.launch();
+    controller.launch();
     Waiter::wait([&] () { return launched; });
     EXPECT_TRUE(launched);
 
-    app.stop();
+    controller.stop();
     Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);
 }
@@ -47,20 +51,22 @@ TEST_F(ApplicationControllerF, LaunchOKWithDefaultConstructor)
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
-    ApplicationController app;
-    app.setApplication(meta);
+
+    QSharedPointer<Application> app(new Application(meta));
+    ApplicationController controller;
+    controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
-    QObject::connect(&app, &ApplicationController::launched, [&] () { launched = true; });
+    QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });
 
     bool stopped = false;
-    QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+    QObject::connect(&controller, &ApplicationController::stopped, [&] () { stopped = true; });
 
-    app.launch();
+    controller.launch();
     Waiter::wait([&] () { return launched; });
     EXPECT_TRUE(launched);
 
-    app.stop();
+    controller.stop();
     Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);
 }
@@ -71,30 +77,31 @@ TEST_F(ApplicationControllerF, PauseAndResume)
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
 
-    ApplicationController app;
-    app.setApplication(meta);
+    QSharedPointer<Application> app(new Application(meta));
+    ApplicationController controller;
+    controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
-    QObject::connect(&app, &ApplicationController::launched, [&] () { launched = true; });
+    QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });
 
     bool stopped = false;
-    QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+    QObject::connect(&controller, &ApplicationController::stopped, [&] () { stopped = true; });
 
-    app.launch();
+    controller.launch();
     Waiter::wait([&] () { return launched; });
     EXPECT_TRUE(launched);
 
-    app.pause();
+    controller.pause();
     QCoreApplication::processEvents();
 
     // TODO: somehow validate that pausing really occurred
 
-    app.resume();
+    controller.resume();
     QCoreApplication::processEvents();
 
     // TODO: somehow validate that resume really occured
 
-    app.stop();
+    controller.stop();
     Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);
 }
@@ -104,17 +111,18 @@ TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta); // this now linux only
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
+    QSharedPointer<Application> app(new Application(meta));
 
-    ApplicationController app;
-    app.setApplication(meta);
+    ApplicationController controller;
+    controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
-    QObject::connect(&app, &ApplicationController::launched, [&] () { launched = true; });
+    QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });
 
     bool stopped = false;
-    QObject::connect(&app, &ApplicationController::stopped, [&] () { stopped = true; });
+    QObject::connect(&controller, &ApplicationController::stopped, [&] () { stopped = true; });
 
-    app.launch();
+    controller.launch();
     Waiter::wait([&] () { return launched; });
     EXPECT_TRUE(launched);
 
@@ -122,13 +130,14 @@ TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
     launched = false;
     QScopedPointer<TestSystemServices> testservices(new TestSystemServices);
     testservices->registerInstance();
-    app.setProperty(ApplicationController::PROCESS_KILL_WAIT_MS_PROP, 20); // timer shorter for unit tests
+    controller.setProperty(ApplicationController::PROCESS_KILL_WAIT_MS_PROP, 20); // timer shorter for unit tests
 
-    app.stop(); // do not process events -> immediate launch
-    app.launch();
+    controller.stop(); // do not process events -> immediate launch
+    controller.launch();
     QCoreApplication::processEvents();
 
     // timer should trigger after third round of event processing
+    Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);
     testservices->invokeSingleshotTimer();
 
@@ -136,7 +145,8 @@ TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
     EXPECT_TRUE(launched);
 
     // -- CLEANUP
-    app.stop();
+    stopped = false;
+    controller.stop();
     Waiter::wait([&] () { return stopped; });
     EXPECT_TRUE(stopped);
 }

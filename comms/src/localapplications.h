@@ -5,20 +5,17 @@
 #include <QSharedPointer>
 #include <QMap>
 
-#include "interfaces/iapplicationmetas.h"
+#include "server/application/baseapplications.h"
 #include "interfaces/iapplicationsstorage.h"
 
+using namespace GBerry::Console::Server;
 
-class LocalApplications : public QObject, public IApplicationMetas
+class LocalApplications : public QObject, public BaseApplications
 {
     Q_OBJECT
 public:
     explicit LocalApplications(IApplicationsStorage* storage, QObject *parent = 0);
     ~LocalApplications();
-
-    virtual QList<QSharedPointer<ApplicationMeta>> applications() const override;
-    virtual QSharedPointer<ApplicationMeta> application(const QString& uniqueID) const override;
-    virtual QList<QSharedPointer<ApplicationMeta>> applicationsByApplicationId(const QString& applicationId) const override;
 
 signals:
 
@@ -29,7 +26,6 @@ private slots:
 
 private:
     IApplicationsStorage* _storage;
-    QMap<QString, QSharedPointer<ApplicationMeta>> _apps;
 
 };
 

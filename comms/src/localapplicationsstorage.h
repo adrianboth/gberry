@@ -7,7 +7,6 @@
 #include <QDir>
 
 #include "interfaces/iapplicationsstorage.h"
-#include "applicationmeta.h"
 
 class LocalApplicationsStoragePrivate;
 

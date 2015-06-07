@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QObject>
 #include <QDebug>
+#include <QSharedPointer>
 
 #include <signal.h>
 
@@ -21,6 +22,7 @@
 
 #include <server/serversetup.h>
 #include <server/playersessionmanager.h>
+#include <server/commands/querylocalapplicationscommand.h>
 
 #define LOG_AREA "comms"
 #include "log/log.h"
@@ -61,10 +63,15 @@ int main(int argc, char *argv[])
     DEBUG("Root path:" << rootPath);
 
     LocalApplicationsStorage appStorage(joinpath(rootPath, "apps"));
-    LocalApplications apps(&appStorage);
+    QSharedPointer<LocalApplications> apps(new LocalApplications(&appStorage));
+
+    QSharedPointer<IApplications> iapps(qSharedPointerCast<IApplications>(apps));
+    QSharedPointer<ICommand> cmd(new QueryLocalApplicationsCommand(iapps));
+    setup.channelManager.registerCommand(cmd);
+
 
     auto getapp = [&] (const QString& appId) {
-        QList<QSharedPointer<ApplicationMeta>> foundApps = apps.applicationsByApplicationId(appId);
+        QList<QSharedPointer<IApplication>> foundApps = iapps->applicationsByApplicationId(appId);
         // TODO: we good do something nice, during development time without waitapp and mainui is ok
         Q_ASSERT(foundApps.length() > 0);
 
@@ -77,7 +84,9 @@ int main(int argc, char *argv[])
 
     ApplicationController waitAppController(getapp("waitapp"));
     ApplicationController mainuiController(getapp("mainui"));
-    LaunchController currentAppController(&apps);
+
+    // TODO: using safe pointer goes too far ...
+    LaunchController currentAppController(apps.data());
 
     UIAppStateMachine stateMachine(&waitAppController, &mainuiController, &currentAppController);
 

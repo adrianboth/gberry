@@ -3,7 +3,8 @@
 
 #include <QCoreApplication>
 
-#include "applicationmeta.h"
+#include "server/application/applicationmeta.h"
+#include "application.h"
 #include "launchcontroller.h"
 
 #include "mocks/mock_iapplications.h"
@@ -17,7 +18,7 @@ namespace {
 
 TEST(LaunchController, LaunchController)
 {
-    QMap<QString, QSharedPointer<ApplicationMeta>> appsMap;
+    QMap<QString, QSharedPointer<IApplication>> appsMap;
     StubIApplications apps(appsMap);
     LaunchController controller(&apps);
 
@@ -49,7 +50,9 @@ TEST(LaunchController, LaunchController)
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta); // this now linux only
     meta->setApplicationId("test");
     meta->setApplicationExecutablePath("/bin/bash");
-    appsMap["test-1.0"] = meta;
+
+    QSharedPointer<Application> app(new Application(meta));
+    appsMap["test-1.0"] = qSharedPointerCast<IApplication>(app);
 
     EXPECT_TRUE(controller.useApplication("test-1.0"));
 

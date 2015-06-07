@@ -42,7 +42,6 @@ HEADERS += \
     ../src/json/jsonvalidator.h \
     ../src/json/jsondefinition.h \
     ../src/json/jsondefinitionbuilder.h \
-    ../src/applicationmeta.h \
     ../src/application.h \
     ../src/applicationcontroller.h \
     ../src/launchcontroller.h \
@@ -61,3 +60,5 @@ includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR}
 includeStaticLibrary("gmock", $${GMOCK_SRC_DIR}, $${GMOCK_BUILD_DIR})
 
 includeStaticLibrary("gtest", $${GTEST_SRC_DIR}, $${GTEST_BUILD_DIR})
+
+includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})

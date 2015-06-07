@@ -6,14 +6,16 @@
 #include <QPointer>
 
 #include "interfaces/iapplicationcontroller.h"
-#include "applicationmeta.h"
+#include "server/application/iapplication.h"
+
+using namespace GBerry::Console::Server;
 
 class ApplicationController : public IApplicationController
 {
     Q_OBJECT
 
 public:
-    explicit ApplicationController(QSharedPointer<IApplicationMeta> meta, QObject *parent = 0);
+    explicit ApplicationController(QSharedPointer<IApplication> app, QObject *parent = 0);
     ApplicationController(QObject *parent = 0);
     ~ApplicationController();
 
@@ -24,7 +26,7 @@ public:
     virtual void stop();
 
     // --
-    virtual void setApplication(QSharedPointer<ApplicationMeta> meta);
+    virtual void setApplication(QSharedPointer<IApplication> meta);
     virtual void enableSimulatedMode(bool enabled);
 
     // -- dynamic properties
@@ -40,7 +42,7 @@ public slots:
     void relaunchAfterDelay();
 
 private:
-    QSharedPointer<IApplicationMeta> _appMeta;
+    QSharedPointer<IApplication> _app;
     QProcess _process;
 
     enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };

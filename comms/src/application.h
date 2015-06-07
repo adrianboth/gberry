@@ -7,7 +7,7 @@
 // TODO: we could have lib in path "console"
 #include "server/application/baseapplication.h"
 
-namespace using GBerryConsoleServer;
+using namespace GBerry::Console::Server;
 
 // TODO: now just wrapper, lets see if we need to have this at all
 class Application : public BaseApplication

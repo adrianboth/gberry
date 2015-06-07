@@ -25,8 +25,8 @@ TEST(LocalApplicationsStorage, SimpleAppsDir_ParsingInformation)
     QSharedPointer<Application> app1 = appsById["app1-1.0.0"];
     QSharedPointer<Application> app2 = appsById["app2-1.5.2"];
 
-    QSharedPointer<ApplicationMeta> meta1 = app1->meta();
-    QSharedPointer<ApplicationMeta> meta2 = app2->meta();
+    QSharedPointer<IApplicationMeta> meta1 = app1->meta();
+    QSharedPointer<IApplicationMeta> meta2 = app2->meta();
 
     EXPECT_TRUE(meta1->applicationId() == "app1");
     EXPECT_TRUE(meta2->applicationId() == "app2");

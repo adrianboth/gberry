@@ -39,6 +39,6 @@ TEST(LocalApplications, Simple)
 
     ASSERT_TRUE(apps.applications().length() == 1);
     ASSERT_TRUE(apps.applicationsByApplicationId("foobar").length() == 1);
-    ASSERT_TRUE(apps.application("foobar-2.0.0") == meta1);
+    ASSERT_TRUE(apps.application("foobar-2.0.0") == app1);
 
 }

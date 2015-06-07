@@ -17,10 +17,10 @@ namespace {
 
 const char* ApplicationController::PROCESS_KILL_WAIT_MS_PROP = "processKillWaitMs";
 
-ApplicationController::ApplicationController(QSharedPointer<IApplicationMeta> meta, QObject *parent) :
+ApplicationController::ApplicationController(QSharedPointer<IApplication> app, QObject *parent) :
     ApplicationController(parent)
 {
-    _appMeta = meta;
+    _app = app;
     this->setProperty(PROCESS_KILL_WAIT_MS_PROP, DEFAULT_PROCESS_KILL_WAIT_MS);
 }
 
@@ -67,13 +67,13 @@ void ApplicationController::launch()
         _timerForWaitingProcessToStopRunning += 1; // wait three times
         return;
     }
-    if (_appMeta.isNull()) {
+    if (_app.isNull()) {
         WARN("Launch failed as request application is Null");
         emit launchFailed();
         return;
     }
 
-    QString appExe = _appMeta->applicationExecutablePath();
+    QString appExe = _app->meta()->applicationExecutablePath();
     if (!QFile::exists(appExe)) {
         WARN("Launch failed as requested application executable not exists");
         emit launchFailed();
@@ -97,7 +97,7 @@ void ApplicationController::pause()
     if (_process.state() == QProcess::Running)
     {
         int result = kill(_process.pid(), SIGSTOP);
-        DEBUG("Paused " << _appMeta->id() << ", got result " << result);
+        DEBUG("Paused " << _app->id() << ", got result " << result);
     }
 }
 
@@ -106,7 +106,7 @@ void ApplicationController::resume()
     if (_process.state() == QProcess::Running)
     {
         int result = kill(_process.pid(), SIGCONT);
-        DEBUG("Resumed " << _appMeta->id() << ", got result " << result);
+        DEBUG("Resumed " << _app->id() << ", got result " << result);
     }
 }
 
@@ -114,20 +114,20 @@ void ApplicationController::resume()
 void ApplicationController::stop()
 {
     if (_process.state() == QProcess::Running) {
-        DEBUG("Killing " << _appMeta->id());
+        DEBUG("Killing " << _app->id());
         _currentAction = STOPPING;
         _process.kill();
     }
 }
 
-void ApplicationController::setApplication(QSharedPointer<ApplicationMeta> meta)
+void ApplicationController::setApplication(QSharedPointer<IApplication> app)
 {
-    _appMeta = meta;
+    _app = app;
 }
 
 void ApplicationController::onProcessStateChanged(QProcess::ProcessState processState)
 {
-    DEBUG("Process state changed: app_id =" << _appMeta->id());
+    DEBUG("Process state changed: app_id =" << _app->id());
     if (_currentAction == LAUNCHING) {
         if (processState == QProcess::Running) {
             DEBUG("RUNNING OK");
@@ -154,7 +154,7 @@ void ApplicationController::onProcessStateChanged(QProcess::ProcessState process
 
 void ApplicationController::onProcessFinished(int exitCode)
 {
-    DEBUG("Process finished with code: app_id = " << _appMeta->id() << ", exitCode =" << exitCode);
+    DEBUG("Process finished with code: app_id = " << _app->id() << ", exitCode =" << exitCode);
     if (_running && _currentAction != STOPPING) {
         DEBUG("Was expected to run");
         emit died();
