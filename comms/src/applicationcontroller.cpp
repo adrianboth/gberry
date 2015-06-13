@@ -34,7 +34,7 @@ ApplicationController::ApplicationController(QObject *parent) :
     _currentAction(NONE),
     _running(false),
     _simulated(false),
-    _timerForWaitingProcessToStopRunning(0)
+    _timerForWaitingProcessToStopRunning(0),
 {
     connect(&_process, SIGNAL(finished(int)),
                 this, SLOT(onProcessFinished(int)));
