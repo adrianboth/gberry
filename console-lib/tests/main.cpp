@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    StdoutLogMsgHandler handler(Log::DEBUG);
+    StdoutLogMsgHandler handler(Log::TRACE);
     LogControl logControl;
     logControl.registerMsgHandler(&handler);
     Log::singleton().use(&logControl);

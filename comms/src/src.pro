@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     json/jsondefinition.cpp \
     json/jsonvalidator.cpp \
     json/jsondefinitionbuilder.cpp \
-    cmdlineparams.cpp
+    cmdlineparams.cpp \
+    commschannelfactory.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -38,7 +39,8 @@ HEADERS += \
     json/jsonvalidator.h \
     json/jsondefinitionbuilder.h \
     json/jsonvalidationresult.h \
-    cmdlineparams.h
+    cmdlineparams.h \
+    commschannelfactory.h
 
 DEPENDPATH += .
 

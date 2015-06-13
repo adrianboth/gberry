@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include "commtcpclient.h"
-#include "client/playersmanager.h"
-#include "client/clientsidechannelmanager.h"
+#include "client/4qml/playersmanager.h"
+#include "client/clientchannelmanager.h"
 #include "client/clientsidecontrolchannel.h"
 
 
@@ -19,7 +19,7 @@ public:
     void start();
 
     CommTcpClient tcpClient;
-    ClientSideChannelManager channelManager;
+    ClientChannelManager channelManager;
     ClientSideControlChannel controlChannel;
     PlayersManager playersManager;
 

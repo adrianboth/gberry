@@ -44,7 +44,7 @@ public:
     QString debugCurrentStateName() const;
 
 public slots:
-    void applicationConnectionValidated();
+    void applicationConnectionValidated(QString applicationId);
 
 private:
     QStateMachine _stateMachine;

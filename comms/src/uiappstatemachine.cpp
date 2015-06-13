@@ -34,12 +34,12 @@ UIAppStateMachine::UIAppStateMachine(
     // ACTION: show waiting screen
     connect(startup, &State::entered, _waitapp, &IApplicationController::launch);
     // TODO: actually we should wait to get some kind of signal from waitapp, to make sure it is running
-    startup->addTransition(_waitapp, SIGNAL(launched()), waitAppVisibleLaunchingMainUI);
+    startup->addTransition(_waitapp, SIGNAL(waitappLaunchValidated()), waitAppVisibleLaunchingMainUI);
 
     // ACTION: once waiting screen visible start mainui
     connect(waitAppVisibleLaunchingMainUI, &State::entered, _mainui, &IApplicationController::launch);
     //waitAppVisibleLaunchingMainUI->addTransition(_mainui, SIGNAL(launched()), mainuiVisible);
-    waitAppVisibleLaunchingMainUI->addTransition(_impl, SIGNAL(appLaunchValidated()), mainuiVisible);
+    waitAppVisibleLaunchingMainUI->addTransition(_impl, SIGNAL(mainuiLaunchValidated()), mainuiVisible);
 
     connect(mainuiVisible, &State::entered, [&] () {
         _waitapp->pause();
@@ -107,11 +107,20 @@ QString UIAppStateMachine::debugCurrentStateName() const
     return _currentStateName;
 }
 
-void UIAppStateMachine::applicationConnectionValidated()
+void UIAppStateMachine::applicationConnectionValidated(QString applicationId)
 {
-    // TODO: later call should identify what app it is about
-    _impl->emitAppLaunchValidated();
+    if (applicationId == "waitapp") {
+        _impl->emitWaitAppLaunchValidated();
+    } else if (applicationId == "mainui") {
+        _impl->emitMainUILaunchValidated();
+    } else {
+        _impl->emitAppLaunchValidated();
+    }
+
+    // TODO: is it possible that states get confused? we could store code and require to have matching too
 }
+
+// TODO: during devtime "waitapp" and "mainui" codes could be valid
 
 /*
 QState *startup = new QState();

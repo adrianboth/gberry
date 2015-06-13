@@ -3,12 +3,12 @@
 
 #include <QJsonObject>
 
-#include "icommand.h"
+#include "server/icommand.h"
 #include "server/application/iapplications.h"
 
 namespace GBerry {
-    namespace Console {
-        namespace Server {
+namespace Console {
+namespace Server {
 
 class QueryLocalApplicationsCommandPrivate;
 

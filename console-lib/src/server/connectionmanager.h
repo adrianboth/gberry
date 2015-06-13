@@ -3,19 +3,28 @@
 
 #include <QObject>
 #include <QByteArray>
+#include <QMap>
 
 class CommTcpServer;
-class ServerSideChannelManager;
+class ServerChannelManager;
 class ServerSideControlChannel;
 
+namespace GBerry {
+namespace Console {
+namespace Server {
+    class ApplicationRegistry;
+    class ConnectionGateKeeper;
+}}}
+
+using namespace GBerry::Console::Server;
 
 class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:
     explicit ConnectionManager(CommTcpServer* tcpServer,
-                               ServerSideChannelManager* channelManager,
-                               ServerSideControlChannel* controlChannel,
+                               ApplicationRegistry* appRegistry,
+                               ServerChannelManager* channelManager,
                                QObject *parent = 0);
     ~ConnectionManager();
 
@@ -25,20 +34,23 @@ public:
     bool activeConnection();
 
 signals:    
-    void applicationConnectionValidated();
+    void applicationConnectionValidated(QString appId);
 
 public slots:
     void applicationConnected(int connectionId);
     void applicationDisconnected(int connectionId);
-    void pingOK();
     void incomingMessage(int connectionId, int channelId, const QByteArray msg);
-    void outgoingMessageFromChannel(int channelId, const QByteArray msg);
+    void outgoingMessageFromChannel(int connectionId, int channelId, const QByteArray msg);
+
+    void onConnectionValidationOK(int connectionId);
+    void onConnectionValidationFailed(int connectionId);
+    void onOutgoingMessageFromGateKeeper(int connectionId, const QByteArray& msg);
 
 private:
     CommTcpServer* _tcpServer;
-    ServerSideChannelManager* _channelManager;
-    ServerSideControlChannel* _controlChannel;
-    int _activeConnectionId;
+    ApplicationRegistry* _appRegistry;
+    ServerChannelManager* _channelManager;
+    QMap<int, ConnectionGateKeeper*> _gatekeepers;
 };
 
 #endif // CONNECTIONMANAGER_H

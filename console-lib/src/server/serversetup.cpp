@@ -3,15 +3,25 @@
 ServerSetup::ServerSetup(QObject* parent)
     : QObject(parent),
       tcpServer(7777),
+      channelManager(nullptr),
+      connectionManager(nullptr),
       sessionManager(),
       restServer(sessionManager),
       websocketServer(&sessionManager),
-      playerConnectionManager(websocketServer, channelManager)
+      playerConnectionManager(nullptr),
+      channelFactory(nullptr)
 {
-    connectionManager = new ConnectionManager(&tcpServer, &channelManager, &controlChannel, this);
+}
+
+
+void ServerSetup::setup()
+{
+    channelManager = new ServerChannelManager(channelFactory, this);
+    connectionManager = new ConnectionManager(&tcpServer, &applicationRegistry, channelManager, this);
+    playerConnectionManager = new PlayerConnectionManager(&websocketServer, channelManager, this);
 
     // ConnectionManager works as adapter
-    connect(&channelManager, &ChannelManager::outgoingMessage,
+    connect(channelManager, &ServerChannelManager::outgoingMessageToSouth,
             connectionManager, &ConnectionManager::outgoingMessageFromChannel);
 
     connect(&tcpServer, &CommTcpServer::received,
@@ -23,11 +33,6 @@ ServerSetup::ServerSetup(QObject* parent)
 
     connect(&tcpServer, &CommTcpServer::disconnected,
             connectionManager, &ConnectionManager::applicationDisconnected);
-
-    connect(&controlChannel,   &ServerSideControlChannel::pingReceived,
-            connectionManager, &ConnectionManager::pingOK);
-
-    channelManager.registerChannel(&controlChannel);
 
     // -- setup north side
 
@@ -42,6 +47,7 @@ ServerSetup::~ServerSetup()
 
 void ServerSetup::start()
 {
+    setup();
     startSouthSide();
     startNorthSide();
 }
@@ -55,4 +61,9 @@ void ServerSetup::startSouthSide()
 void ServerSetup::startNorthSide()
 {
     websocketServer.start();
+}
+
+void ServerSetup::use(ChannelFactory* factory)
+{
+    channelFactory = factory;
 }

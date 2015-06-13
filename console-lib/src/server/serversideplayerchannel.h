@@ -1,25 +1,57 @@
 #ifndef SERVERSIDEPLAYERCHANNEL_H
 #define SERVERSIDEPLAYERCHANNEL_H
 
-#include "playerchannel.h"
-// TODO: metadata not from good location
-#include "client/playersmanager.h"
+#include "channel.h"
+#include "playermeta.h"
 
-class ServerSidePlayerChannel : public PlayerChannel
+
+class PlayerChannelNorthPartner
 {
 public:
+    explicit PlayerChannelNorthPartner(int channelId) : _channelId(channelId) {}
+    virtual ~PlayerChannelNorthPartner() {}
+
+    virtual void playerMessageFromSouth(const QByteArray& msg) = 0;
+
+protected:
+    int _channelId;
+};
+
+
+class ServerSidePlayerChannel : public Channel
+{
+    Q_OBJECT
+
+public:
+    enum PlayerChannelState {
+        CHANNEL_CLOSED,
+        CHANNEL_OPEN_ONGOING,
+        CHANNEL_OPEN,
+        // TODO: currently seems that restricted open doesn't have meaning, because apps handle that ... but is there good reason to handle that general way?
+        CHANNEL_RESTRICTED_OPEN // TODO: e.g. joining to game denied (might be just temporary, game ongoing), but restricted channel open to receive information from app (e.g. when joining possible)
+
+    };
+
     ServerSidePlayerChannel(int channelId,
-                            PlayerMetadata metadata,
+                            PlayerMeta metadata,
                             QObject* qparent = 0);
     ~ServerSidePlayerChannel();
 
-    void open();
+
+    void attachNorthPartner(PlayerChannelNorthPartner* partner);
+    void detachNorthPartner();
+
+    virtual void receivePlayerMessageFromNorth(const QByteArray& msg);
 
     // Channel
-    virtual void reopen();
+    virtual bool isOpen() const;
+    virtual void open() override;
+    virtual bool receiveMessageFromSouth(const QByteArray& msg);
 
 private:
-    PlayerMetadata _playerMeta;
+    PlayerMeta _playerMeta;
+    PlayerChannelState _state;
+    PlayerChannelNorthPartner* _northPartner;
 };
 
 #endif // SERVERSIDEPLAYERCHANNEL_H

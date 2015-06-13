@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include "server/commtcpserver.h"
-#include "server/serversidechannelmanager.h"
+#include "server/serverchannelmanager.h"
 #include "server/serversidecontrolchannel.h"
 #include "server/connectionmanager.h"
 #include "server/playerconnectionmanager.h"
@@ -11,6 +11,8 @@
 #include <server/playersessionmanager.h>
 #include <server/consolerestserver.h>
 #include <server/websocketserver.h>
+
+#include "server/applicationregistry.h"
 
 
 class ServerSetup : public QObject
@@ -21,21 +23,27 @@ public:
     ServerSetup(QObject* parent = 0);
     ~ServerSetup();
 
+    // creates connections
+    void setup();
     void start();
-
-    void startSouthSide();
-    void startNorthSide();
+    void use(ChannelFactory* factory);
 
     CommTcpServer tcpServer;
-    ServerSideChannelManager channelManager;
-    ServerSideControlChannel controlChannel;
+    ServerChannelManager* channelManager;
     ConnectionManager* connectionManager;
 
     PlayerSessionManager sessionManager;
     ConsoleRESTServer restServer;
     WebsocketServer websocketServer;
 
-    PlayerConnectionManager playerConnectionManager;
+    PlayerConnectionManager* playerConnectionManager;
+
+    ApplicationRegistry applicationRegistry;
+    ChannelFactory* channelFactory;
+
+protected:
+    void startSouthSide();
+    void startNorthSide();
 };
 
 #endif // SERVERSETUP_H

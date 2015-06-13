@@ -7,6 +7,7 @@
 
 #include "interfaces/iapplicationcontroller.h"
 #include "server/application/iapplication.h"
+#include "server/applicationregistry.h"
 
 using namespace GBerry::Console::Server;
 
@@ -15,7 +16,10 @@ class ApplicationController : public IApplicationController
     Q_OBJECT
 
 public:
-    explicit ApplicationController(QSharedPointer<IApplication> app, QObject *parent = 0);
+    explicit ApplicationController(
+            QSharedPointer<IApplication> app,
+            ApplicationRegistry* registry,
+            QObject *parent = 0);
     ApplicationController(QObject *parent = 0);
     ~ApplicationController();
 
@@ -43,6 +47,7 @@ public slots:
 
 private:
     QSharedPointer<IApplication> _app;
+    ApplicationRegistry* _registry;
     QProcess _process;
 
     enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };
@@ -50,6 +55,7 @@ private:
     bool _running;
     bool _simulated;
     int _timerForWaitingProcessToStopRunning;
+
 };
 
 

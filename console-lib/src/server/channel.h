@@ -2,8 +2,10 @@
 #define CHANNEL_H
 
 #include <QObject>
+#include <QMap>
 
-#include "ichannelparent.h"
+#include "channelsouthpartner.h"
+#include "icommand.h"
 #include "lib_global.h"
 
 /**
@@ -32,47 +34,37 @@ class LIBSHARED_EXPORT Channel : public QObject
     Q_OBJECT
 
 public:
-    enum ChannelState {
-        CHANNEL_CLOSED,
-        CHANNEL_OPEN_ONGOING,
-        CHANNEL_OPEN,
-        // TODO: currently seems that restricted open doesn't have meaning, because apps handle that ... but is there good reason to handle that general way?
-        CHANNEL_RESTRICTED_OPEN // TODO: e.g. joining to game denied (might be just temporary, game ongoing), but restricted channel open to receive information from app (e.g. when joining possible)
-
-    };
-
-    Channel(int channelId, IChannelParent* channelParent = 0, QObject* qParent = 0);
+    Channel(int channelId, ChannelSouthPartner* partner = 0, QObject* qParent = 0);
     virtual ~Channel();
-    void setChannelHandlerParent(IChannelParent* channelParent);
-    void detachChannelHandlerParent();
+    void attachSouthPartner(ChannelSouthPartner* partner);
+    void detachSouthPartner();
 
-    int channelId();
+    int channelId() const;
 
-    virtual ChannelState state();
-    virtual void setState(ChannelState newState);
-    virtual void reopen() = 0;
-
-    Q_INVOKABLE virtual bool isOpen();
+    virtual bool isOpen() const;
+    virtual void open();
+    // closing is more like pausing -> TODO: maybe better naming, TODO: playerchannels close, controlchannels are destroyed after closing
     virtual void close();
 
-    virtual bool processJsonMessage(const QJsonObject& json);
+    // takes ownership of command
+    void registerCommand(ICommand* cmd);
 
 public slots:
     // true if message was handled, used in subclasses to know if parent handled to message
-    virtual bool receiveMessage(const QByteArray msg);
+    virtual bool receiveMessageFromSouth(const QByteArray& msg);
 
 signals:
     void channelClosed();
 
 protected:
     int _id;
-    ChannelState _state;
+    bool _isOpen;
+    ChannelSouthPartner* _southPartner;
+    QMap<QString, ICommand*> _commands;
 
-    void sendMessage(const QByteArray msg);
-    void closeReceived();
-
-private:
-    IChannelParent* _channelParent;
+    virtual bool processJsonMessage(const QJsonObject& json);
+    void processCloseReceived();
+    void sendMessageToSouth(const QByteArray& msg);
 
 };
 

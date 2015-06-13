@@ -1,17 +1,45 @@
 #ifndef CLIENTSIDEPLAYERCHANNEL_H
 #define CLIENTSIDEPLAYERCHANNEL_H
 
-#include "playerchannel.h"
-#include "client/playersmanager.h"
+#include <QObject>
+#include <QByteArray>
 
-class ClientSidePlayerChannel : public PlayerChannel
+#include "playermeta.h"
+
+class ClientSideChannelPartner;
+class ClientSidePlayerChannelPartner;
+
+class ClientSidePlayerChannel : public QObject
 {
+    Q_OBJECT
+
 public:
-    ClientSidePlayerChannel(int channelId, PlayerMetadata& metadata, QObject* parent = 0);
+    ClientSidePlayerChannel(int channelId, PlayerMeta& metadata);
     ~ClientSidePlayerChannel();
 
+    void attachChannelPartner(ClientSideChannelPartner* partner);
+    void detachChannelPartner();
+
+    void attachPlayerChannelPartner(ClientSidePlayerChannelPartner* partner);
+    void detachPlayerChannelPartner();
+
+    int channelId();
+
+    void closeChannel();
+
+    // called when new message from server
+    bool receiveMessage(const QByteArray& msg);
+
+    // called when message to a player is wanted to be sent
+    void sendPlayerMessage(const QByteArray& msg);
+
+protected:
+    int _id;
+
 private:
-    PlayerMetadata _playerMeta;
+    ClientSideChannelPartner* _channelPartner;
+    ClientSidePlayerChannelPartner* _playerPartner;
+    PlayerMeta _playerMeta;
 };
 
 #endif // CLIENTSIDEPLAYERCHANNEL_H

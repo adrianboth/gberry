@@ -1,7 +1,7 @@
 #ifndef TESTCHANNEL_H
 #define TESTCHANNEL_H
 
-#include "channel.h"
+#include "server/channel.h"
 
 
 class TestChannel : public Channel
@@ -22,7 +22,7 @@ public:
 
 public slots:
     // Channel
-    bool receiveMessage(const QByteArray msg);
+    bool receiveMessageFromSouth(const QByteArray msg);
 
 };
 

@@ -12,10 +12,10 @@ TestChannel::~TestChannel()
 void TestChannel::triggerOutgoingMessage(QByteArray msg)
 {
     lastSentMsg = msg;
-    sendMessage(lastSentMsg);
+    sendMessageToSouth(lastSentMsg);
 }
 
-bool TestChannel::receiveMessage(const QByteArray msg)
+bool TestChannel::receiveMessageFromSouth(const QByteArray msg)
 {
     received++;
     lastReceivedMsg = QString(msg);

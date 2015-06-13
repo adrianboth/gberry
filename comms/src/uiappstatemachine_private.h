@@ -22,10 +22,14 @@ public:
     void emitAppLaunchRequested() { emit appLaunchRequested(); }
     void emitAppExitRequested()   { emit appExitRequested(); }
     void emitAppLaunchValidated() { emit appLaunchValidated(); }
+    void emitWaitAppLaunchValidated() { emit waitappLaunchValidated(); }
+    void emitMainUILaunchValidated()  { emit mainuiLaunchValidated(); }
 
 signals:
     void appLaunchRequested();
     void appExitRequested();
+    void waitappLaunchValidated();
+    void mainuiLaunchValidated();
     void appLaunchValidated();
 
 private:

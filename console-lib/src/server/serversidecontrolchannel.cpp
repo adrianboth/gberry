@@ -3,10 +3,19 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include "messagefactory.h"
+
+using namespace GBerry::Console;
+
 #define LOG_AREA "ServerSideControlChannel"
 #include "log/log.h"
 
-ServerSideControlChannel::ServerSideControlChannel()
+
+const int ServerSideControlChannel::ROOT_CHANNEL_ID = 0;
+
+
+ServerSideControlChannel::ServerSideControlChannel() :
+    Channel(ROOT_CHANNEL_ID)
 {
 }
 
@@ -19,7 +28,7 @@ bool ServerSideControlChannel::processJsonMessage(const QJsonObject &json)
 {
     DEBUG("Processing message");
 
-    if (ControlChannel::processJsonMessage(json))
+    if (Channel::processJsonMessage(json))
         return true;
 
     if (!json.contains("command"))
@@ -39,15 +48,35 @@ bool ServerSideControlChannel::processJsonMessage(const QJsonObject &json)
         return true;
     }
 
-    /* TODO: implement as command
-    if (json["command"] == "QueryLocalApplications")
-    {
-        DEBUG("Processing message: QueryLocalApplications");
-
-        // TODO: get apps and marshal them
-    }
-    */
-
     DEBUG("Processing message: unknown");
     return false;
 }
+
+void ServerSideControlChannel::pingSouth()
+{
+    sendMessageToSouth(MessageFactory::createPingCommand());
+}
+
+/*
+bool ServerSideControlChannel::receiveMessageFromSouth(const QByteArray& msg)
+{
+    QJsonDocument doc(QJsonDocument::fromJson(msg));
+    QJsonObject json(doc.object());
+
+    if (json.contains("command") && json["command"] == "ping")
+    {
+        emit pingSouthReceived();
+        sendMessageToSouth(PINGREPLY_MESSAGE);
+        return true;
+    }
+    else if (json.contains("command") && json["command"] == "pingreply")
+    {
+        emit pingSouthReceived();
+        // but no reply to reply ...
+        return true;
+    }
+
+    // not known by us
+    return Channel::receiveMessageFromSouth(msg);
+}
+*/

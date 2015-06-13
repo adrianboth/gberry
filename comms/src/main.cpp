@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
     systemServices.registerItself();
 
     ServerSetup setup;
-    setup.start();
+
 
     QString rootPath(params.value(CmdLineParams::ROOT_PATH));
     DEBUG("Root path:" << rootPath);
@@ -66,8 +66,9 @@ int main(int argc, char *argv[])
     QSharedPointer<LocalApplications> apps(new LocalApplications(&appStorage));
 
     QSharedPointer<IApplications> iapps(qSharedPointerCast<IApplications>(apps));
-    QSharedPointer<ICommand> cmd(new QueryLocalApplicationsCommand(iapps));
-    setup.channelManager.registerCommand(cmd);
+    CommsChannelFactory channelFactory(iapps);
+    setup.use(&channelFactory)
+
 
 
     auto getapp = [&] (const QString& appId) {
@@ -123,7 +124,7 @@ int main(int argc, char *argv[])
 
     // TODO: pinging gberry server is missing
     INFO("Starting event queue");
-
+    setup.start();
     return app.exec();
 }
 
