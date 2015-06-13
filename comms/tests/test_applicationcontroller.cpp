@@ -27,9 +27,9 @@ TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
-
+    ApplicationRegistry applicationRegistry;
     QSharedPointer<Application> app(new Application(meta));
-    ApplicationController controller(qSharedPointerCast<IApplication>(app));
+    ApplicationController controller(qSharedPointerCast<IApplication>(app), &applicationRegistry);
 
     bool launched = false;
     QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });

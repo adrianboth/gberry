@@ -14,16 +14,26 @@ include(../project.pri)
 SOURCES += main.cpp \
     test_commtcp.cpp \
     utils/testtcpserver.cpp \
-    test_channelmanager.cpp \
     test_communication_integration.cpp \
     test_messagereader.cpp \
     utils/testchannel.cpp \
     server/application/test_application2json.cpp \
-    server/commands/test_querylocalapplicationscommand.cpp
+    server/test_applicationregistry.cpp \
+    server/test_serverchannelmanager.cpp \
+    utils/testchannelfactory.cpp \
+    test_messagefactory.cpp \
+    client/test_clientchannelmanager.cpp \
+    utils/testplayerchannelnorthpartner.cpp \
+    utils/util_messageparser.cpp \
+    server/test_connectionmanager.cpp
 
 HEADERS += \
     utils/testtcpserver.h \
-    utils/testchannel.h
+    utils/testchannel.h \
+    utils/testchannelfactory.h \
+    utils/testplayerchannelnorthpartner.h \
+    utils/util_messageparser.h \
+    utils/testclientsidechannelpartners.h
 
 INCLUDEPATH += ../src
 LIBS += -L../src -lconsolelib

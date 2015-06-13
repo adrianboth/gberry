@@ -18,10 +18,16 @@ public:
     ~ProxyIApplicationController() {}
 
     // IApplicationController
-    virtual void launch() { if (_target) _target->launch(); }
-    virtual void pause() { if (_target) _target->pause(); }
-    virtual void resume() { if (_target) _target->resume(); }
-    virtual void stop() { if (_target) _target->stop(); }
+    virtual void launch() override { if (_target) _target->launch(); }
+    virtual void pause() override { if (_target) _target->pause(); }
+    virtual void resume() override { if (_target) _target->resume(); }
+    virtual void stop() override { if (_target) _target->stop(); }
+    virtual QString applicationId() const override {
+        if (_target)
+            return _target->applicationId();
+        else
+            return "";
+    }
 
     // --
     void setTarget(QPointer<IApplicationController> c)
@@ -82,6 +88,13 @@ public:
     virtual void pause() override { if (_target) _target->pause(); }
     virtual void resume() override { if (_target) _target->resume(); }
     virtual void stop() override { if (_target) _target->stop(); }
+
+    virtual QString applicationId() const override {
+        if (_target)
+            return _target->applicationId();
+        else
+            return "";
+    }
 
     virtual bool useApplication(const QString& appID) override {
         if (_target)

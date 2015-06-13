@@ -16,71 +16,76 @@ include(../project.pri)
 DEFINES += LIB_LIBRARY
 
 SOURCES += \
-    client/commtcpclient.cpp \
-    server/commtcpserver.cpp \
     messagereader.cpp \
-    channelmanager.cpp \
-    server/tcpconnection.cpp \
-    server/serversidecontrolchannel.cpp \
+    client/commtcpclient.cpp \
     client/clientsidecontrolchannel.cpp \
-    client/playersmanager.cpp \
-    server/serversetup.cpp \
     client/clientsetup.cpp \
-    client/clientsidechannelmanager.cpp \
-    server/serversidechannelmanager.cpp \
-    server/connectionmanager.cpp \
-    server/serversideplayerchannel.cpp \
     client/clientsideplayerchannel.cpp \
-    playerchannel.cpp \
-    controlchannel.cpp \
-    channel.cpp \
-    server/playerconnectionmanager.cpp \
     client/consoleapplication.cpp \
-    client/assets.cpp \
+    client/4qml/assets.cpp \
     client/4qml/applicationmanager.cpp \
     client/4qml/gamemodel.cpp \
-    server/commands/querylocalapplicationscommand.cpp \
+    client/4qml/playersmanager.cpp \
+    client/clientchannelmanager.cpp \
+    server/commtcpserver.cpp \
+    server/tcpconnection.cpp \
+    server/serversidecontrolchannel.cpp \
+    server/serversetup.cpp \
+    server/connectionmanager.cpp \
+    server/serversideplayerchannel.cpp \
+    server/channel.cpp \
+    server/playerconnectionmanager.cpp \
     server/application/baseapplication.cpp \
     server/application/application2json.cpp \
     server/application/iapplication.cpp \
-    server/application/baseapplications.cpp
+    server/application/baseapplications.cpp \
+    server/applicationregistry.cpp \
+    server/connectiongatekeeper.cpp \
+    server/serverchannelmanager.cpp \
+    server/channelfactory.cpp \
+    playermeta.cpp \
+    messagefactory.cpp \
+    server/commands/pingcommand.cpp
 
 HEADERS +=\
         lib_global.h \
-    client/commtcpclient.h \
-    server/commtcpserver.h \
     messagereader.h \
-    channelmanager.h \
-    server/tcpconnection.h \
-    server/serversidecontrolchannel.h \
+    playermeta.h \
+    client/commtcpclient.h \
     client/clientsidecontrolchannel.h \
-    client/playersmanager.h \
-    server/serversetup.h \
     client/clientsetup.h \
-    client/clientsidechannelmanager.h \
-    server/serversidechannelmanager.h \
+    client/clientsideplayerchannel.h \
+    client/consoleapplication.h \
+    client/clientsidechannelpartners.h \
+    client/clientchannelmanager.h \
+    client/4qml/playersmanager.h \
+    client/4qml/assets.h \
+    client/4qml/applicationmanager.h \
+    client/4qml/gamemodel.h \
     server/connectionmanager.h \
     server/serversideplayerchannel.h \
-    client/clientsideplayerchannel.h \
-    playerchannel.h \
-    controlchannel.h \
-    channel.h \
-    ichannelparent.h \
+    server/serversetup.h \
+    server/channel.h \
     server/playerconnectionmanager.h \
-    client/consoleapplication.h \
-    client/assets.h \
-    client/4qml/applicationmanager.h \
     server/readme_serverside.h \
-    client/4qml/gamemodel.h \
-    icommand.h \
-    server/commands/querylocalapplicationscommand.h \
+    server/icommand.h \
+    server/commtcpserver.h \
+    server/tcpconnection.h \
+    server/serversidecontrolchannel.h \
     server/application/iapplication.h \
     server/application/iapplicationmeta.h \
     server/application/baseapplication.h \
     server/application/iapplications.h \
     server/application/application2json.h \
     server/application/applicationmeta.h \
-    server/application/baseapplications.h
+    server/application/baseapplications.h \
+    server/applicationregistry.h \
+    server/connectiongatekeeper.h \
+    server/channelfactory.h \
+    server/channelsouthpartner.h \
+    server/serverchannelmanager.h \
+    messagefactory.h \
+    server/commands/pingcommand.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

@@ -7,6 +7,8 @@
 #include <QState>
 #include <QDebug>
 
+#define LOG_AREA "UIAppStateMachine"
+#include "log/log.h"
 
 static const char* STATE_STARTUP = "startup";
 static const char* STATE_WAITAPP_LAUNCHING_MAINUI = "waitAppVisibleLaunchingMainUI";
@@ -22,10 +24,14 @@ public:
     void emitAppLaunchRequested() { emit appLaunchRequested(); }
     void emitAppExitRequested()   { emit appExitRequested(); }
     void emitAppLaunchValidated() { emit appLaunchValidated(); }
+    void emitWaitAppLaunchValidated() { emit waitappLaunchValidated(); }
+    void emitMainUILaunchValidated()  { emit mainuiLaunchValidated(); }
 
 signals:
     void appLaunchRequested();
     void appExitRequested();
+    void waitappLaunchValidated();
+    void mainuiLaunchValidated();
     void appLaunchValidated();
 
 private:
@@ -38,7 +44,9 @@ class State : public QState
     Q_OBJECT
 
 public:
-    State(QString name = "") : QState(), _stateName(name) {}
+    State(QString name = "") : QState(), _stateName(name) {
+        connect(this, &QState::exited, this, &State::onExit);
+    }
     ~State() {}
 
     QString name() const { return _stateName; }
@@ -48,7 +56,8 @@ signals:
     void enteredState(QString stateName);
 
 protected:
-    virtual void onEntry(QEvent* event) { qDebug() << "onEntry: " << _stateName; Q_UNUSED(event); emit entered(); emit enteredState(_stateName); }
+    virtual void onEntry(QEvent* event) { TRACE("onEntry() to state" << _stateName); Q_UNUSED(event); emit entered(); emit enteredState(_stateName); }
+    virtual void onExit() { TRACE("onExit() from state" << _stateName); }
 
 private:
     QString _stateName;

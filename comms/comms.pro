@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += src tests
+SUBDIRS += src app tests
 
 CONFIG += ordered
 

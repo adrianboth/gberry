@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <testutils/qtgtest.h>
 #include <QCoreApplication>
 
 #include "utils/util_controllerproxy.h"
@@ -40,15 +40,15 @@ TEST(UIAppStateMachine, OKFlow)
 
     // --
     EXPECT_CALL(mainuiMock, launch()).Times(1);
-    waitAppMock.emitLaunched();
-    //st.applicationConnectionValidated();
+    //waitAppMock.emitLaunched(); // only in simulated mode
+    st.applicationConnectionValidated("waitapp");
     QCoreApplication::processEvents(); verifyMocks();
 
     // --
     // no transition until explitly asked
     EXPECT_CALL(waitAppMock, pause()).Times(1);
     //mainuiMock.emitLaunched();
-    st.applicationConnectionValidated();
+    st.applicationConnectionValidated("mainui");
     processEvents(); verifyMocks();
 
     // --
@@ -66,22 +66,26 @@ TEST(UIAppStateMachine, OKFlow)
     // new app running
     EXPECT_CALL(waitAppMock, pause()).Times(1);
     //currentAppMock.emitLaunched();
-    st.applicationConnectionValidated();
+    st.applicationConnectionValidated("foobarAppId");
     processEvents(); verifyMocks();
-    EXPECT_TRUE(st.debugCurrentStateName() == "appVisible");
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_APP);
 
     // --
     // menu requested
     EXPECT_CALL(waitAppMock, resume()).Times(1);
+    EXPECT_CALL(currentAppMock, applicationId())
+            .Times(1)
+            .WillOnce(Return(QString("foobarAppId")));
     EXPECT_CALL(currentAppMock, stop()).Times(1);
     EXPECT_CALL(mainuiMock, launch()).Times(1);
-    st.exitCurrentApplication(); // and show menu
+    st.exitApplication("foobarAppId"); // and show menu
     processEvents(); verifyMocks();
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI) << st.debugCurrentStateName();
 
     // --
     EXPECT_CALL(waitAppMock, pause()).Times(1);
     //mainuiMock.emitLaunched();
-    st.applicationConnectionValidated();
+    st.applicationConnectionValidated("mainui");
     processEvents(); verifyMocks();
 
     // finally mainui visible again
@@ -115,21 +119,22 @@ TEST(UIAppStateMachine, ApplicationDiedFlow)
     // (this case also verifies that we can really drive states quickly where we want)
     st.start();
     processEvents();
-    EXPECT_TRUE(st.debugCurrentStateName() == STATE_STARTUP);
-    niceWaitAppMock.emitLaunched();
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_STARTUP);
+    //niceWaitAppMock.emitLaunched(); // only in simulated mode
+    st.applicationConnectionValidated("waitapp");
     processEvents();
-    EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
     //niceMainUIMock.emitLaunched();
-    st.applicationConnectionValidated();
-    EXPECT_TRUE(st.debugCurrentStateName() == STATE_MAINUI);
+    st.applicationConnectionValidated("mainui");
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_MAINUI);
     processEvents();
     st.lauchApplication("foobarAppId"); // id
     processEvents();
-    EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_APP);
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_APP);
     //niceCurrentAppMock.emitLaunched();
-    st.applicationConnectionValidated();
+    st.applicationConnectionValidated("foobarAppId");
     processEvents();
-    EXPECT_TRUE(st.debugCurrentStateName() == STATE_APP);
+    ASSERT_TRUE(st.debugCurrentStateName() == STATE_APP);
 
     // now in app started state -> changes mock
     waitAppMockProxy.setTarget(&waitAppMock);
@@ -175,11 +180,12 @@ TEST(UIAppStateMachine, ApplicationLaunchFailedImmediately)
     st.start();
     processEvents();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_STARTUP);
-    niceWaitAppMock.emitLaunched();
+    //niceWaitAppMock.emitLaunched(); // only in simulated mode
+    st.applicationConnectionValidated("waitapp");
     processEvents();
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_WAITAPP_LAUNCHING_MAINUI);
     //niceMainUIMock.emitLaunched();
-    st.applicationConnectionValidated();
+    st.applicationConnectionValidated("mainui");
     EXPECT_TRUE(st.debugCurrentStateName() == STATE_MAINUI);
     processEvents();
     st.lauchApplication("foobarAppId"); // id

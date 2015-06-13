@@ -30,13 +30,8 @@ public:
     void start();
 
     // TODO: this should be actually a class presenting applications
-    void lauchApplication(QString applicationID);
-    void exitCurrentApplication();
-
-    // TODO: actually I need a generic ApplicationController
-        // pure abstract to have interface to test
-        // would have normal exit, yms,
-        // how about crashing
+    void lauchApplication(const QString& applicationId);
+    void exitApplication(const QString& applicationId);
 
     // TODO: how to signal error situations for user
 
@@ -44,7 +39,7 @@ public:
     QString debugCurrentStateName() const;
 
 public slots:
-    void applicationConnectionValidated();
+    void applicationConnectionValidated(const QString& applicationId);
 
 private:
     QStateMachine _stateMachine;

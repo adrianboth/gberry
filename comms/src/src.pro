@@ -1,4 +1,4 @@
-TEMPLATE = app
+TEMPLATE = lib
 TARGET = comms
 
 QT       += core network
@@ -9,9 +9,11 @@ QT       += gui widgets
 CONFIG   += console c++11
 CONFIG   -= app_bundle
 
+DEFINES += LIB_LIBRARY
+
 include(../project.pri)
 
-SOURCES += main.cpp \
+SOURCES += \
     uiappstatemachine.cpp \
     applicationcontroller.cpp \
     localapplications.cpp \
@@ -21,7 +23,13 @@ SOURCES += main.cpp \
     json/jsondefinition.cpp \
     json/jsonvalidator.cpp \
     json/jsondefinitionbuilder.cpp \
-    cmdlineparams.cpp
+    cmdlineparams.cpp \
+    commschannelfactory.cpp \
+    commands/launchapplicationcommand.cpp \
+    commands/querylocalapplicationscommand.cpp \
+    commands/commscommands.cpp \
+    commands/exitapplicationcommand.cpp \
+    comms.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -38,7 +46,13 @@ HEADERS += \
     json/jsonvalidator.h \
     json/jsondefinitionbuilder.h \
     json/jsonvalidationresult.h \
-    cmdlineparams.h
+    cmdlineparams.h \
+    commschannelfactory.h \
+    commands/launchapplicationcommand.h \
+    commands/querylocalapplicationscommand.h \
+    commands/commscommands.h \
+    commands/exitapplicationcommand.h \
+    comms.h
 
 DEPENDPATH += .
 
@@ -48,21 +62,6 @@ linux-g++ {
         DEFINES += GBERRY_ROOT_PATH=$${DEPLOY_DIR}
     }
 }
-
-target.path = $${DEPLOY_DIR}/bin/
-INSTALLS += target
-
-# this would affect all files, but now just scripts are installed
-QMAKE_INSTALL_FILE = install -m 6755
-scripts.files = ../scripts/*
-scripts.path = $$DEPLOY_DIR/bin/
-INSTALLS += scripts
-
-#filerightsCommand = chmod -R u+x $$DEPLOY_DIR/bin/
-#filerights.commands = $$filerightsCommand
-#filerights.depends = scripts
-#QMAKE_EXTRA_TARGETS += filerights
-
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 

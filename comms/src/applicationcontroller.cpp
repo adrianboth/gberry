@@ -17,15 +17,20 @@ namespace {
 
 const char* ApplicationController::PROCESS_KILL_WAIT_MS_PROP = "processKillWaitMs";
 
-ApplicationController::ApplicationController(QSharedPointer<IApplication> app, QObject *parent) :
+ApplicationController::ApplicationController(
+        QSharedPointer<IApplication> app,
+        ApplicationRegistry* registry,
+        QObject *parent) :
     ApplicationController(parent)
 {
     _app = app;
+    _registry = registry;
     this->setProperty(PROCESS_KILL_WAIT_MS_PROP, DEFAULT_PROCESS_KILL_WAIT_MS);
 }
 
 ApplicationController::ApplicationController(QObject *parent) :
     IApplicationController(parent),
+    _registry(nullptr),
     _currentAction(NONE),
     _running(false),
     _simulated(false),
@@ -82,6 +87,13 @@ void ApplicationController::launch()
 
     DEBUG("Launching process: " << appExe);
     _process.setProgram(appExe);
+    if (_registry) {
+        // registry is used to identify who is making TCP connections
+        QStringList args;
+        args << "--connection-code=" + _registry->createIdentificationCode(_app->meta()->applicationId());
+        _process.setArguments(args);
+    }
+
     _currentAction = LAUNCHING;
     _process.start();
 }
@@ -123,6 +135,11 @@ void ApplicationController::stop()
 void ApplicationController::setApplication(QSharedPointer<IApplication> app)
 {
     _app = app;
+}
+
+QString ApplicationController::applicationId() const
+{
+    return _app->id();
 }
 
 void ApplicationController::onProcessStateChanged(QProcess::ProcessState processState)

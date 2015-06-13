@@ -16,6 +16,8 @@ public:
     virtual void resume() = 0;
     virtual void stop() = 0;
 
+    virtual QString applicationId() const = 0;
+
 signals:
     void launched();
     void launchFailed();

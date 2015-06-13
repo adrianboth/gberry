@@ -22,6 +22,11 @@ void LaunchController::pause() { _appController->pause(); }
 void LaunchController::resume() { _appController->resume(); }
 void LaunchController::stop() { _appController->stop(); }
 
+QString LaunchController::applicationId() const
+{
+   return  _appController->applicationId();
+}
+
 bool LaunchController::useApplication(const QString& appID)
 {
     _appController->stop();

@@ -1,12 +1,12 @@
 #ifndef CLIENTSIDECONTROLCHANNEL_H
 #define CLIENTSIDECONTROLCHANNEL_H
 
-#include <QByteArray>
+#include <QObject>
 
-#include "controlchannel.h"
+class QByteArray;
+class ClientSideChannelPartner;
 
-
-class ClientSideControlChannel : public ControlChannel
+class ClientSideControlChannel : public QObject
 {
     Q_OBJECT
 
@@ -16,6 +16,31 @@ public:
 
     void requestApplicationLaunch(QString appID);
     void requestApplicationExit();
+
+    static const int CHANNEL_ID;
+
+    void setApplicationIdCode(const QString& code);
+
+    void ping();
+
+    virtual bool receiveMessage(const QByteArray& msg);
+
+    void attachChannelPartner(ClientSideChannelPartner* partner);
+    void detachChannelPartner();
+
+    int channelId() const;
+
+    bool isActive() const;
+
+signals:
+    void channelClosed();
+    void pingReceived();
+
+private:
+    int _id;
+    bool _activated;
+    QString _applicationIdCode;
+    ClientSideChannelPartner* _partner;
 
 };
 

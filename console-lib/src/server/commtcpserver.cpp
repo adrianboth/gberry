@@ -5,6 +5,9 @@
 
 #include "tcpconnection.h"
 
+#define LOG_AREA "CommTcpServer"
+#include "log/log.h"
+
 
 CommTcpServer::CommTcpServer(int port, QObject *parent) :
     QObject(parent), _server(NULL), _port(port), _connectionIdCount(0)
@@ -26,12 +29,12 @@ void CommTcpServer::open()
 
     _server = new QTcpServer(this);
     if (!_server->listen(QHostAddress::Any, _port)) {
-        qCritical() << "Failed to start listening on port " << _port << ": " << _server->errorString();
+        ERROR("Failed to start listening on port " << _port << ": " << _server->errorString());
         close();
         return;
     }
 
-    qDebug() << "[CommTcpServer] Listening on 0.0.0.0:" << _port;
+    DEBUG("Listening on 0.0.0.0:" << _port);
     connect(_server, &QTcpServer::newConnection,
             this,    &CommTcpServer::newConnection);
 }

@@ -6,12 +6,12 @@
 #include <QQmlApplicationEngine>
 
 #include <applicationsettings.h>
-
-#include <client/clientsetup.h>
-#include <client/assets.h>
 #include <ui/displayprofile.h>
-#include <client/4qml/applicationmanager.h>
-#include <client/4qml/gamemodel.h>
+
+#include "client/clientsetup.h"
+#include "client/4qml/assets.h"
+#include "client/4qml/applicationmanager.h"
+#include "client/4qml/gamemodel.h"
 
 // trick to get define as a string
 #define xstr(s) str(s)

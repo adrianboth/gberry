@@ -2,49 +2,76 @@
 
 #include <QDebug>
 
-#include "playerchannel.h"
+#include "server/serverchannelmanager.h"
+#include "server/websocketserver.h"
+#include "serversideplayerchannel.h"
+#include "playermeta.h"
 
+class PlayerConnectionManagerPrivate
+{
+public:
+    PlayerConnectionManagerPrivate(WebsocketServer* websocketServer_,
+                                   ServerChannelManager* channelManager_) :
+        websocketServer(websocketServer_),
+        channelManager(channelManager_) {
+        Q_ASSERT(websocketServer_ != nullptr);
+        Q_ASSERT(channelManager_ != nullptr);
+    }
+
+    WebsocketServer* websocketServer;
+    ServerChannelManager* channelManager;
+
+    QMap<int, ServerSidePlayerChannel*> channelByPlayerId;
+    QMap<int, int> playerdIdByChannelId;
+};
+
+class PlayerChannelNorthPartnerImpl : public PlayerChannelNorthPartner
+{
+public:
+    PlayerChannelNorthPartnerImpl(int channelId, PlayerConnectionManager* manager_) :
+        PlayerChannelNorthPartner(channelId),
+        manager(manager_) {}
+
+    PlayerConnectionManager* manager;
+
+    virtual void playerMessageFromSouth(const QByteArray &msg) override {
+        manager->playerMessageFromSouth(_channelId, msg);
+    }
+};
 
 PlayerConnectionManager::PlayerConnectionManager(
-        WebsocketServer& websocketServer,
-        ServerSideChannelManager& channelManager,
+        WebsocketServer* websocketServer,
+        ServerChannelManager* channelManager,
         QObject *parent) :
-    QObject(parent), _websocketServer(websocketServer), _channelManager(channelManager)
+    QObject(parent),
+    _d(new PlayerConnectionManagerPrivate(websocketServer, channelManager))
 {
     // on new connection
-    connect(&_websocketServer, &WebsocketServer::newPlayerConnection,
+    connect(_d->websocketServer, &WebsocketServer::newPlayerConnection,
             this, &PlayerConnectionManager::onNewPlayerConnection);
 
-    connect(&_websocketServer, &WebsocketServer::playerConnectionClosed,
+    connect(_d->websocketServer, &WebsocketServer::playerConnectionClosed,
             this, &PlayerConnectionManager::onPlayerConnectionClosed);
 
-    connect(&_websocketServer, &WebsocketServer::playerMessageReceived,
-            this, &PlayerConnectionManager::onPlayerMessageReceived);
+    connect(_d->websocketServer, &WebsocketServer::playerMessageReceived,
+            this, &PlayerConnectionManager::onPlayerMessageReceivedFromNorth);
 }
 
 PlayerConnectionManager::~PlayerConnectionManager()
 {
-
 }
 
 void PlayerConnectionManager::onNewPlayerConnection(PlayerSession session)
 {
     int pid = session.playerId();
 
-    PlayerMetadata playerMeta(pid, session.playerName());
-    PlayerChannel* playerChannel = _channelManager.openPlayerChannel(playerMeta);
+    PlayerMeta playerMeta(pid, session.playerName());
+    ServerSidePlayerChannel* playerChannel = _d->channelManager->openPlayerChannel(playerMeta);
 
-    _channelByPlayerId[pid] = playerChannel;
-    _playerdIdByChannelId[playerChannel->channelId()] = pid;
+    _d->channelByPlayerId[pid] = playerChannel;
+    _d->playerdIdByChannelId[playerChannel->channelId()] = pid;
 
-    connect(playerChannel, &PlayerChannel::playerMessageReceived,
-            [this] (int channelId, const QByteArray msg)
-    {
-        if (_playerdIdByChannelId.contains(channelId))
-            _websocketServer.sendPlayerMessage(_playerdIdByChannelId[channelId], QString(msg));
-        else
-            qWarning() << "[PlayerConnectionManager] Received msg from south from unregistered channel:" << channelId;
-    });
+    playerChannel->attachNorthPartner(new PlayerChannelNorthPartnerImpl(playerChannel->channelId(), this));
 
     // TODO: if there is no app running -> send message
 }
@@ -52,27 +79,33 @@ void PlayerConnectionManager::onNewPlayerConnection(PlayerSession session)
 void PlayerConnectionManager::onPlayerConnectionClosed(int playerId)
 {
     // north side closed connection (either by console or client)
-    if (_channelByPlayerId.contains(playerId))
+    if (_d->channelByPlayerId.contains(playerId))
     {
-        PlayerChannel* ch = _channelByPlayerId[playerId];
-        _channelByPlayerId.remove(playerId);
-        _playerdIdByChannelId.remove(ch->channelId());
+        ServerSidePlayerChannel* ch = _d->channelByPlayerId[playerId];
+        _d->channelByPlayerId.remove(playerId);
+        _d->playerdIdByChannelId.remove(ch->channelId());
 
-        _channelManager.closeChannel(ch->channelId());
-        _channelManager.unregisterChannel(ch->channelId());
-        delete ch; // TODO: is this really right?
+        _d->channelManager->closePlayerChannel(ch->channelId());
     }
 }
 
-void PlayerConnectionManager::onPlayerMessageReceived(int playerId, QString message)
+void PlayerConnectionManager::onPlayerMessageReceivedFromNorth(int playerId, QString message)
 {
     // message coming from north side
-    if (_channelByPlayerId.contains(playerId))
+    if (_d->channelByPlayerId.contains(playerId))
     {
         // TODO: this class now acts as conversion bytes -> string, not sure it is good idea ...
         //       could message be always qbytearray?
-        _channelByPlayerId[playerId]->sendPlayerMessage(message.toLatin1());
+        _d->channelByPlayerId[playerId]->receivePlayerMessageFromNorth(message.toLatin1());
     }
     else
         qWarning() << "[PlayerConnectionManager] Received message from north side for unregistered player id:" << playerId;
+}
+
+void PlayerConnectionManager::playerMessageFromSouth(int channelId, const QByteArray& msg)
+{
+    if (_d->playerdIdByChannelId.contains(channelId))
+        _d->websocketServer->sendPlayerMessage(_d->playerdIdByChannelId[channelId], QString(msg));
+    else
+        qWarning() << "[PlayerConnectionManager] Received msg from south from unregistered channel:" << channelId;
 }

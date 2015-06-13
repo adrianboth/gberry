@@ -12,9 +12,11 @@
 #include "testutils/waiter.h"
 
 #include "testutils/util_enablelog.h"
-namespace {
-    static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging();
-}
+ENABLE_LOGGING()
+
+//namespace {
+//    static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging();
+//}
 
 TEST(LaunchController, LaunchController)
 {

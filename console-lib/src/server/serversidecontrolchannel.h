@@ -1,12 +1,12 @@
 #ifndef SERVERSIDECONTROLCHANNEL_H
 #define SERVERSIDECONTROLCHANNEL_H
 
-#include "controlchannel.h"
+#include "channel.h"
 
 #include <QByteArray>
 
 
-class ServerSideControlChannel : public ControlChannel
+class ServerSideControlChannel : public Channel
 {
     Q_OBJECT
 
@@ -14,12 +14,13 @@ public:
     ServerSideControlChannel();
     ~ServerSideControlChannel();
 
-    //virtual bool receiveMessage(const QByteArray msg) override;
-    virtual bool processJsonMessage(const QJsonObject& json) override;
+    static const int CHANNEL_ID;
+
+    void pingSouth();
 
 signals:
-    void applicationLaunchRequested(QString appID);
-    void applicationExitRequested(); // TODO: how to recognize different apps?
+    void pingSouthReceived();
+
 };
 
 #endif // SERVERSIDECONTROLCHANNEL_H

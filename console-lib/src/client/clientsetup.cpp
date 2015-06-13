@@ -1,12 +1,12 @@
 #include "clientsetup.h"
 
 ClientSetup::ClientSetup(QObject* parent) :
-    QObject(parent), tcpClient(7777)
+    QObject(parent), tcpClient(7777), controlChannel(nullptr)
 {
     QObject::connect(&tcpClient,      &CommTcpClient::received,
-                     &channelManager, &ChannelManager::processMessage);
+                     &channelManager, &ClientChannelManager::processMessage);
 
-    QObject::connect(&channelManager, &ChannelManager::outgoingMessage,
+    QObject::connect(&channelManager, &ClientChannelManager::outgoingMessage,
                      &tcpClient,      &CommTcpClient::write);
 
     QObject::connect(&tcpClient,    &CommTcpClient::connected,
@@ -15,13 +15,12 @@ ClientSetup::ClientSetup(QObject* parent) :
     QObject::connect(&tcpClient,    &CommTcpClient::disconnected,
                      this,          &ClientSetup::connectionBroken);
 
-    channelManager.registerChannel(&controlChannel);
+    controlChannel = new ClientSideControlChannel;
+    channelManager.registerControlChannel(controlChannel);
 
-    QObject::connect(&channelManager, &ClientSideChannelManager::newPlayerChannel,
+    QObject::connect(&channelManager, &ClientChannelManager::newPlayerChannel,
                      &playersManager, &PlayersManager::newPlayer);
 
-    QObject::connect(&channelManager, &ChannelManager::channelClosed,
-                     &playersManager, &PlayersManager::playerExit);
 
 }
 
@@ -39,19 +38,11 @@ void ClientSetup::start()
 void ClientSetup::connectionEstablished()
 {
     // socket connection ok
-    controlChannel.ping();
+    // controlChannel.ping(); // TODO: nowadays server side initiates
 }
 
 void ClientSetup::connectionBroken()
 {
     // all player channels will be destroyed
-    foreach (int cid, channelManager.allChannelIds())
-    {
-        if (cid != ChannelManager::ROOT_CHANNEL)
-        {
-            Channel* handler = channelManager.unregisterChannel(cid);
-            delete handler;
-            playersManager.playerExit(cid);
-        }
-    }
+    channelManager.closeAllPlayerChannels();
 }

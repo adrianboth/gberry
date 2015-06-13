@@ -17,6 +17,7 @@ public:
     MOCK_METHOD0(pause, void());
     MOCK_METHOD0(resume, void());
     MOCK_METHOD0(stop, void());
+    MOCK_CONST_METHOD0(applicationId, QString());
 
     void emitLaunched() { emit launched(); }
 };
@@ -29,6 +30,7 @@ public:
     MOCK_METHOD0(pause, void());
     MOCK_METHOD0(resume, void());
     MOCK_METHOD0(stop, void());
+    MOCK_CONST_METHOD0(applicationId, QString());
     MOCK_METHOD1(useApplication, bool(const QString& s));
 
     void emitLaunched() { emit launched(); }

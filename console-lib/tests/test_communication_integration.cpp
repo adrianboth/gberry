@@ -6,110 +6,123 @@
 #include <testutils/waiter.h>
 #include <testutils/qtgtest.h>
 
-#include "channelmanager.h"
+#include "server/serverchannelmanager.h"
 #include "server/serversideplayerchannel.h"
 #include "server/commtcpserver.h"
 #include "server/serversidecontrolchannel.h"
 #include "server/serversetup.h"
+#include "server/channelfactory.h"
+#include "client/clientchannelmanager.h"
 #include "client/clientsidecontrolchannel.h"
 #include "client/commtcpclient.h"
 #include "client/clientsetup.h"
 #include <client/qmlapplication.h>
 #include <client/consoledevice.h>
 
+#include "utils/testchannelfactory.h"
+
 // TEST
 #include <restinvocationfactoryimpl.h>
 #include <server/consolerestserver.h>
 
 
-TEST(CommunicationIntegration, SetupServerAndClientRootChannelsAndPingBothWays)
+#define LOG_AREA "test_communication_integration"
+#include "log/log.h"
+
+TEST(CommunicationIntegration, SetupServerAndClientPingBothWaysWithManualSetup)
 {
-    // TESTING: basic message flow
+    // TESTING: basic message flow without ServerSetup or ClientSetup
     //  - we are setting up objects manually
 
-    CommTcpServer server(7777); // server is comms
+    CommTcpServer tcpServer(7777); // server is comms
+    TestChannelFactory testChannelFactory;
+    ServerChannelManager serverChannelManager(&testChannelFactory);
+    ApplicationRegistry applicationRegistry;
+    ConnectionManager connectionManager(&tcpServer, &applicationRegistry, &serverChannelManager);
 
-    ServerSideChannelManager serverChannelManager;
-    // we discard connectionId, in future it might have meaning
-    QObject::connect(&server, &CommTcpServer::received,
-            [&] (int connectionId, int channelId, const QByteArray msg) {
-        Q_UNUSED(connectionId);
-        serverChannelManager.processMessage(channelId, msg);
-    });
 
-    QObject::connect(&serverChannelManager, &ServerSideChannelManager::outgoingMessage,
-                     [&server] (int channelId, const QByteArray msg) {
-        server.write(0, channelId, msg); // connection id count should have started from zero
-    });
+    QObject::connect(&serverChannelManager, &ServerChannelManager::outgoingMessageToSouth,
+                     &connectionManager, &ConnectionManager::outgoingMessageFromChannel);
 
-    ServerSideControlChannel serverControl;
-    serverChannelManager.registerChannel(&serverControl);
+    QObject::connect(&tcpServer, &CommTcpServer::received,
+                     &connectionManager, &ConnectionManager::incomingMessage);
 
-    int serverPingReceived = 0;
-    QObject::connect(&serverControl, &ServerSideControlChannel::pingReceived, [&] () { serverPingReceived++; });
+    // TODO: these could be moved to ConnectionManager
+    QObject::connect(&tcpServer, &CommTcpServer::connected,
+                     &connectionManager, &ConnectionManager::applicationConnected);
 
-    // ServerSideChannelManager is informed if whole connection is closed
-    QObject::connect(&server, &CommTcpServer::disconnected,
-                     [&] () { serverChannelManager.applicationClosed(); });
+    QObject::connect(&tcpServer, &CommTcpServer::disconnected,
+                     &connectionManager, &ConnectionManager::applicationDisconnected);
 
-    server.open();
+// -- setup ok -> start sever
 
-    // --
+    tcpServer.open();
+
+// -- setup client side
     CommTcpClient client(7777); // client is any app
 
-    ChannelManager clientChannelManager;
+    ClientChannelManager clientChannelManager;
+
     QObject::connect(&client,               &CommTcpClient::received,
-                     &clientChannelManager, &ChannelManager::processMessage);
+                     &clientChannelManager, &ClientChannelManager::processMessage);
 
     int disconnectedReceived = 0;
     QObject::connect(&client,               &CommTcpClient::disconnected,
                      [&] () { disconnectedReceived++; });
 
-    QObject::connect(&clientChannelManager, &ClientSideChannelManager::outgoingMessage,
+    QObject::connect(&clientChannelManager, &ClientChannelManager::outgoingMessage,
                      &client, &CommTcpClient::write);
 
-    ClientSideControlChannel clientControl;
-    clientChannelManager.registerChannel(&clientControl);
+
+    ClientSideControlChannel* clientControl = new ClientSideControlChannel;
+    clientChannelManager.registerControlChannel(clientControl);
 
     int clientPingReceived = 0;
-    QObject::connect(&clientControl, &ClientSideControlChannel::pingReceived, [&] () { clientPingReceived++; });
+    QObject::connect(clientControl, &ClientSideControlChannel::pingReceived, [&] () { clientPingReceived++; });
 
     client.open();
-    Waiter::wait([&] () { return client.isConnected(); });
+    Waiter::wait([&] () { return client.isConnected(); }); // tcp connection ok
+    Waiter::wait([&] () { return testChannelFactory.lastControlChannel != nullptr; });
+    Waiter::wait([&] () { return clientControl->isActive(); });
+    ASSERT_TRUE(clientPingReceived == 1); // handshaking contains ping
+
     // TODO: should we check connected() signal or is that done elsewhere
 
-    // -- test
+    // connection should have been handshaked
 
-    clientControl.ping();
-    Waiter::wait([&] () { return serverPingReceived > 0; });
+    // -- test
+    ASSERT_TRUE(testChannelFactory.lastControlChannel != nullptr);
+    ServerSideControlChannel* serverControl = testChannelFactory.lastControlChannel;
+    EXPECT_TRUE(serverControl->isOpen());
+
+    int serverPingReceived = 0;
+    QObject::connect(testChannelFactory.lastControlChannel, &ServerSideControlChannel::pingSouthReceived, [&] () { serverPingReceived++; });
+    int channelCloseCalled = 0;
+    QObject::connect(testChannelFactory.lastControlChannel, &ServerSideControlChannel::channelClosed, [&] () { channelCloseCalled++; });
+
+    clientControl->ping();
+
+    Waiter::wait([&] () { return serverPingReceived == 1; });
     EXPECT_EQ(serverPingReceived, 1);
 
     // answer should come back
-    Waiter::wait([&] () { return clientPingReceived > 0; });
-    EXPECT_EQ(clientPingReceived, 1);
-
-    EXPECT_TRUE(clientControl.isOpen());
-    EXPECT_TRUE(serverControl.isOpen());
-
-    // other way round: server -> client
-    serverControl.ping();
-
-    Waiter::wait([&] () { return clientPingReceived > 1; });
+    Waiter::wait([&] () { return clientPingReceived == 2; });
     EXPECT_EQ(clientPingReceived, 2);
 
-    // answer should come back
-    Waiter::wait([&] () { return serverPingReceived > 1; });
-    EXPECT_EQ(serverPingReceived, 2);
+// - other way round: server -> client
+    serverControl->pingSouth();
 
-    // pings have put root channels to open state (at least not yet any handshaking
-    EXPECT_EQ(serverControl.state(), Channel::CHANNEL_OPEN);
-    EXPECT_EQ(clientControl.state(), Channel::CHANNEL_OPEN);
+    Waiter::wait([&] () { return clientPingReceived == 3; });
+    EXPECT_EQ(clientPingReceived, 3);
+
+    // answer should come back
+    Waiter::wait([&] () { return serverPingReceived == 21; });
+    EXPECT_EQ(serverPingReceived, 2);
 
     // -- closing
     client.close(); // whole tcp connection from client to server is closed: i.e. application closed
 
-    Waiter::wait([&] () { return serverControl.state() == Channel::CHANNEL_CLOSED; });
-    EXPECT_EQ(serverControl.state(), Channel::CHANNEL_CLOSED);
+    WAIT_AND_ASSERT(channelCloseCalled == 1);
 
     // On client side closing means tearing down all data structures.
     // Now checking that just signal arrives
@@ -117,37 +130,86 @@ TEST(CommunicationIntegration, SetupServerAndClientRootChannelsAndPingBothWays)
     // TODO: when client connection goes down, all control should be recreated
 
     // -- closing
-    server.close(); // just to be nice
-    qDebug("### tearing down PingBothWays");
+    tcpServer.close(); // just to be nice
+    TRACE("Tearing down PingBothWays");
+}
+
+
+// now using ServerSetup and ClientSetup and pings
+TEST(CommunicationIntegration, SetupServerAndClientPingBothWaysWithSetupClasses)
+{
+    ServerSetup serverSetup;
+    TestChannelFactory testChannelFactory;
+    serverSetup.use(&testChannelFactory);
+    serverSetup.start();
+
+    // --
+    ClientSetup clientSetup;
+
+    int clientPingReceived = 0;
+    QObject::connect(clientSetup.controlChannel, &ClientSideControlChannel::pingReceived, [&] () { clientPingReceived++; });
+
+    clientSetup.start();
+
+    WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
+    WAIT_AND_ASSERT(clientSetup.controlChannel->isActive());
+    ASSERT_TRUE(clientPingReceived == 1); // handshaking contains ping
+
+    // connection should have been handshaked
+
+    // -- test
+    int serverPingReceived = 0;
+    QObject::connect(testChannelFactory.lastControlChannel, &ServerSideControlChannel::pingSouthReceived, [&] () { serverPingReceived++; });
+
+    clientSetup.controlChannel->ping();
+
+    WAIT_AND_ASSERT(serverPingReceived == 1);
+    // answer should come back
+    WAIT_AND_ASSERT(clientPingReceived == 2);
+
+// - other way round: server -> client
+    testChannelFactory.lastControlChannel->pingSouth();
+
+    WAIT_AND_ASSERT(clientPingReceived == 3);
+    // answer should come back
+    WAIT_AND_ASSERT(serverPingReceived == 2);
+
+    // -- closing
+    ASSERT_TRUE(testChannelFactory.controlChannelClosedCount == 0);
+    clientSetup.tcpClient.close(); // whole tcp connection from client to server is closed: i.e. application closed
+
+    WAIT_AND_ASSERT(testChannelFactory.controlChannelClosedCount == 1);
 }
 
 
 TEST(CommunicationIntegration, NewPlayerChannelCreatedAndDestroyed)
 {
     ServerSetup serverSetup;
+    TestChannelFactory testChannelFactory;
+    serverSetup.use(&testChannelFactory);
     serverSetup.start();
 
     // --
     ClientSetup clientSetup;
     clientSetup.start();
 
-    Waiter::wait([&] () { return clientSetup.tcpClient.isConnected(); });
-    // TODO: should we check connected() signal or is that done elsewhere
+    WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
+    WAIT_AND_ASSERT(clientSetup.controlChannel->isActive());
 
     // -- new player (remember server is 'comms')
 
-    PlayerMetadata playerMeta(100, "foobar");
+    PlayerMeta playerMeta(100, "foobar");
 
-    PlayerChannel* clientPlayer= serverSetup.channelManager.openPlayerChannel(playerMeta);
+    ServerSidePlayerChannel* clientPlayer= serverSetup.channelManager->openPlayerChannel(playerMeta);
     Waiter::wait([&] () { return clientSetup.playersManager.numberOfPlayers() > 0; }, true);
     ASSERT_EQ(clientSetup.playersManager.numberOfPlayers(), 1);
 
     // Waiting OpenChannelAccepted to arrive
-    Waiter::wait([&] () { return clientPlayer->state() == Channel::CHANNEL_OPEN; }, true);
+    Waiter::wait([&] () { return clientPlayer->isOpen(); }, true);
 
     // -- close
 
-    serverSetup.channelManager.unregisterChannel(clientPlayer->channelId()); // sends closing message, no response
+    serverSetup.channelManager->closePlayerChannel(clientPlayer->channelId()); // sends closing message, no response
     Waiter::wait([&] () { return clientSetup.playersManager.numberOfPlayers() < 1; });
     ASSERT_EQ(clientSetup.playersManager.numberOfPlayers(), 0);
 
@@ -157,27 +219,36 @@ TEST(CommunicationIntegration, NewPlayerChannelCreatedAndDestroyed)
 
 TEST(CommunicationIntegration, WhenClientDisconnectsAllServerSideChannelHandlersClosedAndReconnectedLater)
 {
+    TestChannelFactory testChannelFactory;
     ServerSetup serverSetup;
+    serverSetup.use(&testChannelFactory);
     serverSetup.start();
 
+    // we create dynamically because during test we destroy object
     ClientSetup* clientSetup = new ClientSetup();
     clientSetup->start();
 
-    Waiter::wait([&] () { return clientSetup->tcpClient.isConnected(); });
+    WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
+    WAIT_AND_ASSERT(clientSetup->controlChannel->isActive());
 
-    PlayerMetadata playerMeta(100, "FooPlayer");
+// -- test
+    PlayerMeta playerMeta(100, "FooPlayer");
 
-    PlayerChannel* serverSidePlayer = serverSetup.channelManager.openPlayerChannel(playerMeta);
+    ServerSidePlayerChannel* serverSidePlayer = serverSetup.channelManager->openPlayerChannel(playerMeta);
 
     // Waiting OpenChannelAccepted to arrive (OPEN_ONGOING -> OPEN)
-    Waiter::wait([&] () { return serverSidePlayer->state() == Channel::CHANNEL_OPEN; }, true);
+    Waiter::wait([&] () { return serverSidePlayer->isOpen(); }, true);
 
     // -- close
+    int channelCloseCalled = 0;
+    ASSERT_TRUE(testChannelFactory.lastControlChannel);
+    QObject::connect(testChannelFactory.lastControlChannel, &ServerSideControlChannel::channelClosed,
+                     [&] () { channelCloseCalled++;} );
+
     // when serverside notices disconnect all channels should be closed
     clientSetup->tcpClient.close();
-    Waiter::wait([&] () { return serverSidePlayer->state() == Channel::CHANNEL_CLOSED; }, true);
-    ASSERT_TRUE(serverSidePlayer->state() == Channel::CHANNEL_CLOSED);
-    ASSERT_TRUE(serverSetup.controlChannel.state() == Channel::CHANNEL_CLOSED);
+    WAIT_AND_ASSERT(channelCloseCalled == 1);
+    WAIT_AND_ASSERT(!serverSidePlayer->isOpen());
 
     // TODO: what happens to client side (typically this doesn't happen but ...)
     ASSERT_EQ(clientSetup->playersManager.numberOfPlayers(), 0);
@@ -194,16 +265,17 @@ TEST(CommunicationIntegration, WhenClientDisconnectsAllServerSideChannelHandlers
     Waiter::wait([&] () { return clientSetup->tcpClient.isConnected(); });
 
     // when server side recognizes connection is back it should reconnect
-    Waiter::wait([&] () { return serverSidePlayer->state() == Channel::CHANNEL_OPEN; }, true);
-    ASSERT_TRUE(serverSidePlayer->state() == Channel::CHANNEL_OPEN);
-    ASSERT_TRUE(serverSetup.controlChannel.state() == Channel::CHANNEL_OPEN);
+    WAIT_AND_ASSERT(serverSidePlayer->isOpen());
     ASSERT_EQ(clientSetup->playersManager.numberOfPlayers(), 1);
+    ASSERT_TRUE(testChannelFactory.lastControlChannel != NULL);
 
     // -- tear down
     // closing happens in setup class desctructors
+    delete clientSetup;
 }
 
 
+/* TODO: can be taken  away?
 TEST(CommunicationIntegration, AppSendsDataAndPlayerResponds)
 {
     // TODO: For some reason we get socket disconnect right away.
@@ -237,14 +309,14 @@ TEST(CommunicationIntegration, AppSendsDataAndPlayerResponds)
     Waiter::waitAndAssert([&] () { return clientSetup->tcpClient.isConnected(); });
     Waiter::waitAndAssert([&] () { return serverSetup.connectionManager->activeConnection(); });
 
-    PlayerMetadata playerMeta(100, "FooPlayer");
-    PlayerChannel* serverSidePlayer = serverSetup.channelManager.openPlayerChannel(playerMeta);
+    PlayerMeta playerMeta(100, "FooPlayer");
+    ServerSidePlayerChannel* serverSidePlayer = serverSetup.channelManager->openPlayerChannel(playerMeta);
     Waiter::waitAndAssert([&] ()
-        { return serverSidePlayer->state() == Channel::CHANNEL_OPEN; }, true);
+        { return serverSidePlayer->isOpen(); }, true);
 
     int serverPlayerMessageReceived = 0;
     QByteArray serverPlayerMessage;
-    QObject::connect(serverSidePlayer, &PlayerChannel::playerMessageReceived,
+    QObject::connect(serverSetup.playerConnectionManager, &PlayerConnectionManager::playerMessageFromSouth,
                      [&] (int channelId, const QByteArray msg) {
         Q_UNUSED(channelId);
         serverPlayerMessageReceived++; serverPlayerMessage = msg;
@@ -253,7 +325,7 @@ TEST(CommunicationIntegration, AppSendsDataAndPlayerResponds)
     // --
     QByteArray serverMsg("serverMsg");
     qDebug("###########################");
-    serverSidePlayer->sendPlayerMessage(serverMsg);
+    serverSidePlayer->receivePlayerMessageFromNorth(serverMsg);
     Waiter::wait([&] () { return playerMessageReceived > 0; }, true, 5000, 500);
     ASSERT_EQ(playerMessageReceived, 1);
     EXPECT_EQ(playerIdReceived, 100);
@@ -267,35 +339,37 @@ TEST(CommunicationIntegration, AppSendsDataAndPlayerResponds)
 
     // -- close nicely
     clientSetup->tcpClient.close();
-    Waiter::wait([&] () { return serverSidePlayer->state() == Channel::CHANNEL_CLOSED; });
+    Waiter::wait([&] () { return !serverSidePlayer->isOpen(); });
 }
-
+*/
 
 // TODO: test client tcp connection dead -> close all channels -> reconnecting
 
 TEST(CommunicationIntegration, FullPipeFromSouthToNorth)
 {
     ServerSetup serverSetup;
+    TestChannelFactory testChannelFactory;
+    serverSetup.use(&testChannelFactory);
     serverSetup.start();
 
-    ClientSetup southClientSetup; // TODO: this is more like southsideclient
-    southClientSetup.start();
+    ClientSetup clientSetup;
+    clientSetup.start();
 
     // -- wait south side up
     int playerInReceived = 0;
     int playerIdReceived = -1;
-    QObject::connect(&(southClientSetup.playersManager), &PlayersManager::playerIn,
+    QObject::connect(&(clientSetup.playersManager), &PlayersManager::playerIn,
                      [&] (int playerId) { playerInReceived++; playerIdReceived = playerId; });
 
     int playerMessageReceived = 0;
     QByteArray playerInMessage;
-    QObject::connect(&(southClientSetup.playersManager), &PlayersManager::playerMessageReceived,
+    QObject::connect(&(clientSetup.playersManager), &PlayersManager::playerMessageReceived,
                      [&] (int playerId, QByteArray msg) {
         Q_UNUSED(playerId);
         playerMessageReceived++; playerInMessage = msg;
     });
 
-    Waiter::waitAndAssert([&] () { return southClientSetup.tcpClient.isConnected(); });
+    Waiter::waitAndAssert([&] () { return clientSetup.tcpClient.isConnected(); });
     Waiter::waitAndAssert([&] () { return serverSetup.connectionManager->activeConnection(); });
 
     // -- north side client
@@ -327,21 +401,24 @@ TEST(CommunicationIntegration, FullPipeFromSouthToNorth)
     EXPECT_TRUE(QString(playerInMessage) == "test message");
 
     // and then other direction
-    southClientSetup.playersManager.sendPlayerMessage(playerIdReceived, "all ok");
+    clientSetup.playersManager.sendPlayerMessage(playerIdReceived, "all ok");
     WAIT_AND_ASSERT(northSideClientMessageReceived);
     EXPECT_TRUE(northSideClientMessage == "all ok");
 
     // -- closing
     northApplication.closeConsoleConnection();
 
-    WAIT_AND_ASSERT(southClientSetup.playersManager.numberOfPlayers() == 0);
-    qDebug("DONE");
+    WAIT_AND_ASSERT(clientSetup.playersManager.numberOfPlayers() == 0);
+    TRACE("DONE");
 }
 
-
+/*
+// multiple players
 TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
 {
+    TestChannelFactory testChannelFactory;
     ServerSetup serverSetup;
+    serverSetup.use(&testChannelFactory);
     serverSetup.start();
 
     ClientSetup* southClientSetup = new ClientSetup(); // TODO: this is more like southsideclient
@@ -427,9 +504,11 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
     delete southClientSetup;
 
     // wait situation settle
-    WAIT_AND_ASSERT(serverSetup.controlChannel.state() == Channel::CHANNEL_CLOSED);
+    WAIT_AND_ASSERT(testChannelFactory.controlChannelClosedCount == 1);
 
 // -- new south side client
+    ASSERT_TRUE(testChannelFactory.lastControlChannel == nullptr);
+
     southClientSetup = new ClientSetup();
     southClientSetup->start();
 
@@ -441,7 +520,8 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
     });
 
     // reconnection occurs
-    WAIT_AND_ASSERT(serverSetup.controlChannel.state() == Channel::CHANNEL_OPEN);
+    WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
+    WAIT_AND_ASSERT(testChannelFactory.lastControlChannel->isOpen());
     WAIT_AND_ASSERT(southClientSetup->playersManager.numberOfPlayers() == 3);
   // --
 
@@ -462,3 +542,4 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
     WAIT_AND_ASSERT(southClientSetup->playersManager.numberOfPlayers() == 0);
     qDebug("DONE");
 }
+*/
