@@ -1,37 +1,47 @@
 #include "playermeta.h"
 
-PlayerMeta::PlayerMeta() : playerId(-1), playerName("UNKNOWN")
+PlayerMeta::PlayerMeta() : _pid(-1), _name("UNKNOWN")
 {
 }
 
 PlayerMeta::PlayerMeta(int pid, QString name) :
-    playerId(pid), playerName(name)
+    _pid(pid), _name(name)
 {
 }
 
 PlayerMeta::PlayerMeta(const QJsonObject& metaJson)
 {
-    this->playerId = metaJson["id"].toInt();
-    this->playerName = metaJson["name"].toString();
+    this->_pid = metaJson["id"].toInt();
+    this->_name = metaJson["name"].toString();
 }
 
 PlayerMeta::PlayerMeta(const PlayerMeta& other)
 {
-    this->playerId = other.playerId;
-    this->playerName = other.playerName;
+    this->_pid = other._pid;
+    this->_name = other._name;
 }
 
 PlayerMeta& PlayerMeta::operator=(const PlayerMeta& other)
 {
-    this->playerId = other.playerId;
-    this->playerName = other.playerName;
+    this->_pid = other._pid;
+    this->_name = other._name;
     return *this;
 }
 
 QJsonObject PlayerMeta::json()
 {
     QJsonObject json;
-    json["id"] = playerId;
-    json["name"] = playerName;
+    json["id"] = _pid;
+    json["name"] = _name;
     return json;
+}
+
+int PlayerMeta::playerId() const
+{
+    return _pid;
+}
+
+const QString& PlayerMeta::playerName() const
+{
+    return _name;
 }

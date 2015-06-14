@@ -16,8 +16,12 @@ public:
 
     QJsonObject json();
 
-    int playerId;
-    QString playerName;
+    int playerId() const;
+    const QString& playerName() const;
+
+private:
+    int _pid;
+    QString _name;
 };
 
 

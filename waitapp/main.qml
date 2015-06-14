@@ -45,17 +45,17 @@ Window {
 
     }
 
-    function onPlayerIn(pid)
+    function onPlayerIn(pid, playerName)
     {
         console.log("New player in: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "New player")
+        messageBoard.insertMessage("[" + playerName + "] New player")
 
         var js = {action: "DefineGeneralActions",
-                  actions: [{}]}
+                  actions: []} // no actions
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         js = {action: "DefineAppBox",
-                  data: AppBoxMaster.dataStr()}
+              data: AppBoxMaster.dataStr()}
 
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
@@ -63,14 +63,15 @@ Window {
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
     }
 
-    function onPlayerOut(pid)
+    function onPlayerOut(pid, playerName)
     {
         console.log("Player left: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "Player left")
+        messageBoard.insertMessage("[" + playerName + "] Player left")
     }
+
     function onPlayerMessageReceived(pid, data)
     {
-
+        // nothing to do
     }
 
     MessageBoard {

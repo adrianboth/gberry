@@ -9,9 +9,8 @@
 class PlayersManagerPrivate
 {
 public:
-    PlayersManagerPrivate() : _playerCount(0) {}
+    PlayersManagerPrivate() {}
 
-    int _playerCount;
     QMap<int, ClientSidePlayerChannel*> _channelsByPlayerId;
     QMap<int, PlayerMeta> _meta;
     QMap<int, int> _playerIdsByChannelId;
@@ -49,7 +48,7 @@ PlayersManager::~PlayersManager()
 
 int PlayersManager::numberOfPlayers() const
 {
-    return _d->_playerCount;
+    return _d->_channelIdsByPlayerIds.size();
 }
 
 QList<int> PlayersManager::playerIds() const
@@ -60,7 +59,7 @@ QList<int> PlayersManager::playerIds() const
 QString PlayersManager::playerName(int playerId) const
 {
     if (_d->_meta.contains(playerId))
-         return _d->_meta[playerId].playerName;
+         return _d->_meta[playerId].playerName();
 
     return QString("UNKNOWN");
 }
@@ -73,16 +72,16 @@ void PlayersManager::newPlayer(ClientSidePlayerChannel* channel, PlayerMeta meta
 
     if (!_d->_playerIdsByChannelId.contains(channelId))
     {
-        _d->_meta[metadata.playerId] = metadata;
-        _d->_playerIdsByChannelId[channelId] = metadata.playerId;
-        _d->_channelIdsByPlayerIds[metadata.playerId] = channelId;
-        _d->_channelsByPlayerId[metadata.playerId] = channel;
+        int pid = metadata.playerId();
+        _d->_meta[pid] = metadata;
+        _d->_playerIdsByChannelId[channelId] = metadata.playerId();
+        _d->_channelIdsByPlayerIds[pid] = channelId;
+        _d->_channelsByPlayerId[pid] = channel;
 
         channel->attachPlayerChannelPartner(
                     new ClientSidePlayerChannelPartnerImpl(channelId, this));
 
-        _d->_playerCount++; // TODO: could be removed
-        emit playerIn(metadata.playerId);
+        emit playerIn(pid, metadata.playerName());
         emit numberOfPlayersChanged();
     }
 }
@@ -95,12 +94,12 @@ void PlayersManager::playerExit(int channelId)
         _d->_playerIdsByChannelId.remove(channelId);
         _d->_channelIdsByPlayerIds.remove(playerId);
         _d->_channelsByPlayerId.remove(playerId);
+        PlayerMeta meta = _d->_meta[playerId];
         _d->_meta.remove(playerId);
-        _d->_playerCount--;
 
-        // TODO: would game need meta data still after exit?
-        //       - principle yes (if he will come back) but whose responsibility is to store info?
-        emit playerOut(playerId);
+        // we discard metadata of disconnectectedplayer,
+        // just provide name on exit signal
+        emit playerOut(playerId, meta.playerName());
         emit numberOfPlayersChanged();
     }
 }

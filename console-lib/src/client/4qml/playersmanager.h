@@ -36,8 +36,8 @@ public:
 
 
 signals:
-    void playerIn(int playerId);
-    void playerOut(int playerId);
+    void playerIn(int playerId, QString playerName);
+    void playerOut(int playerId, QString playerName);
     void numberOfPlayersChanged();
     void playerMessageReceived(int playerId, QByteArray msg); // TODO: might need to be string
 

@@ -141,8 +141,8 @@ TEST(ServerChannelManager, NewPlayerChannelOpenedAndClosed)
     ASSERT_TRUE(parser.isOk());
     ASSERT_TRUE(parser.isCommand("OpenChannel"));
     ASSERT_TRUE(parser.json.contains("player_metadata")) << writtenMsg;
-    EXPECT_TRUE(parser.json["player_metadata"].toObject()["id"] == playerMeta.playerId);
-    EXPECT_TRUE(parser.json["player_metadata"].toObject()["name"] == playerMeta.playerName);
+    EXPECT_TRUE(parser.json["player_metadata"].toObject()["id"] == playerMeta.playerId());
+    EXPECT_TRUE(parser.json["player_metadata"].toObject()["name"] == playerMeta.playerName());
     EXPECT_EQ(channelId, playerChannel->channelId());
 
 // -- response to open channel

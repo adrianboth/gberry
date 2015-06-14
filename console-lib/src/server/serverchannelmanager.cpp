@@ -162,7 +162,7 @@ void ServerChannelManager::applicationClosed(int connectionId)
 
 ServerSidePlayerChannel* ServerChannelManager::openPlayerChannel(PlayerMeta meta)
 {
-    DEBUG("Open new player channel: pid=" << meta.playerId);
+    DEBUG("Open new player channel: pid=" << meta.playerId());
     int channelId = nextFreeChannelId();
     ServerSidePlayerChannel* channel = _d->channelFactory->createPlayerChannel(channelId, meta);
 
