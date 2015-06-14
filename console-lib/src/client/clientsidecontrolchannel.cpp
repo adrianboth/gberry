@@ -77,8 +77,9 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
     if (json["command"] == "Ping")
     {
         emit pingReceived();
-        // TODO: we should put our code here
-        if (_partner) _partner->sendMessage(MessageFactory::createPingReply(_applicationIdCode));
+        if (_partner)
+            _partner->sendMessage(MessageFactory::createPingReply(_applicationIdCode));
+
         return true;
     }
     else if (json["command"] == "PingReply")

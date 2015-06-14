@@ -33,6 +33,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     qDebug()<< "Import paths:" << _engine.importPathList();
 
     _engine.rootContext()->setContextProperty("playersManager", &(_setup.playersManager));
+    // TODO: interface for communication status (OK, pinging, etc)
     //_engine.rootContext()->setContextProperty("comms", &(_setup.controlChannel));
     _engine.rootContext()->setContextProperty("Assets", &_assets);
     _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
@@ -43,4 +44,9 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.load(QUrl(mainQmlUrl));
 
     QObject::connect(&_engine, &QQmlEngine::quit, QGuiApplication::instance(), QGuiApplication::quit);
+}
+
+void ConsoleApplication::setApplicationCode(const QString& applicationCode)
+{
+    _setup.controlChannel->setApplicationIdCode(applicationCode);
 }

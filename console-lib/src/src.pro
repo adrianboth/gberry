@@ -45,7 +45,10 @@ SOURCES += \
     server/channelfactory.cpp \
     playermeta.cpp \
     messagefactory.cpp \
-    server/commands/pingcommand.cpp
+    server/commands/pingcommand.cpp \
+    runtimeparameters.cpp \
+    client/applicationparameters.cpp \
+    client/applicationmain.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -85,7 +88,10 @@ HEADERS +=\
     server/channelsouthpartner.h \
     server/serverchannelmanager.h \
     messagefactory.h \
-    server/commands/pingcommand.h
+    server/commands/pingcommand.h \
+    runtimeparameters.h \
+    client/applicationparameters.h \
+    client/applicationmain.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

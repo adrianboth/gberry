@@ -42,6 +42,8 @@ public:
 
     Assets& assets() { return _assets; }
 
+    void setApplicationCode(const QString& applicationCode);
+
 signals:
 
 public slots:
