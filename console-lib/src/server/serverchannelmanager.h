@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QScopedPointer>
 
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 namespace GBerry {
 namespace Console {

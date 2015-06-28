@@ -73,7 +73,7 @@ TEST(UIAppStateMachine, OKFlow)
     // --
     // menu requested
     EXPECT_CALL(waitAppMock, resume()).Times(1);
-    EXPECT_CALL(currentAppMock, applicationId())
+    EXPECT_CALL(currentAppMock, fullApplicationId())
             .Times(1)
             .WillOnce(Return(QString("foobarAppId")));
     EXPECT_CALL(currentAppMock, stop()).Times(1);

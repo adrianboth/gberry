@@ -83,7 +83,7 @@ TEST(CommunicationIntegration, SetupServerAndClientPingBothWaysWithManualSetup)
     client.open();
     Waiter::wait([&] () { return client.isConnected(); }); // tcp connection ok
     Waiter::wait([&] () { return testChannelFactory.lastControlChannel != nullptr; });
-    Waiter::wait([&] () { return clientControl->isActive(); });
+    Waiter::wait([&] () { return clientControl->isActivated(); });
     ASSERT_TRUE(clientPingReceived == 1); // handshaking contains ping
 
     // TODO: should we check connected() signal or is that done elsewhere
@@ -152,7 +152,7 @@ TEST(CommunicationIntegration, SetupServerAndClientPingBothWaysWithSetupClasses)
     clientSetup.start();
 
     WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
-    WAIT_AND_ASSERT(clientSetup.controlChannel->isActive());
+    WAIT_AND_ASSERT(clientSetup.controlChannel->isActivated());
     ASSERT_TRUE(clientPingReceived == 1); // handshaking contains ping
 
     // connection should have been handshaked
@@ -194,7 +194,7 @@ TEST(CommunicationIntegration, NewPlayerChannelCreatedAndDestroyed)
     clientSetup.start();
 
     WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
-    WAIT_AND_ASSERT(clientSetup.controlChannel->isActive());
+    WAIT_AND_ASSERT(clientSetup.controlChannel->isActivated());
 
     // -- new player (remember server is 'comms')
 
@@ -229,7 +229,7 @@ TEST(CommunicationIntegration, WhenClientDisconnectsAllServerSideChannelHandlers
     clientSetup->start();
 
     WAIT_AND_ASSERT(testChannelFactory.lastControlChannel != nullptr);
-    WAIT_AND_ASSERT(clientSetup->controlChannel->isActive());
+    WAIT_AND_ASSERT(clientSetup->controlChannel->isActivated());
 
 // -- test
     PlayerMeta playerMeta(100, "FooPlayer");

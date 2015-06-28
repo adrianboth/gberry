@@ -1,7 +1,7 @@
 #ifndef APPLICATIONPARAMETERS_H
 #define APPLICATIONPARAMETERS_H
 
-#include "runtimeparameters.h"
+#include "common/runtimeparameters.h"
 
 namespace GBerryApplication {
 

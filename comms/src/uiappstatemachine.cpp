@@ -100,7 +100,7 @@ void UIAppStateMachine::lauchApplication(const QString& applicationId)
 
 void UIAppStateMachine::exitApplication(const QString& applicationId)
 {
-    if (applicationId.isEmpty() || applicationId == _currentApp->applicationId()) {
+    if (applicationId.isEmpty() || applicationId == _currentApp->fullApplicationId()) {
         _impl->emitAppExitRequested();
     } else {
         WARN("Ignoring exit request as application is not current application: applicationId =" << applicationId);

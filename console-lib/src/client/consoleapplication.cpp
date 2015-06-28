@@ -8,7 +8,10 @@
 
 ConsoleApplication::ConsoleApplication(QObject *parent) :
     QObject(parent),
-    _displayProfile(1920, 1080) // autoscale by default on
+    _displayProfile(1920, 1080), // autoscale by default on
+    _gameModelCommunication(_setup.controlChannel),
+    _gameModel(&_gameModelCommunication),
+    _connection(_setup.controlChannel)
 {
     if (!_settings.runningOnTargetDevice()) {
         TargetDisplay* targetDisplay = new TargetDisplay(1920, 1080, 110, 110, &_displayProfile);
@@ -20,6 +23,7 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     }
 
     _applicationManager = new ApplicationManager(_setup.controlChannel);
+
 }
 
 ConsoleApplication::~ConsoleApplication()
@@ -35,6 +39,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("playersManager", &(_setup.playersManager));
     // TODO: interface for communication status (OK, pinging, etc)
     //_engine.rootContext()->setContextProperty("comms", &(_setup.controlChannel));
+    _engine.rootContext()->setContextProperty("Connection", &_connection);
     _engine.rootContext()->setContextProperty("Assets", &_assets);
     _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
     _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
@@ -48,5 +53,5 @@ void ConsoleApplication::run(QString mainQmlUrl)
 
 void ConsoleApplication::setApplicationCode(const QString& applicationCode)
 {
-    _setup.controlChannel->setApplicationIdCode(applicationCode);
+    _setup.controlChannel->setApplicationCode(applicationCode);
 }

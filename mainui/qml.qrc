@@ -6,5 +6,6 @@
         <file>GamesOnConsoleView.qml</file>
         <file>MainMenuView.qml</file>
         <file>LocalGameDetails.qml</file>
+        <file>MainView.qml</file>
     </qresource>
 </RCC>

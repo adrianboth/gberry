@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QByteArray>
 
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 class ClientSideChannelPartner;
 class ClientSidePlayerChannelPartner;

@@ -1,7 +1,7 @@
 #include "tcpconnection.h"
 
 #include <QTcpSocket>
-#include "messagereader.h"
+#include "common/messagereader.h"
 
 
 TcpConnection::TcpConnection(int connectionId, QTcpSocket* s) :

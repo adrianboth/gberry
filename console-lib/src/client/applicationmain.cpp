@@ -9,8 +9,8 @@
 
 namespace GBerryApplication {
 
-ApplicationMain::ApplicationMain(int argc, char *argv[]) :
-    _app(new QGuiApplication(argc, argv))
+ApplicationMain::ApplicationMain(QGuiApplication* app) :
+    _app(app)
 {
     _env = new EnvironmentVariables (QProcessEnvironment::systemEnvironment());
     _params = new ApplicationParameters(*_env);
@@ -21,7 +21,6 @@ ApplicationMain::~ApplicationMain()
 {
     delete _env;
     delete _params;
-    delete _app;
 }
 
 bool ApplicationMain::hasApplicationCode() const

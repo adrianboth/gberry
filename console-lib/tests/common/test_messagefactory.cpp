@@ -10,7 +10,7 @@
 
 #include "utils/util_messageparser.h"
 
-#include "messagefactory.h"
+#include "common/messagefactory.h"
 
 using namespace GBerry::Console;
 
@@ -30,8 +30,8 @@ TEST(MessageFactory, PingMessage)
     pingMsg = MessageFactory::createPingCommand("1234");
 
     json = QJsonDocument::fromJson(pingMsg).object();
-    ASSERT_TRUE(json.contains("code"));
-    ASSERT_TRUE(json["code"] == "1234");
+    ASSERT_TRUE(json.contains("application_code"));
+    ASSERT_TRUE(json["application_code"] == "1234");
 }
 
 TEST(MessageFactory, PingReplyMessage)
@@ -50,8 +50,8 @@ TEST(MessageFactory, PingReplyMessage)
     pingMsg = MessageFactory::createPingReply("1234");
 
     json = QJsonDocument::fromJson(pingMsg).object();
-    ASSERT_TRUE(json.contains("code"));
-    ASSERT_TRUE(json["code"] == "1234");
+    ASSERT_TRUE(json.contains("application_code"));
+    ASSERT_TRUE(json["application_code"] == "1234");
 }
 
 TEST(MessageFactory, PlayerMessage)

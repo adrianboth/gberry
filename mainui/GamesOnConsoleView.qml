@@ -169,15 +169,27 @@ Item {
 
             ListModel {
                 id: localGamesModel
+                property bool modelPopulated: false
 
-                Component.onCompleted: {
-                    //localGamesModel.clear()
+                // model: id, name, description
+
+                function onLocalGamesAvailable() {
+                    console.debug("### onLocalGamesAvailable()")
+
                     var gameIds = GameModel.localGameIds()
                     for (var i = 0; i < gameIds.length; i++) {
                         localGamesModel.append(GameModel.game(gameIds[i]))
                     }
 
                     gameList.updateDetails()
+                }
+
+                Component.onCompleted: {
+                    console.debug("### game model onCompleted()")
+                    GameModel.localGamesAvailable.connect(onLocalGamesAvailable)
+                    var available = GameModel.requestLocalGames()
+                    if (available)
+                        onLocalGamesAvailable()
                 }
             }
 

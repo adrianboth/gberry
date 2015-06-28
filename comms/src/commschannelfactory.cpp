@@ -6,6 +6,9 @@
 #include <server/applicationregistry.h>
 #include <server/serversidecontrolchannel.h>
 
+#define LOG_AREA "CommsChannelFactory"
+#include "log/log.h"
+
 namespace GBerryComms {
 
 CommsChannelFactory::CommsChannelFactory(ApplicationRegistry* registry, CommsCommands* commands) :
@@ -22,6 +25,8 @@ ServerSideControlChannel* CommsChannelFactory::createControlChannel(int connecti
 {
     ServerSideControlChannel* channel = ChannelFactory::createControlChannel(connectionId);
     QString applicationId = _registry->applicationIdByConnectionId(connectionId);
+
+    DEBUG("Creating control channel: connectionId =" << connectionId << ", applicationId =" << applicationId);
 
     if (applicationId == "mainui") {
         // channel takes ownership of command

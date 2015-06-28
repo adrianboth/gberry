@@ -22,9 +22,9 @@ public:
     virtual void pause() override { if (_target) _target->pause(); }
     virtual void resume() override { if (_target) _target->resume(); }
     virtual void stop() override { if (_target) _target->stop(); }
-    virtual QString applicationId() const override {
+    virtual QString fullApplicationId() const override {
         if (_target)
-            return _target->applicationId();
+            return _target->fullApplicationId();
         else
             return "";
     }
@@ -89,9 +89,9 @@ public:
     virtual void resume() override { if (_target) _target->resume(); }
     virtual void stop() override { if (_target) _target->stop(); }
 
-    virtual QString applicationId() const override {
+    virtual QString fullApplicationId() const override {
         if (_target)
-            return _target->applicationId();
+            return _target->fullApplicationId();
         else
             return "";
     }

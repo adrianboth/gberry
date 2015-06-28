@@ -17,154 +17,80 @@ Window {
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay }
 
+    /*
+    MainView {
+        id: mainView
+        anchors.fill: parent
+        enabled: false
+    }*/
 
-    InfoBar {
-        id: infobar
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-        z: 100
+    // Loader is required if
+    //  a) Loading takes time
+    //  b) or it would trigger sending message (e.g. to comms) -> need to wait connection ok
 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "snow" }
-            GradientStop { position: 1.0; color: "gray" }
+    Loader {
+        id: mainViewLoader
+        active: false
+        source: "MainView.qml"
+        visible: false
+        anchors.fill: parent
+
+        onLoaded: {
+            item.initExistingPlayers()
+            visible = true
+            connectionWaitingDialog.visible = false
         }
     }
 
     Rectangle {
-        anchors.fill: parent
-        border.color: "slategray"
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "lightsteelblue" }
-            GradientStop { position: 1.0; color: "slategray" }
+        id: connectionWaitingDialog
+        visible: true
+        color: "lightgreen"
+        width: 0.75 * parent.width
+        height: 0.75 * parent.height
+        anchors.centerIn: parent
+
+        Text {
+            text: qsTr("Please wait ...")
+            anchors.centerIn: parent
+            font.pixelSize: gdisplay.mediumSizeText
+        }
+
+    }
+
+    function onConnectionChanged() {
+        // TODO: how to wait until connection ok
+        console.debug("### onConnectionChanged()")
+        if (Connection.isConnected) {
+            console.debug("IS CONNECTED")
+            mainViewLoader.active = true
+        } else {
+            connectionWaitingDialog.visible = true
+
+            // TODO: how to disable
         }
     }
 
-    StackView {
-        id: mainarea
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: infobar.bottom
-        anchors.bottom: parent.bottom
-        initialItem: mainMenuView
+    function onActivatedChanged() {
+        // currently this doesn't have any affect to mainui
 
-        onCurrentItemChanged: sendControlActions()
-
-        function sendControlActions() {
-            if (currentItem !== null) {
-                var js = {action: "ShowBasicControls",
-                          enable: currentItem.enabledControlActions}
-                playersManager.sendAllPlayersMessage(JSON.stringify(js))
-            }
-        }
-
-        MainMenuView {
-            id: mainMenuView
-            enabled: visible
-
-            menuItems: [
-                MainMenuItem {
-                    text: qsTr("Games on console")
-                    onSelected: {
-                        mainarea.push({item: gamesOnConsoleView, immediate: true})
-                        //onGamesOnConsoleSelected()
-                    }
-                },
-                MainMenuItem {
-                    text: qsTr("Games on webstore")
-                    onSelected: exitGameSelected()
-                },
-                MainMenuItem {
-                    text: qsTr("Settings")
-                    onSelected: exitGameSelected()
-                },
-                MainMenuItem {
-                    text: qsTr("Exit")
-                    onSelected: exitGameSelected()
-                }
-            ]
-        }
-
-        GamesOnConsoleView {
-            id: gamesOnConsoleView
-            visible: false
-
-            onVisibleChanged: {
-                if (visible)
-                    forceActiveFocus()
-            }
-
-            onBackSelected: {
-                mainarea.pop({immediate: true})
-            }
-
-            onLaunchRequested: {
-                console.debug("LAUNCH: " + gameId)
-                ApplicationManager.launchApplication(gameId)
-            }
-
-            onEnabledControlActionsChanged: mainarea.sendControlActions()
-        }
-
-        state: "MENU"
-        states: [
-                State {
-                    name: "MENU"
-                    //PropertyChanges { target: appboxui; visible: false }
-                    PropertyChanges { target: mainMenuView; visible: true }
-                    StateChangeScript {
-                            name: "myScript1"
-                            script: {
-                                console.debug("STATE CHANGE SCRIPT: INTO MENU")
-                                var js = {action: "ShowBasicControls"}
-                                playersManager.sendAllPlayersMessage(JSON.stringify(js))
-                            }
-                        }
-                },
-                State {
-                    name: "GAME"
-                    PropertyChanges { target: appboxui; visible: true}
-                    PropertyChanges { target: mainmenu; visible: false}
-
-                    StateChangeScript {
-                            name: "myScript"
-                            script: {
-                                console.debug("STATE CHANGE SCRIPT: INTO GAME")
-                                var js = {action: "ShowAppBox"}
-                                playersManager.sendAllPlayersMessage(JSON.stringify(js))
-                            }
-                        }
-                }
-            ]
-
-        Component.onCompleted:
-            // for dev time
-            mainarea.push({item: gamesOnConsoleView, immediate: true})
+        // as we don't keep any special list of player or states, this doesn't matter
+        // but in other case we should discard our player list, reopens will come
     }
 
-
-    // --- FUNCTIONS
-
-    function onPlayerIn(pid)
+    function onPlayerIn(pid, pname)
     {
-        console.log("New player in: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "New player")
-
-        var js = {action: "DefineGeneralActions",
-                  actions: []} // {actionId: "GameMenu", actionName: "Menu"}
-        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
-
-        js = {action: "ShowBasicControls",
-              enable: mainarea.currentItem.enabledControlActions}
-        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
-
-        // TODO: clear up box command ?
+        console.log("New player in: id = " + pid + ", name = " + pname)
+        if (mainViewLoader.status == Loader.Ready)
+            mainViewLoader.sourceComponent.onPlayerIn(id, pname)
     }
 
-    function onPlayerOut(pid)
+    function onPlayerOut(pid, pname)
     {
-        console.log("Player left: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "Player left")
+        console.log("Player left: id = " + pid + ", name = " + pname)
+        if (mainViewLoader.status == Loader.Ready)
+            mainViewLoader.sourceComponent.onPlayerOut(id, pname)
+
     }
 
     function onPlayerMessageReceived(pid, data)
@@ -191,96 +117,19 @@ Window {
         }
     }
 
-    MessageBoard {
-        id: messageBoard
-
-        opacity: 0.5
-        visible: false //gsettings.developmentMode
-
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: 25
-        anchors.rightMargin: 25
-    }
-
-    // background fading as in other cases -> common component?
-    GConfirmationDialog {
-        id: exitConfirmationDialog
-        visible: false // initial state
-        questionText: qsTr("Exit and stop using console? ")
-        option1Text: qsTr("Yes")
-        option2Text: qsTr("No")
-
-        onOption1Selected: {
-            // Yes
-            Qt.quit()
-        }
-
-        onOption2Selected: {
-            exitConfirmationDialog.visible = false
-        }
-    }
-
-    function onGamesOnConsoleSelected() {
-        console.debug("Games on console selected")
-        // TODO: appbox version handshaking at some point
-        gamesOnConsoleView.visible = true
-        // TODO: stack view??
-
-        /*
-        var js = {action: "DefineAppBox",
-                  data: AppBoxMaster.dataStr()}
-
-        playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
-        js = {action: "ShowAppBox"}
-        playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
-        // TODO: waiting response from player (every one ready)
-
-        // TODO: create timer to enable buttons
-        // TODO: wait button presses -> !inform whose came first
-        // TODO:   - ?? how to move to next
-
-        mainarea.state = "GAME"
-        */
-
-    }
-    function exitGameSelected() {
-        console.debug("Exit selected")
-
-        // as demo send confirmation to clients
-
-        // TODO: how localization of these texts would go?
-
-        var js = {action: "ConfirmationQuestion",
-                  title: exitConfirmationDialog.titleText,
-                  text: exitConfirmationDialog.questionText,
-                  options: [{id:   exitConfirmationDialog.option1Id,
-                             text: exitConfirmationDialog.option1Text},
-                            {id:   exitConfirmationDialog.option2Id,
-                             text: exitConfirmationDialog.option2Text}]
-                 }
-
-        // TODO: should be send only for controlling player but that is not yet implemented)
-        //    * Now for first player
-
-        // TODO: gets really strange player id list (not list at all??)
-        //playersManager.sendPlayerMessage(playersManager.playerIds(), JSON.stringify(js))
-        playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
-        // show also on big screen the question
-        exitConfirmationDialog.visible = true
-
-        // TODO: disable everything else -> record state
-    }
+    // TODO: how to pass function to view loaded by loader
 
     Component.onCompleted: {
+        // make sure these are in place when connection opens
         playersManager.playerIn.connect(onPlayerIn)
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
+        Connection.isConnectedChanged.connect(onConnectionChanged)
+
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
+
+        // check current connection
+        onConnectionChanged()
     }
 }

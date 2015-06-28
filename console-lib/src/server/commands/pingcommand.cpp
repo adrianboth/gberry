@@ -1,7 +1,7 @@
 #include "pingcommand.h"
 
 #include "server/serversidecontrolchannel.h"
-#include "messagefactory.h"
+#include "common/messagefactory.h"
 
 using namespace GBerry::Console;
 

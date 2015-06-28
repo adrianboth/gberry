@@ -5,7 +5,7 @@ Rectangle {
 
     property string numberOfPlayers: playersManager.numberOfPlayers
     property string playersText: "Players: " + playersManager.numberOfPlayers
-    property string commsStatusText: comms.isOpen() ? "OK" : "NOK"
+    property string commsStatusText: Connection.connected ? "OK" : "NOK"
     property string timeText: "-"
 
     height: 30
@@ -40,7 +40,7 @@ Rectangle {
          interval: 500; running: true; repeat: true
          onTriggered: {
              time.text = new Date().toLocaleTimeString(Qt.locale(), Locale.ShortFormat)
-             infobar.commsStatusText = comms.isOpen() ? qsTr("Connected") : "--"
+             //infobar.commsStatusText = comms.isOpen() ? qsTr("Connected") : "--"
          }
      }
 }

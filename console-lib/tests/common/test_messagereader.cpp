@@ -7,7 +7,7 @@
 #include <testutils/waiter.h>
 #include <testutils/qtgtest.h>
 
-#include "messagereader.h"
+#include "common/messagereader.h"
 
 
 TEST(MessageReader, ReadSingleMessage)

@@ -8,7 +8,7 @@
 #include <QScopedPointer>
 
 #include "clientsidechannelpartners.h"
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 class ClientSidePlayerChannel;
 class ClientSideControlChannel;

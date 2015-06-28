@@ -2,9 +2,13 @@
 #define CLIENTSIDECONTROLCHANNEL_H
 
 #include <QObject>
+#include <QScopedArrayPointer>
+
+#include "server/icommand.h"
 
 class QByteArray;
 class ClientSideChannelPartner;
+class ClientSideControlChannelPrivate;
 
 class ClientSideControlChannel : public QObject
 {
@@ -19,28 +23,37 @@ public:
 
     static const int CHANNEL_ID;
 
-    void setApplicationIdCode(const QString& code);
+    void setApplicationCode(const QString& code);
 
     void ping();
 
-    virtual bool receiveMessage(const QByteArray& msg);
+    bool receiveMessage(const QByteArray& msg);
+    void sendMessage(const QByteArray& msg);
+
 
     void attachChannelPartner(ClientSideChannelPartner* partner);
     void detachChannelPartner();
 
     int channelId() const;
 
-    bool isActive() const;
+    bool isConnected() const;
+    bool isActivated() const;
+
+    // takes ownership of command
+    void registerCommand(ICommand* cmd);
 
 signals:
     void channelClosed();
     void pingReceived();
 
+    void isConnectedChanged();
+    void isActivatedChanged();
+
+public slots:
+    void connectionBroken();
+
 private:
-    int _id;
-    bool _activated;
-    QString _applicationIdCode;
-    ClientSideChannelPartner* _partner;
+    const QScopedPointer<ClientSideControlChannelPrivate> _d;
 
 };
 

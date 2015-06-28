@@ -7,15 +7,101 @@
 #include <signal.h>
 
 #include "systemservices.h"
+#include <utils/qtsignalproxy.h>
 
 #define LOG_AREA "ApplicationController"
 #include "log/log.h"
 
 namespace {
     static int DEFAULT_PROCESS_KILL_WAIT_MS = 100;
+
+    enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };
 }
 
 const char* ApplicationController::PROCESS_KILL_WAIT_MS_PROP = "processKillWaitMs";
+
+// we avoid inheriting from QObject
+class ApplicationControllerPrivate
+{
+public:
+    ApplicationControllerPrivate(ApplicationController* q_) :
+        q(q_) {
+        // these will be disconnect safely when *Private is destroyed
+        // as 'process will be destroyed too.
+
+        // old style connecting needed because func signatures cause problems
+        QObject::connect(&process, SIGNAL(finished(int)),
+                        &proxy, SLOT(proxyInt(int)));
+
+        QObject::connect(&proxy, &QtSignalProxy::proxiedInt,
+                         [this] (int code) { this->onProcessFinished(code);} );
+
+        QObject::connect(&process, &QProcess::stateChanged,
+                [this] (QProcess::ProcessState state) {
+                    this->onProcessStateChanged(state); } );
+
+        QObject::connect(&relaunchProxy, &QtSignalProxy::proxiedNoParameters,
+                         [this] () { this->relaunchAfterDelay(); });
+    }
+
+    ApplicationController* q;
+    QSharedPointer<IApplication> app;
+    ApplicationRegistry* registry{nullptr};
+    QProcess process;
+    QtSignalProxy proxy;
+    QtSignalProxy relaunchProxy;
+
+    int currentAction{NONE};
+    bool running{false};
+    bool simulated{false};
+    int timerCalledCounterForWaitingProcessToStopRunning{0};
+
+    void onProcessFinished(int exitCode) {
+        DEBUG("Process finished with code: app_id = " << app->id() << ", exitCode =" << exitCode);
+        if (running && currentAction != STOPPING) {
+            DEBUG("Was expected to run");
+            emit q->died();
+
+        } else if (currentAction == STOPPING) {
+            emit q->stopped();
+        }
+
+        currentAction = NONE;
+        running = false;
+        timerCalledCounterForWaitingProcessToStopRunning = 0;
+    }
+
+    void onProcessStateChanged(QProcess::ProcessState processState) {
+        DEBUG("Process state changed: app_id =" << app->id());
+        if (currentAction == LAUNCHING) {
+            if (processState == QProcess::Running) {
+                DEBUG("RUNNING OK");
+                currentAction = NONE;
+                running = true;
+                emit q->launched();
+
+            } else if (processState == QProcess::Starting) {
+                DEBUG("STARTING");
+                // no need to do anything
+
+            } else if (processState == QProcess::NotRunning) {
+                DEBUG("LAUNCH FAILED: " << process.errorString());
+                currentAction = NONE;
+                emit q->launchFailed();
+
+            } else {
+                ERROR("Unknown process state: " << processState);
+            }
+
+        }
+    }
+
+    // relaunch is done if original launch() call need to be delayed
+    void relaunchAfterDelay() {
+        q->launch();
+    }
+};
+
 
 ApplicationController::ApplicationController(
         QSharedPointer<IApplication> app,
@@ -23,43 +109,33 @@ ApplicationController::ApplicationController(
         QObject *parent) :
     ApplicationController(parent)
 {
-    _app = app;
-    _registry = registry;
-    this->setProperty(PROCESS_KILL_WAIT_MS_PROP, DEFAULT_PROCESS_KILL_WAIT_MS);
+    _d->app = app;
+    _d->registry = registry;
 }
 
 ApplicationController::ApplicationController(QObject *parent) :
     IApplicationController(parent),
-    _registry(nullptr),
-    _currentAction(NONE),
-    _running(false),
-    _simulated(false),
-    _timerForWaitingProcessToStopRunning(0)
+    _d(new ApplicationControllerPrivate(this))
 {
-    connect(&_process, SIGNAL(finished(int)),
-                this, SLOT(onProcessFinished(int)));
-
-    connect(&_process, &QProcess::stateChanged,
-            this, &ApplicationController::onProcessStateChanged);
+    this->setProperty(PROCESS_KILL_WAIT_MS_PROP, DEFAULT_PROCESS_KILL_WAIT_MS);
 }
 
 ApplicationController::~ApplicationController()
 {
-
 }
 
 void ApplicationController::launch()
 {
-    if (_simulated) {
+    if (_d->simulated) {
         DEBUG("No real launch as running in simulated mode");
         emit launched();
         return;
     }
 
-    if (_currentAction == STOPPING) {
+    if (_d->currentAction == STOPPING) {
         DEBUG("Process is still stopping, delaying launch to wait process first to stop");
-        if (_timerForWaitingProcessToStopRunning == 3) {
-            WARN("Previous process pid =" << _process.pid() << "fails to stop. Abort new launch.");
+        if (_d->timerCalledCounterForWaitingProcessToStopRunning == 3) {
+            WARN("Previous process pid =" << _d->process.pid() << "fails to stop. Abort new launch.");
             // TODO: not sure how to clean up situation
             //  - retry stopping
             stop();
@@ -68,17 +144,18 @@ void ApplicationController::launch()
         }
         // stop initiated recently, wait process to die first
         int timeout = this->property(PROCESS_KILL_WAIT_MS_PROP).toInt();
-        SystemServices::instance()->singleshotTimer(timeout, this, SLOT(relaunchAfterDelay()));
-        _timerForWaitingProcessToStopRunning += 1; // wait three times
+        // only old style connection available
+        SystemServices::instance()->singleshotTimer(timeout, &(_d->relaunchProxy), SLOT(proxyNoParameters()));
+        _d->timerCalledCounterForWaitingProcessToStopRunning++; // wait three times
         return;
     }
-    if (_app.isNull()) {
+    if (_d->app.isNull()) {
         WARN("Launch failed as request application is Null");
         emit launchFailed();
         return;
     }
 
-    QString appExe = _app->meta()->applicationExecutablePath();
+    QString appExe = _d->app->meta()->applicationExecutablePath();
     if (!QFile::exists(appExe)) {
         WARN("Launch failed as requested application executable not exists");
         emit launchFailed();
@@ -86,106 +163,63 @@ void ApplicationController::launch()
     }
 
     DEBUG("Launching process: " << appExe);
-    _process.setProgram(appExe);
-    if (_registry) {
+    _d->process.setProgram(appExe);
+    if (_d->registry) {
         // registry is used to identify who is making TCP connections
         QStringList args;
-        args << "--connection-code=" + _registry->createIdentificationCode(_app->meta()->applicationId());
-        _process.setArguments(args);
+        args << "--application-code=" + _d->registry->createIdentificationCode(_d->app->meta()->applicationId());
+        _d->process.setArguments(args);
     }
 
-    _currentAction = LAUNCHING;
-    _process.start();
-}
-
-void ApplicationController::relaunchAfterDelay()
-{
-    launch();
+    _d->currentAction = LAUNCHING;
+    _d->process.start();
 }
 
 void ApplicationController::pause()
 {
     // TODO: impl
-    if (_process.state() == QProcess::Running)
+    if (_d->process.state() == QProcess::Running)
     {
-        int result = kill(_process.pid(), SIGSTOP);
-        DEBUG("Paused " << _app->id() << ", got result " << result);
+        int result = kill(_d->process.pid(), SIGSTOP);
+        DEBUG("Paused " << _d->app->id() << ", got result " << result);
     }
 }
 
 void ApplicationController::resume()
 {
-    if (_process.state() == QProcess::Running)
+    if (_d->process.state() == QProcess::Running)
     {
-        int result = kill(_process.pid(), SIGCONT);
-        DEBUG("Resumed " << _app->id() << ", got result " << result);
+        int result = kill(_d->process.pid(), SIGCONT);
+        DEBUG("Resumed " << _d->app->id() << ", got result " << result);
     }
 }
 
 
 void ApplicationController::stop()
 {
-    if (_process.state() == QProcess::Running) {
-        DEBUG("Killing " << _app->id());
-        _currentAction = STOPPING;
-        _process.kill();
+    if (_d->process.state() == QProcess::Running) {
+        DEBUG("Killing " << _d->app->id());
+        _d->currentAction = STOPPING;
+        _d->process.kill();
     }
 }
 
 void ApplicationController::setApplication(QSharedPointer<IApplication> app)
 {
-    _app = app;
+    _d->app = app;
 }
 
-QString ApplicationController::applicationId() const
+QSharedPointer<IApplication> ApplicationController::application()
 {
-    return _app->id();
+    return _d->app;
 }
 
-void ApplicationController::onProcessStateChanged(QProcess::ProcessState processState)
+QString ApplicationController::fullApplicationId() const
 {
-    DEBUG("Process state changed: app_id =" << _app->id());
-    if (_currentAction == LAUNCHING) {
-        if (processState == QProcess::Running) {
-            DEBUG("RUNNING OK");
-            _currentAction = NONE;
-            _running = true;
-            emit launched();
-
-        } else if (processState == QProcess::Starting) {
-            DEBUG("STARTING");
-            // no need to do anything
-
-        } else if (processState == QProcess::NotRunning) {
-            DEBUG("LAUNCH FAILED: " << _process.errorString());
-            _currentAction = NONE;
-            emit launchFailed();
-
-        } else {
-            ERROR("Unknown process state: " << processState);
-        }
-
-    }
-
-}
-
-void ApplicationController::onProcessFinished(int exitCode)
-{
-    DEBUG("Process finished with code: app_id = " << _app->id() << ", exitCode =" << exitCode);
-    if (_running && _currentAction != STOPPING) {
-        DEBUG("Was expected to run");
-        emit died();
-
-    } else if (_currentAction == STOPPING) {
-        emit stopped();
-    }
-
-    _currentAction = NONE;
-    _running = false;
-    _timerForWaitingProcessToStopRunning = 0;
+    return _d->app->id();
 }
 
 void ApplicationController::enableSimulatedMode(bool enabled)
 {
-    _simulated = enabled;
+    _d->simulated = enabled;
 }

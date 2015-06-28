@@ -17,7 +17,7 @@ namespace Server {
 
 namespace GBerryComms {
 
-class ExitApplicationCommand : public ICommand
+class ExitApplicationCommand : public QObject, public ICommand
 {
     Q_OBJECT
 

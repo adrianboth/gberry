@@ -9,8 +9,8 @@
 #include "client/clientchannelmanager.h"
 #include "client/clientsideplayerchannel.h"
 #include "client/clientsidecontrolchannel.h"
-#include "playermeta.h"
-#include "messagefactory.h"
+#include "common/playermeta.h"
+#include "common/messagefactory.h"
 
 #include "utils/testclientsidechannelpartners.h"
 #include "utils/util_messageparser.h"
@@ -35,7 +35,7 @@ TEST(ClientChannelManager, OpeningControlChannel)
     });
 
     ClientSideControlChannel* controlChannel = new ClientSideControlChannel;
-    controlChannel->setApplicationIdCode("1234");
+    controlChannel->setApplicationCode("1234");
 
     int pingReceived = 0;
     QObject::connect(controlChannel, &ClientSideControlChannel::pingReceived,
@@ -52,7 +52,7 @@ TEST(ClientChannelManager, OpeningControlChannel)
 
     QJsonObject json(QJsonDocument::fromJson(lastOutgoingMessage).object());
     EXPECT_TRUE(json["command"] == "PingReply") << QString(lastOutgoingMessage);
-    EXPECT_TRUE(json["code"] == "1234") << QString(lastOutgoingMessage);
+    EXPECT_TRUE(json["application_code"] == "1234") << QString(lastOutgoingMessage);
 
 // -- ping
     controlChannel->ping();

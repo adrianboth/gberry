@@ -5,7 +5,7 @@
 #include <QScopedPointer>
 
 #include "client/clientsideplayerchannel.h"
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 class PlayersManagerPrivate;
 class ClientSidePlayerChannelPartnerImpl;

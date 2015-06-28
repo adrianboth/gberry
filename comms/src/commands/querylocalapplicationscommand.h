@@ -12,7 +12,7 @@ namespace GBerryComms {
 
 class QueryLocalApplicationsCommandPrivate;
 
-class QueryLocalApplicationsCommand : public ICommand
+class QueryLocalApplicationsCommand : public QObject, public ICommand
 {
     Q_OBJECT
 

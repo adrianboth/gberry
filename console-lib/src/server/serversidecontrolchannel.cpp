@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "messagefactory.h"
+#include "common/messagefactory.h"
 
 using namespace GBerry::Console;
 

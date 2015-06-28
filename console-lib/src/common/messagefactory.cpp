@@ -1,7 +1,11 @@
 #include "messagefactory.h"
 
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QJsonDocument>
+
+#include "server/application/application2json.h"
+
 
 namespace {
 
@@ -52,7 +56,7 @@ QByteArray MessageFactory::createPingCommand(const QString& applicationIdCode)
 {
     QJsonObject json = createPingCommandJson();
     if (!applicationIdCode.isEmpty()) {
-        json["code"] = applicationIdCode;
+        json["application_code"] = applicationIdCode;
     }
     QJsonDocument jsonDoc(json);
     return jsonDoc.toJson();
@@ -62,7 +66,7 @@ QByteArray MessageFactory::createPingReply(const QString& applicationIdCode)
 {
     QJsonObject json = createPingReplyJson();
     if (!applicationIdCode.isEmpty()) {
-        json["code"] = applicationIdCode;
+        json["application_code"] = applicationIdCode;
     }
     QJsonDocument jsonDoc(json);
     return jsonDoc.toJson();
@@ -123,6 +127,20 @@ QByteArray MessageFactory::createPlayerMessage(QString str)
     json["data"] = str;
     QJsonDocument jsonDoc(json);
     return jsonDoc.toJson();
+}
+
+QJsonObject MessageFactory::createQueryLocalApplicationsReply(QSharedPointer<IApplications> apps)
+{
+    QJsonObject responseJson;
+    responseJson["command"] = "QueryLocalApplicationsReply";
+
+    QJsonArray appsList;
+    foreach(QSharedPointer<IApplication> app, apps->applications()) {
+        appsList << Application2Json::from(*app);
+    }
+
+    responseJson["applications"] = appsList;
+    return responseJson;
 }
 
 }}

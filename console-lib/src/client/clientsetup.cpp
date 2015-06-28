@@ -18,9 +18,11 @@ ClientSetup::ClientSetup(QObject* parent) :
     controlChannel = new ClientSideControlChannel;
     channelManager.registerControlChannel(controlChannel);
 
+    QObject::connect(&tcpClient,     &CommTcpClient::disconnected,
+                     controlChannel, &ClientSideControlChannel::connectionBroken);
+
     QObject::connect(&channelManager, &ClientChannelManager::newPlayerChannel,
                      &playersManager, &PlayersManager::newPlayer);
-
 
 }
 
@@ -45,4 +47,7 @@ void ClientSetup::connectionBroken()
 {
     // all player channels will be destroyed
     channelManager.closeAllPlayerChannels();
+
+    // TODO: should we try to periodically reopen ... more like dev time setup
+    //       if comms has been restarted
 }

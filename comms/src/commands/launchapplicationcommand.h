@@ -12,7 +12,7 @@ namespace GBerryComms {
 
 class LaunchApplicationCommandPrivate;
 
-class LaunchApplicationCommand : public ICommand
+class LaunchApplicationCommand : public QObject, public ICommand
 {
     Q_OBJECT
 public:

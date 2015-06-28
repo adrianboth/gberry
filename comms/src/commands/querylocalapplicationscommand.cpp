@@ -35,7 +35,7 @@ bool QueryLocalApplicationsCommand::process(const QJsonObject &json, ICommandRes
     Q_UNUSED(json);
 
     QJsonObject responseJson;
-    responseJson["response"] = "QueryLocalApplications";
+    responseJson["command"] = "QueryLocalApplicationsReply";
 
     QJsonArray appsList;
     foreach(QSharedPointer<IApplication> app, _priv->apps->applications()) {

@@ -11,13 +11,11 @@ public:
     virtual void set(QJsonObject json) = 0;
 };
 
-class ICommand : public QObject
+class ICommand
 {
-    Q_OBJECT
-
 public:
-    ICommand(const QString& id) : _id(id) {}
-    ~ICommand() {}
+    explicit ICommand(const QString& id) : _id(id) {}
+    virtual ~ICommand() {}
 
     QString id() const { return _id; }
 

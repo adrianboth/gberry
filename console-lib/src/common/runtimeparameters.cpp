@@ -1,4 +1,4 @@
-#include "runtimeparameters.h"
+#include "common/runtimeparameters.h"
 
 // trick to get define as a string
 #define xstr(s) str(s)
@@ -30,7 +30,16 @@ RuntimeParameters& RuntimeParameters::parse(const QStringList& args)
 
 bool RuntimeParameters::isSet(const QString &optionName) const
 {
-    return _parser.isSet(optionName) || _envVarNames.contains(optionName) || _buildTimeDefaults.contains(optionName);
+    if (_options.contains(optionName) && _parser.isSet(*_options[optionName]))
+        return true;
+
+    if (_envVarNames.contains(optionName) && _env.contains(_envVarNames[optionName]))
+        return true;
+
+    if (_buildTimeDefaults.contains(optionName))
+        return true;
+
+    return false;
 }
 
 QString RuntimeParameters::value(const QString &optionName) const

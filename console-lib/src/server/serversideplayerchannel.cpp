@@ -4,7 +4,7 @@
 #include <QJsonObject>
 #include <QDebug>
 
-#include "messagefactory.h"
+#include "common/messagefactory.h"
 using namespace GBerry::Console;
 
 #define LOG_AREA "ServerSidePlayerChannel"

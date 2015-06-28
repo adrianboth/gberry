@@ -4,20 +4,65 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include "clientsidechannelpartners.h"
-#include "messagefactory.h"
+#include "client/clientsidechannelpartners.h"
+#include "common/messagefactory.h"
 using namespace GBerry::Console;
 
 #define LOG_AREA "ClientSideControlChannel"
 #include "log/log.h"
 
 
+
+class CommandResponseImpl : public ICommandResponse
+{
+public:
+    virtual void set(QJsonObject j) override { json = j; }
+    QJsonObject json;
+};
+
+
+class ClientSideControlChannelPrivate
+{
+public:
+    ClientSideControlChannelPrivate() :
+        activated(false),
+        applicationCode(""),
+        partner(nullptr) {}
+
+    bool activated;
+    bool connected{false};
+    QString applicationCode;
+    ClientSideChannelPartner* partner;
+    QMap<QString, ICommand*> commands;
+
+    void sendMessage(const QByteArray& msg) {
+        if (partner)
+            partner->sendMessage(msg);
+    }
+
+    bool processJsonMessage(const QJsonObject& json) {
+        if (json.contains("command") && commands.contains(json["command"].toString())) {
+            CommandResponseImpl response;
+            // commands are not required to have response message
+            // 'result' tells if msg was processed
+            bool result = commands[json["command"].toString()]->process(json, response);
+            if (result && !response.json.empty()) {
+                // TODO: should we automatically add "command_response" ?
+                QJsonDocument jsonDoc(response.json);
+                partner->sendMessage(jsonDoc.toJson());
+            }
+
+            return result;
+        }
+        // msg didn't match
+        return false;
+    }
+};
+
 const int ClientSideControlChannel::CHANNEL_ID(0);
 
 ClientSideControlChannel::ClientSideControlChannel() :
-    _id(0),
-    _activated(false),
-    _partner(nullptr)
+    _d(new ClientSideControlChannelPrivate)
 {
 }
 
@@ -28,36 +73,30 @@ ClientSideControlChannel::~ClientSideControlChannel()
 
 void ClientSideControlChannel::requestApplicationLaunch(QString appID)
 {
-    if (!_partner) return;
-
     QJsonObject json;
     json["command"] = "LaunchApplication";
     json["application_id"] = appID;
     QJsonDocument jsonDoc(json);
-    _partner->sendMessage(jsonDoc.toJson());
+    _d->sendMessage(jsonDoc.toJson());
 }
 
 void ClientSideControlChannel::requestApplicationExit()
 {
-    if (!_partner) return;
-
     QJsonObject json;
     json["command"] = "ExitApplication";
     QJsonDocument jsonDoc(json);
-    _partner->sendMessage(jsonDoc.toJson());
+    _d->sendMessage(jsonDoc.toJson());
 }
 
-void ClientSideControlChannel::setApplicationIdCode(const QString& code)
+void ClientSideControlChannel::setApplicationCode(const QString& code)
 {
-    _applicationIdCode = code;
+    _d->applicationCode = code;
 }
-
 
 void ClientSideControlChannel::ping()
 {
     DEBUG("Ping requested");
-    if (!_partner) return;
-    _partner->sendMessage(MessageFactory::createPingCommand(_applicationIdCode));
+    _d->sendMessage(MessageFactory::createPingCommand(_d->applicationCode));
 }
 
 bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
@@ -74,11 +113,17 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
     if (!json.contains("command"))
         return false;
 
+    if (_d->processJsonMessage(json))
+        return true;
+
     if (json["command"] == "Ping")
     {
         emit pingReceived();
-        if (_partner)
-            _partner->sendMessage(MessageFactory::createPingReply(_applicationIdCode));
+        _d->sendMessage(MessageFactory::createPingReply(_d->applicationCode));
+        if (!_d->connected) {
+            _d->connected = true;
+            emit isConnectedChanged();
+        }
 
         return true;
     }
@@ -90,12 +135,14 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
     }
     else if (json["command"] == "Activate")
     {
-        _activated = true;
+        _d->activated = true;
+        emit isActivatedChanged();
         return true;
     }
     else if (json["command"] == "Deactivate")
     {
-        _activated = false;
+        _d->activated = false;
+        emit isActivatedChanged();
         return true;
     }
 
@@ -103,23 +150,48 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
     return false;
 }
 
+void ClientSideControlChannel::sendMessage(const QByteArray& msg)
+{
+    _d->partner->sendMessage(msg);
+}
+
 
 void ClientSideControlChannel::attachChannelPartner(ClientSideChannelPartner* partner)
 {
-    _partner = partner;
+    _d->partner = partner;
 }
 
 void ClientSideControlChannel::detachChannelPartner()
 {
-    _partner = NULL;
+    // TODO: not 100% sure whose reponsibility to delete ...
+    _d->partner = NULL;
 }
 
 int ClientSideControlChannel::channelId() const
 {
-    return _id;
+    return CHANNEL_ID;
 }
 
-bool ClientSideControlChannel::isActive() const
+bool ClientSideControlChannel::isActivated() const
 {
-    return _activated;
+    return _d->activated;
 }
+
+bool ClientSideControlChannel::isConnected() const
+{
+    return _d->connected;
+}
+
+void ClientSideControlChannel::registerCommand(ICommand *cmd)
+{
+    if (cmd != nullptr) {
+        _d->commands[cmd->id()] = cmd;
+    }
+}
+
+void ClientSideControlChannel::connectionBroken()
+{
+    _d->connected = false;
+    emit isConnectedChanged();
+}
+

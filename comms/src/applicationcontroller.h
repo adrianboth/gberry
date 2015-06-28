@@ -3,13 +3,15 @@
 
 #include <QObject>
 #include <QProcess>
-#include <QPointer>
+#include <QScopedPointer>
 
 #include "interfaces/iapplicationcontroller.h"
 #include "server/application/iapplication.h"
 #include "server/applicationregistry.h"
 
 using namespace GBerry::Console::Server;
+
+class ApplicationControllerPrivate;
 
 class ApplicationController : public IApplicationController
 {
@@ -28,10 +30,12 @@ public:
     virtual void pause() override;
     virtual void resume() override;
     virtual void stop() override;
-    virtual QString applicationId() const override;
+    // TODO: this refers to full-id (name + version), could there be better name
+    virtual QString fullApplicationId() const override;
 
     // --
-    virtual void setApplication(QSharedPointer<IApplication> meta);
+    virtual void setApplication(QSharedPointer<IApplication> app);
+    virtual QSharedPointer<IApplication> application();
     virtual void enableSimulatedMode(bool enabled);
 
     // -- dynamic properties
@@ -40,22 +44,9 @@ public:
 signals:
 
 public slots:
-    void onProcessFinished(int exitCode);
-    void onProcessStateChanged(QProcess::ProcessState processState);
-
-    // relaunch is done if original launch() call need to be delayed
-    void relaunchAfterDelay();
 
 private:
-    QSharedPointer<IApplication> _app;
-    ApplicationRegistry* _registry;
-    QProcess _process;
-
-    enum CurrentAction { NONE, LAUNCHING, RESUMING, STOPPING };
-    int _currentAction;
-    bool _running;
-    bool _simulated;
-    int _timerForWaitingProcessToStopRunning;
+    const QScopedPointer<ApplicationControllerPrivate> _d;
 
 };
 

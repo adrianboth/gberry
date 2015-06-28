@@ -13,20 +13,22 @@ include(../project.pri)
 
 SOURCES += main.cpp \
     test_commtcp.cpp \
-    utils/testtcpserver.cpp \
     test_communication_integration.cpp \
-    test_messagereader.cpp \
+    utils/testtcpserver.cpp \
     utils/testchannel.cpp \
+    utils/testplayerchannelnorthpartner.cpp \
+    utils/util_messageparser.cpp \
+    utils/testchannelfactory.cpp \
+    common/test_messagereader.cpp \
+    common/test_messagefactory.cpp \
     server/application/test_application2json.cpp \
     server/test_applicationregistry.cpp \
     server/test_serverchannelmanager.cpp \
-    utils/testchannelfactory.cpp \
-    test_messagefactory.cpp \
+    server/test_connectionmanager.cpp \
     client/test_clientchannelmanager.cpp \
-    utils/testplayerchannelnorthpartner.cpp \
-    utils/util_messageparser.cpp \
-    server/test_connectionmanager.cpp
-
+    common/test_runtimeparameters.cpp \
+    client/4qml/test_gamemodel.cpp
+    
 HEADERS += \
     utils/testtcpserver.h \
     utils/testchannel.h \

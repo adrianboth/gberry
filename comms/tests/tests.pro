@@ -19,10 +19,10 @@ SOURCES += main.cpp \
     test_applicationcontroller.cpp \
     test_localapplicationstorage.cpp \
     test_jsonvalidator.cpp \
-    test_cmdlineparams.cpp \
     test_localapplications.cpp \
     test_launchcontroller.cpp \
-    commands/test_querylocalapplicationscommand.cpp
+    commands/test_querylocalapplicationscommand.cpp \
+    test_commsparameters.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \

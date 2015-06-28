@@ -2,7 +2,7 @@
 #define SERVERSIDEPLAYERCHANNEL_H
 
 #include "channel.h"
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 
 class PlayerChannelNorthPartner

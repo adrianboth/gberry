@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 class ServerSidePlayerChannel;
 class ServerSideControlChannel;

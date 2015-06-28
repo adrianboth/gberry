@@ -23,13 +23,13 @@ SOURCES += \
     json/jsondefinition.cpp \
     json/jsonvalidator.cpp \
     json/jsondefinitionbuilder.cpp \
-    cmdlineparams.cpp \
     commschannelfactory.cpp \
     commands/launchapplicationcommand.cpp \
     commands/querylocalapplicationscommand.cpp \
     commands/commscommands.cpp \
     commands/exitapplicationcommand.cpp \
-    comms.cpp
+    comms.cpp \
+    commsparameters.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -46,13 +46,13 @@ HEADERS += \
     json/jsonvalidator.h \
     json/jsondefinitionbuilder.h \
     json/jsonvalidationresult.h \
-    cmdlineparams.h \
     commschannelfactory.h \
     commands/launchapplicationcommand.h \
     commands/querylocalapplicationscommand.h \
     commands/commscommands.h \
     commands/exitapplicationcommand.h \
-    comms.h
+    comms.h \
+    commsparameters.h
 
 DEPENDPATH += .
 

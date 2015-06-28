@@ -2,6 +2,7 @@
 #define APPLICATIONREGISTRY_H
 
 #include <QObject>
+#include <QScopedPointer>
 #include <QString>
 #include <QMap>
 
@@ -9,12 +10,17 @@ namespace GBerry {
 namespace Console {
 namespace Server {
 
+class ApplicationRegistryPrivate;
+
 class ApplicationRegistry
 {
 public:
     explicit ApplicationRegistry();
     ~ApplicationRegistry();
 
+    void insertFixedIdentificationCode(const QString& appId, const QString& code);
+
+    // creates one-time code
     QString createIdentificationCode(const QString& appId);
 
     // returns appId, "" if no match
@@ -29,8 +35,7 @@ public:
     QString applicationIdByConnectionId(int connectionId) const;
 
 private:
-    QMap<QString, QString> _appIdByCode;
-    QMap<int, QString> _appIdByConnectionId;
+    const QScopedPointer<ApplicationRegistryPrivate> _d;
 };
 
 }}} // eon

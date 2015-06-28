@@ -5,7 +5,7 @@
 #include "server/serverchannelmanager.h"
 #include "server/websocketserver.h"
 #include "serversideplayerchannel.h"
-#include "playermeta.h"
+#include "common/playermeta.h"
 
 class PlayerConnectionManagerPrivate
 {

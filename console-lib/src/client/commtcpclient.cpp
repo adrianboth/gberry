@@ -4,7 +4,7 @@
 #include <QHostAddress>
 #include <QDataStream>
 
-#include "messagereader.h"
+#include "common/messagereader.h"
 
 
 CommTcpClient::CommTcpClient(int port, QObject *parent) :

@@ -13,7 +13,7 @@ class ApplicationParameters;
 class ApplicationMain
 {
 public:
-    ApplicationMain(int argc, char *argv[]);
+    ApplicationMain(QGuiApplication* app);
     ~ApplicationMain();
 
     bool hasApplicationCode() const;

@@ -4,7 +4,9 @@
 #include <QByteArray>
 #include <QJsonObject>
 
-#include "playermeta.h"
+#include "common/playermeta.h"
+#include "server/application/iapplications.h"
+using namespace GBerry::Console::Server;
 
 namespace GBerry {
 namespace Console {
@@ -26,6 +28,8 @@ public:
 
     static QByteArray createPlayerMessage(QJsonObject playerData);
     static QByteArray createPlayerMessage(QString str);
+
+    static QJsonObject createQueryLocalApplicationsReply(QSharedPointer<IApplications> apps);
 
 private:
     MessageFactory();

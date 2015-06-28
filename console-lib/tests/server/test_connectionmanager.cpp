@@ -9,7 +9,7 @@
 
 #include "server/connectionmanager.h"
 #include "server/channelfactory.h"
-#include "messagefactory.h"
+#include "common/messagefactory.h"
 
 #include "utils/testchannel.h"
 #include "utils/testchannelfactory.h"

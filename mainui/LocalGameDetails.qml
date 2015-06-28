@@ -5,11 +5,13 @@ import GBerry 1.0
 
 Item {
 
-    property string gameName: "undefined"
-    property string gameDescription: "undefined"
-    property string gameImageUrl: "undefined"
+    property string gameName: qsTr("No games found")
+    property string gameDescription: ""
+    property string gameImageUrl: ""
 
     signal gameLauchRequested()
+
+    onGameNameChanged: { launchButton.enabled = true }
 
     function processControlAction(action) {
         if (action === "OK") {
@@ -66,6 +68,7 @@ Item {
                 anchors.centerIn: parent
                 width: buttonWidth
                 height: buttonHeight
+                enabled: false // initial until data comes in
 
                 label: qsTr("Launch")
 

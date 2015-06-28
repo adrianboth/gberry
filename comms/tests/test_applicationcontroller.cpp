@@ -108,6 +108,9 @@ TEST_F(ApplicationControllerF, PauseAndResume)
 
 TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
 {
+    QScopedPointer<TestSystemServices> testservices(new TestSystemServices);
+    testservices->registerInstance();
+
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta); // this now linux only
     meta->setName("test");
     meta->setApplicationExecutablePath("/bin/bash");
@@ -122,25 +125,26 @@ TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
     bool stopped = false;
     QObject::connect(&controller, &ApplicationController::stopped, [&] () { stopped = true; });
 
+
     controller.launch();
     Waiter::wait([&] () { return launched; });
-    EXPECT_TRUE(launched);
+    ASSERT_TRUE(launched);
 
     // -- TEST
     launched = false;
-    QScopedPointer<TestSystemServices> testservices(new TestSystemServices);
-    testservices->registerInstance();
+
     controller.setProperty(ApplicationController::PROCESS_KILL_WAIT_MS_PROP, 20); // timer shorter for unit tests
 
     controller.stop(); // do not process events -> immediate launch
     controller.launch();
     QCoreApplication::processEvents();
+    // --
 
     // timer should trigger after third round of event processing
     Waiter::wait([&] () { return stopped; });
-    EXPECT_TRUE(stopped);
-    testservices->invokeSingleshotTimer();
+    ASSERT_TRUE(stopped);
 
+    testservices->invokeSingleshotTimer();
     Waiter::wait([&] () { return launched; });
     EXPECT_TRUE(launched);
 

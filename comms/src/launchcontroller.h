@@ -16,7 +16,7 @@ public:
     virtual void pause() override;
     virtual void resume() override;
     virtual void stop() override;
-    virtual QString applicationId() const override;
+    virtual QString fullApplicationId() const override;
 
     // returns true if managed to take application into use (it was found and valid info)
     virtual bool useApplication(const QString& appID) override;

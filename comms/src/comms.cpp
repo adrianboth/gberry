@@ -13,7 +13,7 @@
 #include "launchcontroller.h"
 #include "uiappstatemachine.h"
 #include "commschannelfactory.h"
-#include "cmdlineparams.h"
+#include "commsparameters.h"
 #include "systemservices.h"
 #include "utils/fileutils.h"
 #include "commands/commscommands.h"
@@ -53,7 +53,7 @@ int Comms::run(int argc, char *argv[])
 
     // --
     EnvironmentVariables env(QProcessEnvironment::systemEnvironment());
-    CmdLineParams params(env);
+    CommsParameters params(env);
     params.parse(app.arguments());
 
     // --
@@ -69,7 +69,7 @@ int Comms::run(int argc, char *argv[])
 
     ServerSetup setup;
 
-    QString rootPath(params.value(CmdLineParams::ROOT_PATH));
+    QString rootPath(params.value(CommsParameters::ROOT_PATH));
     DEBUG("Root path:" << rootPath);
 
     LocalApplicationsStorage appStorage(joinpath(rootPath, "apps"));
@@ -115,7 +115,7 @@ int Comms::run(int argc, char *argv[])
                      &stateMachine, &UIAppStateMachine::applicationConnectionValidated);
 
 
-    if (params.isSet(CmdLineParams::DISABLE_WAITAPP)) {
+    if (params.isSet(CommsParameters::DISABLE_WAITAPP)) {
         waitAppController.enableSimulatedMode(true);
         // as normal launchin is disabled we wire just act of launching for validation
         UIAppStateMachine* pStateMachine = &stateMachine;
@@ -124,9 +124,20 @@ int Comms::run(int argc, char *argv[])
         //&stateMachine, &UIAppStateMachine::applicationConnectionValidated);
     }
 
-    if (!params.isSet(CmdLineParams::DISABLE_MAINUI)) {
+    if (!params.isSet(CommsParameters::DISABLE_MAINUI)) {
         INFO("Enabling UI statemachine");
         stateMachine.start();
+    } else {
+        // as normal ui states are disabled (this is development time setup)
+        // we set fixed codes so that waitapp and mainui can be identified,
+        // they can have specific commands
+        setup.applicationRegistry.insertFixedIdentificationCode(
+                    waitAppController.application()->meta()->applicationId(),
+                    "waitapp");
+
+        setup.applicationRegistry.insertFixedIdentificationCode(
+                    mainuiController.application()->meta()->applicationId(),
+                    "mainui");
     }
 
     // quit event loop and tear down nicely when SIGTERM

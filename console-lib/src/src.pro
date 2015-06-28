@@ -16,7 +16,10 @@ include(../project.pri)
 DEFINES += LIB_LIBRARY
 
 SOURCES += \
-    messagereader.cpp \
+    common/messagereader.cpp \
+    common/playermeta.cpp \
+    common/messagefactory.cpp \
+    common/runtimeparameters.cpp \
     client/commtcpclient.cpp \
     client/clientsidecontrolchannel.cpp \
     client/clientsetup.cpp \
@@ -43,17 +46,18 @@ SOURCES += \
     server/connectiongatekeeper.cpp \
     server/serverchannelmanager.cpp \
     server/channelfactory.cpp \
-    playermeta.cpp \
-    messagefactory.cpp \
     server/commands/pingcommand.cpp \
-    runtimeparameters.cpp \
     client/applicationparameters.cpp \
-    client/applicationmain.cpp
+    client/applicationmain.cpp \
+    client/gamemodelcommunication.cpp \
+    client/4qml/connection.cpp
 
 HEADERS +=\
         lib_global.h \
-    messagereader.h \
-    playermeta.h \
+    common/messagereader.h \
+    common/playermeta.h \
+    common/runtimeparameters.h \
+    common/messagefactory.h \
     client/commtcpclient.h \
     client/clientsidecontrolchannel.h \
     client/clientsetup.h \
@@ -87,11 +91,11 @@ HEADERS +=\
     server/channelfactory.h \
     server/channelsouthpartner.h \
     server/serverchannelmanager.h \
-    messagefactory.h \
     server/commands/pingcommand.h \
-    runtimeparameters.h \
     client/applicationparameters.h \
-    client/applicationmain.h
+    client/applicationmain.h \
+    client/gamemodelcommunication.h \
+    client/4qml/connection.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/
