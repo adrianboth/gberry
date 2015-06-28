@@ -15,9 +15,15 @@ Item {
     function setActions(actionList) {
         listModel.clear()
         actionList.map(function(actionJson) {
-            console.debug("Appending action: " + actionJson["actionName"])
-            listModel.append({actionName: actionJson["actionName"],
-                              actionId: actionJson["actionId"]})
+            if (actionJson.hasOwnProperty("actionName") && actionJson.hasOwnProperty("actionId")) {
+                console.debug("Appending action: " + actionJson["actionName"])
+                listModel.append({actionName: actionJson["actionName"],
+                                  actionId: actionJson["actionId"]})
+            } else {
+                console.debug("Discard invalid action definition:" + actionJson.toString())
+            }
+
+
         })
     }
 
