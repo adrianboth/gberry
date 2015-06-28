@@ -9,6 +9,9 @@
 #include "server/playersessionmanager.h"
 #include "server/playersession.h"
 
+#define LOG_AREA "WebsockerServer"
+#include "log/log.h"
+
 
 WebsocketServer::WebsocketServer(PlayerSessionManager* sessionManager, quint16 port, QObject *parent) :
     QObject(parent),
@@ -33,7 +36,7 @@ WebsocketServer::~WebsocketServer()
 void WebsocketServer::start()
 {
     if (_server->listen(QHostAddress::Any, _port)) {
-        qDebug() << "[WebsocketServer] Listening on 0.0.0.0:" << _port;
+        DEBUG("Listening on 0.0.0.0:" << _port);
         connect(_server, &QWebSocketServer::newConnection,
                 this, &WebsocketServer::onNewConnection);
 
@@ -44,12 +47,11 @@ void WebsocketServer::start()
 
 void WebsocketServer::onNewConnection()
 {
-    qDebug() << "[WebsocketServer] new connection";
+
     QWebSocket *pSocket = _server->nextPendingConnection();
-    qDebug() << "[WebsocketServer] request url:" << pSocket->requestUrl();
+    DEBUG("New connection: request url =" << pSocket->requestUrl().toString());
 
     QUrl url(pSocket->requestUrl());
-    qDebug() << "[WebsocketServer] url path:" << url.path();
     if (url.path() != "/open")
     {
         qDebug() << "Unknown action:" << url.path();
@@ -61,12 +63,12 @@ void WebsocketServer::onNewConnection()
 
     QUrlQuery query(pSocket->requestUrl());
     QString token = query.queryItemValue("token"); // returns "" if no such item
-    qDebug() << "[WebsocketServer] token:" << token;
+    DEBUG("Token:" << token);
 
     PlayerSession session = _sessionManager->sessionByToken(token);
     if (!session.isValid())
     {
-        qDebug() << "No matching session for token" << token;
+        DEBUG("No matching session for token" << token);
         connect(pSocket, &QWebSocket::disconnected,
                 pSocket, &QWebSocket::deleteLater);
         pSocket->close();

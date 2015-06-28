@@ -14,6 +14,9 @@
 
 #include "server/playersession.h"
 
+#define LOG_AREA "ConsoleRESTServer"
+#include "log/log.h"
+
 
 ConsoleRESTServer::ConsoleRESTServer(PlayerSessionManager &sessionManager) :
     _sessionManager(sessionManager), _tokenCounter(100)
@@ -25,7 +28,7 @@ ConsoleRESTServer::ConsoleRESTServer(PlayerSessionManager &sessionManager) :
     // TODO: configurable port
     int port = 8050;
     _server->listen(QHostAddress::Any, port);
-    qDebug() << "[ConsoleRESTServer]: Listening on  0.0.0.0:" << port;
+    DEBUG("Listening on  0.0.0.0:" << port);
 }
 
 ConsoleRESTServer::~ConsoleRESTServer()
@@ -35,7 +38,7 @@ ConsoleRESTServer::~ConsoleRESTServer()
 
 void ConsoleRESTServer::handleRequest(QHttpRequest *req, QHttpResponse *resp)
 {
-    qDebug() << "[ConsoleRESTServer] INCOMING REQUEST";
+    TRACE("handleRequest()");
 
     if (req->method() == QHttpRequest::HTTP_POST)
     {
@@ -67,7 +70,7 @@ void ConsoleRESTServer::handleRequest(QHttpRequest *req, QHttpResponse *resp)
     {
         resp->writeHead(403);
         resp->end(QByteArray("You aren't allowed here!"));
-        qDebug() << "ERROR 403";
+        DEBUG("ERROR 403");
     }
 }
 
@@ -158,7 +161,7 @@ void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp
     {
         resp->writeHead(403);
         resp->end(QByteArray("You aren't allowed here!"));
-        qDebug() << "ERROR 403";
+        DEBUG("ERROR 403");
     }
 
 }
