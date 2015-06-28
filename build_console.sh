@@ -93,7 +93,7 @@ function run_build {
   elif [ "$2" == "all" ]; then
     $1 Debug
     $1 Release
-  elif [ "$2" == "debug"] || [ "$2" == "" ]; then
+  elif [ "$2" == "debug" ] || [ "$2" == "" ]; then
     $1 Debug
   else
     echo "ERROR: Unknown build request: $2"
