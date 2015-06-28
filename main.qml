@@ -12,9 +12,8 @@ import "PlayerWaitingModel.js" as PlayerWaitingModel
 Window {
     id: root
     visible: true
-    // TODO: how to have different sizes for dev and real
-    width: 800
-    height: 600
+    width: gdisplay.windowWidth
+    height: gdisplay.windowHeight
 
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay }
