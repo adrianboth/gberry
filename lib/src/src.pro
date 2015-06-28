@@ -57,7 +57,8 @@ HEADERS += \
     testutils/util_testdata.h \
     utils/fileutils.h \
     testutils/mock_ienvironmentvariables.h \
-    testobjects/stub_systemservices.h
+    testobjects/stub_systemservices.h \
+    utils/qtsignalproxy.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -105,7 +106,8 @@ SOURCES += \
     ui/actualdisplay.cpp \
     applicationsettings.cpp \
     testutils/util_enablelog.cpp \
-    testobjects/stub_systemservices.cpp
+    testobjects/stub_systemservices.cpp \
+    utils/qtsignalproxy.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

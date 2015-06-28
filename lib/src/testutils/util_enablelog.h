@@ -17,6 +17,8 @@
 #include "log/stdoutlogmsghandler.h"
 #include "log/logcontrol.h"
 
+#define ENABLE_LOGGING() namespace { static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging(); }
+
 namespace TestUtils
 {
 // utility class to make call via object creation

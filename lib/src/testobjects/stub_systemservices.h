@@ -19,11 +19,11 @@
 class TestSystemServices : public SystemServices
 {
 public:
-    TestSystemServices();
-    ~TestSystemServices();
+    explicit TestSystemServices();
+    virtual ~TestSystemServices();
 
     // SystemServices
-    virtual void singleshotTimer(int msec, QObject *receiver, const char *member);
+    virtual void singleshotTimer(int msec, QObject *receiver, const char *member) override;
 
     // TestSystemServices
     void invokeSingleshotTimer();
