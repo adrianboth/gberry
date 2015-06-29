@@ -36,7 +36,7 @@ ConnectionGateKeeper::ConnectionGateKeeper(
     _d(new ConnectionGateKeeperPrivate(connectionId, appRegistry))
 {
     _d->timer.setSingleShot(true);
-    _d->timer.setInterval(5000); // 5s TODO: should be read from a property
+    _d->timer.setInterval(5000); // 5s TODO: should be read from a property ... or greater when debugging ... but how to recognize if debugging other end
     connect(&_d->timer, &QTimer::timeout, this, &ConnectionGateKeeper::waitTimeout);
 }
 
@@ -94,6 +94,7 @@ void ConnectionGateKeeper::incomingMessage(const QByteArray &msg)
 
     } else {
         // invalid message, wait still for ok message
+        ERROR("Message was invalid for current state");
     }
 
 }

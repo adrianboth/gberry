@@ -34,6 +34,8 @@ bool ConnectionManager::activeConnection()
 
 void ConnectionManager::applicationConnected(int connectionId)
 {
+    DEBUG("New application connection: connectionId=" << connectionId);
+
     ConnectionGateKeeper* gatekeeper = new ConnectionGateKeeper(connectionId, _applicationRegistry, this);
     connect(gatekeeper, &ConnectionGateKeeper::connectionValidated, this, &ConnectionManager::onConnectionValidationOK);
     connect(gatekeeper, &ConnectionGateKeeper::connectionDiscarded, this, &ConnectionManager::onConnectionValidationFailed);
@@ -45,6 +47,8 @@ void ConnectionManager::applicationConnected(int connectionId)
 
 void ConnectionManager::applicationDisconnected(int connectionId)
 {
+    DEBUG("Application disconnected: connectionId=" << connectionId);
+
     _tcpServer->closeConnection(connectionId);
     _channelManager->applicationClosed(connectionId);
     _applicationRegistry->removeLink(connectionId);
@@ -72,6 +76,8 @@ void ConnectionManager::onOutgoingMessageFromGateKeeper(int connectionId, const 
 
 void ConnectionManager::onConnectionValidationOK(int connectionId)
 {
+    DEBUG("Connection validation OK: connectionId=" << connectionId);
+
     if (!_gatekeepers.contains(connectionId)) {
         ERROR("Got signal from ConnectionGatekeeper that is not registered. Ignoring it.");
         return;
@@ -99,6 +105,8 @@ void ConnectionManager::onConnectionValidationOK(int connectionId)
 
 void ConnectionManager::onConnectionValidationFailed(int connectionId)
 {
+    DEBUG("Connection validation failed: connectionId=" << connectionId);
+
     if (!_gatekeepers.contains(connectionId)) {
         ERROR("Got signal from ConnectionGatekeeper that is not registered. Ignoring it.");
         return;

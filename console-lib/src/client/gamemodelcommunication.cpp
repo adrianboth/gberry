@@ -4,6 +4,10 @@
 
 #include "client/clientsidecontrolchannel.h"
 
+#define LOG_AREA "GameModelCommunication"
+#include "log/log.h"
+
+
 class QueryLocalApplicationsReply : public ICommand
 {
 public:
@@ -16,8 +20,10 @@ public:
     // ICommand interface
     virtual bool process(const QJsonObject& json, ICommandResponse& response) override {
         Q_UNUSED(response);
+        DEBUG("process(): QueryLocalApplicationsReply");
         // parsing will occur in GameModel
-        emit _comm->messageReceived(json);
+        IGameModelCommunication* icomm = qobject_cast<IGameModelCommunication*>(_comm);
+        emit icomm->messageReceived(json);
         return true;
     }
 

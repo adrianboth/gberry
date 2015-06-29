@@ -4,6 +4,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 
+#define LOG_AREA "GameModel"
+#include <log/log.h>
+
 class GameModelPrivate
 {
 public:

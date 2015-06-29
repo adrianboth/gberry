@@ -79,7 +79,6 @@ void ClientChannelManager::processMessage(int channelId, const QByteArray& msg)
     if (channelId == ROOT_CHANNEL) {
         if (_d->controlChannel) _d->controlChannel->receiveMessage(msg);
     }
-
     else if (!_d->playerChannels.contains(channelId))
     {
         QJsonDocument doc(QJsonDocument::fromJson(msg));

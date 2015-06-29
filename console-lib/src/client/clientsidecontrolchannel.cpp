@@ -41,11 +41,14 @@ public:
     }
 
     bool processJsonMessage(const QJsonObject& json) {
+        TRACE("processJsonMessage()")
         if (json.contains("command") && commands.contains(json["command"].toString())) {
+            QString cmd = json["command"].toString();
+            TRACE("Command found: " << cmd);
             CommandResponseImpl response;
             // commands are not required to have response message
             // 'result' tells if msg was processed
-            bool result = commands[json["command"].toString()]->process(json, response);
+            bool result = commands[cmd]->process(json, response);
             if (result && !response.json.empty()) {
                 // TODO: should we automatically add "command_response" ?
                 QJsonDocument jsonDoc(response.json);
@@ -55,6 +58,7 @@ public:
             return result;
         }
         // msg didn't match
+        TRACE("No match from registered commands");
         return false;
     }
 };
@@ -110,13 +114,11 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
     }
 
     QJsonObject json(doc.object());
-    if (!json.contains("command"))
+    if (!json.contains("command")) {
+        WARN("Not 'command' message -> ignoring");
         return false;
-
-    if (_d->processJsonMessage(json))
-        return true;
-
-    if (json["command"] == "Ping")
+    }
+    else if (json["command"] == "Ping")
     {
         emit pingReceived();
         _d->sendMessage(MessageFactory::createPingReply(_d->applicationCode));
@@ -145,6 +147,9 @@ bool ClientSideControlChannel::receiveMessage(const QByteArray& msg)
         emit isActivatedChanged();
         return true;
     }
+
+    if (_d->processJsonMessage(json))
+        return true;
 
     // not known by us
     return false;

@@ -18,6 +18,7 @@ public:
     virtual ~IApplications() {}
 
 public:
+    // all applications but systemapps excluded
     virtual QList<QSharedPointer<IApplication>> applications() const = 0;
 
     virtual QSharedPointer<IApplication> application(const QString& uniqueID) const = 0;

@@ -27,7 +27,9 @@ SOURCES += main.cpp \
     server/test_connectionmanager.cpp \
     client/test_clientchannelmanager.cpp \
     common/test_runtimeparameters.cpp \
-    client/4qml/test_gamemodel.cpp
+    client/4qml/test_gamemodel.cpp \
+    client/test_gamemodelcommunication.cpp \
+    server/application/test_baseapplications.cpp
     
 HEADERS += \
     utils/testtcpserver.h \

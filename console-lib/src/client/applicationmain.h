@@ -5,6 +5,8 @@
 
 class QGuiApplication;
 class IEnvironmentVariables;
+class LogControl;
+class StdoutLogMsgHandler;
 
 namespace GBerryApplication {
 
@@ -26,6 +28,8 @@ private:
     const QGuiApplication* _app;
     IEnvironmentVariables* _env;
     ApplicationParameters* _params;
+    LogControl*          _logControl;
+    StdoutLogMsgHandler* _stdoutHandler;
 
 };
 

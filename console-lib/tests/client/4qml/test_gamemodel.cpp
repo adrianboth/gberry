@@ -18,6 +18,8 @@ using namespace GBerry::Console::Server;
 
 using namespace GBerry::Console;
 
+#include "client/clientsidecontrolchannel.h"
+#include "client/gamemodelcommunication.h"
 #include "client/4qml/gamemodel.h"
 
 
@@ -95,6 +97,36 @@ TEST(GameModel, RequestLocalApplications)
     ASSERT_TRUE(foo["id"].toString() == "fooId-1.1.1");
     ASSERT_TRUE(foo["name"].toString() == "Foo");
     ASSERT_TRUE(foo["description"].toString() == "foo desc");
+}
+
+
+// using real GameModelCommunication
+TEST(GameModel, GameModelCommunicationIntegration)
+{
+    ClientSideControlChannel controlChannel;
+    GameModelCommunication comm(&controlChannel);
+
+    GameModel model(&comm);
+
+    int localGamesAvailableSignaled{0};
+    QObject::connect(&model, &GameModel::localGamesAvailable,
+                     [&] () {
+        localGamesAvailableSignaled++;
+    });
+
+    // create reply with one app, just something to populate
+    BaseApplications* apps = new BaseApplications;
+    QSharedPointer<IApplications> iapps(apps);
+    apps->add(createApplication("fooId", "1.1.1", "Foo", "foo desc"));
+
+    QJsonObject replyJson = MessageFactory::createQueryLocalApplicationsReply(iapps);
+    QJsonDocument jdoc(replyJson);
+    QByteArray replyMsg(jdoc.toJson());
+
+// -- test
+    controlChannel.receiveMessage(replyMsg);
+
+    WAIT_AND_ASSERT(localGamesAvailableSignaled == 1);
 }
 
 // TODO: updated

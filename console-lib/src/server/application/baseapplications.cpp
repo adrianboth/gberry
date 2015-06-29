@@ -22,7 +22,12 @@ BaseApplications::~BaseApplications()
 
 QList<QSharedPointer<IApplication>> BaseApplications::applications() const
 {
-    return _apps.values();
+    QList<QSharedPointer<IApplication>> found;
+    foreach (auto app, _apps.values()) {
+        if (!app->meta()->isSystemApp())
+            found << app;
+    }
+    return found;
 }
 
 QSharedPointer<IApplication> BaseApplications::application(const QString& uniqueID) const
