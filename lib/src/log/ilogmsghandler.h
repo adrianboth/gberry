@@ -8,7 +8,8 @@
 class ILogMsgHandler
 {
 public:
-    ILogMsgHandler() : _logLevel(Log::NONE) {}
+    explicit ILogMsgHandler() : _logLevel(Log::NONE) {}
+    virtual ~ILogMsgHandler() {}
 
     int logLevel() const { return _logLevel; }
 

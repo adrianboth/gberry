@@ -6,9 +6,10 @@
 class StdoutLogMsgHandler : public ILogMsgHandler
 {
 public:
-    StdoutLogMsgHandler(int logLevel = Log::DEBUG);
+    explicit StdoutLogMsgHandler(int logLevel = Log::DEBUG);
+    virtual ~StdoutLogMsgHandler();
 
-    virtual void process(const LogMsg& msg);
+    virtual void process(const LogMsg& msg) override;
 };
 
 #endif // STDOUTLOGMSGHANDLER_H

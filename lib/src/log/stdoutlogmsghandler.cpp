@@ -9,6 +9,10 @@ StdoutLogMsgHandler::StdoutLogMsgHandler(int logLevel)
     _logLevel = logLevel;
 }
 
+StdoutLogMsgHandler::~StdoutLogMsgHandler()
+{
+}
+
 void StdoutLogMsgHandler::process(const LogMsg& msg)
 {
     // fixed formatting
