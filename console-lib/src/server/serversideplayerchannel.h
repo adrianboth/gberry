@@ -49,6 +49,9 @@ public:
     virtual void close();
     virtual bool receiveMessageFromSouth(const QByteArray& msg);
 
+signals:
+    void playerRequestedMainMenu();
+
 private:
     PlayerMeta _playerMeta;
     PlayerChannelState _state;

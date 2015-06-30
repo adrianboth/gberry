@@ -93,13 +93,23 @@ bool ServerSidePlayerChannel::receiveMessageFromSouth(const QByteArray& msg)
 
 void ServerSidePlayerChannel::receivePlayerMessageFromNorth(const QByteArray& msg)
 {
-    QJsonObject json;
-    json["command"] = "PlayerMessage";
-    // TODO: encoding
-    json["data"] = QString(msg);
-    QJsonDocument doc(json);
+    // TODO: could there be a way to avoid parsing all messages? Also channels? What about token communication?
+    QJsonParseError error;
+    QJsonObject parsedJson = QJsonDocument::fromJson(msg, &error).object();
+    if (!error.error != QJsonParseError::NoError && parsedJson.contains("action")
+            && parsedJson["action"].toString() == "GoToMainMenu") {
+        emit playerRequestedMainMenu();
 
-    sendMessageToSouth(doc.toJson());
+    } else {
+        // forward message
+        QJsonObject json;
+        json["command"] = "PlayerMessage";
+        // TODO: encoding
+        json["data"] = QString(msg);
+        QJsonDocument doc(json);
+
+        sendMessageToSouth(doc.toJson());
+    }
 }
 
 bool ServerSidePlayerChannel::isOpen() const
