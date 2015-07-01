@@ -12,8 +12,12 @@
 #include "client/4qml/assets.h"
 #include "client/4qml/applicationmanager.h"
 #include "client/4qml/gamemodel.h"
+#include "client/4qml/downloadablegamesmodel.h"
 #include "client/4qml/connection.h"
 #include "client/gamemodelcommunication.h"
+#include "client/downloadablegamesmodelcommunication.h"
+
+using namespace GBerry;
 
 // trick to get define as a string
 #define xstr(s) str(s)
@@ -57,6 +61,8 @@ private:
     DisplayProfile _displayProfile;
     GameModelCommunication _gameModelCommunication;
     GameModel _gameModel;
+    DownloadableGamesModelCommunication _downloadableGamesModelCommunication;
+    DownloadableGamesModel _downloadableGamesModel;
     ApplicationSettings _settings;
     ApplicationManager* _applicationManager;
     Connection _connection;

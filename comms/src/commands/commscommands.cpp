@@ -5,6 +5,9 @@
 #include "commands/launchapplicationcommand.h"
 #include "commands/exitapplicationcommand.h"
 #include "commands/querylocalapplicationscommand.h"
+#include "commands/querydownloadableapplicationscommand.h"
+
+using namespace GBerry;
 
 namespace GBerryComms {
 
@@ -45,6 +48,11 @@ ICommand *CommsCommands::createExitApplicationCommand(int connectionId)
 ICommand* CommsCommands::createQueryLocalApplicationsCommand()
 {
     return new QueryLocalApplicationsCommand(_iapps);
+}
+
+ICommand* CommsCommands::createQueryDownloadableApplicationsCommand()
+{
+    return new QueryDownloadableApplicationsCommand();
 }
 
 } // eon

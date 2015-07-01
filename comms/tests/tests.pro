@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = tests
 
-QT       += core
+QT       += core network testlib
 # TODO: temporary enabling
 #QT       -= gui
 QT       += gui widgets
@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     test_localapplications.cpp \
     test_launchcontroller.cpp \
     commands/test_querylocalapplicationscommand.cpp \
-    test_commsparameters.cpp
+    test_commsparameters.cpp \
+    test_headserverconnection.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \

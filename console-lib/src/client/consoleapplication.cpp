@@ -11,6 +11,8 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     _displayProfile(1920, 1080), // autoscale by default on
     _gameModelCommunication(_setup.controlChannel),
     _gameModel(&_gameModelCommunication),
+    _downloadableGamesModelCommunication(_setup.controlChannel),
+    _downloadableGamesModel(&_downloadableGamesModelCommunication),
     _connection(_setup.controlChannel)
 {
     if (!_settings.runningOnTargetDevice()) {

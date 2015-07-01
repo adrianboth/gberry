@@ -11,7 +11,6 @@
 
 using namespace GBerry::Console::Server;
 
-
 namespace GBerryComms {
 
 class CommsCommands : public QObject
@@ -26,6 +25,7 @@ public:
     ICommand* createLaunchApplicationCommand();
     ICommand* createExitApplicationCommand(int connectionId);
     ICommand* createQueryLocalApplicationsCommand();
+    ICommand* createQueryDownloadableApplicationsCommand();
 
 signals:
     void launchApplicationRequested(const QString applicationId);

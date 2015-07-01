@@ -29,7 +29,11 @@ SOURCES += \
     commands/commscommands.cpp \
     commands/exitapplicationcommand.cpp \
     comms.cpp \
-    commsparameters.cpp
+    commsparameters.cpp \
+    headserverconnection.cpp \
+    request.cpp \
+    requests/downloableapplicationsrequest.cpp \
+    commands/querydownloadableapplicationscommand.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -52,7 +56,11 @@ HEADERS += \
     commands/commscommands.h \
     commands/exitapplicationcommand.h \
     comms.h \
-    commsparameters.h
+    commsparameters.h \
+    headserverconnection.h \
+    request.h \
+    requests/downloableapplicationsrequest.h \
+    commands/querydownloadableapplicationscommand.h
 
 DEPENDPATH += .
 
