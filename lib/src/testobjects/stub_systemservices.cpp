@@ -15,7 +15,7 @@ TestSystemServices::~TestSystemServices()
 
 void TestSystemServices::singleshotTimer(int msec, QObject *receiver, const char *member)
 {
-    Q_UNUSED(msec);
+    _singleShotTimerWaitMs = msec;
     _qobj = receiver;
     _signalName = member;
     _signalName.remove(0, 1);

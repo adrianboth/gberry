@@ -30,10 +30,14 @@ public:
     void registerInstance();
     void unregisterInstance();
 
+    // for singleShotTimer
+    int singleShotTimerWaitMs() const { return _singleShotTimerWaitMs; }
+
 private:
     // TODO: later multiple
     QObject* _qobj;
     QString _signalName;
+    int _singleShotTimerWaitMs{0};
 
     bool _registered;
 };
