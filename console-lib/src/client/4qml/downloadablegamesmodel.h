@@ -50,6 +50,10 @@ signals:
     void gamesAvailable();
     void gamesUpdated();
 
+    // because search happens against server in internet there can be failures
+    // like 'no connection'
+    void gamesRequestFailed(); // TODO: should have some kind of error message / code?
+
 public slots:
 
 private:

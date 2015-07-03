@@ -14,7 +14,6 @@ DEFINES += TESTDATA_ROOT=$$PWD/testdata
 include(../project.pri)
 
 SOURCES += main.cpp \
-    test_commchannel.cpp \
     test_uiappstatemachine.cpp \
     test_applicationcontroller.cpp \
     test_localapplicationstorage.cpp \
@@ -23,13 +22,15 @@ SOURCES += main.cpp \
     test_launchcontroller.cpp \
     commands/test_querylocalapplicationscommand.cpp \
     test_commsparameters.cpp \
-    test_headserverconnection.cpp
+    test_headserverconnection.cpp \
+    test_request.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \
     utils/util_controllerproxy.h \
     mocks/mock_iapplicationstorage.h \
-    mocks/mock_iapplications.h
+    mocks/mock_iapplications.h \
+    test_request.h
 
 INCLUDEPATH += ../src
 LIBS += -L../src -lcomms

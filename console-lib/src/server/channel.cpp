@@ -124,3 +124,8 @@ void Channel::registerCommand(ICommand *cmd)
         _commands[cmd->id()] = cmd;
     }
 }
+
+void Channel::sendJsonMessageToSouth(const QJsonObject& json)
+{
+    _southPartner->channelSendMessageToSouth(QJsonDocument(json).toJson());
+}

@@ -1,25 +1,34 @@
 #include "downloableapplicationsrequest.h"
 
+#include "commands/querydownloadableapplicationscommand.h"
+
 namespace GBerry {
 
-DownloableApplicationsRequest::DownloableApplicationsRequest()
+DownloadableApplicationsRequest::DownloadableApplicationsRequest(
+        QueryDownloadableApplicationsCommand* command) :
+    _command(command)
 {
-
 }
 
-DownloableApplicationsRequest::~DownloableApplicationsRequest()
+DownloadableApplicationsRequest::~DownloadableApplicationsRequest()
 {
-
 }
 
-void DownloableApplicationsRequest::requestReady()
+void DownloadableApplicationsRequest::processPrepare(RESTInvocation *invocation)
 {
-    // TODO
+    // TODO:
 }
 
-void DownloableApplicationsRequest::requestFailed()
+void DownloadableApplicationsRequest::processOkResponse(RESTInvocation *invocation)
 {
-    // TODO
+    // TODO: parse response (json)
+    _command->processRequestOkResponse(this);
+}
+
+void DownloadableApplicationsRequest::processErrorResponse(RESTInvocation *invocation)
+{
+    // TODO: actual action
+    _command->processRequestErrorResponse(this);
 }
 
 

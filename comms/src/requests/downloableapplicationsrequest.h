@@ -1,23 +1,34 @@
 #ifndef DOWNLOABLEAPPLICATIONSREQUEST_H
 #define DOWNLOABLEAPPLICATIONSREQUEST_H
 
+#include <QObject>
+
 #include "request.h"
 
+
 namespace GBerry {
+
+class QueryDownloadableApplicationsCommand;
 
 /**
  * DownloableApplicationsRequest makes REST query for applications that are
  * downloadable for a user.
  */
-class DownloableApplicationsRequest : public Request
+class DownloadableApplicationsRequest : public QObject, public Request
 {
+    Q_OBJECT
 public:
     // TODO: user from somewhere (token)
-    explicit DownloableApplicationsRequest();
-    virtual ~DownloableApplicationsRequest();
+    explicit DownloadableApplicationsRequest(QueryDownloadableApplicationsCommand* command);
+    virtual ~DownloadableApplicationsRequest();
 
-    virtual void requestReady() override;
-    virtual void requestFailed() override;
+protected:
+    virtual void processPrepare(RESTInvocation* invocation);
+    virtual void processOkResponse(RESTInvocation* invocation);
+    virtual void processErrorResponse(RESTInvocation* invocation);
+
+private:
+    QueryDownloadableApplicationsCommand* _command;
 };
 
 } // eon

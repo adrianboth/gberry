@@ -1,6 +1,7 @@
 #include "commscommands.h"
 
 #include <server/applicationregistry.h>
+#include <server/serversidecontrolchannel.h>
 
 #include "commands/launchapplicationcommand.h"
 #include "commands/exitapplicationcommand.h"
@@ -13,11 +14,12 @@ namespace GBerryComms {
 
 CommsCommands::CommsCommands(QSharedPointer<IApplications> iapps,
                              ApplicationRegistry* registry,
+                             HeadServerConnection* headServerConnection,
                              QObject *parent) :
     QObject(parent),
     _iapps(iapps),
-    _applicationRegistry(registry)
-
+    _applicationRegistry(registry),
+    _headServerConnection(headServerConnection)
 {
 }
 
@@ -50,9 +52,10 @@ ICommand* CommsCommands::createQueryLocalApplicationsCommand()
     return new QueryLocalApplicationsCommand(_iapps);
 }
 
-ICommand* CommsCommands::createQueryDownloadableApplicationsCommand()
+ICommand* CommsCommands::createQueryDownloadableApplicationsCommand(
+        ServerSideControlChannel* controlChannel)
 {
-    return new QueryDownloadableApplicationsCommand();
+    return new QueryDownloadableApplicationsCommand(_headServerConnection, controlChannel);
 }
 
 } // eon

@@ -32,7 +32,7 @@ ServerSideControlChannel* CommsChannelFactory::createControlChannel(int connecti
         // channel takes ownership of command
         channel->registerCommand(_commands->createQueryLocalApplicationsCommand());
 
-        channel->registerCommand(_commands->createQueryDownloadableApplicationsCommand());
+        channel->registerCommand(_commands->createQueryDownloadableApplicationsCommand(channel));
 
         channel->registerCommand(_commands->createLaunchApplicationCommand());   
 

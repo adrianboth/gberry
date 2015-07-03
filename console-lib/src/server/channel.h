@@ -49,6 +49,8 @@ public:
     // takes ownership of command
     void registerCommand(ICommand* cmd);
 
+    virtual void sendJsonMessageToSouth(const QJsonObject& json);
+
 public slots:
     // true if message was handled, used in subclasses to know if parent handled to message
     virtual bool receiveMessageFromSouth(const QByteArray& msg);

@@ -93,7 +93,7 @@ public:
             requestQueue.empty();
 
             foreach(auto req, currentlyWaitingRequests) {
-                req->finishedFailure(invocation); // TODO: should we mark somehow that there was connection error in ping?
+                req->finishedError(invocation); // TODO: should we mark somehow that there was connection error in ping?
             }
         }
         if (oldConnectionState == CONNECTED) {
@@ -149,7 +149,9 @@ public:
                 [=] () { this->requestReady(request, invocation); });
 
         QObject::connect(invocation, &RESTInvocation::finishedError,
-                [=] () { this->requestFailed(request, invocation); });
+                [=] () {
+             this->requestFailed(request, invocation);
+        });
 
         request->prepare(invocation);
         pingState = SENT_AND_WAITING; // any REST call is treated as PING
@@ -166,7 +168,7 @@ public:
     /* */
     void requestFailed(Request* request, RESTInvocation* invocation)
     {
-        request->finishedFailure(invocation);
+        request->finishedError(invocation);
         this->onPingError(invocation); // will deleteLater() 'invocation'
     }
 };

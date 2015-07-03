@@ -164,4 +164,18 @@ connections</panel_attributes>
 creates</panel_attributes>
     <additional_attributes>10.0;10.0;170.0;140.0</additional_attributes>
   </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>20</x>
+      <y>20</y>
+      <w>210</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>This is part of 'comms': 
+communication with mobapps (north side)
+
+bg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
 </diagram>

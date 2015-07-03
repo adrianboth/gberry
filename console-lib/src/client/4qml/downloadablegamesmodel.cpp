@@ -45,33 +45,39 @@ public:
     }
 
     void onMessageReceived(const QJsonObject& msg) {
+        // TODO: how and where validate json?
 
-        // TODO: validation of json ... currently on comms side ...
-        /*
-        json["id"] = app.id();
-        json["version"] = app.meta()->version();
-        json["application_id"] = app.meta()->applicationId();
-        json["name"] = app.meta()->name();
-        json["description"] = app.meta()->description();
-        json["catalog_image"] = app.meta()->catalogImageFilePath();
-        json["status"] = app.stateString();
-        */
+        // message is for us, that is for sure, but is it ok / failure
 
-        if (msg.contains("applications") && msg["applications"].isArray()) {
-            foreach(auto appJsonValue, msg["applications"].toArray()) {
-                QJsonObject appJson(appJsonValue.toObject());
-                QVariantMap app(appJson.toVariantMap());
-                games[appJson["id"].toString()] = app;
-            }
+        if (msg["result"].toString() == "failure") {
+            gamesReceived = false;
+            emit q->gamesRequestFailed();
         }
+        else {
+            // TODO: validation of json ... currently on comms side ...
+            /*
+            json["id"] = app.id();
+            json["version"] = app.meta()->version();
+            json["application_id"] = app.meta()->applicationId();
+            json["name"] = app.meta()->name();
+            json["description"] = app.meta()->description();
+            json["catalog_image"] = app.meta()->catalogImageFilePath();
+            json["status"] = app.stateString();
+            */
 
-        gamesReceived = true;
-        emit q->gamesAvailable();
+            if (msg.contains("applications") && msg["applications"].isArray()) {
+                foreach(auto appJsonValue, msg["applications"].toArray()) {
+                    QJsonObject appJson(appJsonValue.toObject());
+                    QVariantMap app(appJson.toVariantMap());
+                    games[appJson["id"].toString()] = app;
+                }
+            }
+            // TODO: how to handle different searches (well now first only one global search)
+            //       -- will search local (cached data) or do we execute is always against server?
+            gamesReceived = true;
+            emit q->gamesAvailable();
+        }
     }
-
-    // TODO: how to get response
-    //  - parse json and populate data model
-    //  - signal that games are available
 
 };
 

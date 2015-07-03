@@ -6,20 +6,39 @@
 
 #include <server/icommand.h>
 
+class ServerSideControlChannel;
+
 namespace GBerry {
 
+class HeadServerConnection;
 class QueryDownloadableApplicationsCommandPrivate;
+class DownloadableApplicationsRequest;
 
+/**
+ * @brief The QueryDownloadableApplicationsCommand class
+ *
+ * There will be one instance of this class for each ControlChannel.
+ */
 class QueryDownloadableApplicationsCommand : public QObject, public ICommand
 {
     Q_OBJECT
 
 public:
     // TODO: how to create factory like
-    explicit QueryDownloadableApplicationsCommand();
+    explicit QueryDownloadableApplicationsCommand(
+            HeadServerConnection* headServerConnection,
+            ServerSideControlChannel* controlChannel);
     virtual ~QueryDownloadableApplicationsCommand();
 
+    // ICommand
     virtual bool process(const QJsonObject& json, ICommandResponse& response) override;
+
+
+    // --
+
+    // callback from Request
+    void processRequestOkResponse(DownloadableApplicationsRequest* request);
+    void processRequestErrorResponse(DownloadableApplicationsRequest* request);
 
 private:
     const QScopedPointer<QueryDownloadableApplicationsCommandPrivate> _d;
