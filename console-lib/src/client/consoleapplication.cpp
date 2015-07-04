@@ -13,6 +13,8 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     _gameModel(&_gameModelCommunication),
     _downloadableGamesModelCommunication(_setup.controlChannel),
     _downloadableGamesModel(&_downloadableGamesModelCommunication),
+    _downloadModelCommunication(_setup.controlChannel),
+    _downloadModel(&_downloadModelCommunication),
     _connection(_setup.controlChannel)
 {
     if (!_settings.runningOnTargetDevice()) {

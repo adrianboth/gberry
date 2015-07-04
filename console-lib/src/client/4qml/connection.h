@@ -25,6 +25,10 @@ class ConnectionPrivate;
  * However during development time of GBerry platform it is usefull if
  * applications can recover from 'connection going down' i.e. 'comms' is
  * restarted.
+ *
+ * HeadServerConnection means whether GBerry platform has a connection to
+ * GBerry server in Internet. If not then for example querying downloadable
+ * applications and downloading them is not possible.
  */
 class Connection : public QObject
 {
@@ -32,20 +36,25 @@ class Connection : public QObject
 
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
     Q_PROPERTY(bool isActivated READ isActivated NOTIFY isActivatedChanged)
+    Q_PROPERTY(bool isHeadServerConnected READ isHeadServerConnected NOTIFY isHeadServerConnectedChanged)
+
 public:
     explicit Connection(ClientSideControlChannel* controlChannel, QObject *parent = 0);
     ~Connection();
 
     bool isConnected() const;
     bool isActivated() const;
+    bool isHeadServerConnected() const;
 
 signals:
     void isConnectedChanged();
     void isActivatedChanged();
+    void isHeadServerConnectedChanged();
 
 public slots:
     void onActivatedChanged();
     void onConnectedChanged();
+    void onHeadServerConnectedChanged();
 
 private:
     const QScopedPointer<ConnectionPrivate> _d;

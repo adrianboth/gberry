@@ -44,6 +44,7 @@ signals:
     void localGamesUpdated();
 
 public slots:
+    void onGameDownloaded(QString applicationFullId);
 
 private:
     const QScopedPointer<GameModelPrivate> _d;

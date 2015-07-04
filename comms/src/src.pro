@@ -33,7 +33,11 @@ SOURCES += \
     headserverconnection.cpp \
     request.cpp \
     requests/downloableapplicationsrequest.cpp \
-    commands/querydownloadableapplicationscommand.cpp
+    commands/querydownloadableapplicationscommand.cpp \
+    commands/downloadapplicationcommand.cpp \
+    requests/downloadapplicationrequest.cpp \
+    downloadstreaminvocation.cpp \
+    downloadengine.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -60,7 +64,11 @@ HEADERS += \
     headserverconnection.h \
     request.h \
     requests/downloableapplicationsrequest.h \
-    commands/querydownloadableapplicationscommand.h
+    commands/querydownloadableapplicationscommand.h \
+    commands/downloadapplicationcommand.h \
+    requests/downloadapplicationrequest.h \
+    downloadstreaminvocation.h \
+    downloadengine.h
 
 DEPENDPATH += .
 

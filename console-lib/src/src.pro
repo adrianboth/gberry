@@ -52,7 +52,9 @@ SOURCES += \
     client/gamemodelcommunication.cpp \
     client/4qml/connection.cpp \
     client/4qml/downloadablegamesmodel.cpp \
-    client/downloadablegamesmodelcommunication.cpp
+    client/downloadablegamesmodelcommunication.cpp \
+    client/4qml/downloadmodel.cpp \
+    client/downloadmodelcommunication.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -99,7 +101,9 @@ HEADERS +=\
     client/gamemodelcommunication.h \
     client/4qml/connection.h \
     client/4qml/downloadablegamesmodel.h \
-    client/downloadablegamesmodelcommunication.h
+    client/downloadablegamesmodelcommunication.h \
+    client/4qml/downloadmodel.h \
+    client/downloadmodelcommunication.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

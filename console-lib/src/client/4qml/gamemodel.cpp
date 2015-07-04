@@ -37,12 +37,22 @@ public:
         comm->sendMessage(json);
     }
 
+    void requestLocalGame(const QString& applicationFullId) {
+        // TODO: add to a message factory?
+        QJsonObject json;
+        json["command"]  = "QueryLocalApplications";
+        json["application_id"] = applicationFullId;
+        comm->sendMessage(json);
+    }
+
     void queryGamesUpdated() {
         // TODO: message with timstamp
         // TODO: this is not needed in the beginning
     }
 
     void onMessageReceived(const QJsonObject& msg) {
+        // handling is same, now matter if all or single game
+        // was requested.
 
         // TODO: validation of json ... currently on comms side ...
         /*
@@ -62,14 +72,16 @@ public:
                 games[appJson["id"].toString()] = app;
             }
         }
-
+        bool oldGamesReceived = gamesReceived;
         gamesReceived = true;
-        emit q->localGamesAvailable();
-    }
 
-    // TODO: how to get response
-    //  - parse json and populate data model
-    //  - signal that games are available
+        emit q->localGamesAvailable();
+
+        // if there was previously fetched games -> inform that we have update
+        if (oldGamesReceived) {
+            emit q->localGamesUpdated();
+        }
+    }
 
 };
 
@@ -131,5 +143,12 @@ QVariantMap GameModel::game(QString gameId) const
         // not found, return empty
         QVariantMap empty;
         return empty;
+    }
+}
+
+void GameModel::onGameDownloaded(QString applicationFullId)
+{
+    if (_d->gamesReceived) {
+        _d->requestLocalGame(applicationFullId);
     }
 }

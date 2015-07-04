@@ -14,8 +14,10 @@
 #include "client/4qml/gamemodel.h"
 #include "client/4qml/downloadablegamesmodel.h"
 #include "client/4qml/connection.h"
+#include "client/4qml/downloadmodel.h"
 #include "client/gamemodelcommunication.h"
 #include "client/downloadablegamesmodelcommunication.h"
+#include "client/downloadmodelcommunication.h"
 
 using namespace GBerry;
 
@@ -63,6 +65,8 @@ private:
     GameModel _gameModel;
     DownloadableGamesModelCommunication _downloadableGamesModelCommunication;
     DownloadableGamesModel _downloadableGamesModel;
+    DownloadModelCommunication _downloadModelCommunication;
+    DownloadModel _downloadModel;
     ApplicationSettings _settings;
     ApplicationManager* _applicationManager;
     Connection _connection;

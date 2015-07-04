@@ -36,10 +36,20 @@ bool QueryLocalApplicationsCommand::process(const QJsonObject &json, ICommandRes
 
     QJsonObject responseJson;
     responseJson["command"] = "QueryLocalApplicationsReply";
-
     QJsonArray appsList;
-    foreach(QSharedPointer<IApplication> app, _priv->apps->applications()) {
-        appsList << Application2Json::from(*app);
+
+    if (json.contains("application_id")) {
+        QSharedPointer<IApplication> app = _priv->apps->application(json["application_id"].toString());
+        if (!app.isNull()) {
+            appsList << Application2Json::from(*app);
+        } else {
+            responseJson["result"] = "failure";
+            responseJson["result_code"] = "APPLICATION_NOT_EXISTS";
+        }
+    } else {
+        foreach(QSharedPointer<IApplication> app, _priv->apps->applications()) {
+            appsList << Application2Json::from(*app);
+        }
     }
 
     responseJson["applications"] = appsList;

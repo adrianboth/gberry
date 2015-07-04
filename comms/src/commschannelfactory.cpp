@@ -34,6 +34,8 @@ ServerSideControlChannel* CommsChannelFactory::createControlChannel(int connecti
 
         channel->registerCommand(_commands->createQueryDownloadableApplicationsCommand(channel));
 
+        channel->registerCommand(_commands->createDownloadApplicationCommand(channel));
+
         channel->registerCommand(_commands->createLaunchApplicationCommand());   
 
     } else {

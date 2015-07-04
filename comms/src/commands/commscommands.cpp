@@ -58,4 +58,9 @@ ICommand* CommsCommands::createQueryDownloadableApplicationsCommand(
     return new QueryDownloadableApplicationsCommand(_headServerConnection, controlChannel);
 }
 
+ICommand *CommsCommands::createDownloadableApplicationCommand(ServerSideControlChannel *controlChannel)
+{
+    return new DownloadApplicationCommand(_headServerConnection, controlChannel);
+}
+
 } // eon

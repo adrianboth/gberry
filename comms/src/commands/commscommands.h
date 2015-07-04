@@ -31,8 +31,10 @@ public:
     ICommand* createExitApplicationCommand(int connectionId);
     ICommand* createQueryLocalApplicationsCommand();
     ICommand* createQueryDownloadableApplicationsCommand(ServerSideControlChannel* controlChannel);
+    ICommand* createDownloadableApplicationCommand(ServerSideControlChannel* controlChannel);
 
 signals:
+    // TODO: should these go via command pattern, not as signals here
     void launchApplicationRequested(const QString applicationId);
     void exitApplicationRequested(const QString applicationId);
 
