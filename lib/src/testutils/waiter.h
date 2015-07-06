@@ -43,7 +43,12 @@ public:
     Waiter(std::function<bool ()> func,
            int timeout_ms=DEFAULT_TIMEOUT_MS,
            int waitingStep_ms = DEFAULT_WAITING_STEP_MS) :
-        _maxTime(timeout_ms), _waitingStep(waitingStep_ms), _loopCounter(0), _startTime(NULL), _func(func)
+        _maxTime(timeout_ms),
+        _waitingStep(waitingStep_ms),
+        _minLoops(timeout_ms / DEFAULT_TIMEOUT_MS),
+        _loopCounter(0),
+        _startTime(NULL),
+        _func(func)
     {
     }
 
@@ -61,7 +66,9 @@ public:
         if (debug)
             qDebug() << "Starting waiting: condition =" << _func();
 
-        while (_startTime->elapsed() < _maxTime && !_func())
+        // loop counting is necessary for debugging cases because if break
+        // point has been hit then time passes too quickly
+        while ( (_startTime->elapsed() < _maxTime && !_func()) ||(_loopCounter < _minLoops) )
         {
             QCoreApplication::processEvents();
             QThread::msleep(_waitingStep);
@@ -109,12 +116,15 @@ public:
 private:
     int _maxTime;
     int _waitingStep;
+    int _minLoops;
     int _loopCounter; // debug information
     QTime* _startTime;
     std::function<bool ()> _func;
 
 };
 
+#define WAIT(condition) Waiter::wait([&] () { return condition; } );
+#define WAIT_WITH_TIMEOUT(condition, timeout) Waiter::wait([&] () { return condition; }, timeout );
 #define WAIT_AND_ASSERT(condition) Waiter::wait([&] () { return condition; } ); ASSERT_TRUE(condition);
 #define WAIT_CUSTOM_AND_ASSERT(condition, timeout, step) Waiter::wait([&] () { return condition; }, true, timeout, step ); ASSERT_TRUE(condition);
 
