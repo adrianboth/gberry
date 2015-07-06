@@ -58,7 +58,11 @@ HEADERS += \
     utils/fileutils.h \
     testutils/mock_ienvironmentvariables.h \
     testobjects/stub_systemservices.h \
-    utils/qtsignalproxy.h
+    utils/qtsignalproxy.h \
+    downloadstreaminvocation.h \
+    restinvocationdefinition.h \
+    invocation.h \
+    downloadstreaminvocationimpl.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -107,7 +111,11 @@ SOURCES += \
     applicationsettings.cpp \
     testutils/util_enablelog.cpp \
     testobjects/stub_systemservices.cpp \
-    utils/qtsignalproxy.cpp
+    utils/qtsignalproxy.cpp \
+    downloadstreaminvocation.cpp \
+    restinvocationdefinition.cpp \
+    invocation.cpp \
+    downloadstreaminvocationimpl.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

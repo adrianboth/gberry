@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include <gmock/gmock.h>
 
 using ::testing::AtLeast;
@@ -9,29 +10,32 @@ using ::testing::_;
 #include <QCoreApplication>
 #include <QTime>
 #include <QThread>
-
+#include <QTemporaryFile>
 
 #include "restinvocationfactoryimpl.h"
-#include "restinvocation.h"
+#include "downloadstreaminvocation.h"
 #include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
 
-TEST(restInvocationFactoryImpl, realGetOperation)
+
+TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
 {
+    // TODO: rename to more common
     RESTInvocationFactoryImpl factoryObj;
     RESTInvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
     //factory->setProperty("url_prefix", "http://localhost:8050/console/v1");
 
-    RESTInvocation* inv = factory->newRESTInvocation();
+    DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
+
     SignalRecorder okRecorder;
     SignalRecorder errRecorder;
 
-    QObject::connect(inv, &RESTInvocation::finishedOK,
+    QObject::connect(inv, &DownloadStreamInvocation::finishedOK,
                      &okRecorder, &SignalRecorder::signal1_QObjectPointer);
 
-    QObject::connect(inv, &RESTInvocation::finishedError,
+    QObject::connect(inv, &DownloadStreamInvocation::finishedError,
                      &errRecorder, &SignalRecorder::signal1_QObjectPointer);
 
     // set http server to localhost
@@ -39,7 +43,7 @@ TEST(restInvocationFactoryImpl, realGetOperation)
     //QString testPath("/gberryrest/v1");
 
     bool replyReceived = false;
-    QString expectedPath("/gberryrest/v1/ping");
+    QString expectedPath("/gberryrest/v1/download");
     auto mySlot = [&](QHttpRequest* req, QHttpResponse* resp)
     {
         replyReceived = true;
@@ -60,7 +64,8 @@ TEST(restInvocationFactoryImpl, realGetOperation)
         resp->setHeader("Content-Type", "text/html");
         resp->writeHead(200);
 
-        QString body = "ping";
+        QString body = "data123";
+        // TODO: response only partial and somehow later return rest;
         resp->end(body.toUtf8());
     };
 
@@ -89,11 +94,21 @@ TEST(restInvocationFactoryImpl, realGetOperation)
     }
     **/
 
-    qDebug("## BEFORE PING");
-    inv->defineGetOperation("/ping");
+    qDebug("## BEFORE DOWNLOAD");
+    QTemporaryFile tmpFile;
+    tmpFile.open();
+    QString tmpFileName(tmpFile.fileName());
+    tmpFile.close();
+    qDebug("## BEFORE SETTINGS");
+    inv->setOutputFilePath(tmpFileName);
+    inv->defineGetOperation("/download");
+    qDebug("## BEFORE EXECUTE");
     inv->execute();
-    qDebug("## AFTER PING");
-
+    for (int i = 0; i < 10; i++) {
+        QCoreApplication::processEvents();
+    }
+    qDebug("## AFTER DOWNLOAD");
+/*
     EXPECT_FALSE(okRecorder.received());
     EXPECT_FALSE(errRecorder.received());
     EXPECT_FALSE(replyReceived);
@@ -108,20 +123,21 @@ TEST(restInvocationFactoryImpl, realGetOperation)
         c++;
         //qDebug("Waiting");
     }
-    //QCoreApplication::processEvents();
+
     qDebug() << "After processing events: c=" << c;
     ASSERT_TRUE(replyReceived);
     ASSERT_TRUE(okRecorder.received_QObjectPointer()); // if not ok, would cause segfaults
 
     RESTInvocation* inv2 = qobject_cast<RESTInvocation *>(okRecorder.getQObjectPointer());
     ASSERT_TRUE(inv2->responseAvailable());
-    EXPECT_EQ(inv2->responseHttpStatusCode(), RESTInvocationDefinition::OK_200); // TODO: better name
+    EXPECT_EQ(inv2->responseHttpStatusCode(), RESTInvocation::OK_200); // TODO: better name
     EXPECT_EQ(inv2->statusCode(), RESTInvocation::RESPONSE_RECEIVED);
 
     QString responseData = inv2->responseString();
     EXPECT_TRUE(responseData == "ping");
+*/
 }
 
 
-// TODO: test case if property not defined
-// TODO: test case if connection not allowed
+// TODO: test case data in parts
+//  -- from internet how to provide headers

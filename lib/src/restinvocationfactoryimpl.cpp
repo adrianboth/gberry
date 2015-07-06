@@ -5,6 +5,7 @@
 
 #include "restinvocation.h"
 #include "restinvocationimpl.h"
+#include "downloadstreaminvocationimpl.h"
 
 
 RESTInvocationFactoryImpl::RESTInvocationFactoryImpl(QNetworkAccessManager* qnam) :
@@ -16,7 +17,6 @@ RESTInvocationFactoryImpl::RESTInvocationFactoryImpl(QNetworkAccessManager* qnam
 
 RESTInvocationFactoryImpl::~RESTInvocationFactoryImpl()
 {
-
 }
 
 QUrl RESTInvocationFactoryImpl::buildUrl(QString invocationPath) const
@@ -26,7 +26,12 @@ QUrl RESTInvocationFactoryImpl::buildUrl(QString invocationPath) const
 }
 
 
-RESTInvocation* RESTInvocationFactoryImpl::newInvocation()
+RESTInvocation* RESTInvocationFactoryImpl::newRESTInvocation()
 {
     return new RESTInvocationImpl(this);
+}
+
+DownloadStreamInvocation *RESTInvocationFactoryImpl::newDownloadStreamInvocation()
+{
+    return new DownloadStreamInvocationImpl(this);
 }

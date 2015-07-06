@@ -34,8 +34,8 @@ signals:
     void consoleSessionOpened();
 
 public slots:
-    void onOpenConsoleSessionFinished(RESTInvocation* invocation);
-    void onOpenConsoleSessionError(RESTInvocation* invocation);
+    void onOpenConsoleSessionFinished(Invocation* invocation);
+    void onOpenConsoleSessionError(Invocation* invocation);
     void onWebsocketConnected();
 
 private:

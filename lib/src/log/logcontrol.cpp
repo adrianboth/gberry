@@ -11,9 +11,10 @@ public:
     QList<ILogMsgHandler*> handlers;
 };
 
-LogControl::LogControl() : _impl(nullptr), _highestLogLevel(Log::NONE)
+LogControl::LogControl() :
+    _impl(new PrivateLogControlImpl()),
+    _highestLogLevel(Log::NONE)
 {
-    _impl = new PrivateLogControlImpl();
 }
 
 LogControl::~LogControl()

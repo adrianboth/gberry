@@ -2,13 +2,20 @@
 #define RESTINVOCATIONIMPL_H
 
 #include <QUrl>
+#include <QScopedPointer>
+
+#include "invocation.h"
 #include "restinvocation.h"
 #include "restinvocationfactoryimpl.h"
+#include "restinvocationdefinition.h"
 
+using namespace GBerry;
 
 namespace {
     static const uint DEFAULT_TIMEOUT_MS = 1000*30;
 }
+
+class RESTInvocationImplPrivate;
 
 /**
  * @brief The RESTInvocationImpl class
@@ -21,32 +28,25 @@ class RESTInvocationImpl : public RESTInvocation
 {
 public:
     RESTInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent = 0);
-    ~RESTInvocationImpl();
+    virtual ~RESTInvocationImpl();
 
-    virtual void get(QString invocationPath);
-    virtual void get(QUrl url);
+    // -- RESTInvocation
 
-    virtual void post(QString invocationPath, QJsonDocument jsondoc);
-    virtual void post(QUrl url, QJsonDocument jsondoc);
+    virtual void defineGetOperation(const QString& invocationPath) override;
+    virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) override;
 
-    virtual RESTInvocation::InvocationStatus statusCode() const;
-    virtual RESTInvocation::HttpStatus responseHttpStatusCode() const;
+    virtual void execute() override;
+    virtual void abort() override;
+
+    virtual Invocation::InvocationStatus statusCode() const;
+    virtual RESTInvocationDefinition::HttpStatus responseHttpStatusCode() const;
     virtual bool responseAvailable() const;
     virtual QByteArray responseByteData() const;
     virtual QString responseString() const;
     virtual QString errorString() const;
 
-protected slots:
-    void httpFinished();
-
 private:
-    RESTInvocationFactoryImpl* _factory;
-    RESTInvocation::InvocationStatus _invocationStatus;
-    RESTInvocation::HttpStatus _httpStatus;
-    QString _data;
-    // TODO: encoding,  content-type
-    QNetworkReply* _reply;
-    QUrl _url;
+    const QScopedPointer<RESTInvocationImplPrivate> _d;
 };
 
 #endif // RESTINVOCATIONIMPL_H

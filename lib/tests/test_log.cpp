@@ -10,6 +10,33 @@
 
 #include "utils/testlogmsghandler.h"
 
+/**
+ * LogControlSwap is utility to set new LogControl to singleton
+ * and restore old value once test ends (in destructor).
+ */
+class TestUtilLogControlSwap {
+public:
+    TestUtilLogControlSwap(LogControl* logControl) {
+        newLogControl = logControl;
+        oldLogControl = Log::singleton().logControl();
+        Log::singleton().use(newLogControl);
+    }
+
+    ~TestUtilLogControlSwap() {
+        restore();
+    }
+
+    void restore() {
+        if (oldLogControl) {
+            Log::singleton().use(oldLogControl);
+            oldLogControl = nullptr;
+        }
+    }
+
+    LogControl* newLogControl;
+    LogControl* oldLogControl;
+};
+
 static const char* DEFAULT_LOGAREA = "default";
 static const char* DEFAULT_SRC_FILE = "source file";
 static const int DEFAULT_LINENO = 10;
@@ -38,13 +65,15 @@ TEST(Log, Trace)
     StdoutLogMsgHandler handler;
     LogControl logControl;
     logControl.registerMsgHandler(&handler);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     TRACE("trace message");
     TRACE_FUNC();
     TRACE_FUNC2("trace func message");
     TRACE_FUNC_IN();
     TRACE_FUNC_OUT();
+
+    swap.restore();
 }
 
 TEST(Log, MacroUsageWithCustomLog)
@@ -71,7 +100,7 @@ TEST(Log, Singleton)
     TestLogMsgHandler handler;
     LogControl logControl;
     logControl.registerMsgHandler(&handler);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     TRACE("trace message");
     LogMsg got = handler.lastLogMsg;
@@ -85,6 +114,7 @@ TEST(Log, Singleton)
     EXPECT_TRUE(got.sourceLine > 10);
 
     Log::singleton().reset();
+    swap.restore();
 }
 
 TEST(Log, DifferentLogLevels)
@@ -92,7 +122,7 @@ TEST(Log, DifferentLogLevels)
     TestLogMsgHandler handler;
     LogControl logControl;
     logControl.registerMsgHandler(&handler);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     TRACE("trace message");
     EXPECT_TRUE(handler.lastLogMsg.text == QString("trace message"));
@@ -126,6 +156,7 @@ TEST(Log, DifferentLogLevels)
     EXPECT_TRUE(handler.lastLogMsg.text == QString("error with params 1 2"));
 
     Log::singleton().reset();
+    swap.restore();
 }
 
 TEST(Log, StdoutLogMsgHandler)
@@ -135,7 +166,7 @@ TEST(Log, StdoutLogMsgHandler)
 
     StdoutLogMsgHandler handler;
     logControl.registerMsgHandler(&handler);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     EXPECT_TRUE(logControl.highestLogLevel() == Log::DEBUG);
 
@@ -148,6 +179,7 @@ TEST(Log, StdoutLogMsgHandler)
     logControl.registerMsgHandler(&handler2);
     EXPECT_TRUE(logControl.highestLogLevel() == Log::TRACE);
 
+    swap.restore();
 }
 
 TEST(Log, MultipleLogMsgHandlers)
@@ -157,12 +189,15 @@ TEST(Log, MultipleLogMsgHandlers)
     LogControl logControl;
     logControl.registerMsgHandler(&handler1);
     logControl.registerMsgHandler(&handler2);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     TRACE("message1");
     EXPECT_TRUE(handler1.lastLogMsg.text == QString("message1"));
     EXPECT_TRUE(handler2.lastLogMsg.text == QString("message1"));
+
+    swap.restore();
 }
+
 
 /* How to run and record perf with GTest
 TEST(Log, Performance)
@@ -180,12 +215,13 @@ TEST(Log, Performance)
 }
 */
 
+
 TEST(Log, Types)
 {
     TestLogMsgHandler handler1;
     LogControl logControl;
     logControl.registerMsgHandler(&handler1);
-    Log::singleton().use(&logControl);
+    TestUtilLogControlSwap swap(&logControl);
 
     char c = 'c';
     TRACE("msg:" << QChar('a') << 'b' << c);
@@ -234,4 +270,6 @@ TEST(Log, Types)
     list << "one" << "two" << "three";
     TRACE("msg:" << list);
     EXPECT_TRUE(handler1.lastLogMsg.text == QString("msg: [one, two, three]")) << handler1.lastLogMsg.text;
+
+    swap.restore();
 }

@@ -1,11 +1,9 @@
 #include "restinvocation.h"
 
-RESTInvocation::RESTInvocation( QObject *parent) : QObject(parent)
+RESTInvocation::RESTInvocation( QObject *parent) : Invocation(parent)
 {
-
 }
 
 RESTInvocation::~RESTInvocation()
 {
-
 }

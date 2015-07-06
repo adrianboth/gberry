@@ -115,8 +115,8 @@ private:
 
 };
 
-#define WAIT_AND_ASSERT(condition) Waiter::wait([&] () { return condition;} ); ASSERT_TRUE(condition);
-#define WAIT_CUSTOM_AND_ASSERT(condition, timeout, step) Waiter::wait([&] () { return condition;}, true, timeout, step ); ASSERT_TRUE(condition);
+#define WAIT_AND_ASSERT(condition) Waiter::wait([&] () { return condition; } ); ASSERT_TRUE(condition);
+#define WAIT_CUSTOM_AND_ASSERT(condition, timeout, step) Waiter::wait([&] () { return condition; }, true, timeout, step ); ASSERT_TRUE(condition);
 
 
 #endif // WAITER_H

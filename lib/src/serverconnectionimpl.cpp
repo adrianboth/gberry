@@ -41,7 +41,7 @@ void ServerConnectionImpl::close()
 // TODO: is private impl any good from testing point of view?
 void ServerConnectionImpl::ping()
 {
-    RESTInvocation* invocation = _factory->newInvocation();
+    RESTInvocation* invocation = _factory->newRESTInvocation();
 
     connect(invocation, &RESTInvocation::finishedOK,
             this,       &ServerConnectionImpl::pingReady);
@@ -49,11 +49,12 @@ void ServerConnectionImpl::ping()
     connect(invocation, &RESTInvocation::finishedError,
             this,       &ServerConnectionImpl::pingError);
 
-    invocation->get("/ping");
+    invocation->defineGetOperation("/ping");
+    invocation->execute();
 }
 
 
-void ServerConnectionImpl::pingReady(RESTInvocation* invocation)
+void ServerConnectionImpl::pingReady(Invocation* invocation)
 {
     emit ServerConnection::pingOK();
 
@@ -72,7 +73,7 @@ void ServerConnectionImpl::pingReady(RESTInvocation* invocation)
 
 }
 
-void ServerConnectionImpl::pingError(RESTInvocation* invocation)
+void ServerConnectionImpl::pingError(Invocation* invocation)
 {
     emit ServerConnection::pingFailure();
 

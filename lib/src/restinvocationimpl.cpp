@@ -4,148 +4,207 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
-#include <QUrl>
-#include <QDebug>
 
+#include "restinvocationdefinition.h"
+
+#define LOG_AREA "RESTInvocationImpl"
+#include "log/log.h"
+
+
+class RESTInvocationImplPrivate
+{
+public:
+    RESTInvocationImplPrivate(RESTInvocation* q_ ,RESTInvocationFactoryImpl* factory) :
+        q(q_),
+        invocationFactory(factory) {}
+
+    RESTInvocation* q;
+    RESTInvocationFactoryImpl* invocationFactory;
+    RESTInvocation::InvocationStatus invocationStatus{RESTInvocation::NOT_STARTED};
+    RESTInvocationDefinition::HttpStatus httpStatus{RESTInvocationDefinition::UNDEFINED};
+    QString replyData;
+    // TODO: encoding,  content-type
+    QNetworkReply* qreply{nullptr};
+
+    RESTInvocationDefinition def;
+    QUrl url;
+    QByteArray postData;
+
+    void doOperation() {
+        doOperation(invocationFactory->buildUrl(def.invocationPath()));
+    }
+
+    void doOperation(QUrl url) {
+        switch (def.httpOperation()) {
+            case RESTInvocationDefinition::NOT_DEFINED:
+                // TODO: error
+                break;
+            case RESTInvocationDefinition::GET:
+                get(url);
+                break;
+
+            case RESTInvocationDefinition::POST:
+                post(url);
+                break;
+
+            default:
+                ERROR("Unsupported http operation");
+                // TODO: error
+        }
+    }
+
+    void get(QUrl url) {
+        // store for later use (e.g. redirects)
+        this->url = url;
+
+        // TODO: guard against having multiple queries ongoing (buffering them?), only one per this instance
+
+        DEBUG("Executing GET operation");
+        // TODO: is there signal for error situation
+        qreply = invocationFactory->getQNetworkAccessManager()->get(QNetworkRequest(url));
+
+        QObject::connect(qreply, &QNetworkReply::finished,
+                [this] () { this->httpFinished(); });
+
+        invocationStatus = RESTInvocation::ONGOING;
+    }
+
+    void post(QUrl url) {
+        // store for redirects
+        this->url = url;
+
+        DEBUG("Executing POST operation");
+        QNetworkRequest req(url);
+        req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
+        qreply = invocationFactory->getQNetworkAccessManager()->post(req, postData);
+
+        QObject::connect(qreply, &QNetworkReply::finished,
+                [this] () { this->httpFinished(); });
+
+        invocationStatus = RESTInvocation::ONGOING;
+    }
+
+    void httpFinished() {
+        DEBUG("httpFinished()");
+        QVariant redirectionTarget = qreply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+        if (!redirectionTarget.isNull())
+        {
+            QUrl newUrl = url.resolved(redirectionTarget.toUrl());
+            DEBUG("Handled redirect to: " << newUrl.toString());
+            qreply->deleteLater();
+            qreply = nullptr;
+            doOperation(newUrl);
+            return;
+        }
+        else if (qreply->error())
+        {
+            WARN("HTTP ERROR: " << qreply->errorString());
+            // TODO: error code
+            httpStatus = RESTInvocationDefinition::UNDEFINED;
+            invocationStatus = Invocation::RESPONSE_RECEIVED;
+
+            // get possible return data
+            replyData = qreply->readAll();
+
+            emit q->finishedError(q);
+        }
+        else
+        {
+            // we have data
+            replyData = qreply->readAll();
+            QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
+            if (statusCode.isValid())
+            {
+                // TODO: handle more codes!
+                switch (statusCode.toInt())
+                {
+                case 200:
+                    httpStatus = RESTInvocationDefinition::OK_200;
+                    break;
+                default:
+                    httpStatus = RESTInvocationDefinition::UNDEFINED;
+                }
+            }
+
+            invocationStatus = Invocation::RESPONSE_RECEIVED;
+            TRACE("DATA:" << replyData);
+            emit q->finishedOK(q);
+        }
+
+        qreply->deleteLater();
+        qreply = nullptr;
+    }
+};
 
 RESTInvocationImpl::RESTInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent) :
     RESTInvocation(parent),
-    _factory(factory),
-    _reply(NULL)
+    _d(new RESTInvocationImplPrivate(this, factory))
 {
     this->setProperty("timeout", DEFAULT_TIMEOUT_MS);
 
-    // TODO: imlp timeout
+    // TODO: impl timeout
 }
 
 RESTInvocationImpl::~RESTInvocationImpl()
 {
-
+    if (_d->invocationStatus == RESTInvocation::ONGOING)
+        _d->qreply->abort();
 }
 
-void RESTInvocationImpl::get(QString invocationPath)
+void RESTInvocationImpl::defineGetOperation(const QString& invocationPath)
 {
-    get(_factory->buildUrl(invocationPath));
+    _d->def.setHttpOperation(RESTInvocationDefinition::GET);
+    _d->def.setInvocationPath(invocationPath);
 }
 
-void RESTInvocationImpl::get(QUrl url)
+void RESTInvocationImpl::definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc)
 {
-    // TODO: guard against having multiple queries ongoing (buffering them?), only one per this instance
-
-    // store for later use (e.g. redirects)
-    _url = url;
-
-    // TODO: is there signal for error situation
-    _reply = _factory->getQNetworkAccessManager()->get(QNetworkRequest(_url));
-
-    qDebug("### CONNECTING");
-    connect(_reply, &QNetworkReply::finished,
-            this,   &RESTInvocationImpl::httpFinished);
-
-    _invocationStatus = RESTInvocation::ONGOING;
+    _d->def.setHttpOperation(RESTInvocationDefinition::POST);
+    _d->def.setInvocationPath(invocationPath);
+    _d->postData = jsondoc.toJson();
 }
 
-void RESTInvocationImpl::post(QString invocationPath, QJsonDocument jsondoc)
+void RESTInvocationImpl::execute()
 {
-    post(_factory->buildUrl(invocationPath), jsondoc);
+    _d->doOperation();
 }
 
-void RESTInvocationImpl::post(QUrl url, QJsonDocument jsondoc)
+void RESTInvocationImpl::abort()
 {
-    _url = url;
-    QByteArray body = jsondoc.toJson();
-    QNetworkRequest req(_url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
-    _reply = _factory->getQNetworkAccessManager()->post(req, body);
-
-    qDebug("### CONNECTING POST");
-    connect(_reply, &QNetworkReply::finished,
-            this,   &RESTInvocationImpl::httpFinished);
-
-    _invocationStatus = RESTInvocation::ONGOING;
+    if (_d->qreply)
+        _d->qreply->abort();
 }
 
-RESTInvocation::InvocationStatus RESTInvocationImpl::statusCode() const
+Invocation::InvocationStatus RESTInvocationImpl::statusCode() const
 {
-    return _invocationStatus;
+    return _d->invocationStatus;
 }
 
-RESTInvocation::HttpStatus RESTInvocationImpl::responseHttpStatusCode() const
+RESTInvocationDefinition::HttpStatus RESTInvocationImpl::responseHttpStatusCode() const
 {
-    return _httpStatus;
+    return _d->httpStatus;
 }
 
 bool RESTInvocationImpl::responseAvailable() const
 {
-    return _invocationStatus == RESTInvocation::RESPONSE_RECEIVED;
+    return _d->invocationStatus == RESTInvocation::RESPONSE_RECEIVED;
 }
 
 QByteArray RESTInvocationImpl::responseByteData() const
 {
     // TODO: just fake impl
-    return _data.toLatin1();
+    return _d->replyData.toLatin1();
 }
 
 QString RESTInvocationImpl::responseString() const
 {
-    return _data;
-}
-
-void RESTInvocationImpl::httpFinished()
-{
-    qDebug("### httpFinished");
-    QVariant redirectionTarget = _reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-    if (!redirectionTarget.isNull())
-    {
-        QUrl newUrl = _url.resolved(redirectionTarget.toUrl());
-        qDebug() << "Handled redirect to: " << newUrl;
-        _reply->deleteLater();
-        _reply = NULL;
-        get(newUrl); // TODO: operation might not be get()
-        return;
-    }
-    else if (_reply->error())
-    {
-        // TODO: logging
-        qDebug() << "HTTP ERROR: " << _reply->errorString();
-        // TODO: error code
-        _httpStatus = RESTInvocation::UNDEFINED;
-        _invocationStatus = RESTInvocation::RESPONSE_RECEIVED;
-
-        // get possible return data
-        _data = _reply->readAll();
-
-        emit finishedError(this);
-    }
-    else
-    {
-        // we have data
-        _data = _reply->readAll();
-        QVariant statusCode = _reply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
-        if (statusCode.isValid())
-        {
-            // TODO: handle more codes!
-            switch (statusCode.toInt())
-            {
-            case 200:
-                _httpStatus = RESTInvocation::OK_200;
-                break;
-            default:
-                _httpStatus = RESTInvocation::UNDEFINED;
-            }
-        }
-
-        _invocationStatus = RESTInvocation::RESPONSE_RECEIVED;
-        // TODO: better logging
-        qDebug() << "DATA:" << _data;
-        emit finishedOK(this);
-    }
-
-    _reply->deleteLater();
-    _reply = NULL;
+    return _d->replyData;
 }
 
 QString RESTInvocationImpl::errorString() const
 {
-    return _reply->errorString();
+    if (_d->qreply)
+        return _d->qreply->errorString();
+    else
+        return "";
 }

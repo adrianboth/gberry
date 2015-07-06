@@ -70,6 +70,7 @@ public:
     static const NoSpace nospace;
 
     int highestLogLevel() const;
+    LogControl *logControl() const;
     void use(LogControl* logControl);
     void reset();
 

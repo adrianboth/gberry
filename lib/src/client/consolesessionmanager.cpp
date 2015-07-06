@@ -7,6 +7,8 @@
 #include "restinvocation.h"
 #include "client/websocketclient.h"
 
+#define LOG_AREA "ConsoleSessionManager"
+#include "log/log.h"
 
 using namespace mobile;
 
@@ -34,20 +36,28 @@ void ConsoleSessionManager::open(ConsoleDevice console, QString playerName)
 
     QJsonDocument jsondoc(json);
 
-    RESTInvocation* inv = _restInvocationFactory->newInvocation();
+    RESTInvocation* inv = _restInvocationFactory->newRESTInvocation();
     connect(inv, &RESTInvocation::finishedOK,
             this, &ConsoleSessionManager::onOpenConsoleSessionFinished);
 
     connect(inv, &RESTInvocation::finishedError,
             this, &ConsoleSessionManager::onOpenConsoleSessionError);
 
-    inv->post("/session", jsondoc);
+    inv->definePostOperation("/session", jsondoc);
+    inv->execute();
 }
 
-void ConsoleSessionManager::onOpenConsoleSessionFinished(RESTInvocation* inv)
+void ConsoleSessionManager::onOpenConsoleSessionFinished(Invocation* invocation)
 {
+    RESTInvocation* inv = qobject_cast<RESTInvocation*>(invocation);
+    if (!inv) {
+        ERROR("Failed to cast to RESTInvocation");
+        invocation->deleteLater();
+        return;
+    }
+
     // console might have responded an http error
-    if (inv->responseHttpStatusCode() != RESTInvocation::OK_200)
+    if (inv->responseHttpStatusCode() != RESTInvocationDefinition::OK_200)
     {
         emit consoleSessionOpenFailed(QString("HTTP Status Code:").append(inv->responseHttpStatusCode()));
         return;
@@ -68,10 +78,19 @@ void ConsoleSessionManager::onOpenConsoleSessionFinished(RESTInvocation* inv)
         QString token = json["token"].toString(); // TODO: validation of this
         openWebsocket(token);
     }
+
+    inv->deleteLater();
 }
 
-void ConsoleSessionManager::onOpenConsoleSessionError(RESTInvocation* inv)
+void ConsoleSessionManager::onOpenConsoleSessionError(Invocation* invocation)
 {
+    RESTInvocation* inv = qobject_cast<RESTInvocation*>(invocation);
+    if (!inv) {
+        ERROR("Failed to cast to RESTInvocation");
+        invocation->deleteLater();
+        return;
+    }
+
     // TODO: there can be different reasons for error
     // TODO: how to localize them all for all (well maybe not all are needed?)
     QString err;
@@ -81,6 +100,7 @@ void ConsoleSessionManager::onOpenConsoleSessionError(RESTInvocation* inv)
         err = inv->errorString();
 
     emit consoleSessionOpenFailed(QString(err.toLatin1()));
+    inv->deleteLater();
 }
 
 void ConsoleSessionManager::openWebsocket(QString token)

@@ -6,6 +6,11 @@
 
 class RESTInvocation;
 
+namespace GBerry {
+    class DownloadStreamInvocation;
+}
+using namespace GBerry;
+
 // TODO: namespace
 // TODO: I prefix (then *.cpp file could be removed
 
@@ -16,7 +21,8 @@ public:
     explicit RESTInvocationFactory(QObject *parent = 0);
     virtual ~RESTInvocationFactory();
 
-    virtual RESTInvocation* newInvocation() = 0;
+    virtual RESTInvocation* newRESTInvocation() = 0;
+    virtual DownloadStreamInvocation* newDownloadStreamInvocation() = 0;
 
 signals:
 

@@ -84,6 +84,11 @@ int Log::highestLogLevel() const
     return _impl->highestLoggingLevel;
 }
 
+LogControl *Log::logControl() const
+{
+    return _impl->logControl;
+}
+
 Log& Log::operator<<(QString const& str)
 {
     _impl->addSpace();

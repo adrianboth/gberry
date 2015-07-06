@@ -99,8 +99,9 @@ TEST(RESTAPI, OpenGuestSession)
     factory.setProperty("url_prefix", "http://localhost:8050/console/v1");
 
     // -- GET
-    RESTInvocation* inv = factory.newInvocation();
-    inv->get("/ping");
+    RESTInvocation* inv = factory.newRESTInvocation();
+    inv->defineGetOperation("/ping");
+    inv->execute();
     Waiter::wait([&] () { return false; }, true );
 
     // TODO: connect to signal and release inv
@@ -110,8 +111,9 @@ TEST(RESTAPI, OpenGuestSession)
     json["name"] = "fooplayer";
     QJsonDocument jsondoc(json);
 
-    inv = factory.newInvocation();
-    inv->post("/ping", jsondoc);
+    inv = factory.newRESTInvocation();
+    inv->definePostOperation("/ping", jsondoc);
+    inv->execute();
 
     Waiter::wait([&] () { return false; }, true );
 

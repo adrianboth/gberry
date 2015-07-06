@@ -81,12 +81,12 @@ TEST(serverConnectionImpl, pingOk_first_then_fail)
     // setup mocks
     //  - factory to return invocation
     //  - invocation to take get() call
-    EXPECT_CALL(factoryMock, newInvocation())
+    EXPECT_CALL(factoryMock, newRESTInvocation())
               .Times(1)
               .WillOnce( Return(&invocationMock));
 
-    EXPECT_CALL(invocationMock, get(QString("/ping")))
-              .Times(1);
+    EXPECT_CALL(invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(invocationMock, execute()).Times(1);
 
     server->open(); // ping REST call waits event loop processing
 
@@ -116,12 +116,12 @@ TEST(serverConnectionImpl, pingOk_first_then_fail)
 
     // expectations for next ping
 
-    EXPECT_CALL(factoryMock, newInvocation())
+    EXPECT_CALL(factoryMock, newRESTInvocation())
               .Times(1)
               .WillOnce( Return(&invocationMock));
 
-    EXPECT_CALL(invocationMock, get(QString("/ping")))
-              .Times(1);
+    EXPECT_CALL(invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(invocationMock, execute()).Times(1);
 
     // fast forward clock to send next ping
     testservices->invokeSingleshotTimer();

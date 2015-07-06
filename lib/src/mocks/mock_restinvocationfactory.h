@@ -10,7 +10,8 @@ class MockRESTInvocationFactory : public RESTInvocationFactory
 {
 public:
 
-    MOCK_METHOD0(newInvocation, RESTInvocation*());
+    MOCK_METHOD0(newRESTInvocation, RESTInvocation*());
+    MOCK_METHOD0(newDownloadStreamInvocation, DownloadStreamInvocation*());
 };
 
 #endif // MOCK_RESTINVOCATIONFACTORY_H

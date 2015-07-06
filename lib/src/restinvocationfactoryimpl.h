@@ -25,8 +25,9 @@ public:
     QNetworkAccessManager* getQNetworkAccessManager() const { return _qnam; }
     QUrl buildUrl(QString invocationPath) const;
 
-    //inherited
-    virtual RESTInvocation* newInvocation();
+    // RESTInvocationFactory
+    virtual RESTInvocation* newRESTInvocation();
+    virtual DownloadStreamInvocation* newDownloadStreamInvocation();
 
 private:
     QNetworkAccessManager* _qnam;

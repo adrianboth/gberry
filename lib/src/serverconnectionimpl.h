@@ -5,7 +5,11 @@
 #include "serverconnection.h"
 
 class RESTInvocationFactory;
-class RESTInvocation;
+
+namespace GBerry {
+class Invocation;
+}
+using namespace GBerry;
 
 
 class ServerConnectionImpl : public ServerConnection
@@ -22,8 +26,8 @@ public:
     virtual void close();
 
 private slots:
-    void pingReady(RESTInvocation* invocation);
-    void pingError(RESTInvocation* invocation);
+    void pingReady(Invocation* invocation);
+    void pingError(Invocation* invocation);
     void pingTimerTriggered();
 
 private:
