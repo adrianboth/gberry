@@ -11,15 +11,15 @@ using ::testing::_;
 #include <QThread>
 
 
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 #include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
 
 TEST(restInvocationFactoryImpl, realGetOperation)
 {
-    RESTInvocationFactoryImpl factoryObj;
-    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+    InvocationFactoryImpl factoryObj;
+    InvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
     //factory->setProperty("url_prefix", "http://localhost:8050/console/v1");
@@ -115,7 +115,7 @@ TEST(restInvocationFactoryImpl, realGetOperation)
 
     RESTInvocation* inv2 = qobject_cast<RESTInvocation *>(okRecorder.getQObjectPointer());
     ASSERT_TRUE(inv2->responseAvailable());
-    EXPECT_EQ(inv2->responseHttpStatusCode(), RESTInvocationDefinition::OK_200); // TODO: better name
+    EXPECT_EQ(inv2->responseHttpStatusCode(), HTTPInvocationDefinition::OK_200); // TODO: better name
     EXPECT_EQ(inv2->statusCode(), RESTInvocation::RESPONSE_RECEIVED);
 
     QString responseData = inv2->responseString();

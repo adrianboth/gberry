@@ -5,8 +5,8 @@
 #include <QScopedPointer>
 
 #include "invocation.h"
-#include "restinvocationfactoryimpl.h"
-#include "restinvocationdefinition.h"
+#include "invocationfactoryimpl.h"
+#include "httpinvocationdefinition.h"
 
 namespace GBerry {
 
@@ -30,7 +30,7 @@ public:
     // TODO: later support for stream (possible to continue writing)
     virtual void setOutputFilePath(QString filePath) = 0;
 
-    virtual RESTInvocationDefinition::HttpStatus responseHttpStatusCode() const = 0;
+    virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const = 0;
     virtual QString errorString() const = 0;
 
     // --

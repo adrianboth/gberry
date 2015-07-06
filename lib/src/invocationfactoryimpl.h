@@ -3,24 +3,24 @@
 
 #include <QUrl>
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 
 class QNetworkAccessManager;
 
 /**
- * @brief The RESTInvocationFactoryImpl class
+ * @brief The InvocationFactoryImpl class
  *
  * Properties:
  *   url_prefix             http://<host>:<port>/<url>
  *
  */
-class RESTInvocationFactoryImpl : public RESTInvocationFactory
+class InvocationFactoryImpl : public InvocationFactory
 {
-    Q_DISABLE_COPY(RESTInvocationFactoryImpl);
+    Q_DISABLE_COPY(InvocationFactoryImpl);
 
 public:
-    RESTInvocationFactoryImpl(QNetworkAccessManager* qnam = NULL);
-    virtual ~RESTInvocationFactoryImpl();
+    InvocationFactoryImpl(QNetworkAccessManager* qnam = NULL);
+    virtual ~InvocationFactoryImpl();
 
     QNetworkAccessManager* getQNetworkAccessManager() const { return _qnam; }
     QUrl buildUrl(QString invocationPath) const;

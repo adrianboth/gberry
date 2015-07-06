@@ -8,7 +8,7 @@
 #include "websocketclient.h"
 #include "restinvocation.h"
 
-class RESTInvocationFactory;
+class InvocationFactory;
 
 
 namespace mobile
@@ -42,7 +42,7 @@ private:
     void initRESTInvocationFactory(ConsoleDevice console);
     QString _hostAddress;
     WebsocketClient _websocket;
-    RESTInvocationFactory* _restInvocationFactory;
+    InvocationFactory* _restInvocationFactory;
 };
 
 } // eon

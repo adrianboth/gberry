@@ -9,7 +9,7 @@
 #include <QDataStream>
 
 
-#include "restinvocationdefinition.h"
+#include "httpinvocationdefinition.h"
 
 #define LOG_AREA "DownloadStreamInvocationImpl"
 #include "log/log.h"
@@ -23,7 +23,7 @@ namespace GBerry {
 class DownloadStreamInvocationImplPrivate
 {
 public:
-    DownloadStreamInvocationImplPrivate(DownloadStreamInvocation* q_ ,RESTInvocationFactoryImpl* factory) :
+    DownloadStreamInvocationImplPrivate(DownloadStreamInvocation* q_ ,InvocationFactoryImpl* factory) :
         q(q_),
         invocationFactory(factory) {
         readBuffer = new char[READ_BUFFER_SIZE]; // TODO: somehow tunable parameter
@@ -33,9 +33,9 @@ public:
     }
 
     DownloadStreamInvocation* q;
-    RESTInvocationFactoryImpl* invocationFactory;
+    InvocationFactoryImpl* invocationFactory;
     Invocation::InvocationStatus invocationStatus{Invocation::NOT_STARTED};
-    RESTInvocationDefinition::HttpStatus httpStatus{RESTInvocationDefinition::UNDEFINED};
+    HTTPInvocationDefinition::Status httpStatus{HTTPInvocationDefinition::UNDEFINED};
     QString responseErrorData;
     QString errorString;
     // TODO: encoding,  content-type
@@ -43,7 +43,7 @@ public:
     qint64 totalReadBytes{0};
 
     QUrl url;
-    RESTInvocationDefinition def;
+    HTTPInvocationDefinition def;
 
     QByteArray postData;
     QString outputFilePath;
@@ -59,13 +59,13 @@ public:
 
     void doOperation(QUrl url) {
         switch (def.httpOperation()) {
-            case RESTInvocationDefinition::GET:
+            case HTTPInvocationDefinition::GET:
                 get(url);
                 break;
-            case RESTInvocationDefinition::POST:
+            case HTTPInvocationDefinition::POST:
                 post(url);
                 break;
-            case RESTInvocationDefinition::NOT_DEFINED:
+            case HTTPInvocationDefinition::NOT_DEFINED:
                 // TODO: error
                 break;
             default:
@@ -138,14 +138,14 @@ public:
         QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
         if (statusCode.isValid())
         {
-            httpStatus = RESTInvocationDefinition::resolveHttpStatus(statusCode.toInt());
+            httpStatus = HTTPInvocationDefinition::resolveHttpStatus(statusCode.toInt());
         } else {
             // TODO: what to do, when no code?
             invocationStatus = Invocation::ERROR;
             return;
         }
 
-        if (httpStatus != RESTInvocationDefinition::OK_200) {
+        if (httpStatus != HTTPInvocationDefinition::OK_200) {
             invocationStatus = Invocation::ERROR;
             // nothing to save to file
             DEBUG("Error no data to save to file");
@@ -204,9 +204,9 @@ public:
             WARN("HTTP ERROR: " << qreply->errorString());
             QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
             if (statusCode.isValid()) {
-                httpStatus = RESTInvocationDefinition::resolveHttpStatus(statusCode.toInt());
+                httpStatus = HTTPInvocationDefinition::resolveHttpStatus(statusCode.toInt());
             } else {
-                httpStatus = RESTInvocationDefinition::UNDEFINED;
+                httpStatus = HTTPInvocationDefinition::UNDEFINED;
             }
 
             invocationStatus = Invocation::ERROR;
@@ -234,7 +234,7 @@ public:
 };
 
 
-DownloadStreamInvocationImpl::DownloadStreamInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent) :
+DownloadStreamInvocationImpl::DownloadStreamInvocationImpl(InvocationFactoryImpl* factory, QObject* parent) :
     DownloadStreamInvocation(parent),
     _d(new DownloadStreamInvocationImplPrivate(this, factory))
 {
@@ -249,13 +249,13 @@ DownloadStreamInvocationImpl::~DownloadStreamInvocationImpl()
 
 void DownloadStreamInvocationImpl::defineGetOperation(const QString& invocationPath)
 {
-    _d->def.setHttpOperation(RESTInvocationDefinition::GET);
+    _d->def.setHttpOperation(HTTPInvocationDefinition::GET);
     _d->def.setInvocationPath(invocationPath);
 }
 
 void DownloadStreamInvocationImpl::definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc)
 {
-    _d->def.setHttpOperation(RESTInvocationDefinition::POST);
+    _d->def.setHttpOperation(HTTPInvocationDefinition::POST);
     _d->def.setInvocationPath(invocationPath);
 
     _d->postData = jsondoc.toJson();
@@ -283,7 +283,7 @@ Invocation::InvocationStatus DownloadStreamInvocationImpl::statusCode() const
     return _d->invocationStatus;
 }
 
-RESTInvocationDefinition::HttpStatus DownloadStreamInvocationImpl::responseHttpStatusCode() const
+HTTPInvocationDefinition::Status DownloadStreamInvocationImpl::responseHttpStatusCode() const
 {
     return _d->httpStatus;
 }

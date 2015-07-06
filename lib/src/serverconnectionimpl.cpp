@@ -1,11 +1,11 @@
 #include "serverconnectionimpl.h"
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 #include "restinvocation.h"
 #include "systemservices.h"
 
 
-ServerConnectionImpl::ServerConnectionImpl(RESTInvocationFactory* invocationFactory, QObject *parent) :
+ServerConnectionImpl::ServerConnectionImpl(InvocationFactory* invocationFactory, QObject *parent) :
     ServerConnection(parent),
     _connected(false),
     _enabled(false)

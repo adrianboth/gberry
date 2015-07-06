@@ -7,7 +7,7 @@
 #include <QJsonDocument>
 
 #include "invocation.h"
-#include "restinvocationdefinition.h"
+#include "httpinvocationdefinition.h"
 using namespace GBerry;
 
 /**
@@ -32,7 +32,7 @@ public:
     // TODO: functions to define url parameters
 
     // TODO: could some of these moved to impl class?
-    virtual RESTInvocationDefinition::HttpStatus responseHttpStatusCode() const = 0;
+    virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const = 0;
     virtual bool responseAvailable() const = 0;
     virtual QByteArray responseByteData() const = 0;
     virtual QString responseString() const = 0;

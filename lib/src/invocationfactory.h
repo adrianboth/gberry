@@ -14,12 +14,12 @@ using namespace GBerry;
 // TODO: namespace
 // TODO: I prefix (then *.cpp file could be removed
 
-class RESTInvocationFactory : public QObject
+class InvocationFactory : public QObject
 {
     Q_OBJECT
 public:
-    explicit RESTInvocationFactory(QObject *parent = 0);
-    virtual ~RESTInvocationFactory();
+    explicit InvocationFactory(QObject *parent = 0);
+    virtual ~InvocationFactory();
 
     virtual RESTInvocation* newRESTInvocation() = 0;
     virtual DownloadStreamInvocation* newDownloadStreamInvocation() = 0;

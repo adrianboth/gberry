@@ -14,7 +14,7 @@ using ::testing::_;
 #include <QThread>
 #include <QTemporaryFile>
 
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 #include "downloadstreaminvocation.h"
 #include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
@@ -25,9 +25,8 @@ using ::testing::_;
 
 TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
 {
-    // TODO: rename to more common
-    RESTInvocationFactoryImpl factoryObj;
-    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+    InvocationFactoryImpl factoryObj;
+    InvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
 
@@ -93,15 +92,14 @@ TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
 
     ASSERT_TRUE(writtenData == QByteArray("data123")) << QString(writtenData);
     EXPECT_EQ(Invocation::FINISHED, inv->statusCode());
-    EXPECT_EQ(RESTInvocationDefinition::OK_200, inv->responseHttpStatusCode());
+    EXPECT_EQ(HTTPInvocationDefinition::OK_200, inv->responseHttpStatusCode());
 }
 
 
 TEST(DownloadStreamInvocation, OkOperationDataReadInParts)
 {
-    // TODO: rename to more common
-    RESTInvocationFactoryImpl factoryObj;
-    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+    InvocationFactoryImpl factoryObj;
+    InvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
 
@@ -213,15 +211,14 @@ TEST(DownloadStreamInvocation, OkOperationDataReadInParts)
 
     ASSERT_TRUE(writtenData == QByteArray("data123abcd567foobar9")) << QString(writtenData);
     EXPECT_EQ(Invocation::FINISHED, inv->statusCode());
-    EXPECT_EQ(RESTInvocationDefinition::OK_200, inv->responseHttpStatusCode());
+    EXPECT_EQ(HTTPInvocationDefinition::OK_200, inv->responseHttpStatusCode());
 }
 
 
 TEST(DownloadStreamInvocation, FailedDownload)
 {
-    // TODO: rename to more common
-    RESTInvocationFactoryImpl factoryObj;
-    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+    InvocationFactoryImpl factoryObj;
+    InvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
 
@@ -263,7 +260,7 @@ TEST(DownloadStreamInvocation, FailedDownload)
     ASSERT_EQ(0, finishedOkCalled);
 
     EXPECT_EQ(Invocation::ERROR, inv->statusCode());
-    EXPECT_EQ(RESTInvocationDefinition::FORBIDDEN_403, inv->responseHttpStatusCode());
+    EXPECT_EQ(HTTPInvocationDefinition::FORBIDDEN_403, inv->responseHttpStatusCode());
 }
 
 

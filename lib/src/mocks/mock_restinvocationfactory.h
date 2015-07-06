@@ -1,12 +1,12 @@
 #ifndef MOCK_RESTINVOCATIONFACTORY_H
 #define MOCK_RESTINVOCATIONFACTORY_H
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 
 #include <gmock/gmock.h>
 
 
-class MockRESTInvocationFactory : public RESTInvocationFactory
+class MockRESTInvocationFactory : public InvocationFactory
 {
 public:
 

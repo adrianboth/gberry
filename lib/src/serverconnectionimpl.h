@@ -4,7 +4,7 @@
 #include <QObject>
 #include "serverconnection.h"
 
-class RESTInvocationFactory;
+class InvocationFactory;
 
 namespace GBerry {
 class Invocation;
@@ -17,7 +17,7 @@ class ServerConnectionImpl : public ServerConnection
     Q_OBJECT
 
 public:
-    ServerConnectionImpl(RESTInvocationFactory* invocationFactory, QObject *parent = 0);
+    ServerConnectionImpl(InvocationFactory* invocationFactory, QObject *parent = 0);
     ~ServerConnectionImpl();
 
     // inherited
@@ -33,7 +33,7 @@ private slots:
 private:
     void ping();
 
-    RESTInvocationFactory* _factory; // TODO:network manager required
+    InvocationFactory* _factory; // TODO:network manager required
     bool _connected;
     bool _enabled;
     int _pingInterval_ms = 1000;

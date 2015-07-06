@@ -6,7 +6,7 @@
 
 #include "downloadstreaminvocation.h"
 // TODO: change name of factory
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 
 namespace GBerry {
 
@@ -21,7 +21,7 @@ class DownloadStreamInvocationImpl : public DownloadStreamInvocation
     Q_OBJECT
 
 public:
-    DownloadStreamInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent = 0);
+    DownloadStreamInvocationImpl(InvocationFactoryImpl* factory, QObject* parent = 0);
     virtual ~DownloadStreamInvocationImpl();
 
     // -- RESTInvocation
@@ -36,7 +36,7 @@ public:
     virtual void abort() override;
 
     virtual Invocation::InvocationStatus statusCode() const override;
-    virtual RESTInvocationDefinition::HttpStatus responseHttpStatusCode() const override;
+    virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const override;
     /*
     virtual bool responseAvailable() const; // TODO: needed?
     virtual QByteArray responseByteData() const;

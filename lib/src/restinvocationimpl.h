@@ -6,8 +6,8 @@
 
 #include "invocation.h"
 #include "restinvocation.h"
-#include "restinvocationfactoryimpl.h"
-#include "restinvocationdefinition.h"
+#include "invocationfactoryimpl.h"
+#include "httpinvocationdefinition.h"
 
 using namespace GBerry;
 
@@ -27,7 +27,7 @@ class RESTInvocationImplPrivate;
 class RESTInvocationImpl : public RESTInvocation
 {
 public:
-    RESTInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent = 0);
+    RESTInvocationImpl(InvocationFactoryImpl* factory, QObject* parent = 0);
     virtual ~RESTInvocationImpl();
 
     // -- RESTInvocation
@@ -39,7 +39,7 @@ public:
     virtual void abort() override;
 
     virtual Invocation::InvocationStatus statusCode() const;
-    virtual RESTInvocationDefinition::HttpStatus responseHttpStatusCode() const;
+    virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const;
     virtual bool responseAvailable() const;
     virtual QByteArray responseByteData() const;
     virtual QString responseString() const;

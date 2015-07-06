@@ -1,4 +1,4 @@
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 
 #include <QNetworkAccessManager>
 #include <QVariant>
@@ -8,30 +8,30 @@
 #include "downloadstreaminvocationimpl.h"
 
 
-RESTInvocationFactoryImpl::RESTInvocationFactoryImpl(QNetworkAccessManager* qnam) :
+InvocationFactoryImpl::InvocationFactoryImpl(QNetworkAccessManager* qnam) :
     _qnam(qnam)
 {
     if (!_qnam)
         _qnam = new QNetworkAccessManager(this);
 }
 
-RESTInvocationFactoryImpl::~RESTInvocationFactoryImpl()
+InvocationFactoryImpl::~InvocationFactoryImpl()
 {
 }
 
-QUrl RESTInvocationFactoryImpl::buildUrl(QString invocationPath) const
+QUrl InvocationFactoryImpl::buildUrl(QString invocationPath) const
 {
     QString baseUrl = this->property("url_prefix").toString();
     return QUrl(baseUrl + invocationPath);
 }
 
 
-RESTInvocation* RESTInvocationFactoryImpl::newRESTInvocation()
+RESTInvocation* InvocationFactoryImpl::newRESTInvocation()
 {
     return new RESTInvocationImpl(this);
 }
 
-DownloadStreamInvocation *RESTInvocationFactoryImpl::newDownloadStreamInvocation()
+DownloadStreamInvocation *InvocationFactoryImpl::newDownloadStreamInvocation()
 {
     return new DownloadStreamInvocationImpl(this);
 }

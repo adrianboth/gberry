@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 #include "client/websocketclient.h"
 
@@ -57,7 +57,7 @@ void ConsoleSessionManager::onOpenConsoleSessionFinished(Invocation* invocation)
     }
 
     // console might have responded an http error
-    if (inv->responseHttpStatusCode() != RESTInvocationDefinition::OK_200)
+    if (inv->responseHttpStatusCode() != HTTPInvocationDefinition::OK_200)
     {
         emit consoleSessionOpenFailed(QString("HTTP Status Code:").append(inv->responseHttpStatusCode()));
         return;
@@ -128,7 +128,7 @@ void ConsoleSessionManager::initRESTInvocationFactory(ConsoleDevice console)
     {
         delete _restInvocationFactory;
     }
-    _restInvocationFactory = new RESTInvocationFactoryImpl();
+    _restInvocationFactory = new InvocationFactoryImpl();
     QString urlPrefix("http://%1:8050/console/v1");
     _restInvocationFactory->setProperty("url_prefix", urlPrefix.arg(console.host()));
 }

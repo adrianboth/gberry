@@ -5,7 +5,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-#include "restinvocationdefinition.h"
+#include "httpinvocationdefinition.h"
 
 #define LOG_AREA "RESTInvocationImpl"
 #include "log/log.h"
@@ -14,19 +14,19 @@
 class RESTInvocationImplPrivate
 {
 public:
-    RESTInvocationImplPrivate(RESTInvocation* q_ ,RESTInvocationFactoryImpl* factory) :
+    RESTInvocationImplPrivate(RESTInvocation* q_ ,InvocationFactoryImpl* factory) :
         q(q_),
         invocationFactory(factory) {}
 
     RESTInvocation* q;
-    RESTInvocationFactoryImpl* invocationFactory;
+    InvocationFactoryImpl* invocationFactory;
     RESTInvocation::InvocationStatus invocationStatus{RESTInvocation::NOT_STARTED};
-    RESTInvocationDefinition::HttpStatus httpStatus{RESTInvocationDefinition::UNDEFINED};
+    HTTPInvocationDefinition::Status httpStatus{HTTPInvocationDefinition::UNDEFINED};
     QString replyData;
     // TODO: encoding,  content-type
     QNetworkReply* qreply{nullptr};
 
-    RESTInvocationDefinition def;
+    HTTPInvocationDefinition def;
     QUrl url;
     QByteArray postData;
 
@@ -36,14 +36,14 @@ public:
 
     void doOperation(QUrl url) {
         switch (def.httpOperation()) {
-            case RESTInvocationDefinition::NOT_DEFINED:
+            case HTTPInvocationDefinition::NOT_DEFINED:
                 // TODO: error
                 break;
-            case RESTInvocationDefinition::GET:
+            case HTTPInvocationDefinition::GET:
                 get(url);
                 break;
 
-            case RESTInvocationDefinition::POST:
+            case HTTPInvocationDefinition::POST:
                 post(url);
                 break;
 
@@ -100,7 +100,7 @@ public:
         {
             WARN("HTTP ERROR: " << qreply->errorString());
             // TODO: error code
-            httpStatus = RESTInvocationDefinition::UNDEFINED;
+            httpStatus = HTTPInvocationDefinition::UNDEFINED;
             invocationStatus = Invocation::RESPONSE_RECEIVED;
 
             // get possible return data
@@ -119,10 +119,10 @@ public:
                 switch (statusCode.toInt())
                 {
                 case 200:
-                    httpStatus = RESTInvocationDefinition::OK_200;
+                    httpStatus = HTTPInvocationDefinition::OK_200;
                     break;
                 default:
-                    httpStatus = RESTInvocationDefinition::UNDEFINED;
+                    httpStatus = HTTPInvocationDefinition::UNDEFINED;
                 }
             }
 
@@ -136,7 +136,7 @@ public:
     }
 };
 
-RESTInvocationImpl::RESTInvocationImpl(RESTInvocationFactoryImpl* factory, QObject* parent) :
+RESTInvocationImpl::RESTInvocationImpl(InvocationFactoryImpl* factory, QObject* parent) :
     RESTInvocation(parent),
     _d(new RESTInvocationImplPrivate(this, factory))
 {
@@ -153,13 +153,13 @@ RESTInvocationImpl::~RESTInvocationImpl()
 
 void RESTInvocationImpl::defineGetOperation(const QString& invocationPath)
 {
-    _d->def.setHttpOperation(RESTInvocationDefinition::GET);
+    _d->def.setHttpOperation(HTTPInvocationDefinition::GET);
     _d->def.setInvocationPath(invocationPath);
 }
 
 void RESTInvocationImpl::definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc)
 {
-    _d->def.setHttpOperation(RESTInvocationDefinition::POST);
+    _d->def.setHttpOperation(HTTPInvocationDefinition::POST);
     _d->def.setInvocationPath(invocationPath);
     _d->postData = jsondoc.toJson();
 }
@@ -180,7 +180,7 @@ Invocation::InvocationStatus RESTInvocationImpl::statusCode() const
     return _d->invocationStatus;
 }
 
-RESTInvocationDefinition::HttpStatus RESTInvocationImpl::responseHttpStatusCode() const
+HTTPInvocationDefinition::Status RESTInvocationImpl::responseHttpStatusCode() const
 {
     return _d->httpStatus;
 }

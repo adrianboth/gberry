@@ -18,13 +18,11 @@ HEADERS += \
     proxyqnetwork.h \
     mock_proxyqnetwork.h \
     restinvocation.h \
-    restinvocationfactory.h \
     serverconnection.h \
     serverconnectionimpl.h \
     mocks/mock_restinvocationfactory.h \
     mocks/mock_restinvocation.h \
     restinvocationimpl.h \
-    restinvocationfactoryimpl.h \
     systemservices.h \
     realsystemservices.h \
     testutils/gtestrunner.h \
@@ -60,9 +58,11 @@ HEADERS += \
     testobjects/stub_systemservices.h \
     utils/qtsignalproxy.h \
     downloadstreaminvocation.h \
-    restinvocationdefinition.h \
     invocation.h \
-    downloadstreaminvocationimpl.h
+    downloadstreaminvocationimpl.h \
+    httpinvocationdefinition.h \
+    invocationfactory.h \
+    invocationfactoryimpl.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -81,11 +81,9 @@ INSTALLS += qml
 
 SOURCES += \
     restinvocation.cpp \
-    restinvocationfactory.cpp \
     serverconnection.cpp \
     serverconnectionimpl.cpp \
     restinvocationimpl.cpp \
-    restinvocationfactoryimpl.cpp \
     realsystemservices.cpp \
     systemservices.cpp \
     testutils/gtestrunner.cpp \
@@ -113,9 +111,11 @@ SOURCES += \
     testobjects/stub_systemservices.cpp \
     utils/qtsignalproxy.cpp \
     downloadstreaminvocation.cpp \
-    restinvocationdefinition.cpp \
     invocation.cpp \
-    downloadstreaminvocationimpl.cpp
+    downloadstreaminvocationimpl.cpp \
+    httpinvocationdefinition.cpp \
+    invocationfactory.cpp \
+    invocationfactoryimpl.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

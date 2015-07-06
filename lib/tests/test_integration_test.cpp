@@ -9,7 +9,7 @@
 #include "server/websocketserver.h"
 #include "server/consolerestserver.h"
 #include "client/websocketclient.h"
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 
 #include "testutils/waiter.h"
@@ -95,7 +95,7 @@ TEST(RESTAPI, OpenGuestSession)
     MockPlayerSessionManager mockSessionManager;
     ConsoleRESTServer restServer(mockSessionManager);
 
-    RESTInvocationFactoryImpl factory;
+    InvocationFactoryImpl factory;
     factory.setProperty("url_prefix", "http://localhost:8050/console/v1");
 
     // -- GET

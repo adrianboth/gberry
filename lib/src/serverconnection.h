@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 
 class ServerConnection : public QObject
 {
