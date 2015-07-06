@@ -15,8 +15,11 @@ public:
 
     enum HttpStatus {
         UNDEFINED = 0,
-        OK_200 = 200
+        OK_200 = 200,
+        FORBIDDEN_403 = 403
     };
+
+    static HttpStatus resolveHttpStatus(int code);
 
     HttpOperation httpOperation() const;
     void setHttpOperation(HttpOperation op);

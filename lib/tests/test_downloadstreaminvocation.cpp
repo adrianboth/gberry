@@ -1,4 +1,5 @@
-#include <gtest/gtest.h>
+#include <testutils/qtgtest.h>
+#include <testutils/waiter.h>
 
 #include <gmock/gmock.h>
 
@@ -7,6 +8,7 @@ using ::testing::Return;
 using ::testing::StrictMock;
 using ::testing::_;
 
+#include <QLatin1Char>
 #include <QCoreApplication>
 #include <QTime>
 #include <QThread>
@@ -17,6 +19,9 @@ using ::testing::_;
 #include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
 
+#define LOG_AREA "DownloadStreamInvocationTests"
+#include "log/log.h"
+
 
 TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
 {
@@ -25,34 +30,26 @@ TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
     RESTInvocationFactory* factory = &factoryObj; // operate through public interface
 
     factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
-    //factory->setProperty("url_prefix", "http://localhost:8050/console/v1");
 
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
 
-    SignalRecorder okRecorder;
-    SignalRecorder errRecorder;
+    int finishedOkCalled = 0;
+    int finishedErrorCalled = 0;
 
     QObject::connect(inv, &DownloadStreamInvocation::finishedOK,
-                     &okRecorder, &SignalRecorder::signal1_QObjectPointer);
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedOkCalled++; });
 
     QObject::connect(inv, &DownloadStreamInvocation::finishedError,
-                     &errRecorder, &SignalRecorder::signal1_QObjectPointer);
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedErrorCalled++; });
 
     // set http server to localhost
     TestHttpServer server(9999);
-    //QString testPath("/gberryrest/v1");
 
-    bool replyReceived = false;
+    bool requestReceived = false;
     QString expectedPath("/gberryrest/v1/download");
     auto mySlot = [&](QHttpRequest* req, QHttpResponse* resp)
     {
-        replyReceived = true;
-
-        // TODO: later more flexible checking
-        //QRegExp exp("^/console/v1/([a-z]+)?$");
-        //if( exp.indexIn(req->path()) != -1 )
-        //QString name = exp.capturedTexts()[1];
-
+        requestReceived = true;
         if (req->path() != expectedPath)
         {
             resp->writeHead(403);
@@ -71,72 +68,204 @@ TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
 
     QObject::connect(&server, &TestHttpServer::request, mySlot);
 
-    //GBerryConsoleServer gbserver;
-    // TODO: detailed handling -> check correct path
-
-    /**
-    QRegExp exp("^/console/v1/([a-z]+)?$");
-    if( exp.indexIn(req->path()) != -1 )
-    {
-        resp->setHeader("Content-Type", "text/html");
-        resp->writeHead(200);
-
-        QString name = exp.capturedTexts()[1];
-        QString body = tr("<html><head><title>Greeting App</title></head><body><h1>Hello %1!</h1></body></html>");
-        resp->end(body.arg(name).toUtf8());
-        qDebug() << "OK";
-    }
-    else
-    {
-        resp->writeHead(403);
-        resp->end(QByteArray("You aren't allowed here!"));
-        qDebug() << "ERROR 403";
-    }
-    **/
-
-    qDebug("## BEFORE DOWNLOAD");
+    // tmp file name is generated when first time opened -> open to get name
     QTemporaryFile tmpFile;
     tmpFile.open();
     QString tmpFileName(tmpFile.fileName());
     tmpFile.close();
-    qDebug("## BEFORE SETTINGS");
+
+// -- test
     inv->setOutputFilePath(tmpFileName);
     inv->defineGetOperation("/download");
-    qDebug("## BEFORE EXECUTE");
     inv->execute();
-    for (int i = 0; i < 10; i++) {
-        QCoreApplication::processEvents();
-    }
-    qDebug("## AFTER DOWNLOAD");
-/*
-    EXPECT_FALSE(okRecorder.received());
-    EXPECT_FALSE(errRecorder.received());
-    EXPECT_FALSE(replyReceived);
 
-    QTime t; t.start();
-   // 0.5s timeout
-    int c = 0;
-    while (t.elapsed() < 100 && !okRecorder.received_QObjectPointer())
-    {
-        QCoreApplication::processEvents();
-        QThread::msleep(10);
-        c++;
-        //qDebug("Waiting");
-    }
+    ASSERT_EQ(Invocation::ONGOING, inv->statusCode());
+    WAIT_AND_ASSERT(requestReceived);
+    WAIT_AND_ASSERT(finishedOkCalled == 1);
+    ASSERT_EQ(0, finishedErrorCalled);
 
-    qDebug() << "After processing events: c=" << c;
-    ASSERT_TRUE(replyReceived);
-    ASSERT_TRUE(okRecorder.received_QObjectPointer()); // if not ok, would cause segfaults
+    //Waiter::wait([&] () { return replyReceived;}, true, 15000);
+    //Waiter::wait([&] () { return finishedOkCalled == 1;}, true, 15000);
 
-    RESTInvocation* inv2 = qobject_cast<RESTInvocation *>(okRecorder.getQObjectPointer());
-    ASSERT_TRUE(inv2->responseAvailable());
-    EXPECT_EQ(inv2->responseHttpStatusCode(), RESTInvocation::OK_200); // TODO: better name
-    EXPECT_EQ(inv2->statusCode(), RESTInvocation::RESPONSE_RECEIVED);
+    ASSERT_TRUE(tmpFile.open());
+    QByteArray writtenData = tmpFile.readAll();
+    tmpFile.close();
 
-    QString responseData = inv2->responseString();
-    EXPECT_TRUE(responseData == "ping");
-*/
+    ASSERT_TRUE(writtenData == QByteArray("data123")) << QString(writtenData);
+    EXPECT_EQ(Invocation::FINISHED, inv->statusCode());
+    EXPECT_EQ(RESTInvocationDefinition::OK_200, inv->responseHttpStatusCode());
 }
+
+
+TEST(DownloadStreamInvocation, OkOperationDataReadInParts)
+{
+    // TODO: rename to more common
+    RESTInvocationFactoryImpl factoryObj;
+    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+
+    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+
+    DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
+
+    int finishedOkCalled = 0;
+    int finishedErrorCalled = 0;
+    int downloadStartedCalled = 0;
+    int downloadProgressCalled = 0;
+
+    QObject::connect(inv, &DownloadStreamInvocation::finishedOK,
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedOkCalled++; });
+
+    QObject::connect(inv, &DownloadStreamInvocation::finishedError,
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedErrorCalled++; });
+
+    QObject::connect(inv, &DownloadStreamInvocation::downloadStarted,
+                     [&] (DownloadStreamInvocation* inv) { Q_UNUSED(inv); downloadStartedCalled++; });
+
+    QObject::connect(inv, &DownloadStreamInvocation::downloadProgress,
+                     [&] (DownloadStreamInvocation* inv) { Q_UNUSED(inv); downloadProgressCalled++; });
+
+    // set http server to localhost
+    TestHttpServer server(9999);
+
+    bool requestReceived = false;
+    QString expectedPath("/gberryrest/v1/download");
+    QHttpResponse* httpResponse = nullptr;
+
+    QList<QLatin1String> expectedData;
+    expectedData << QLatin1String("data123");
+    expectedData << QLatin1String("abcd567");
+    expectedData << QLatin1String("foobar9");
+    int fullLength = expectedData.at(0).size() + expectedData.at(1).size() + expectedData.at(2).size();
+
+    auto myRequestSlot = [&](QHttpRequest* req, QHttpResponse* resp) {
+        requestReceived = true;
+        httpResponse = resp;
+        if (req->path() != expectedPath)
+        {
+            resp->writeHead(403);
+            QString errorMsg("Expected path: " + expectedPath + "\nGot path: " + req->path());
+            resp->end(errorMsg.toLatin1());
+            return;
+        }
+
+        resp->setHeader("Content-Type", "application/octet-stream");
+        resp->setHeader("Content-Length", QString::number(fullLength));
+        resp->writeHead(200);
+        resp->write(expectedData.at(0).data());
+    };
+
+    int allBytesWrittenCalled = 0;
+    auto myAllBytesWrittenSlot = [&] () {
+        allBytesWrittenCalled++;
+    };
+
+    QObject::connect(&server, &TestHttpServer::request, myRequestSlot);
+    QObject::connect(&server, &TestHttpServer::request, myAllBytesWrittenSlot);
+
+    // tmp file name is generated when first time opened -> open to get name
+    QTemporaryFile tmpFile;
+    tmpFile.open();
+    QString tmpFileName(tmpFile.fileName());
+    tmpFile.close();
+
+// -- test
+    inv->setOutputFilePath(tmpFileName);
+    inv->defineGetOperation("/download");
+    inv->execute();
+
+    ASSERT_EQ(Invocation::ONGOING, inv->statusCode());
+    WAIT_AND_ASSERT(requestReceived);
+
+    // should have written first part of response
+    WAIT_AND_ASSERT(allBytesWrittenCalled == 1); // let http server write
+    WAIT_AND_ASSERT(downloadStartedCalled == 1); // client got something
+    WAIT_AND_ASSERT(downloadProgressCalled > 0);
+    int oldProgressCount = downloadProgressCalled;
+
+    EXPECT_EQ(33, inv->progressPercentage()) << inv->progressPercentage();
+
+    httpResponse->write(expectedData.at(1).data());
+
+    // TODO: something wrong with webserver allBytesWritten, not signaled second time?
+    WAIT_WITH_TIMEOUT(allBytesWrittenCalled == 2, 15000);  // let http server write
+
+    DEBUG("allBytesWrittenCalled" << allBytesWrittenCalled);
+    WAIT_AND_ASSERT(downloadProgressCalled > oldProgressCount); // client got something
+    oldProgressCount = downloadProgressCalled;
+
+    EXPECT_EQ(66, inv->progressPercentage()) << inv->progressPercentage();
+    EXPECT_EQ(1, downloadStartedCalled); // no new calls
+
+    httpResponse->write(expectedData.at(2).data());
+    httpResponse->end();
+
+    //WAIT_AND_ASSERT(allBytesWrittenCalled == 3);
+    WAIT_AND_ASSERT(downloadProgressCalled > oldProgressCount);
+    WAIT_AND_ASSERT(finishedOkCalled == 1);
+    ASSERT_EQ(0, finishedErrorCalled);
+    EXPECT_EQ(100, inv->progressPercentage()) << inv->progressPercentage();
+
+    // check saved data
+
+    ASSERT_TRUE(tmpFile.open());
+    QByteArray writtenData = tmpFile.readAll();
+    tmpFile.close();
+
+    ASSERT_TRUE(writtenData == QByteArray("data123abcd567foobar9")) << QString(writtenData);
+    EXPECT_EQ(Invocation::FINISHED, inv->statusCode());
+    EXPECT_EQ(RESTInvocationDefinition::OK_200, inv->responseHttpStatusCode());
+}
+
+
+TEST(DownloadStreamInvocation, FailedDownload)
+{
+    // TODO: rename to more common
+    RESTInvocationFactoryImpl factoryObj;
+    RESTInvocationFactory* factory = &factoryObj; // operate through public interface
+
+    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+
+    DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
+
+    int finishedOkCalled = 0;
+    int finishedErrorCalled = 0;
+
+    QObject::connect(inv, &DownloadStreamInvocation::finishedOK,
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedOkCalled++; });
+
+    QObject::connect(inv, &DownloadStreamInvocation::finishedError,
+                     [&] (Invocation* inv) { Q_UNUSED(inv); finishedErrorCalled++; });
+
+    // set http server to localhost
+    TestHttpServer server(9999);
+
+    bool requestReceived = false;
+    auto mySlot = [&](QHttpRequest* req, QHttpResponse* resp)
+    {
+        Q_UNUSED(req);
+        requestReceived = true;
+        resp->writeHead(403);
+        QString errorMsg("test failure");
+        resp->end(errorMsg.toLatin1());
+    };
+
+    QObject::connect(&server, &TestHttpServer::request, mySlot);
+
+// -- test
+    inv->setOutputFilePath("/foo"); // should not write anything
+    inv->defineGetOperation("/download");
+    inv->execute();
+
+    ASSERT_EQ(Invocation::ONGOING, inv->statusCode());
+
+    WAIT_AND_ASSERT(requestReceived);
+    WAIT_AND_ASSERT(finishedErrorCalled == 1);
+    ASSERT_EQ(0, finishedOkCalled);
+
+    EXPECT_EQ(Invocation::ERROR, inv->statusCode());
+    EXPECT_EQ(RESTInvocationDefinition::FORBIDDEN_403, inv->responseHttpStatusCode());
+}
+
 
 
 // TODO: test case data in parts

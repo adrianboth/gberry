@@ -40,6 +40,7 @@ public:
     QString errorString;
     // TODO: encoding,  content-type
     QNetworkReply* qreply{nullptr};
+    qint64 totalReadBytes{0};
 
     QUrl url;
     RESTInvocationDefinition def;
@@ -58,13 +59,18 @@ public:
 
     void doOperation(QUrl url) {
         switch (def.httpOperation()) {
+            case RESTInvocationDefinition::GET:
+                get(url);
+                break;
+            case RESTInvocationDefinition::POST:
+                post(url);
+                break;
             case RESTInvocationDefinition::NOT_DEFINED:
                 // TODO: error
                 break;
-            case RESTInvocationDefinition::GET:
-                get(url);
-            case RESTInvocationDefinition::POST:
-                post(url);
+            default:
+                // TODO: unknown -> error
+                break;
         }
     }
 
@@ -79,10 +85,14 @@ public:
         qreply = invocationFactory->getQNetworkAccessManager()->get(QNetworkRequest(url));
 
         QObject::connect(qreply, &QNetworkReply::finished,
-                [this] () { this->onQNetworkReplyFinished(); });
+                [this] () {
+            this->onQNetworkReplyFinished();
+        });
 
         QObject::connect(qreply, &QNetworkReply::readyRead,
-                [this] () { this->onQNetworkReplyReadyRead(); });
+                [this] () {
+            this->onQNetworkReplyReadyRead();
+        });
 
         QObject::connect(qreply, &QNetworkReply::downloadProgress,
                           [this] (qint64 bytesReceived, qint64 bytesTotal) {
@@ -104,32 +114,41 @@ public:
         QObject::connect(qreply, &QNetworkReply::finished,
                 [this] () { this->onQNetworkReplyFinished(); });
 
+        QObject::connect(qreply, &QNetworkReply::readyRead,
+                [this] () {
+            this->onQNetworkReplyReadyRead();
+        });
+
+        // TODO: this doesn't work reliable, not sure what is wrong, not correct headers
+        //       FOR NOW: call from reading
+        /*
+        QObject::connect(qreply, &QNetworkReply::downloadProgress,
+                          [this] (qint64 bytesReceived, qint64 bytesTotal) {
+            this->onQNetworkReplyDownloadProgress(bytesReceived, bytesTotal);
+        });
+        */
+
         invocationStatus = Invocation::ONGOING;
     }
 
     void onQNetworkReplyReadyRead() {
+        bool firstRead = invocationStatus != Invocation::RESPONSE_RECEIVED;
         invocationStatus = Invocation::RESPONSE_RECEIVED;
 
         QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
         if (statusCode.isValid())
         {
-            // TODO: handle more codes!
-            switch (statusCode.toInt())
-            {
-            case 200:
-                httpStatus = RESTInvocationDefinition::OK_200;
-                break;
-            default:
-                httpStatus = RESTInvocationDefinition::UNDEFINED;
-                // TODO: there is an error -> how to abort
-                DEBUG("GOT ERROR");
-                invocationStatus = Invocation::ERROR;
-                return;
-
-            }
+            httpStatus = RESTInvocationDefinition::resolveHttpStatus(statusCode.toInt());
         } else {
             // TODO: what to do, when no code?
             invocationStatus = Invocation::ERROR;
+            return;
+        }
+
+        if (httpStatus != RESTInvocationDefinition::OK_200) {
+            invocationStatus = Invocation::ERROR;
+            // nothing to save to file
+            DEBUG("Error no data to save to file");
             return;
         }
 
@@ -144,13 +163,23 @@ public:
             }
         }
 
+        if (firstRead)
+            emit q->downloadStarted(q);
+
+        QVariant contentLength = qreply->header(QNetworkRequest::ContentLengthHeader);
+        qint64 bytesTotal = contentLength.isValid() ? contentLength.toInt() : -1;
+
         int readBytes = 0;
-        while ( (readBytes = outputFile.read(readBuffer, READ_BUFFER_SIZE) ) > 0) {
+        while ( (readBytes = qreply->read(readBuffer, READ_BUFFER_SIZE) ) > 0) {
+            totalReadBytes += readBytes;
             outputFile.write(readBuffer, readBytes);
+            onQNetworkReplyDownloadProgress(totalReadBytes, bytesTotal);
         }
+
     }
 
     void onQNetworkReplyDownloadProgress(qint64 bytesReceived_, qint64 bytesTotal_) {
+        DEBUG("### PROGRESS");
         bytesReceived = bytesReceived_;
         bytesTotal = bytesTotal_;
         emit q->downloadProgress(q);
@@ -173,7 +202,13 @@ public:
         else if (qreply->error())
         {
             WARN("HTTP ERROR: " << qreply->errorString());
-            httpStatus = RESTInvocationDefinition::UNDEFINED;
+            QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
+            if (statusCode.isValid()) {
+                httpStatus = RESTInvocationDefinition::resolveHttpStatus(statusCode.toInt());
+            } else {
+                httpStatus = RESTInvocationDefinition::UNDEFINED;
+            }
+
             invocationStatus = Invocation::ERROR;
 
             // get possible return data (detailed error info)
