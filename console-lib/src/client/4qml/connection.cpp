@@ -9,6 +9,7 @@ public:
         controlChannel(controlChannel_) {}
 
     ClientSideControlChannel* controlChannel;
+    bool isHeadServerConnected{false};
 };
 
 Connection::Connection(ClientSideControlChannel* controlChannel, QObject *parent) :
@@ -37,6 +38,11 @@ bool Connection::isActivated() const
     return _d->controlChannel->isActivated();
 }
 
+bool Connection::isHeadServerConnected() const
+{
+    return _d->isHeadServerConnected;
+}
+
 void Connection::onActivatedChanged()
 {
     emit isActivatedChanged();
@@ -45,4 +51,9 @@ void Connection::onActivatedChanged()
 void Connection::onConnectedChanged()
 {
     emit isConnectedChanged();
+}
+
+void Connection::onHeadServerConnectedChanged()
+{
+    // TODO: impl, this should read from somewhere or taken as parameter
 }

@@ -28,6 +28,9 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
 
     _applicationManager = new ApplicationManager(_setup.controlChannel);
 
+    connect(&_downloadModel, &DownloadModel::downloadFinished,
+            &_gameModel, &GameModel::onGameDownloaded);
+
 }
 
 ConsoleApplication::~ConsoleApplication()

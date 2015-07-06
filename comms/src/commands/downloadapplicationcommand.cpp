@@ -7,7 +7,8 @@
 #include "server/serversidecontrolchannel.h"
 #include "server/application/application2json.h"
 #include "headserverconnection.h"
-#include "requests/downloableapplicationsrequest.h"
+#include "requests/downloadapplicationrequest.h"
+
 
 
 namespace GBerry
@@ -27,7 +28,7 @@ public:
     QList<DownloadApplicationRequest*> ongoingRequests;
 };
 
-DownloadApplicationCommand::QueryDownloadableApplicationsCommand(
+DownloadApplicationCommand::DownloadApplicationCommand(
         HeadServerConnection* headServerConnection,
         ServerSideControlChannel* controlChannel) :
     ICommand("DownloadApplication"),
@@ -91,7 +92,7 @@ void DownloadApplicationCommand::processRequestErrorResponse(DownloadApplication
     QJsonObject responseJson;
     responseJson["command"] = "DownloadApplicationReply";
     responseJson["result"] = "failure";
-    responseJson["application_id"] = request->applicationId();
+    responseJson["application_id"] = request->applicationFullId();
 
     _d->controlChannel->sendJsonMessageToSouth(responseJson);
 }

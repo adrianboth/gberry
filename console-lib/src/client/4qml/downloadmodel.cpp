@@ -1,5 +1,7 @@
 #include "downloadmodel.h"
 
+#include <QJsonObject>
+
 #define LOG_AREA "DownloadModel"
 #include <log/log.h>
 
@@ -13,31 +15,31 @@ public:
         comm(comm_) {
 
         QObject::connect(comm, &IDownloadModelCommunication::downloadStarted,
-                         [&] (const String& applicationFullId) {
-            q->downloadStarted(applicationFullId, progressPercentage);
+                         [&] (const QString& applicationFullId) {
+            q->downloadStarted(applicationFullId);
         });
 
         QObject::connect(comm, &IDownloadModelCommunication::downloadAborted,
-                         [&] (const String& applicationFullId) {
+                         [&] (const QString& applicationFullId) {
             ongoingDownloads.removeOne(applicationFullId);
             emit q->downloadAborted(applicationFullId);
         });
 
         QObject::connect(comm, &IDownloadModelCommunication::downloadFinished,
-                         [&] (const String& applicationFullId) {
+                         [&] (const QString& applicationFullId) {
             ongoingDownloads.removeOne(applicationFullId);
             emit q->downloadFinished(applicationFullId);
         });
 
         QObject::connect(comm, &IDownloadModelCommunication::downloadProgress,
-                         [&] (const String& applicationFullId, int progressPercentage) {
+                         [&] (const QString& applicationFullId, int progressPercentage) {
              q->downloadProgress(applicationFullId, progressPercentage);
         });
 
     }
 
-    DownloadModel q;
-    IDownloadModelCommunication comm;
+    DownloadModel* q;
+    IDownloadModelCommunication* comm;
     QStringList ongoingDownloads;
 };
 

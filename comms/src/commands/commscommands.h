@@ -31,7 +31,7 @@ public:
     ICommand* createExitApplicationCommand(int connectionId);
     ICommand* createQueryLocalApplicationsCommand();
     ICommand* createQueryDownloadableApplicationsCommand(ServerSideControlChannel* controlChannel);
-    ICommand* createDownloadableApplicationCommand(ServerSideControlChannel* controlChannel);
+    ICommand* createDownloadApplicationCommand(ServerSideControlChannel* controlChannel);
 
 signals:
     // TODO: should these go via command pattern, not as signals here

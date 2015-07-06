@@ -7,6 +7,7 @@
 #include "commands/exitapplicationcommand.h"
 #include "commands/querylocalapplicationscommand.h"
 #include "commands/querydownloadableapplicationscommand.h"
+#include "commands/downloadapplicationcommand.h"
 
 using namespace GBerry;
 
@@ -58,7 +59,7 @@ ICommand* CommsCommands::createQueryDownloadableApplicationsCommand(
     return new QueryDownloadableApplicationsCommand(_headServerConnection, controlChannel);
 }
 
-ICommand *CommsCommands::createDownloadableApplicationCommand(ServerSideControlChannel *controlChannel)
+ICommand *CommsCommands::createDownloadApplicationCommand(ServerSideControlChannel *controlChannel)
 {
     return new DownloadApplicationCommand(_headServerConnection, controlChannel);
 }

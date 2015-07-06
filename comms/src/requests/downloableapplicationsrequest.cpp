@@ -1,6 +1,7 @@
+#include "invocation.h"
 #include "downloableapplicationsrequest.h"
-
 #include "commands/querydownloadableapplicationscommand.h"
+#include "restinvocationimpl.h"
 
 namespace GBerry {
 
@@ -14,21 +15,30 @@ DownloadableApplicationsRequest::~DownloadableApplicationsRequest()
 {
 }
 
-void DownloadableApplicationsRequest::processPrepare(RESTInvocation *invocation)
+Invocation* DownloadableApplicationsRequest::processPrepare(RESTInvocationFactory *factory)
 {
-    // TODO:
+    RESTInvocation* inv = factory->newRESTInvocation();
+    // TODO: xxx
+    inv->defineGetOperation("/foobar");
+
+    return inv;
 }
 
-void DownloadableApplicationsRequest::processOkResponse(RESTInvocation *invocation)
+void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
 {
     // TODO: parse response (json)
     _command->processRequestOkResponse(this);
+
+    invocation->deleteLater();
+    _invocation = nullptr;
 }
 
-void DownloadableApplicationsRequest::processErrorResponse(RESTInvocation *invocation)
+void DownloadableApplicationsRequest::processErrorResponse(Request::Error error, Invocation *invocation)
 {
     // TODO: actual action
     _command->processRequestErrorResponse(this);
+    invocation->deleteLater();
+    _invocation = nullptr;
 }
 
 

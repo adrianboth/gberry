@@ -4,6 +4,7 @@
 // TODO: could communication classes be moved to common subfolder ...
 
 #include <QObject>
+#include <QJsonObject>
 
 #include "client/4qml/downloadmodel.h"
 

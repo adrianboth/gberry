@@ -36,7 +36,6 @@ SOURCES += \
     commands/querydownloadableapplicationscommand.cpp \
     commands/downloadapplicationcommand.cpp \
     requests/downloadapplicationrequest.cpp \
-    downloadstreaminvocation.cpp \
     downloadengine.cpp
 
 HEADERS += \
@@ -67,7 +66,6 @@ HEADERS += \
     commands/querydownloadableapplicationscommand.h \
     commands/downloadapplicationcommand.h \
     requests/downloadapplicationrequest.h \
-    downloadstreaminvocation.h \
     downloadengine.h
 
 DEPENDPATH += .

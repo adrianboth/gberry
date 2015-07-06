@@ -2,9 +2,9 @@
 
 #include <QQueue>
 
-#include "request.h"
 #include "restinvocationfactory.h"
 #include "restinvocation.h"
+#include "request.h"
 #include "systemservices.h"
 #include "utils/qtsignalproxy.h"
 
@@ -48,26 +48,32 @@ public:
     /* */
     void ping()
     {
-        RESTInvocation* invocation = invocationFactory->newInvocation();
+        RESTInvocation* invocation = invocationFactory->newRESTInvocation();
+
+        if (!invocation) {
+            ERROR("Request::prepareInvocation() returned NULL Invocation");
+            return;
+        }
+
         // invocation gets deleted once we get response
 
         QObject::connect(invocation, &RESTInvocation::finishedOK,
-                [=] () { this->onPingReady(invocation); });
+                [=] () { this->onPingReady(); invocation->deleteLater(); });
 
         QObject::connect(invocation, &RESTInvocation::finishedError,
-                [=] () { this->onPingError(invocation); });
+                [=] () { this->onPingError(); invocation->deleteLater(); });
 
-        invocation->get("/ping");
+        invocation->defineGetOperation("/ping");
+        invocation->execute();
         pingState = SENT_AND_WAITING;
     }
 
     /* When ping passes succesfully. We don't really care of about response data. */
-    void onPingReady(RESTInvocation* invocation)
+    void onPingReady()
     {
         ConnectionState oldConnectionState = connectionState;
         connectionState = CONNECTED;
         pingState = IDLE_WAITING;
-        invocation->deleteLater();
 
         if (oldConnectionState == NOT_CONNECTED) {
             INFO("Connection to head server established");
@@ -78,12 +84,11 @@ public:
     }
 
     /* When ping REST call fails*/
-    void onPingError(RESTInvocation* invocation)
+    void onPingError()
     {
         ConnectionState oldConnectionState = connectionState;
         connectionState = NOT_CONNECTED;
         pingState = IDLE_WAITING;
-        invocation->deleteLater();
 
         // all requests waiting to be served will fail because there is no connection
         if (!requestQueue.isEmpty()) {
@@ -93,7 +98,7 @@ public:
             requestQueue.empty();
 
             foreach(auto req, currentlyWaitingRequests) {
-                req->finishedError(invocation); // TODO: should we mark somehow that there was connection error in ping?
+                req->finishedError(Request::ERROR_NO_CONNECTION, nullptr);
             }
         }
         if (oldConnectionState == CONNECTED) {
@@ -117,16 +122,13 @@ public:
             executeRequest(req);
 
         } else {
-
             // nothing else -> schedule new ping after some wait time
             int pingInterval = q->property(HeadServerConnection::PING_INTERVAL_INT_PROP).toInt();
             // only old style connection available
             SystemServices::instance()->singleshotTimer(pingInterval, &(pingIntervalProxy), SLOT(proxyNoParameters()));
-
         }
 
-        // TODO: what about if request ongoing
-
+        // there can be multiple requests ongoing
     }
 
     /* */
@@ -142,34 +144,44 @@ public:
     /* */
     void executeRequest(Request* request)
     {
-        RESTInvocation* invocation = invocationFactory->newInvocation();
-        // invocation gets deleted once we get response
+        Invocation* inv = request->prepareInvocation(invocationFactory);
 
-        QObject::connect(invocation, &RESTInvocation::finishedOK,
-                [=] () { this->requestReady(request, invocation); });
+        if (!inv) {
+            ERROR("Request::prepareInvocation() returned NULL Invocation");
+            return;
+        }
 
-        QObject::connect(invocation, &RESTInvocation::finishedError,
-                [=] () {
-             this->requestFailed(request, invocation);
-        });
+        QObject::connect(inv, &Invocation::finishedOK,
+                [=] () { this->requestReady(request, inv); });
 
-        request->prepare(invocation);
-        pingState = SENT_AND_WAITING; // any REST call is treated as PING
+        QObject::connect(inv, &Invocation::finishedError,
+                [=] () { this->requestFailed(request, inv); });
+
+        inv->execute();
     }
 
     /* */
-    void requestReady(Request* request, RESTInvocation* invocation)
+    void requestReady(Request* request, Invocation* inv)
     {
-        // TODO: how streaming goes ...
-        request->finishedOk(invocation);
-        this->onPingReady(invocation); // will deleteLater() 'invocation'
+        request->finishedOk(inv);
+        this->onPingReady();
     }
 
     /* */
-    void requestFailed(Request* request, RESTInvocation* invocation)
+    void requestFailed(Request* request, Invocation* inv)
     {
-        request->finishedError(invocation);
-        this->onPingError(invocation); // will deleteLater() 'invocation'
+        request->finishedError(Request::ERROR_INVOCATION_FAILED, inv);
+
+        switch (inv->statusCode()) {
+            case Invocation::CONNECTION_FAILED:
+            case Invocation::TIMEOUT_OCCURRED:
+                // something failed -> redo ping
+                ping();
+                break;
+            default:
+                // nothing to do
+                break;
+        }
     }
 };
 

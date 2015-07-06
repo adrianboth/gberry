@@ -1,8 +1,7 @@
+#include "restinvocation.h"
 #include "request.h"
 
 #include <QTimer>
-
-#include "restinvocation.h"
 
 #define LOG_AREA "Request"
 #include "log/log.h"
@@ -19,13 +18,13 @@ Request::~Request()
         _invocation->abort();
 }
 
-void Request::prepare(RESTInvocation *invocation)
+Invocation* Request::prepareInvocation(RESTInvocationFactory *invocationFactory)
 {
-    _invocation = invocation;
-    processPrepare(invocation);
+    _invocation = processPrepare(invocationFactory);
+    return _invocation;
 }
 
-void Request::finishedOk(RESTInvocation *invocation)
+void Request::finishedOk(Invocation *invocation)
 {
     if (_active)
         processOkResponse(invocation);
@@ -37,10 +36,10 @@ void Request::finishedOk(RESTInvocation *invocation)
     _active = false;
 }
 
-void Request::finishedError(RESTInvocation *invocation)
+void Request::finishedError(Error err, Invocation* invocation)
 {
     if (_active)
-        processErrorResponse(invocation);
+        processErrorResponse(err, invocation);
     else {
         Request* req = this;
         TRACE("Setting up deletion of Request in event loop");

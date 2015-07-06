@@ -14,7 +14,7 @@ class DownloadApplicationStartedReply : public ICommand
 public:
     DownloadApplicationStartedReply(DownloadModelCommunication* comm) :
         ICommand("DownloadApplicationStartedReply"),
-        _comm(comm) {}
+        _icomm(comm) {}
 
     virtual ~DownloadApplicationStartedReply() {}
 
@@ -40,9 +40,9 @@ class DownloadApplicationAbortedReply : public ICommand
 public:
     DownloadApplicationAbortedReply(DownloadModelCommunication* comm) :
         ICommand("DownloadApplicationAbortedReply"),
-        _comm(comm) {}
+        _icomm(comm) {}
 
-    virtual ~DownloadApplicationStartedReply() {}
+    virtual ~DownloadApplicationAbortedReply() {}
 
     virtual bool process(const QJsonObject& json, ICommandResponse& response) override {
         Q_UNUSED(response);
@@ -64,7 +64,7 @@ class DownloadApplicationFinishedReply : public ICommand
 public:
     DownloadApplicationFinishedReply(DownloadModelCommunication* comm) :
         ICommand("DownloadApplicationFinishedReply"),
-        _comm(comm) {}
+        _icomm(comm) {}
 
     virtual ~DownloadApplicationFinishedReply() {}
 
@@ -88,7 +88,7 @@ class DownloadApplicationProgressReply : public ICommand
 public:
     DownloadApplicationProgressReply(DownloadModelCommunication* comm) :
         ICommand("DownloadApplicationProgressReply"),
-        _comm(comm) {}
+        _icomm(comm) {}
 
     virtual ~DownloadApplicationProgressReply() {}
 

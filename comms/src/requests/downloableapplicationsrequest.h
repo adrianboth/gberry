@@ -23,9 +23,9 @@ public:
     virtual ~DownloadableApplicationsRequest();
 
 protected:
-    virtual void processPrepare(RESTInvocation* invocation);
-    virtual void processOkResponse(RESTInvocation* invocation);
-    virtual void processErrorResponse(RESTInvocation* invocation);
+    virtual Invocation* processPrepare(RESTInvocationFactory* factory);
+    virtual void processOkResponse(Invocation* invocation);
+    virtual void processErrorResponse(Request::Error error, Invocation* invocation);
 
 private:
     QueryDownloadableApplicationsCommand* _command;

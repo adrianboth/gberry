@@ -1,7 +1,8 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-class RESTInvocation;
+#include "invocation.h"
+#include "restinvocationfactory.h"
 
 namespace GBerry {
 
@@ -11,12 +12,15 @@ public:
     explicit Request();
     virtual ~Request();
 
-    // TODO: how to get download stuff -> streaming
+    enum Error { ERROR_NO_CONNECTION, ERROR_INVOCATION_FAILED };
 
-    void prepare(RESTInvocation* invocation);
+    Invocation* prepareInvocation(RESTInvocationFactory* invocationFactory);
 
-    void finishedOk(RESTInvocation* invocation);
-    void finishedError(RESTInvocation* invocation);
+    void finishedOk(Invocation* invocation);
+
+    // NOTE: 'invocation' can be null if Error occurs before 'invocation' has been
+    //        created.
+    void finishedError(Error err, Invocation* invocation);
 
     // Requests need to be alive as long as RESTInvocation is live. Calling
     // cancel() means that this Request is not longer needed and can be
@@ -24,11 +28,11 @@ public:
     virtual void cancel();
 
 protected:
-    virtual void processPrepare(RESTInvocation* invocation) = 0;
-    virtual void processOkResponse(RESTInvocation* invocation) = 0;
-    virtual void processErrorResponse(RESTInvocation* invocation) = 0;
+    virtual Invocation* processPrepare(RESTInvocationFactory* factory) = 0;
+    virtual void processOkResponse(Invocation* invocation) = 0;
+    virtual void processErrorResponse(Error error, Invocation* invocation) = 0;
 
-    RESTInvocation* _invocation{nullptr};
+    Invocation* _invocation{nullptr};
     bool _active{true};
 
 };

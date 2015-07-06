@@ -20,12 +20,12 @@ TEST(GameModelCommunication, BasicUseCase)
     ClientSideControlChannel controlChannel;
     GameModelCommunication comm(&controlChannel);
 
-    //verify that gamemodel communication works as expected because now for
+    // verify that gamemodel communication works as expected because now for
     // some reason signals from parsing a reply are not passing
 
     bool messageReceivedSignal{false};
     QJsonObject receivedJson;
-    QObject::connect(&comm, &GameModelCommunication::messageReceived,
+    QObject::connect(&comm, &IGameModelCommunication::messageReceived,
                      [&] (const QJsonObject& msg) {
         messageReceivedSignal = true;
         receivedJson = msg;

@@ -15,12 +15,20 @@ using ::testing::Mock;
 using ::testing::NiceMock;
 using ::testing::StrictMock;
 using ::testing::_;
+using ::testing::InSequence;
 
+#include "restinvocationfactory.h"
 #include "mocks/mock_restinvocationfactory.h"
 #include "mocks/mock_restinvocation.h"
 #include "testobjects/stub_systemservices.h"
 
+#define LOG_AREA "HeadServerConnectionTests"
+#include "log/log.h"
 
+/**
+ * NOTE: Because cancel() is "self-desctruct" always use always heap to
+ *       allocate ('new' operator).
+ */
 class TestRequest : public Request
 {
 public:
@@ -28,12 +36,19 @@ public:
     RequestResult result{NOT_READY};
 
 protected:
-    virtual void processPrepare(RESTInvocation *invocation) override {
-        invocation->get("/testrequest");
+    virtual Invocation* processPrepare(RESTInvocationFactory *factory) override {
+        RESTInvocation* inv = factory->newRESTInvocation();
+        // guard against problems with mocking while developing tests
+        if (!inv) {
+            WARN("newRESTInvocation() returned NULL");
+            return NULL;
+        }
+        inv->defineGetOperation("/testrequest");
+        return inv;
     }
 
-    virtual void processOkResponse(RESTInvocation *invocation) override { Q_UNUSED(invocation); result = READY_OK; }
-    virtual void processErrorResponse(RESTInvocation *invocation) override { Q_UNUSED(invocation); result = READY_FAILED; }
+    virtual void processOkResponse(Invocation *invocation) override { result = READY_OK; if (invocation) invocation->deleteLater(); }
+    virtual void processErrorResponse(Error err, Invocation *invocation) override { Q_UNUSED(err); result = READY_FAILED; if (invocation) invocation->deleteLater(); }
 
 };
 
@@ -58,12 +73,12 @@ TEST(HeadServerConnection, PingOK)
     Mock::VerifyAndClearExpectations(invocationMock);
 
 // -- open and expect ping
-    EXPECT_CALL(factoryMock, newInvocation())
+    EXPECT_CALL(factoryMock, newRESTInvocation())
               .Times(1)
               .WillOnce(Return(invocationMock));
 
-    EXPECT_CALL(*invocationMock, get(QString("/ping")))
-              .Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should start ping
 
@@ -81,8 +96,9 @@ TEST(HeadServerConnection, PingOK)
 // -- expect other ping but fail this time
     invocationMock = new MockRESTInvocation;
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     // verify that single shot timer gets time that is in property
     ASSERT_EQ(testservices.singleShotTimerWaitMs(), conn.property(HeadServerConnection::PING_INTERVAL_INT_PROP).toInt());
@@ -104,8 +120,9 @@ TEST(HeadServerConnection, PingOK)
 // -- one more ping, ok -> connected
     invocationMock = new MockRESTInvocation;
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     // fast forward time to trigger single shot
     testservices.invokeSingleshotTimer();
@@ -136,8 +153,9 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 // -- creation and drive object to connected state
     HeadServerConnection conn(&factoryMock);
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
 
@@ -152,8 +170,9 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 // -- ok request
     invocationMock = new MockRESTInvocation;
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     TestRequest* request = new TestRequest; // always allocate in heap
     ASSERT_EQ(TestRequest::NOT_READY, request->result);
@@ -169,15 +188,21 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     delete invocationMock;
     delete request;
 
-// -- failed request
+// -- failed request (invocation failure)
+    TRACE("Test: Failed request");
+
     invocationMock = new MockRESTInvocation;
     request = new TestRequest; // always allocate in heap
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
+    EXPECT_CALL(*invocationMock, statusCode()).Times(1).WillOnce(Return(Invocation::ERROR));
 
     conn.makeRequest(request);
 
+    // there are different behaviour on different errors -> now generic error
+    // is what mock returns -> no extra ping
     invocationMock->emitFinishedError();
 
     WAIT_AND_ASSERT(request->result == TestRequest::READY_FAILED);
@@ -185,6 +210,38 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     Mock::VerifyAndClearExpectations(invocationMock);
 
     delete invocationMock;
+    delete request;
+
+// -- failed request to connection error -> ping triggered
+    TRACE("Test: Failed requests triggers ping");
+
+    invocationMock = new MockRESTInvocation;
+    MockRESTInvocation* pingInvocationMock = new MockRESTInvocation;
+
+    request = new TestRequest; // always allocate in heap
+
+    InSequence dummy; // following expectations will be in sequences
+    EXPECT_CALL(factoryMock, newRESTInvocation()).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest")));
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
+    EXPECT_CALL(*invocationMock, statusCode()).WillOnce(Return(Invocation::CONNECTION_FAILED));
+    EXPECT_CALL(factoryMock, newRESTInvocation()).WillOnce(Return(pingInvocationMock));
+    EXPECT_CALL(*pingInvocationMock, defineGetOperation(QString("/ping")));
+    EXPECT_CALL(*pingInvocationMock, execute());
+
+    conn.makeRequest(request);
+
+    // there are different behaviour on different errors -> now generic error
+    // is what mock returns -> no extra ping
+    invocationMock->emitFinishedError();
+
+    WAIT_AND_ASSERT(request->result == TestRequest::READY_FAILED);
+    Mock::VerifyAndClearExpectations(&factoryMock);
+    Mock::VerifyAndClearExpectations(invocationMock);
+    Mock::VerifyAndClearExpectations(pingInvocationMock);
+
+    delete invocationMock;
+    delete pingInvocationMock;
     delete request;
 }
 
@@ -200,8 +257,9 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionNotOK)
 // -- creation and drive object to connected state (ping has failed)
     HeadServerConnection conn(&factoryMock);
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
 
@@ -215,10 +273,13 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionNotOK)
     delete invocationMock;
 
 // -- make request (if no connection tries to run ping first)
+TRACE("Test: Make request that will fail because of no connection");
+
     invocationMock = new MockRESTInvocation;
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     TestRequest request;
     conn.makeRequest(&request);
@@ -247,8 +308,9 @@ TEST(HeadServerConnection, CancelRequestWhenConnectionOK)
 // -- creation and drive object to connected state
     HeadServerConnection conn(&factoryMock);
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/ping"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
 
@@ -263,8 +325,9 @@ TEST(HeadServerConnection, CancelRequestWhenConnectionOK)
 // -- ok request
     invocationMock = new MockRESTInvocation;
 
-    EXPECT_CALL(factoryMock, newInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, get(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
     EXPECT_CALL(*invocationMock, abort()).Times(1);
 
     // in cancel we let Request delete itself

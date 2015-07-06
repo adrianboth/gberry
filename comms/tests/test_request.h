@@ -9,20 +9,23 @@
 // having one common is more handy.
 
 #include <QObject>
+#include "invocation.h"
+#include "restinvocation.h"
 #include "request.h"
 
 class SimpleRequest : public QObject, public GBerry::Request
 {
     Q_OBJECT
 public:
-    int processOkCallCount{0};
-    int processErrorCallCount{0};
-    RESTInvocation* lastInvocation{nullptr};
+    int ProcessOkCallCount{0};
+    int ProcessErrorCallCount{0};
+    Invocation* LastInvocation{nullptr};
+    Error LastError;
 
 protected:
-    virtual void processPrepare(RESTInvocation* inv) override { Q_UNUSED(inv); }
-    virtual void processOkResponse(RESTInvocation* inv) override { Q_UNUSED(inv); processOkCallCount++; }
-    virtual void processErrorResponse(RESTInvocation* inv) override { Q_UNUSED(inv); processErrorCallCount++; }
+    virtual GBerry::Invocation* processPrepare(RESTInvocationFactory* factory) override { return factory->newRESTInvocation(); }
+    virtual void processOkResponse(Invocation* inv) override { LastInvocation = inv; ProcessOkCallCount++; }
+    virtual void processErrorResponse(Error err, Invocation* inv) override { LastError = err; LastInvocation = inv; ProcessErrorCallCount++; }
 
 };
 
