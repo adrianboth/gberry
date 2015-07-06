@@ -23,7 +23,7 @@ public:
     virtual ~DownloadableApplicationsRequest();
 
 protected:
-    virtual Invocation* processPrepare(RESTInvocationFactory* factory);
+    virtual Invocation* processPrepare(InvocationFactory* factory);
     virtual void processOkResponse(Invocation* invocation);
     virtual void processErrorResponse(Request::Error error, Invocation* invocation);
 

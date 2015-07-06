@@ -15,7 +15,7 @@ DownloadableApplicationsRequest::~DownloadableApplicationsRequest()
 {
 }
 
-Invocation* DownloadableApplicationsRequest::processPrepare(RESTInvocationFactory *factory)
+Invocation* DownloadableApplicationsRequest::processPrepare(InvocationFactory *factory)
 {
     RESTInvocation* inv = factory->newRESTInvocation();
     // TODO: xxx

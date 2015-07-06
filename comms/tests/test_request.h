@@ -23,7 +23,7 @@ public:
     Error LastError;
 
 protected:
-    virtual GBerry::Invocation* processPrepare(RESTInvocationFactory* factory) override { return factory->newRESTInvocation(); }
+    virtual GBerry::Invocation* processPrepare(InvocationFactory* factory) override { return factory->newRESTInvocation(); }
     virtual void processOkResponse(Invocation* inv) override { LastInvocation = inv; ProcessOkCallCount++; }
     virtual void processErrorResponse(Error err, Invocation* inv) override { LastError = err; LastInvocation = inv; ProcessErrorCallCount++; }
 

@@ -2,7 +2,7 @@
 
 #include <QQueue>
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 #include "restinvocation.h"
 #include "request.h"
 #include "systemservices.h"
@@ -27,7 +27,7 @@ class HeadServerConnectionPrivate {
 
 public:
     HeadServerConnectionPrivate(HeadServerConnection* q_,
-                                RESTInvocationFactory* invocationFactory_) :
+                                InvocationFactory* invocationFactory_) :
         q(q_),
         invocationFactory(invocationFactory_)
         {
@@ -40,7 +40,7 @@ public:
     PingState pingState{IDLE_WAITING};
 
     HeadServerConnection* q;
-    RESTInvocationFactory* invocationFactory;
+    InvocationFactory* invocationFactory;
     QQueue<Request*> requestQueue;
     int lastPingTimestamp{0};
     QtSignalProxy pingIntervalProxy;
@@ -185,7 +185,7 @@ public:
     }
 };
 
-HeadServerConnection::HeadServerConnection(RESTInvocationFactory* invFactory, QObject *parent) :
+HeadServerConnection::HeadServerConnection(InvocationFactory* invFactory, QObject *parent) :
     QObject(parent),
     _d(new HeadServerConnectionPrivate(this, invFactory))
 {

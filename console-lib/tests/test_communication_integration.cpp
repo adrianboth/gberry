@@ -22,7 +22,7 @@
 #include "utils/testchannelfactory.h"
 
 // TEST
-#include <restinvocationfactoryimpl.h>
+#include <invocationfactoryimpl.h>
 #include <server/consolerestserver.h>
 
 

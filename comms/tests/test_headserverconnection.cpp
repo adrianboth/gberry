@@ -17,7 +17,7 @@ using ::testing::StrictMock;
 using ::testing::_;
 using ::testing::InSequence;
 
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 #include "mocks/mock_restinvocationfactory.h"
 #include "mocks/mock_restinvocation.h"
 #include "testobjects/stub_systemservices.h"
@@ -36,7 +36,7 @@ public:
     RequestResult result{NOT_READY};
 
 protected:
-    virtual Invocation* processPrepare(RESTInvocationFactory *factory) override {
+    virtual Invocation* processPrepare(InvocationFactory *factory) override {
         RESTInvocation* inv = factory->newRESTInvocation();
         // guard against problems with mocking while developing tests
         if (!inv) {

@@ -18,7 +18,7 @@ Request::~Request()
         _invocation->abort();
 }
 
-Invocation* Request::prepareInvocation(RESTInvocationFactory *invocationFactory)
+Invocation* Request::prepareInvocation(InvocationFactory *invocationFactory)
 {
     _invocation = processPrepare(invocationFactory);
     return _invocation;

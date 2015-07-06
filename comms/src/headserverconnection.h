@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QScopedPointer>
 
-class RESTInvocationFactory;
+class InvocationFactory;
 
 namespace GBerry {
 
@@ -27,7 +27,7 @@ class HeadServerConnection : public QObject
 {
     Q_OBJECT
 public:
-    explicit HeadServerConnection(RESTInvocationFactory* invFactory, QObject *parent = 0);
+    explicit HeadServerConnection(InvocationFactory* invFactory, QObject *parent = 0);
     ~HeadServerConnection();
 
     void open();

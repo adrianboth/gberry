@@ -15,12 +15,12 @@
 #include "commschannelfactory.h"
 #include "commsparameters.h"
 #include "headserverconnection.h"
-#include "restinvocationfactoryimpl.h"
+#include "invocationfactoryimpl.h"
 #include "systemservices.h"
 #include "utils/fileutils.h"
 #include "commands/commscommands.h"
 
-#include <restinvocationfactoryimpl.h>
+#include <invocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
 #include <realsystemservices.h>
 #include <server/commtcpserver.h>
@@ -79,7 +79,7 @@ int Comms::run(int argc, char *argv[])
 
     QSharedPointer<IApplications> iapps(qSharedPointerCast<IApplications>(apps));
 
-    RESTInvocationFactoryImpl invocationFactory;
+    InvocationFactoryImpl invocationFactory;
     GBerry::HeadServerConnection headServerConnection(&invocationFactory);
 
     CommsCommands commands(iapps, &setup.applicationRegistry, &headServerConnection);

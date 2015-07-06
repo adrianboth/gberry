@@ -2,7 +2,7 @@
 #define REQUEST_H
 
 #include "invocation.h"
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 
 namespace GBerry {
 
@@ -14,7 +14,7 @@ public:
 
     enum Error { ERROR_NO_CONNECTION, ERROR_INVOCATION_FAILED };
 
-    Invocation* prepareInvocation(RESTInvocationFactory* invocationFactory);
+    Invocation* prepareInvocation(InvocationFactory* invocationFactory);
 
     void finishedOk(Invocation* invocation);
 
@@ -28,7 +28,7 @@ public:
     virtual void cancel();
 
 protected:
-    virtual Invocation* processPrepare(RESTInvocationFactory* factory) = 0;
+    virtual Invocation* processPrepare(InvocationFactory* factory) = 0;
     virtual void processOkResponse(Invocation* invocation) = 0;
     virtual void processErrorResponse(Error error, Invocation* invocation) = 0;
 

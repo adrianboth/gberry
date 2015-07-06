@@ -1,7 +1,7 @@
 #include "downloadstreaminvocation.h"
 #include "downloadapplicationrequest.h"
 #include "commands/downloadapplicationcommand.h"
-#include "restinvocationfactory.h"
+#include "invocationfactory.h"
 
 
 
@@ -23,7 +23,7 @@ QString DownloadApplicationRequest::applicationFullId() const
     return _applicationFullId;
 }
 
-Invocation* DownloadApplicationRequest::processPrepare(RESTInvocationFactory *factory)
+Invocation* DownloadApplicationRequest::processPrepare(InvocationFactory *factory)
 {
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
 
