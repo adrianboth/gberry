@@ -1,12 +1,29 @@
-#ifndef APPLICATIONREADERWRITER_H
-#define APPLICATIONREADERWRITER_H
+#ifndef APPLICATIONCONFIGREADERWRITER_H
+#define APPLICATIONCONFIGREADERWRITER_H
 
+#include "application.h"
 
-class ApplicationReaderWriter
+class ApplicationConfigReaderWriter
 {
 public:
-    ApplicationReaderWriter();
-    ~ApplicationReaderWriter();
+    explicit ApplicationConfigReaderWriter(const QString& applicationDir);
+    ~ApplicationConfigReaderWriter();
+
+    QSharedPointer<Application> readApplication();
+    void writeApplication(const Application& application);
+
+    // TODO: how error code?
+    static QSharedPointer<Application> readApplicationConfig(const QString& configFilePath);
+    static void readApplicationState(const QString& stateFilePath, Application& application);
+
+    // TODO: how error code?
+
+    static void writeApplicationConfig(const QString& configFilePath, const Application& application);
+    static void writeApplicationState(const QString& stateFilePath, const Application& application);
+
+
+private:
+    QString _applicationDir;
 };
 
-#endif // APPLICATIONREADERWRITER_H
+#endif // APPLICATIONCONFIGREADERWRITER_H

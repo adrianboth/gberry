@@ -36,7 +36,8 @@ SOURCES += \
     commands/querydownloadableapplicationscommand.cpp \
     commands/downloadapplicationcommand.cpp \
     requests/downloadapplicationrequest.cpp \
-    downloadengine.cpp
+    downloadengine.cpp \
+    applicationconfigreaderwriter.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -66,7 +67,8 @@ HEADERS += \
     commands/querydownloadableapplicationscommand.h \
     commands/downloadapplicationcommand.h \
     requests/downloadapplicationrequest.h \
-    downloadengine.h
+    downloadengine.h \
+    applicationconfigreaderwriter.h
 
 DEPENDPATH += .
 

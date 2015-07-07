@@ -4,8 +4,10 @@
 #include <QObject>
 #include <QList>
 #include <QSharedPointer>
+#include <QScopedPointer>
 #include <QDir>
 
+#include "localapplications.h"
 #include "interfaces/iapplicationsstorage.h"
 
 class LocalApplicationsStoragePrivate;
@@ -21,6 +23,12 @@ public:
     // reads applications from local storage. Caller takes ownership
     virtual QList<QSharedPointer<Application> > applications() override;
 
+    // TODO:
+    QSharedPointer<LocalApplications> localApplications();
+
+    // adds & writes application to local storage
+    void addApplication(const Application& application);
+
 
 signals:
     void applicationsUpdated();
@@ -28,7 +36,7 @@ signals:
 public slots:
 
 private:
-    LocalApplicationsStoragePrivate* _priv;
+    const QScopedPointer<LocalApplicationsStoragePrivate> _priv;
 
 };
 
