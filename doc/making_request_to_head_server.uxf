@@ -105,9 +105,9 @@ signal: finishedError()
       <h>60</h>
     </coordinates>
     <panel_attributes>&lt;&lt;interface&gt;&gt;
-RESTInvocationFactory
+InvocationFactory
 --
-+newInvocation()</panel_attributes>
++newRESTInvocation()</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

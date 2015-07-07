@@ -170,7 +170,7 @@ starts</panel_attributes>
       <w>270</w>
       <h>50</h>
     </coordinates>
-    <panel_attributes>RESTInvocationFactory
+    <panel_attributes>InvocationFactory
 --
 createDownloadStreamInvocation()</panel_attributes>
     <additional_attributes/>
@@ -277,7 +277,7 @@ request</panel_attributes>
       <w>210</w>
       <h>30</h>
     </coordinates>
-    <panel_attributes>RESTInvocation</panel_attributes>
+    <panel_attributes>Invocation</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
