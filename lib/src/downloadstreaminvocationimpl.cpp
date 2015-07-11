@@ -179,7 +179,7 @@ public:
     }
 
     void onQNetworkReplyDownloadProgress(qint64 bytesReceived_, qint64 bytesTotal_) {
-        DEBUG("### PROGRESS");
+        //DEBUG("### PROGRESS");
         bytesReceived = bytesReceived_;
         bytesTotal = bytesTotal_;
         emit q->downloadProgress(q);
