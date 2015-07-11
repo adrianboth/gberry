@@ -7,7 +7,7 @@ using namespace GBerryApplication;
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-    ApplicationMain main(&app, argc, argv);
+    ApplicationMain main(&app);
 
     ConsoleApplication consoleApp;
     if (main.hasApplicationCode())
