@@ -33,4 +33,22 @@ includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR}
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
 
 DISTFILES += \
-    tictactoe_appcfg.json
+    tictactoe_appcfg.json \
+    makepkg.sh
+
+# this would affect all files, but now just scripts are installed
+#QMAKE_INSTALL_FILE = install -m 6755
+#scripts.files = ../scripts/*
+#scripts.path = $$DEPLOY_DIR/bin/
+#INSTALLS += scripts
+
+srcdir = $${DEPLOY_DIR}/apps/$$TARGET/
+## TODO: version
+zipfile = $$OUT_PWD/$${TARGET}.zip
+scriptCmd = $$PWD/makepkg.sh \"$$srcdir\" \"$$zipfile\"
+
+makepkg.commands = $$scriptCmd
+first.depends = $(first) makepkg
+#export(first.depends)
+#export(makepkg.commands)
+QMAKE_EXTRA_TARGETS += first makepkg
