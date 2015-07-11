@@ -63,12 +63,14 @@ public:
         _startTime = new QTime();
         _startTime->start();
 
-        if (debug)
-            qDebug() << "Starting waiting: condition =" << _func();
+        if (debug) {
+            qDebug() << "Starting waiting: condition =" << _func() << ", timeout =" << _maxTime;
+
+        }
 
         // loop counting is necessary for debugging cases because if break
         // point has been hit then time passes too quickly
-        while ( (_startTime->elapsed() < _maxTime && !_func()) ||(_loopCounter < _minLoops) )
+        while ( ( (_startTime->elapsed() < _maxTime) || (_loopCounter < _minLoops) ) && !_func()  )
         {
             QCoreApplication::processEvents();
             QThread::msleep(_waitingStep);
@@ -124,7 +126,7 @@ private:
 };
 
 #define WAIT(condition) Waiter::wait([&] () { return condition; } );
-#define WAIT_WITH_TIMEOUT(condition, timeout) Waiter::wait([&] () { return condition; }, timeout );
+#define WAIT_WITH_TIMEOUT(condition, timeout) Waiter::wait([&] () { return condition; }, true, timeout );
 #define WAIT_AND_ASSERT(condition) Waiter::wait([&] () { return condition; } ); ASSERT_TRUE(condition);
 #define WAIT_CUSTOM_AND_ASSERT(condition, timeout, step) Waiter::wait([&] () { return condition; }, true, timeout, step ); ASSERT_TRUE(condition);
 
