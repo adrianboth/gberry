@@ -63,9 +63,11 @@ public:
         QObject::connect(invocation, &RESTInvocation::finishedError,
                 [=] () { this->onPingError(); invocation->deleteLater(); });
 
+        //invocation->defineGetOperation("/user/ping?user_token=81555c66-25fe-4c75-a56a-37ff1ab72d90");
         invocation->defineGetOperation("/ping");
         invocation->execute();
         pingState = SENT_AND_WAITING;
+
     }
 
     /* When ping passes succesfully. We don't really care of about response data. */
@@ -144,6 +146,7 @@ public:
     /* */
     void executeRequest(Request* request)
     {
+
         Invocation* inv = request->prepareInvocation(invocationFactory);
 
         if (!inv) {

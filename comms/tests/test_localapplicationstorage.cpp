@@ -1,10 +1,14 @@
-
 #include "localapplicationsstorage.h"
+
+#include <QTemporaryDir>
 
 #include "testutils/waiter.h"
 #include "testutils/qtgtest.h"
-#include "testutils/util_enablelog.h"
 #include "testutils/util_testdata.h"
+#include <utils/fileutils.h>
+
+#define LOG_AREA "LocalApplicationsStorageTests"
+#include "log/log.h"
 
 
 TEST(LocalApplicationsStorage, SimpleAppsDir_ParsingInformation)
@@ -82,6 +86,44 @@ TEST(LocalApplicationsStorage, DifferentApplicationStates)
     EXPECT_TRUE(appsById["app3-downloading-1.0.0"]->state() == Application::Downloading);
     EXPECT_TRUE(appsById["app4-notdefined-valid-1.0.0"]->state() == Application::Valid);
 }
+
+
+TEST(LocalApplicationsStorage, UpdateApplicationState)
+{
+    QString appsDir = TestUtils::testdataDirPath("states_case1");
+
+    // as we are going to modify data -> make copy
+    QTemporaryDir temporaryDir;
+    DEBUG("Copy testdata from" << appsDir << "to" << temporaryDir.path());
+    ASSERT_TRUE(GBerryLib::copyRecursively(appsDir, temporaryDir.path())); // verify ok
+
+    LocalApplicationsStorage storage(temporaryDir.path());
+
+    QSharedPointer<LocalApplications> apps = storage.localApplications();
+    QSharedPointer<IApplication> iapp = apps->application("app3-downloading-1.0.0");
+    ASSERT_FALSE(iapp.isNull()); // sanity check that test data ok
+    EXPECT_TRUE(iapp->state() == Application::Downloading);
+
+    // TODO: nasty casting, any other way
+    QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp));
+    app->markState(IApplication::Valid);
+
+    LocalApplicationsStorage::Result updateResult;
+    int updateResultFlag = storage.updateApplication(*app.data(), updateResult);
+    EXPECT_TRUE(updateResultFlag); // true == ok
+    ASSERT_FALSE(updateResult.hasError()) << updateResult.errorString;
+
+    // read to verify
+    QSharedPointer<LocalApplications> apps2 = storage.localApplications();
+    QSharedPointer<IApplication> iapp2 = apps2->application("app3-downloading-1.0.0");
+    EXPECT_TRUE(iapp2->state() == Application::Valid);
+
+    // and actually existing LocalApplications should update itself
+    QSharedPointer<LocalApplications> apps3 = storage.localApplications();
+    QSharedPointer<IApplication> iapp3 = apps3->application("app3-downloading-1.0.0");
+    EXPECT_TRUE(iapp3->state() == Application::Valid);
+}
+
 
 
 // TODO: how downloading works?

@@ -16,7 +16,7 @@ public:
     IApplication();
     virtual ~IApplication();
 
-    enum State { Valid, Invalid, Downloading };
+    enum State { Valid, Invalid, Downloading }; // TODO: should we have more states for downloadable apps?
     virtual State state() const = 0;
 
     virtual QString stateString() const;

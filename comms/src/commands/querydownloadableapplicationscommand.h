@@ -8,11 +8,17 @@
 
 class ServerSideControlChannel;
 
+namespace GBerryComms {
+class DownloadableApplicationCache;
+}
+using namespace GBerryComms;
+
 namespace GBerry {
 
 class HeadServerConnection;
 class QueryDownloadableApplicationsCommandPrivate;
 class DownloadableApplicationsRequest;
+
 
 /**
  * @brief The QueryDownloadableApplicationsCommand class
@@ -27,7 +33,8 @@ public:
     // TODO: how to create factory like
     explicit QueryDownloadableApplicationsCommand(
             HeadServerConnection* headServerConnection,
-            ServerSideControlChannel* controlChannel);
+            ServerSideControlChannel* controlChannel,
+            DownloadableApplicationCache* applicationCache);
     virtual ~QueryDownloadableApplicationsCommand();
 
     // ICommand

@@ -14,9 +14,13 @@ class Application : public BaseApplication
 {
 
 public:
-    Application(QSharedPointer<ApplicationMeta> meta);
+    // standard constructor
+    explicit Application(QSharedPointer<ApplicationMeta> meta);
     virtual ~Application();
 
+    ApplicationMeta& metaRef();
+
+    static QSharedPointer<Application> copy(QSharedPointer<IApplication> iapp);
 };
 
 #endif // APPLICATION_H

@@ -11,6 +11,8 @@ QT       += network websockets gui qml quick
 
 CONFIG += c++11
 
+QMAKE_CXXFLAGS += -fPIC
+
 include(../project.pri)
 
 DEFINES += LIB_LIBRARY

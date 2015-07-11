@@ -11,6 +11,8 @@ CONFIG   -= app_bundle
 
 DEFINES += LIB_LIBRARY
 
+QMAKE_CXXFLAGS += -fPIC
+
 include(../project.pri)
 
 SOURCES += \
@@ -37,7 +39,8 @@ SOURCES += \
     commands/downloadapplicationcommand.cpp \
     requests/downloadapplicationrequest.cpp \
     downloadengine.cpp \
-    applicationconfigreaderwriter.cpp
+    applicationconfigreaderwriter.cpp \
+    downloadableapplicationcache.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -68,7 +71,8 @@ HEADERS += \
     commands/downloadapplicationcommand.h \
     requests/downloadapplicationrequest.h \
     downloadengine.h \
-    applicationconfigreaderwriter.h
+    applicationconfigreaderwriter.h \
+    downloadableapplicationcache.h
 
 DEPENDPATH += .
 

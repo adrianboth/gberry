@@ -32,7 +32,10 @@ QList<QSharedPointer<IApplication>> BaseApplications::applications() const
 
 QSharedPointer<IApplication> BaseApplications::application(const QString& uniqueID) const
 {
-    return _apps[uniqueID];
+    if (_apps.contains(uniqueID))
+        return _apps[uniqueID];
+    else
+        return QSharedPointer<IApplication>(nullptr);
 }
 
 // there can be multiple versions for single application

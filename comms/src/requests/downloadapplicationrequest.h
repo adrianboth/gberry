@@ -19,10 +19,15 @@ class DownloadApplicationRequest : public QObject, public Request
     Q_OBJECT
 public:
     // TODO: user from somewhere (token)
-    explicit DownloadApplicationRequest(DownloadApplicationCommand* command, const QString& applicationFullId);
+    explicit DownloadApplicationRequest(
+            DownloadApplicationCommand* command,
+            const QString& applicationId,
+            const QString& applicationVersion,
+            const QString& destinationFilePath);
     virtual ~DownloadApplicationRequest();
 
     QString applicationFullId() const;
+    QString destinationFilePath() const;
 
 protected:
     virtual Invocation* processPrepare(InvocationFactory* factory);
@@ -31,7 +36,9 @@ protected:
 
 private:
     DownloadApplicationCommand* _command;
-    QString _applicationFullId;
+    QString _applicationId;
+    QString _applicationVersion;
+    QString _destinationFilePath;
 };
 
 } // eon

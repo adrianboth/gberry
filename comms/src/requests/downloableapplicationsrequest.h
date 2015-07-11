@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "request.h"
+#include "application.h"
 
 
 namespace GBerry {
@@ -22,6 +23,8 @@ public:
     explicit DownloadableApplicationsRequest(QueryDownloadableApplicationsCommand* command);
     virtual ~DownloadableApplicationsRequest();
 
+    QList<QSharedPointer<Application>> receivedApplications() const;
+
 protected:
     virtual Invocation* processPrepare(InvocationFactory* factory);
     virtual void processOkResponse(Invocation* invocation);
@@ -29,6 +32,7 @@ protected:
 
 private:
     QueryDownloadableApplicationsCommand* _command;
+    QList<QSharedPointer<Application>> _receivedApplications;
 };
 
 } // eon

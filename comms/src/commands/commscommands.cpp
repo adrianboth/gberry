@@ -8,20 +8,25 @@
 #include "commands/querylocalapplicationscommand.h"
 #include "commands/querydownloadableapplicationscommand.h"
 #include "commands/downloadapplicationcommand.h"
+#include "localapplicationsstorage.h"
 
 using namespace GBerry;
 
 namespace GBerryComms {
 
-CommsCommands::CommsCommands(QSharedPointer<IApplications> iapps,
+CommsCommands::CommsCommands(LocalApplicationsStorage* applicationsStorage,
                              ApplicationRegistry* registry,
                              HeadServerConnection* headServerConnection,
+                             DownloadableApplicationCache* downloadableApplicationCache,
                              QObject *parent) :
     QObject(parent),
-    _iapps(iapps),
     _applicationRegistry(registry),
-    _headServerConnection(headServerConnection)
+    _headServerConnection(headServerConnection),
+    _downloadableApplicationCache(downloadableApplicationCache),
+    _applicationsStorage(applicationsStorage)
 {
+    QSharedPointer<LocalApplications> apps(new LocalApplications(_applicationsStorage));
+    _iapps = (qSharedPointerCast<IApplications>(apps));
 }
 
 CommsCommands::~CommsCommands()
@@ -56,12 +61,19 @@ ICommand* CommsCommands::createQueryLocalApplicationsCommand()
 ICommand* CommsCommands::createQueryDownloadableApplicationsCommand(
         ServerSideControlChannel* controlChannel)
 {
-    return new QueryDownloadableApplicationsCommand(_headServerConnection, controlChannel);
+    return new QueryDownloadableApplicationsCommand(
+                _headServerConnection,
+                controlChannel,
+                _downloadableApplicationCache);
 }
 
 ICommand *CommsCommands::createDownloadApplicationCommand(ServerSideControlChannel *controlChannel)
 {
-    return new DownloadApplicationCommand(_headServerConnection, controlChannel);
+    return new DownloadApplicationCommand(
+                _headServerConnection,
+                controlChannel,
+                _downloadableApplicationCache,
+                _applicationsStorage);
 }
 
 } // eon

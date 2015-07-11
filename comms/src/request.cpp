@@ -14,8 +14,11 @@ Request::Request()
 
 Request::~Request()
 {
-    if (_active && _invocation)
+    DEBUG("~Request()");
+    if (_active && _invocation) {
+        DEBUG("~Request(): Aborting invocation");
         _invocation->abort();
+    }
 }
 
 Invocation* Request::prepareInvocation(InvocationFactory *invocationFactory)
@@ -26,9 +29,11 @@ Invocation* Request::prepareInvocation(InvocationFactory *invocationFactory)
 
 void Request::finishedOk(Invocation *invocation)
 {
+    DEBUG("finishedOk()");
     if (_active)
         processOkResponse(invocation);
     else {
+        DEBUG("finishedOk(): Scheduling deletion");
         Request* req = this;
         TRACE("Setting up deletion of Request in event loop");
         QTimer::singleShot(0, [=] () { delete req; });
@@ -38,9 +43,12 @@ void Request::finishedOk(Invocation *invocation)
 
 void Request::finishedError(Error err, Invocation* invocation)
 {
+    DEBUG("finishedError()");
+
     if (_active)
         processErrorResponse(err, invocation);
     else {
+        DEBUG("finishedError(): Scheduling deletion");
         Request* req = this;
         TRACE("Setting up deletion of Request in event loop");
         QTimer::singleShot(0, [=] () { delete req; });

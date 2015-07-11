@@ -8,7 +8,7 @@
 #include "server/application/application2json.h"
 #include "headserverconnection.h"
 #include "requests/downloableapplicationsrequest.h"
-
+#include "downloadableapplicationcache.h"
 
 namespace GBerry
 {
@@ -18,20 +18,26 @@ class QueryDownloadableApplicationsCommandPrivate
 public:
     QueryDownloadableApplicationsCommandPrivate(
             HeadServerConnection* headServerConnection_,
-            ServerSideControlChannel* controlChannel_) :
+            ServerSideControlChannel* controlChannel_,
+            DownloadableApplicationCache* cache_) :
         headServerConnection(headServerConnection_),
-        controlChannel(controlChannel_) {}
+        controlChannel(controlChannel_),
+        cache(cache_) {}
 
     HeadServerConnection* headServerConnection;
     ServerSideControlChannel* controlChannel;
+    DownloadableApplicationCache* cache;
     QList<DownloadableApplicationsRequest*> ongoingRequests;
 };
 
 QueryDownloadableApplicationsCommand::QueryDownloadableApplicationsCommand(
         HeadServerConnection* headServerConnection,
-        ServerSideControlChannel* controlChannel) :
+        ServerSideControlChannel* controlChannel,
+        DownloadableApplicationCache *applicationCache) :
     ICommand("QueryDownloadableApplications"),
-    _d(new QueryDownloadableApplicationsCommandPrivate(headServerConnection, controlChannel))
+    _d(new QueryDownloadableApplicationsCommandPrivate(headServerConnection,
+                                                       controlChannel,
+                                                       applicationCache))
 {
 }
 
@@ -71,22 +77,23 @@ void QueryDownloadableApplicationsCommand::processRequestOkResponse(Downloadable
     responseJson["command"] = "QueryDownloadableApplicationsReply";
     responseJson["result"] = "ok";
 
-
-    /*
     QJsonArray appsList;
-    foreach(QSharedPointer<IApplication> app, _priv->apps->applications()) {
-        appsList << Application2Json::from(*app);
+    QList<QSharedPointer<Application>> apps = request->receivedApplications();
+    foreach(QSharedPointer<Application> app, apps) {
+        QSharedPointer<IApplication> iapp(qSharedPointerCast<IApplication>(app));
+        _d->cache->cacheApplication(app);
+        appsList << Application2Json::from(*iapp.data());
     }
 
     responseJson["applications"] = appsList;
-    */
+
     _d->controlChannel->sendJsonMessageToSouth(responseJson);
 }
 
 void QueryDownloadableApplicationsCommand::processRequestErrorResponse(DownloadableApplicationsRequest *request)
 {
     _d->ongoingRequests.removeOne(request);
-    request->deleteLater();
+    //request->deleteLater();
     // TODO: some kind of error code (possible localization required later)
 
     QJsonObject responseJson;

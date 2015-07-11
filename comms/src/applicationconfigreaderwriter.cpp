@@ -27,6 +27,9 @@ namespace
     static const char* JSON_APPCFG_DEVELOPERCOMMENTS = "developer_comments";
 
     static const char* JSON_STATE = "state";
+
+    static const char* DEFAULT_APPLICATION_CONFIG_FILE_NAME = "appcfg.json";
+    static const char* APPLICATION_STATE_FILE_NAME = "state.json";
 }
 
 QSharedPointer<JsonDefinition> createApplicationConfigDefinition()
@@ -131,35 +134,76 @@ QSharedPointer<Application> ApplicationConfigReaderWriter::readApplicationConfig
     return app;
 }
 
+QString ApplicationConfigReaderWriter::findApplicationConfigFile(const QString& applicationDirPath)
+{
+    QDir appDir(applicationDirPath);
+    QStringList appcfgNameFilter;
+    appcfgNameFilter << "*appcfg.json";
+    appDir.setNameFilters(appcfgNameFilter);
+
+    QStringList cfgFiles = appDir.entryList(QDir::Files);
+    if (cfgFiles.length() == 0) {
+        DEBUG("Read" << appDir.path() << "but didn't found *appcfg.json");
+        return QString();
+    }
+
+    if (cfgFiles.length() > 1) {
+        WARN("Application directory" << appDir.path() << "had several config files. Will select one:" << cfgFiles[0]);
+        QString cfgFilePath = appDir.filePath(cfgFiles[0]);
+        return cfgFilePath;
+    }
+
+    return appDir.filePath(cfgFiles[0]);
+}
 
 QSharedPointer<Application> ApplicationConfigReaderWriter::readApplication()
 {
-    QStringList appcfgNameFilter;
-    appcfgNameFilter << "*appcfg.json";
+    QDir appDir(_applicationDir);
 
-    QDir d(_applicationDir);
-    d.setNameFilters(appcfgNameFilter);
-    QStringList cfgFiles = d.entryList(QDir::Files);
-    if (cfgFiles.length() == 0) {
-        DEBUG("Read" << d.path() << "but didn't found *appcfg.json");
+    QString cfgFilePath = findApplicationConfigFile(_applicationDir);
+    if (cfgFilePath.isEmpty())
         return QSharedPointer<Application>(nullptr);
 
-    } else if (cfgFiles.length() > 1) {
-        WARN("Application directory" << d.path() << "had several config files. Will select one:" << cfgFiles[0]);
-    }
-
-    QString cfgFilePath = d.filePath(cfgFiles[0]);
     QSharedPointer<Application> app(readApplicationConfig(cfgFilePath));
 
-    QString stateFilePath = d.filePath("state.json");
+    QString stateFilePath = appDir.filePath("state.json");
     readApplicationState(stateFilePath, *app.data());
 
     return app;
 }
 
-void ApplicationConfigReaderWriter::writeApplication(const Application &application)
+bool ApplicationConfigReaderWriter::writeApplication(const Application &application, Result& result)
 {
-    // TODO:
+    QDir appDir(_applicationDir);
+    QString cfgFilePath;
+
+    if (appDir.exists()) {
+        // we are overwriting
+        // we allow appcfg.json to have different prefixes
+        //  -> look for file
+         cfgFilePath = findApplicationConfigFile(_applicationDir);
+
+        // if cfg file not found fall back to default
+        if (cfgFilePath.isEmpty()) {
+            cfgFilePath = appDir.filePath(DEFAULT_APPLICATION_CONFIG_FILE_NAME);
+        }
+
+    } else {
+        // we are creating new configuration
+        if (!appDir.mkpath(appDir.absolutePath()))
+            return result.record(Result::ApplicationDirCreationFailed, QString("Failed to create %1").arg(appDir.absolutePath()));
+
+        cfgFilePath = appDir.filePath(DEFAULT_APPLICATION_CONFIG_FILE_NAME);
+    }
+
+    if (writeApplicationConfig(cfgFilePath, application, result)) {
+        QString stateFilePath = appDir.filePath(APPLICATION_STATE_FILE_NAME);
+        writeApplicationState(stateFilePath, application, result);
+    }
+
+    // TODO: error situation is not clear, should we delete everything or what
+
+    return !result.hasError();
 }
 
 void ApplicationConfigReaderWriter::readApplicationState(const QString &stateFilePath, Application &application)
@@ -200,12 +244,85 @@ void ApplicationConfigReaderWriter::readApplicationState(const QString &stateFil
     }
 }
 
-void ApplicationConfigReaderWriter::writeApplicationConfig(const QString &configFilePath, const Application &application)
+bool ApplicationConfigReaderWriter::writeApplicationConfig(const QString &configFilePath, const Application &application, Result& result)
 {
-    // TODO:
+    QFile file(configFilePath);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return result.record(Result::FileNotWritable, QString("Failed to open %1").arg(configFilePath));
+
+    // TODO: is this unnecessary check
+    if (!file.isWritable())
+        return result.record(Result::FileNotWritable, QString("File %1 not writable").arg(configFilePath));
+
+    QSharedPointer<IApplicationMeta> meta = application.meta();
+    QJsonObject json;
+
+    json[JSON_APPCFG_ID] = meta->applicationId();
+    json[JSON_APPCFG_NAME] = meta->name();
+    json[JSON_APPCFG_VERSION] = meta->version();
+    json[JSON_APPCFG_DESCRIPTION] = meta->description();
+    json[JSON_APPCFG_APPLICATIONEXE] = meta->applicationExecutablePath();
+    json[JSON_APPCFG_CATALOGIMAGE] = meta->catalogImageFilePath();
+    json[JSON_APPCFG_SYSTEMAPP] = meta->isSystemApp();
+
+    QJsonDocument jdoc(json);
+
+    // validate just to check that we can read it later
+    JsonValidator jsonValidator(JsonDef);
+    if (!jsonValidator.validate(json)) {
+        TRACE("Configuration data:" << jdoc.toJson());
+        return result.record(Result::InvalidJsonContent, QString("Created configuration is not valid. Aborted writing. Validation errors: %1").arg(jsonValidator.errors().join(", ")));
+    }
+
+    if (file.write(jdoc.toJson()) == -1) {
+        return result.record(Result::FileWriteFailed, QString("Writing to file %1 failed").arg(configFilePath));
+    }
+
+    file.close();
+    return true;
 }
 
-void ApplicationConfigReaderWriter::writeApplicationState(const QString &stateFilePath, const Application &application)
+bool ApplicationConfigReaderWriter::writeApplicationState(const QString &stateFilePath, const Application &application, Result& result)
 {
-    // TODO:
+    QFile file(stateFilePath);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return result.record(Result::FileNotWritable, QString("Failed to open %1").arg(stateFilePath));
+
+    // TODO: is this check needed?
+    if (!file.isWritable())
+        return result.record(Result::FileNotWritable, QString("File %1 not writable").arg(stateFilePath));
+
+    QJsonObject json;
+
+    switch (application.state()) {
+    case Application::Valid:
+        json[JSON_STATE] = "valid";
+        break;
+    case Application::Invalid:
+        json[JSON_STATE] = "invalid";
+        break;
+    case Application::Downloading:
+        json[JSON_STATE] = "downloading";
+        break;
+    default:
+        return result.record(Result::UnknownState, "Application has unknown state");
+    }
+
+    QJsonDocument jdoc(json);
+
+    // validate just to check that we can read it later
+    JsonValidator jsonValidator(StateJsonDef);
+    if (!jsonValidator.validate(json)) {
+        TRACE("State data:" << jdoc.toJson());
+        return result.record(Result::InvalidJsonContent, QString("Created state configuration is not valid. Aborted writing. Validation errors: %1").arg(jsonValidator.errors().join(", ")));
+    }
+
+    if (file.write(jdoc.toJson()) == -1) {
+        return result.record(Result::FileWriteFailed, QString("Writing to file %1 failed").arg(stateFilePath));
+    }
+
+    file.close();
+    return true;
 }

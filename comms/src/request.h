@@ -12,7 +12,7 @@ public:
     explicit Request();
     virtual ~Request();
 
-    enum Error { ERROR_NO_CONNECTION, ERROR_INVOCATION_FAILED };
+    enum Error { ERROR_NO_CONNECTION, ERROR_INVOCATION_FAILED, ERROR_INVALID_JSON_RESPONSE };
 
     Invocation* prepareInvocation(InvocationFactory* invocationFactory);
 

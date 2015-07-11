@@ -82,7 +82,11 @@ int Comms::run(int argc, char *argv[])
     InvocationFactoryImpl invocationFactory;
     GBerry::HeadServerConnection headServerConnection(&invocationFactory);
 
-    CommsCommands commands(iapps, &setup.applicationRegistry, &headServerConnection);
+    DownloadableApplicationCache downloadableApplicationCache;
+    CommsCommands commands(&appStorage,
+                           &setup.applicationRegistry,
+                           &headServerConnection,
+                           &downloadableApplicationCache);
     CommsChannelFactory channelFactory(&setup.applicationRegistry, &commands);
     setup.use(&channelFactory);
     // create objects for additional setup
