@@ -79,6 +79,8 @@ qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/
 INSTALLS += qml
 
+QMAKE_CXXFLAGS += -fPIC
+
 SOURCES += \
     restinvocation.cpp \
     serverconnection.cpp \
@@ -115,7 +117,8 @@ SOURCES += \
     downloadstreaminvocationimpl.cpp \
     httpinvocationdefinition.cpp \
     invocationfactory.cpp \
-    invocationfactoryimpl.cpp
+    invocationfactoryimpl.cpp \
+    utils/fileutils.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver
