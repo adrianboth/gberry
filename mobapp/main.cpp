@@ -4,7 +4,7 @@
 #include <QQmlPropertyMap>
 #include <QProcessEnvironment>
 
-#include <restinvocationfactoryimpl.h>
+#include <invocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
 #include <realsystemservices.h>
 
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     RealSystemServices systemServices;
     systemServices.registerItself();
 
-    RESTInvocationFactoryImpl factory;
+    InvocationFactoryImpl factory;
     factory.setProperty("url_prefix", "http://localhost:9000/gberryrest/v1");
 
     ServerConnectionImpl serverConnection(&factory);
