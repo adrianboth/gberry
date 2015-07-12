@@ -13,6 +13,7 @@ namespace Comms
 const QString CommsParameters::ROOT_PATH = QString("root-path");
 const QString CommsParameters::DISABLE_WAITAPP = QString("disable-wait-ui");
 const QString CommsParameters::DISABLE_MAINUI = QString("disable-main-ui");
+const QString CommsParameters::COMMS_CONFIG = QString("comms-config");
 
 CommsParameters::CommsParameters(IEnvironmentVariables& env) :
     GBerryConsoleCommon::RuntimeParameters(env)
@@ -26,6 +27,9 @@ CommsParameters::CommsParameters(IEnvironmentVariables& env) :
     addOption(ROOT_PATH, new QCommandLineOption(ROOT_PATH, "Defines used root path", "rootpath"));
     addBuildTimeDefault(ROOT_PATH, xstr(GBERRY_ROOT_PATH));
     addEnvironmentVariable(ROOT_PATH, "GBERRY_ROOT_PATH");
+
+    addOption(COMMS_CONFIG, new QCommandLineOption(COMMS_CONFIG, "Defines used configuration file"));
+    addEnvironmentVariable(COMMS_CONFIG, "GBERRY_COMMS_CONFIG");
 }
 
 CommsParameters::~CommsParameters()

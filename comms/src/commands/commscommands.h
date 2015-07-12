@@ -35,6 +35,7 @@ public:
     ICommand* createQueryLocalApplicationsCommand();
     ICommand* createQueryDownloadableApplicationsCommand(ServerSideControlChannel* controlChannel);
     ICommand* createDownloadApplicationCommand(ServerSideControlChannel* controlChannel);
+    ICommand* createHeadServerStatusCommand(ServerSideControlChannel* controlChannel);
 
 signals:
     // TODO: should these go via command pattern, not as signals here

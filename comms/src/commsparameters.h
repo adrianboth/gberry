@@ -31,6 +31,7 @@ public:
     static const QString ROOT_PATH;
     static const QString DISABLE_WAITAPP;
     static const QString DISABLE_MAINUI;
+    static const QString COMMS_CONFIG;
 };
 
 } // eon

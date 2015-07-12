@@ -30,10 +30,15 @@ application -> comms
  * DownloadApplication
     * 'application_id'
     -> DownloadApplicationReply
-	* 'result' = OK|Failure
+	* 'result' = ok|failure
 	* 'application_id'
-	* 'error_code'
-	* 'error_string'
+	* ['error_code']
+	* ['error_string']
+
+ * QueryHeadServerStatus
+    -> HeadServerStatus
+         -> status = connected|disconnected
+            old_status = connected|disconnected
 	
 
     

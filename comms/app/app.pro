@@ -25,6 +25,17 @@ INSTALLS += target
 
 # this would affect all files, but now just scripts are installed
 QMAKE_INSTALL_FILE = install -m 6755
-scripts.files = ../scripts/*
+scripts.files = scripts/*
 scripts.path = $$DEPLOY_DIR/bin/
 INSTALLS += scripts
+
+# *.ini file need to be next to binary
+config.files = comms.ini
+config.path = $$DEPLOY_DIR/bin/
+INSTALLS += config
+
+DISTFILES += \
+    scripts/start_app.sh \
+    scripts/start.sh \
+    comms.ini
+

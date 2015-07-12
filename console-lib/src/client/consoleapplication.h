@@ -18,6 +18,7 @@
 #include "client/gamemodelcommunication.h"
 #include "client/downloadablegamesmodelcommunication.h"
 #include "client/downloadmodelcommunication.h"
+#include "client/connectioncommunication.h"
 
 using namespace GBerry;
 
@@ -69,6 +70,7 @@ private:
     DownloadModel _downloadModel;
     ApplicationSettings _settings;
     ApplicationManager* _applicationManager;
+    ConnectionCommunication _connectionCommunication;
     Connection _connection;
 
 };

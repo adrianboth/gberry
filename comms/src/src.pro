@@ -40,7 +40,9 @@ SOURCES += \
     requests/downloadapplicationrequest.cpp \
     downloadengine.cpp \
     applicationconfigreaderwriter.cpp \
-    downloadableapplicationcache.cpp
+    downloadableapplicationcache.cpp \
+    commands/headserverstatuscommand.cpp \
+    commsconfig.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -72,7 +74,9 @@ HEADERS += \
     requests/downloadapplicationrequest.h \
     downloadengine.h \
     applicationconfigreaderwriter.h \
-    downloadableapplicationcache.h
+    downloadableapplicationcache.h \
+    commands/headserverstatuscommand.h \
+    commsconfig.h
 
 DEPENDPATH += .
 

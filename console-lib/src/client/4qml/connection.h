@@ -2,10 +2,26 @@
 #define CONNECTION_H
 
 #include <QObject>
+#include <QJsonObject>
 #include <QScopedPointer>
 
 class ClientSideControlChannel;
 class ConnectionPrivate;
+
+class IConnectionCommunication : public QObject
+{
+    Q_OBJECT
+public:
+    explicit IConnectionCommunication(QObject *parent = 0) : QObject(parent) {}
+    virtual ~IConnectionCommunication() {}
+
+    virtual void sendMessage(const QJsonObject& msg) = 0;
+
+signals:
+    void messageReceived(const QJsonObject msg);
+
+};
+
 
 /**
  * @brief Connection information for 4qml
@@ -39,7 +55,9 @@ class Connection : public QObject
     Q_PROPERTY(bool isHeadServerConnected READ isHeadServerConnected NOTIFY isHeadServerConnectedChanged)
 
 public:
-    explicit Connection(ClientSideControlChannel* controlChannel, QObject *parent = 0);
+    explicit Connection(IConnectionCommunication* communication,
+                        ClientSideControlChannel* controlChannel,
+                        QObject *parent = 0);
     ~Connection();
 
     bool isConnected() const;
@@ -50,11 +68,6 @@ signals:
     void isConnectedChanged();
     void isActivatedChanged();
     void isHeadServerConnectedChanged();
-
-public slots:
-    void onActivatedChanged();
-    void onConnectedChanged();
-    void onHeadServerConnectedChanged();
 
 private:
     const QScopedPointer<ConnectionPrivate> _d;

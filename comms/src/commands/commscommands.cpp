@@ -8,6 +8,7 @@
 #include "commands/querylocalapplicationscommand.h"
 #include "commands/querydownloadableapplicationscommand.h"
 #include "commands/downloadapplicationcommand.h"
+#include "commands/headserverstatuscommand.h"
 #include "localapplicationsstorage.h"
 
 using namespace GBerry;
@@ -74,6 +75,13 @@ ICommand *CommsCommands::createDownloadApplicationCommand(ServerSideControlChann
                 controlChannel,
                 _downloadableApplicationCache,
                 _applicationsStorage);
+}
+
+ICommand *CommsCommands::createHeadServerStatusCommand(ServerSideControlChannel *controlChannel)
+{
+    return new HeadServerStatusCommand(
+                _headServerConnection,
+                controlChannel);
 }
 
 } // eon

@@ -19,6 +19,7 @@
 #include "systemservices.h"
 #include "utils/fileutils.h"
 #include "commands/commscommands.h"
+#include "commsconfig.h"
 
 #include <invocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -58,6 +59,8 @@ int Comms::run(int argc, char *argv[])
     CommsParameters params(env);
     params.parse(app.arguments());
 
+    CommsConfig commscfg(&params);
+
     // --
     StdoutLogMsgHandler handler(Log::TRACE);
     LogControl logControl;
@@ -80,6 +83,12 @@ int Comms::run(int argc, char *argv[])
     QSharedPointer<IApplications> iapps(qSharedPointerCast<IApplications>(apps));
 
     InvocationFactoryImpl invocationFactory;
+    QString urlPrefix("http://");
+    urlPrefix.append(commscfg.value("headserver_host", "localhost"));
+    urlPrefix.append(commscfg.value("headserver_url_prefix", "not defined"));
+    INFO("Using HeadServer:" << urlPrefix);
+    invocationFactory.setProperty("url_prefix", urlPrefix);
+
     GBerry::HeadServerConnection headServerConnection(&invocationFactory);
 
     DownloadableApplicationCache downloadableApplicationCache;

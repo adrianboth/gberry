@@ -35,7 +35,7 @@ Invocation* DownloadableApplicationsRequest::processPrepare(InvocationFactory *f
 {
     RESTInvocation* inv = factory->newRESTInvocation();
     // TODO: hard coded token
-    inv->defineGetOperation("/application/list?user_token=5c12ee97-c691-48eb-86d9-44df3fd11048");
+    inv->defineGetOperation("/application/list?user_token=818ec382-5a10-484a-a22f-fc90015643cb");
 
     return inv;
 }
@@ -67,6 +67,7 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
         meta->setApplicationId(j["name"].toString()); // TODO: name is not really the id
         meta->setVersion(j["version"].toString());
         meta->setName(j["name"].toString());
+        meta->setDescription(j["description"].toString());
         QSharedPointer<Application> app(new Application(QSharedPointer<ApplicationMeta>(meta)));
         _receivedApplications << app;
 

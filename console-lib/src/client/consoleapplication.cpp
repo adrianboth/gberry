@@ -15,7 +15,8 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     _downloadableGamesModel(&_downloadableGamesModelCommunication),
     _downloadModelCommunication(_setup.controlChannel),
     _downloadModel(&_downloadModelCommunication),
-    _connection(_setup.controlChannel)
+    _connectionCommunication(_setup.controlChannel),
+    _connection(&_connectionCommunication, _setup.controlChannel)
 {
     if (!_settings.runningOnTargetDevice()) {
         TargetDisplay* targetDisplay = new TargetDisplay(1920, 1080, 110, 110, &_displayProfile);

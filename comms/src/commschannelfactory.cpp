@@ -36,11 +36,14 @@ ServerSideControlChannel* CommsChannelFactory::createControlChannel(int connecti
 
         channel->registerCommand(_commands->createDownloadApplicationCommand(channel));
 
-        channel->registerCommand(_commands->createLaunchApplicationCommand());   
+        channel->registerCommand(_commands->createLaunchApplicationCommand());
 
-    } else {
+    } else {    
         channel->registerCommand(_commands->createExitApplicationCommand(connectionId));
     }
+
+    // TODO: does it make sense to hav this for all
+    channel->registerCommand(_commands->createHeadServerStatusCommand(channel));
 
     // caller takes ownership of channel
     return channel;
