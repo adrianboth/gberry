@@ -34,7 +34,7 @@ public:
     {
         // now we can query headserver connection status
         QJsonObject cmd;
-        cmd["command"] = "HeadServerStatus";
+        cmd["command"] = "QueryHeadServerStatus";
         controlChannel->sendMessage(QJsonDocument(cmd).toJson());
         emit q->isActivatedChanged();
     }

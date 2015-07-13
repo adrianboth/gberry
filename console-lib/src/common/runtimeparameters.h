@@ -40,7 +40,8 @@ public:
 
 protected:
     QCommandLineParser& parser();
-    void addOption(const QString& optionName, QCommandLineOption* option);
+    void addBooleanOption(const QString& optionName, QCommandLineOption* option);
+    void addValueOption(const QString& optionName, QCommandLineOption* option);
     void addBuildTimeDefault(const QString& optionName, const QString& defaultValue);
     void addEnvironmentVariable(const QString& optionName, const QString& envVarName);
 

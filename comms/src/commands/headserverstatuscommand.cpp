@@ -7,7 +7,7 @@ namespace GBerryComms {
 HeadServerStatusCommand::HeadServerStatusCommand(
         HeadServerConnection* headServerConnection,
         ServerSideControlChannel* controlChannel):
-    ICommand("HeadServerStatus"),
+    ICommand("QueryHeadServerStatus"),
     _headServerConnection(headServerConnection),
     _controlChannel(controlChannel)
 {

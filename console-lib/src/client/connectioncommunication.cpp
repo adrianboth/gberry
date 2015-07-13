@@ -12,7 +12,7 @@ class HeadServerStatusCommand : public ICommand
 {
 public:
     HeadServerStatusCommand(ConnectionCommunication* comm) :
-        ICommand("HeadServerStatusCommand"),
+        ICommand("HeadServerStatus"),
         _comm(comm) {}
 
     virtual ~HeadServerStatusCommand() {}

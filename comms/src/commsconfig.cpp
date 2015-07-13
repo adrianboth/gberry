@@ -24,10 +24,15 @@ CommsConfig::CommsConfig(CommsParameters* parameters)
         // relative paths relative to current working dir
         configFilePath = parameters->value(CommsParameters::COMMS_CONFIG);
     }
-
-    if (!QFile::exists(configFilePath)) {
+    QFileInfo configFile(configFilePath);
+    if (!configFile.exists()) {
         WARN("Can't find comms configuration file from" << configFilePath);
         _settings = new QSettings();
+
+    } else if (!configFile.isFile()) {
+        WARN("Given comms configuration path is not file:" << configFilePath);
+        _settings = new QSettings();
+
     } else {
         _settings = new QSettings(configFilePath, QSettings::IniFormat);
     }

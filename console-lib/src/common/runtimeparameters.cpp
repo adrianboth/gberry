@@ -72,10 +72,22 @@ QCommandLineParser& RuntimeParameters::parser()
     return _parser;
 }
 
-void RuntimeParameters::addOption(const QString& optionName, QCommandLineOption* option)
+void RuntimeParameters::addBooleanOption(const QString& optionName, QCommandLineOption* option)
 {
     _parser.addOption(*option);
     _options[optionName] = option; // this is need for possible default values
+    if (!option->valueName().isEmpty()) {
+        ERROR("Option" << optionName << "marked bool option but value name was defined.");
+    }
+}
+
+void RuntimeParameters::addValueOption(const QString& optionName, QCommandLineOption* option)
+{
+    _parser.addOption(*option);
+    _options[optionName] = option; // this is need for possible default values
+    if (option->valueName().isEmpty()) {
+        ERROR("Option" << optionName << "marked value option but no value name defined.");
+    }
 }
 
 void RuntimeParameters::addBuildTimeDefault(const QString& optionName, const QString& defaultValue)
