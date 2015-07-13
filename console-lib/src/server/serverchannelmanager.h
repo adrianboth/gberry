@@ -39,6 +39,8 @@ public:
     QList<int> allPlayerChannelIds();
 
     void activateConnection(int connectionId);
+    // between launching apps there can be periods when no application is active
+    void deactivateConnection(int connectionId);
     bool hasActiveConnection();
 
 public slots:

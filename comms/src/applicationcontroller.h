@@ -38,6 +38,8 @@ public:
     virtual QSharedPointer<IApplication> application();
     virtual void enableSimulatedMode(bool enabled);
 
+    virtual void enableOutputLogging(bool enabled);
+
     // -- dynamic properties
     static const char* PROCESS_KILL_WAIT_MS_PROP;
 

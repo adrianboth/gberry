@@ -44,10 +44,10 @@ public:
     virtual void receivePlayerMessageFromNorth(const QByteArray& msg);
 
     // Channel
-    virtual bool isOpen() const;
-    virtual void open();
-    virtual void close();
-    virtual bool receiveMessageFromSouth(const QByteArray& msg);
+    virtual bool isOpen() const override;
+    virtual void open() override;
+    virtual void close() override;
+    virtual bool receiveMessageFromSouth(const QByteArray& msg) override;
 
 signals:
     void playerRequestedMainMenu();

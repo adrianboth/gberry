@@ -36,7 +36,7 @@ ConnectionGateKeeper::ConnectionGateKeeper(
     _d(new ConnectionGateKeeperPrivate(connectionId, appRegistry))
 {
     _d->timer.setSingleShot(true);
-    _d->timer.setInterval(5000); // 5s TODO: should be read from a property ... or greater when debugging ... but how to recognize if debugging other end
+    _d->timer.setInterval(15000); // 5s TODO: should be read from a property ... or greater when debugging ... but how to recognize if debugging other end
     connect(&_d->timer, &QTimer::timeout, this, &ConnectionGateKeeper::waitTimeout);
 }
 
@@ -47,6 +47,7 @@ ConnectionGateKeeper::~ConnectionGateKeeper()
 
 void ConnectionGateKeeper::validate()
 {
+    DEBUG("Validation connection -> sending ping");
     QJsonObject json;
     json["command"] = "Ping";
     QJsonDocument jsonDoc(json);
@@ -102,6 +103,7 @@ void ConnectionGateKeeper::incomingMessage(const QByteArray &msg)
 void ConnectionGateKeeper::waitTimeout()
 {
     // ping reply hasn't arrived -> discard connection
+    DEBUG("Timeout for validating new connection occurred -> discarding connection");
     emit connectionDiscarded(_d->connectionId);
 }
 

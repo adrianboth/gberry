@@ -50,6 +50,14 @@ public:
         }
     }
 
+    /* */
+    void closePlayerChannels() {
+        DEBUG("Closing all player channels");
+        foreach(auto playerChannel, playerChannels.values()) {
+            playerChannel->close();
+        }
+    }
+
     // Sends message informing client that channel is about to be closed.
     // Typically for PlayerChannels but works also for ControlChannels
     //
@@ -263,6 +271,10 @@ void ServerChannelManager::activateConnection(int connectionId)
     }
 
     if (_d->activeConnectionId != -1) {
+        // TODO: act of sending deactivation msg is duplicate with deactivate() but around there is different logic
+        _d->activeConnectionIdsStack.removeFirst();
+        _d->closePlayerChannels();
+
         QJsonObject json;
         json["command"] = "Deactivate";
 
@@ -280,6 +292,40 @@ void ServerChannelManager::activateConnection(int connectionId)
                                 QJsonDocument(json).toJson());
 
     _d->reopenPlayerChannels();
+}
+
+
+void ServerChannelManager::deactivateConnection(int connectionId)
+{
+    if (!_d->controlChannels.contains(connectionId)) {
+        ERROR("Can't dectivate connection as it doesn't have ControlChannel registered: connectionId =" << connectionId);
+        return;
+    }
+
+    // only one connection can be active at the time
+    //  -> verify that provided connectionId is active one
+    if (_d->activeConnectionId != connectionId) {
+        WARN("Can't deactivate connection as it is not currently active: connectionId =" << connectionId);
+        return;
+
+    }
+
+    QJsonObject json;
+    json["command"] = "Deactivate";
+
+    emit outgoingMessageToSouth(_d->activeConnectionId,
+                                ServerSideControlChannel::CHANNEL_ID,
+                                QJsonDocument(json).toJson());
+
+
+    // no connection is active (e.g. in the middle of launching app)
+    _d->activeConnectionIdsStack.removeFirst();
+    _d->closePlayerChannels();
+    _d->activeConnectionId = -1; // TODO: as stack has latest, we could get rid of this var
+
+    if (!_d->activeConnectionIdsStack.isEmpty()) {
+        activateConnection(_d->activeConnectionIdsStack.first());
+    }
 }
 
 bool ServerChannelManager::hasActiveConnection()

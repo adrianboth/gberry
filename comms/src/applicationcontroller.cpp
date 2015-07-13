@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <signal.h>
 
+#include <utils/fileutils.h>
 #include "systemservices.h"
 #include <utils/qtsignalproxy.h>
 
@@ -55,6 +56,7 @@ public:
     bool running{false};
     bool simulated{false};
     int timerCalledCounterForWaitingProcessToStopRunning{0};
+    bool enableOutputLogging{false};
 
     void onProcessFinished(int exitCode) {
         DEBUG("Process finished with code: app_id = " << app->id() << ", exitCode =" << exitCode);
@@ -163,6 +165,28 @@ void ApplicationController::launch()
     }
 
     DEBUG("Launching process: " << appExe);
+    if (_d->enableOutputLogging) {
+        _d->process.setProcessChannelMode(QProcess::MergedChannels);
+        QString logFilePath = GBerryLib::joinpath(
+                    _d->app->meta()->applicationDirPath(),
+                    "outlog.log");
+
+        // write header to log file and test that log file is writable
+        QFile logFile(logFilePath);
+        if (logFile.open(QIODevice::Append)) {
+            // TODO: write timestamp and perhaps other info
+            logFile.write("\n---------- LAUNCHING ----------\n");
+            logFile.close();
+            _d->process.setStandardOutputFile(logFilePath, QIODevice::Append);
+
+        } else {
+            ERROR("Failed to open log for writing:" << logFilePath);
+        }
+
+    } else {
+        _d->process.setProcessChannelMode(QProcess::ForwardedErrorChannel);
+        _d->process.setStandardOutputFile(QProcess::nullDevice());
+    }
     _d->process.setProgram(appExe);
     if (_d->registry) {
         // registry is used to identify who is making TCP connections
@@ -182,6 +206,7 @@ void ApplicationController::pause()
     {
         int result = kill(_d->process.pid(), SIGSTOP);
         DEBUG("Paused " << _d->app->id() << ", got result " << result);
+        emit paused();
     }
 }
 
@@ -191,6 +216,7 @@ void ApplicationController::resume()
     {
         int result = kill(_d->process.pid(), SIGCONT);
         DEBUG("Resumed " << _d->app->id() << ", got result " << result);
+        emit resumed();
     }
 }
 
@@ -222,4 +248,9 @@ QString ApplicationController::fullApplicationId() const
 void ApplicationController::enableSimulatedMode(bool enabled)
 {
     _d->simulated = enabled;
+}
+
+void ApplicationController::enableOutputLogging(bool enabled)
+{
+    _d->enableOutputLogging = enabled;
 }

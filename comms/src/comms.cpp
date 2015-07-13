@@ -59,8 +59,6 @@ int Comms::run(int argc, char *argv[])
     CommsParameters params(env);
     params.parse(app.arguments());
 
-    CommsConfig commscfg(&params);
-
     // --
     StdoutLogMsgHandler handler(Log::TRACE);
     LogControl logControl;
@@ -68,6 +66,8 @@ int Comms::run(int argc, char *argv[])
     Log::singleton().use(&logControl);
 
     INFO("Setting up ...");
+
+    CommsConfig commscfg(&params);
 
     RealSystemServices systemServices;
     systemServices.registerItself();
@@ -116,7 +116,32 @@ int Comms::run(int argc, char *argv[])
 
     DEBUG("Initializing configuration for 'waitapp' and 'mainui'");
     ApplicationController waitAppController(getapp("waitapp"), &setup.applicationRegistry);
+    waitAppController.enableOutputLogging(true);
+
+    QObject::connect(&waitAppController, &ApplicationController::paused,
+                     [&] () {
+
+        int connectionId = setup.applicationRegistry.connectionIdByApplicationId(waitAppController.application()->meta()->applicationId());
+        if (connectionId != -1) {
+            setup.channelManager->deactivateConnection(connectionId);
+        } else {
+            WARN("'waitapp' paused but connection id not found from ApplicationRegistry. Can't deactivate connection.");
+        }
+    });
+
+    QObject::connect(&waitAppController, &ApplicationController::resumed,
+                     [&] () {
+
+        int connectionId = setup.applicationRegistry.connectionIdByApplicationId(waitAppController.application()->meta()->applicationId());
+        if (connectionId != -1) {
+            setup.channelManager->activateConnection(connectionId);
+        } else {
+            WARN("'waitapp' resumed but connection id not found from ApplicationRegistry. Can't activate connection.");
+        }
+    });
+
     ApplicationController mainuiController(getapp("mainui"), &setup.applicationRegistry);
+    mainuiController.enableOutputLogging(true);
 
     // TODO: using safe pointer goes too far ...
     LaunchController currentAppController(apps.data());
@@ -171,6 +196,8 @@ int Comms::run(int argc, char *argv[])
     // TODO: pinging gberry server is missing
     INFO("Starting event queue");
     setup.start();
+    headServerConnection.open();
+
     return app.exec();
 }
 

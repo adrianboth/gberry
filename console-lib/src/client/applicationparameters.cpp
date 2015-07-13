@@ -11,7 +11,7 @@ ApplicationParameters::ApplicationParameters(IEnvironmentVariables& env) :
     //_parser.setApplicationDescription("Communication manager of GBerry game platform");
     //_parser.addVersionOption()
 
-    addOption(APPLICATION_CODE, new QCommandLineOption(APPLICATION_CODE, "Defines uses application code identification", "application_code"));
+    addValueOption(APPLICATION_CODE, new QCommandLineOption(APPLICATION_CODE, "Defines uses application code identification", "application_code"));
     addEnvironmentVariable(APPLICATION_CODE, "GBERRY_APPLICATION_CODE");
 }
 

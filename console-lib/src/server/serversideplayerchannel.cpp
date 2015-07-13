@@ -26,13 +26,11 @@ ServerSidePlayerChannel::~ServerSidePlayerChannel()
 
 void ServerSidePlayerChannel::open()
 {
-    if (_state == CHANNEL_OPEN || _state == CHANNEL_OPEN_ONGOING)
+    DEBUG("Reopening player channel: id =" << channelId());
+    if (_state == CHANNEL_OPEN || _state == CHANNEL_OPEN_ONGOING) {
+        WARN("Discarded channel opening as state was:" << _state);
         return;
-
-    QJsonObject json;
-    json["command"] = "OpenChannel";
-    json["player_metadata"] = _playerMeta.json();
-    QJsonDocument jsonDoc(json);
+    }
 
     _state = CHANNEL_OPEN_ONGOING;
 

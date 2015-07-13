@@ -34,7 +34,7 @@ bool ConnectionManager::activeConnection()
 
 void ConnectionManager::applicationConnected(int connectionId)
 {
-    DEBUG("New application connection: connectionId=" << connectionId);
+    DEBUG("222 New application connection: connectionId=" << connectionId);
 
     ConnectionGateKeeper* gatekeeper = new ConnectionGateKeeper(connectionId, _applicationRegistry, this);
     connect(gatekeeper, &ConnectionGateKeeper::connectionValidated, this, &ConnectionManager::onConnectionValidationOK);

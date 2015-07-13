@@ -32,5 +32,8 @@ bool LaunchController::useApplication(const QString& appID)
     _appController->stop();
     QSharedPointer<IApplication> app(_apps->application(appID));
     _appController->setApplication(app);
+    // enabling logging is not stricly required when we update app, but to
+    // this is to highlight that log will go to app specific dir
+    _appController->enableOutputLogging(true);
     return !app.isNull();
 }

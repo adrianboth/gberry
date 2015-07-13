@@ -22,6 +22,7 @@ signals:
     void launched();
     void launchFailed();
     void resumed();
+    void paused();
     void resumeFailed();
     void stopped();
     void died();
