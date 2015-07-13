@@ -4,6 +4,7 @@
 "name": "WaitApp",
 "description": "",
 "system_app": true,
+"application_exe": "waitapp.sh",
 "developer_comments":
     "WaitApp is shown when MainUI or applications are launched."
 }

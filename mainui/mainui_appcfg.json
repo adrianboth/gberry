@@ -3,7 +3,7 @@
 "version": "0.1",
 "name": "MainUI",
 "description": "",
-"application_exe": "mainui",
+"application_exe": "mainui.sh",
 "system_app": true,
 "developer_comments":
     "MainUI is application for controlling GBerry console. It\

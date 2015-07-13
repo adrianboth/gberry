@@ -20,7 +20,7 @@ CONFIG(debug, debug|release) {
 target.path = $${DEPLOY_DIR}/apps/$$TARGET/
 INSTALLS += target
 
-appcfg.files = mainui_appcfg.json
+appcfg.files = mainui_appcfg.json mainui.sh
 appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += appcfg
 
@@ -31,4 +31,5 @@ includeStaticLibrary("qhttpserver", $${QHTTPSERVER_SRC_DIR}, $${QHTTPSERVER_BUIL
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
 
 DISTFILES += \
-    mainui_appcfg.json
+    mainui_appcfg.json \
+    mainui.sh
