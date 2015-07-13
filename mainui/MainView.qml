@@ -64,11 +64,17 @@ Item {
                 },
                 MainMenuItem {
                     text: qsTr("Games on webstore")
-                    onSelected: exitGameSelected()
+                    onSelected: {
+                        if (Connection.isHeadServerConnected) {
+                            mainarea.push({item: gamesOnConsoleView, immediate: true})
+                        } else {
+                            noWebstoreConnectionDialog.visible = true
+                        }
+                    }
                 },
                 MainMenuItem {
                     text: qsTr("Settings")
-                    onSelected: exitGameSelected()
+                    onSelected: notImplementedDialog.visible = true
                 },
                 MainMenuItem {
                     text: qsTr("Exit")
@@ -94,6 +100,30 @@ Item {
                 console.debug("LAUNCH: " + gameId)
                 ApplicationManager.launchApplication(gameId)
             }
+
+            onEnabledControlActionsChanged: mainarea.sendControlActions()
+        }
+
+        DownloadableGamesView {
+            id: downloadableGamesView
+            visible: false
+
+            onVisibleChanged: {
+                if (visible)
+                    forceActiveFocus()
+            }
+
+            onBackSelected: {
+                mainarea.pop({immediate: true})
+            }
+
+            // TODO: download
+            /*
+            onLaunchRequested: {
+                console.debug("LAUNCH: " + gameId)
+                ApplicationManager.launchApplication(gameId)
+            }
+            */
 
             onEnabledControlActionsChanged: mainarea.sendControlActions()
         }
@@ -129,9 +159,10 @@ Item {
                 }
             ]
 
-        Component.onCompleted:
+        Component.onCompleted: {
             // for dev time
-            mainarea.push({item: gamesOnConsoleView, immediate: true})
+            //mainarea.push({item: gamesOnConsoleView, immediate: true})
+        }
     }
 
 
@@ -166,7 +197,7 @@ Item {
         // TODO: some common framework to push move actions
 
         console.log("Player message: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, data)
+        //messageBoard.insertPlayerMessage(pid, data)
 
         var js  = JSON.parse(data)
         if (js["action"] === "SelectBasicControlAction")
@@ -202,6 +233,30 @@ Item {
             exitConfirmationDialog.visible = false
         }
     }
+
+    GErrorDialog {
+        id: notImplementedDialog
+        visible: false // initial state
+        errorMessage: qsTr("This feature haven't been implemented yet.")
+
+        onAcknowledged: {
+            visible = false
+        }
+
+    }
+
+    GErrorDialog {
+        id: noWebstoreConnectionDialog
+        visible: false // initial state
+        errorMessage: qsTr("Webstore can't be accessed as there is no working network connection to the store.")
+
+        onAcknowledged: {
+            visible = false
+        }
+
+    }
+
+// ----------------------------------------------------------------------------
 
     function onGamesOnConsoleSelected() {
         console.debug("Games on console selected")

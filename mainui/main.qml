@@ -82,39 +82,22 @@ Window {
     {
         console.log("New player in: id = " + pid + ", name = " + pname)
         if (mainViewLoader.status == Loader.Ready)
-            mainViewLoader.sourceComponent.onPlayerIn(id, pname)
+            mainViewLoader.item.onPlayerIn(pid, pname)
     }
 
     function onPlayerOut(pid, pname)
     {
         console.log("Player left: id = " + pid + ", name = " + pname)
         if (mainViewLoader.status == Loader.Ready)
-            mainViewLoader.sourceComponent.onPlayerOut(id, pname)
+            mainViewLoader.item.onPlayerOut(pid, pname)
 
     }
 
     function onPlayerMessageReceived(pid, data)
     {
-        // TODO: some common framework to push move actions
+        if (mainViewLoader.status == Loader.Ready)
+            mainViewLoader.item.onPlayerMessageReceived(pid, data)
 
-        console.log("Player message: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, data)
-
-        var js  = JSON.parse(data)
-        if (js["action"] === "SelectBasicControlAction")
-        {
-            mainarea.currentItem.processControlAction(js["id"])
-
-        } else if (js["action"] === "ConfirmationQuestionResponse") {
-            // TODO: case when multiple possible confirmations
-            if (exitConfirmationDialog.visible) {
-                exitConfirmationDialog.selectOption(js["ref"])
-
-                // just to make sure everyones dialogs are closed
-                playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
-            }
-
-        }
     }
 
     // TODO: how to pass function to view loaded by loader

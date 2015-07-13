@@ -7,5 +7,6 @@
         <file>MainMenuView.qml</file>
         <file>LocalGameDetails.qml</file>
         <file>MainView.qml</file>
+        <file>DownloadableGamesView.qml</file>
     </qresource>
 </RCC>
