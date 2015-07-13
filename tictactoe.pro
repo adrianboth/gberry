@@ -24,7 +24,7 @@ assets.files = assets/*
 assets.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += assets
 
-appcfg.files = tictactoe_appcfg.json
+appcfg.files = tictactoe_appcfg.json tictactoe.sh
 appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += appcfg
 
@@ -34,7 +34,8 @@ includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_D
 
 DISTFILES += \
     tictactoe_appcfg.json \
-    makepkg.sh
+    makepkg.sh \
+    tictactoe.sh
 
 
 srcdir = $${DEPLOY_DIR}/apps/$$TARGET/
