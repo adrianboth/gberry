@@ -22,12 +22,12 @@ class TestRuntimeParameters : public RuntimeParameters
 public:
     TestRuntimeParameters(IEnvironmentVariables& env) :
         RuntimeParameters(env) {
-        addOption("foo", new QCommandLineOption("foo", "desc foo: only cmd", "foovalue"));
+        addBooleanOption("foo", new QCommandLineOption("foo", "desc foo: only cmd", "foovalue"));
 
-        addOption("foo2",  new QCommandLineOption("foo2", "desc foo2: option + env", "foo2value"));
+        addBooleanOption("foo2",  new QCommandLineOption("foo2", "desc foo2: option + env", "foo2value"));
         addEnvironmentVariable("foo2", "ENV_FOO2");
 
-        addOption("foo3",  new QCommandLineOption("foo3", "desc foo3: option + env + default", "foo3value"));
+        addBooleanOption("foo3",  new QCommandLineOption("foo3", "desc foo3: option + env + default", "foo3value"));
         addEnvironmentVariable("foo3", "ENV_FOO3");
         addBuildTimeDefault("foo3", "default foo3");
     }
