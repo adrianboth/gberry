@@ -1,6 +1,6 @@
 {
 "id": "tictactoe",
-"version": "0.5",
+"version": "1.0",
 "name": "TicTacToe",
 "description": "This is classic two player TicTacToe on 3x3 grid",
 "catalog_image": "app1_image.png",
