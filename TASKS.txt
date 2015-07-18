@@ -1,0 +1,626 @@
+
+
+FEATURE: Webstore is to way to get fast feedback loop with enthusiastic players
+ -> comments, feedback
+ -> new versions quickly
+ 
+TASK: way to upload from command line
+ 1) new game to wstore
+ 2) update to a new in wstore
+      - changes version number
+      - new binary (old is not deleted)
+      
+
+TASK: doc how webstore ID is generated
+ - lowercase
+ - spaces a way
+ ?? if id is used in API, how we match incoming stuff to right app (comments, usages, etc)
+    -> this id stuff needs to be thought through
+    
+    
+BUG: invalid download (no binary found) crashed the whole thing
+ -> unit test
+ !! failing download (no such file) -> causes floating point exception ...
+
+
+THINKIG: what is best way to organize error handling?
+ - what is level or localization?
+ 
+
+INVESTIGATE: is there any way from browser to launch mobile app (i.e. come back to app)
+
+
+THINKING & TASK: reading apps from the disk happens all the time
+ * not few apps, not a problem, but later it can be
+ * One solution is to cache
+   * And even read only changed app, not all
+ 
+ 
+LATER TASK: how to have threads to maximize player communication so that downloads, etc are not disturbing game play?
+
+THINKING: Now game is right away saved to existing games, but is this right approach? Causes forced reads often as game
+state changes
+ * What is meaning of invalid games?
+ * Would it be better if there is a seperate download area?
+ => There is application storage -> that could cache, and read only those that area changed (or new)
+     -> If it caches what is then meaning of IApplications??
+     
+ => directory doesn't state application ID
+     -> can't be 100% sure what comes out from unzipped application ... how to prevent different version/id???
+         * name should be also quite similar
+         * some changes in description allowed ...
+         
+         
+ 
+TASK: qt.conf
+ * Part of Qt strategy, in future different Qt versions supported
+    - Qt is part console. In principle app can use whatever to version, it is even possible that implemented with other progamming language
+    
+ * I think absolute path is needed ...
+ * Raspberry requires qt.conf
+ * Raspberry requires starting via shell
+    * At least normal linux works without it
+    -> No Qt stuff there
+    -> Use separate starting script (now on Raspberry)
+        -> generates qt.conf, does it have to be next binary?? verify
+        ?? what is writable area of apps -> best to have separate dir under app
+            -> do not allow changing downloaded files
+            ?? what about version updates 
+               -> better to have other directory structure
+               
+TASK: does current Application structure make sense??
+
+TASK: rsync script for deployment, to avoid scp symlink problems, would be also faster
+
+
+
+
+!! plan python util script, would fab make sense?
+ -> fab is more directed to running remote commands
+ 
+ -> what about my own sbuild, can it be still found ??
+ 
+ * targets:
+   * compile release parts (x86 / rasp) 
+      * clean build
+      * (skip compiling tests for rasp, or at least it should be optional)
+      * sync to rasp
+      * run tests
+      
+  gbuild %tictactoe compile desktop release
+  gbuild compile desktop
+  gbuild %tictactoe runtests
+  gbuild sync raspi
+  
+  - some kind of definition file 
+     * components (all, individual(
+        - relative path
+        - in future also groups of components
+        
+     * actions
+     
+     * parameters
+     
+# components.py
+Component(GBerryQMake("gberry-console/comms"))
+Component(GBerryQMake("gberry-console/mainui"))
+
+
+Command(SyncRaspi(ip='192.168.100.4'))
+
+# could call shell scripts at this point
+# build in steps
+
+
+BUG: if started application fails with exit code 0 (and maybe with others too)
+ then start mainui with feedback dialog
+ 
+TASK: timeout for starting the game -> i.e. kill game if it hasn't started for certain time -> info
+
+INVESTIGATE: pelin starttaaminen raspilla: TV:lle tulee nopeasti, mutta mobapp päivittyy hitaasti... miksi? WLANin syy?
+
+BUG: resolve rasp font issue, how to bypass it?
+
+BUG: rasp comms taitaa kaatua kun se ei saa yhteyttä headserveriin -> täytyy konffata osoite kuntoon (ei heti, mutta hetken päästä)
+
+BUG: jos settingsissa ja yrittää valita konsole niin ei toimi, pitää valita home
+
+BUG: mobapp settins address syöttöön saisi olla validointi, ettei tule accidentaalisti spacea, url ei toimi silloin
+
+BUG: mobapp menu height needs to scale to available screen size 
+ -> use scaling stuff
+ 
+DOC: configuration guide for development setup
+ wstore url
+ idm db
+ comms url
+ mobapp urls
+ 
+IMPORTANT TASK: comms käyttää hardcodattua user tokenia
+ - how to have free games without login -> GBerry REST API doesn't need login, but should consoles still make login??
+    -> ping this concern only wstore-gberry, http-server only doesn't --> headserverconnection would behave differently (different logic)
+    -> I THINK: it should make console login, but is it needed for Barcelona demo
+    
+    
+FEATURE: Barcelona demo needs
+ * FI-Lab
+ * User creation
+ * Buying experience (demo mode)
+ * Tuned WStore
+ 
+ * TO EMPHASIZE OPEN SOURCE: contribution to WStore (changes)
+    * public project 
+    
+TASK: wstore doesn't work well in mobile
+ * sidebar visible -> takes space
+ * apps grid not shown fully, only partial of apps visible
+ 
+
+TASK: laboratory development setup: getting local dev + real mob devices -> localhost addresses won't work -> need to be real ip address
+    -> wstore and gberry use relative address (not sure about static pages)
+    -> problem is identity management that will show "allow access" page and redirection
+        * db needs to have correct ip
+        * wstore config needs to have correct ip
+        
+    -> we need somekind of configuration script
+    
+    
+
+ 
+TASK: how to make static pages url configurable in wstore
+ * how to get same look & feel
+ 
+ 
+WORK: No way to have qt.conf elsewhere -> we need to generate it next to application binary
+
+updates to repository marketplace? wstore
+    
+
+DOC: as temp appcfg.json is written with default name then one from zip package is with different name?
+   -> temp one is finally wrong, but is there any way to delete it?
+       -> in principle yes -> after extraction check if appcfg.json exists and also other one
+      
+      
+TASK: onko slugista official versiota? gberry file systeemiin tehdään slug name+version ?? onko hyvä asia??
+  * wstore localisation -> how to achieve that ?
+    -> ID is needed to have some generic ID
+    -> it would better to built-in into wstore
+        * is there anyone developing wstore actively??
+        
+  * slug is managed when app is uploaded into wstore
+    * verification
+  
+        
+TASK: generic error structure
+ * error, suberror, multiple errors
+ * formatter (default formatter))
+ * ?? key value pairs, for extra info, parameters in error text
+
+DESIGN:
+ * Could it be so that for console there is locale
+    -> a generic setting that is passed to all applications (later something else info too)
+    -> kieli valinnan muutos suoraan mobappista. But if different mobapps have different languages??
+    -> Anyway application can define its language
+       -> Possible localizations, like game descriptions come already from the server with that language
+          -> Same applies for error, there come as english and as localized
+          
+    !! there should be error based class -> that is used in the code (static const)
+       * can have subclasses to make difference what errors can be used (like enums)
+       * now each error needs to have error code (int), will be kept fixed, text code, 
+       
+    -> shared data class
+    
+    
+######
+DOC: download sequence
+
+Download Sequence
+
+'mainui' requests application downloading from 'comms'
+ * Before making invocation for downloading it saves a temporary application to disk
+   * This is place where downloaded binary is saved
+   * On console application side 'local applications' don't need to be updated at this point
+     * Even if disrupted -> state is not 'valid' and the application will not be shown in local apps list
+   * On 'comms' side LocalApplicationsStorage is updated but that doesn't trigger further updates
+   
+
+ * When download is finished ok
+   * On 'comms' side LocalApplicationsStorage is update
+   * On 'client' side LocalGamesModel is notified that applications have been updated
+   
+On 'console application' status information
+ * DownloadBar shows current status of download
+ * DownloadableGameDetails shows whether game is downloading
+ 
+   * ?? how application info is saved -> it is not cached in 'comms'? 
+        * at this point easiest would query downloadable apps -> maybe own model so that caching is later possible
+          -> downloaded zip would contain the absolutely latest info -> would override one that is downloaded (this way caching is safe)
+             * request callback (another kind of request object
+             
+###### 
+----
+
+TASK: rolling output.log
+
+
+DESIGN: applications needs to have global id
+  -> long term change wstore
+  -> no otherwise
+     * only ascii letter, - and numbers
+     
+TASK: wstore easy skinning
+
+DESIGN: different versions of apps
+  -> possible to download
+  -> possible to keep older versions, but newest is offered for launching
+  
+  * shared application location
+     * some how make backup copy, because there might be upgrade involved
+     
+  * downloadable apps view should check if there are earlier versions
+
+     
+THINKING: should we request all local apps right away, or when requested
+  * downloadable apps query relies also on local apps -> do we ask one by one, or how??
+  
+ 
+DOC: developer setup
+!! document : --comms-config %{sourceDir}/app/comms.ini
+   to some developement setup
+   !! also commit some kind of template of *.pro.user
+   
+
+TASK: !! makepkg varmaan voisi korvata jollain pythonilla
+   -> appseja olisi hyvä pystyä tekemään missä vain
+
+BARCELONA:
+?? voi joutua hankkimaan HDMI kaapeli sovittimia
+   ?? mitenköhän nettiyhteyden kanssa käy
+   
+
+THINKING: ?? entäs *.so.1.0.0 versio numerointi??
+ * console-lib as main issue
+ 
+TASK: integrointi testit pitää laittaa omaan folderiin, niin että kääntyy oma binääri
+
+FEATURE: !! in wstore we wouldn't need to show resource for games
+
+   
+  
+    
+?? jos näyttää dialog TV ruudulla (GErrorDialog), niin miten sitten mobappista käsin suljetaan se ?
+    - pitääkö näyttää myös mobapp ruudulla (exit confirmation examples)?
+    - vai riittääkö pelkkä valinta?
+    -> anyway custom "luokka" voisi olla tarpeen
+    
+!! waitapp (ja monet muut tavalliset appsit) eivät tarvitse headserverconnection tietoa -> turhaan lähtee query -> saisiko jotenkin
+   riippumaan siitä onko kuuntelijoita vai ei?
+   
+!! systeemi, jolla propertyjen kautta mitä tahansa QObjectia voi konffa
+   -> QObjectin pitää kutsua sitä itse, voisi olla SystemServices tapaan QCoreApplicationin property
+   -> jotenkin pitää olemassa olevat propertyt määritellä, eli mitä tuetaan 
+   
+!! in standalone mode gameui doesn't launch -> how to make better
+    -> could stay on background sameway as waitapp, or better message that not supported situation
+    
+!! HOW TO ORGANIZE testing of qml code, now goes so much manually
+
+!! pitäisikö erottaa console libissä selkeästi console appeille tarkoitetut?
+   * kuinka erottaa public header vs private header?
+   
+!!! QQmlApplicationEngine started hanging debugger for some reason, disabling QML debugging helps
+
+!! python tools for compiling and running tests are really needed
+   * !! script to build only certain targets + run tests
+
+BUG: ?? waitapp jää taustalle, eikä se "koskaan" kuole -> siten sille ei myöskään kutsuta applicationClosed(int), jotenkin 
+   playerChanneleitäkään ei siten suljeta -> niiden state jää OPEN, jolloin ne ei myöskään reopen()
+     SOLUTION: a) joko ajetaan close väkisin, jossain kohtaa
+               b) tehdään reopen väkisin välittämättä statesta
+               
+!! not sure what is best way, but pause() signal attached to deactivate comes too late -> new connection is already activated ...
+
+
+ !! seems like it matters how other dependent projects are configured in QtCreator
+   -> dependency will trigger that project
+   
+!! I need python command line to send messages to comms
+ * creates connection
+ * requires parsing of packages
+ * ?? could we use python and Qt to create connections
+ 
+?? skip compiling tests (for raspi)
+
+! would be best if app package can be created and it contains all info store -> just simple upload
+  -> how to store images would be included??
+       -> into package and wstore extracts??
+	    -> might be necessary for validation (config ok)
+       -> or package inside a package
+       
+       * description
+       * Free ready made model ... now title and description
+      
+  -> create offering (free)
+  -> need to create resource
+      -> provide URL because traffic goes through GBerry server ... although pkg could be uploaded and URL described in app description
+      
+-> HOW TO CREATE VALID package from an app (NOW simple *.sh script)
+ -> zip package with necessary files 
+     -> actually requires Raspi build!!
+          -> build not update
+          
+          
+!! system user for free downloading
+   -> Gberry server makes login
+   
+&"warning: GDB: Failed to set controlling terminal: Inappropriate ioctl for device\n"
+ -> made break at main.cpp always
+    -> run in terminal
+    
+DOC:     
+ - request is more like unit how to queue work
+   - queue
+   - failing if no connection
+   - canceling
+   
+?? if downloads can continue on the background, how mainui is informed when it is up and running again (after game exit)
+   -> Download status message when mainui connection is created ...
+   XXXXXXXXXXXX
+
+   
+   
+####
+TASK: Download engine
+ * Threading not affect to game play
+ * Resuming downloads
+ * Downloads on the background
+ 
+it looks like best to have DownloadEngine
+ * take care already about the initial download initialization 
+   -> this way for 'cancel' there is a single place to cancel
+   * engine would signal state changes -> Command it catch them and send messages to client side accordingly
+   
+   * this way also during startup unfinished uploads can be continued (if such setting is on)
+      -> or pause and resume
+      
+   * and threading is also possible + having multiple downloads if setting is on
+     -> downloading can be restricted to happen one by one 
+         -> one download thread that is writing zip file
+   
+!! handle cancel download
+ -> separate command I guess -> then there needs to be downloadengine, who can take cancel ('started' needs to be ok, before cancel to be valid)
+    -> what kind of reponse to cancel ?? (abort)
+    !! download that haven't yet started need to be cancellable too ... -> somehow pointers to initial request -> somekind of common model ...
+    
+       
+
+       
+#####
+TASK: User token handling
+   * Principle user gives secondary token, to let app act behalf
+     * No buying involved
+   * OPEN: how to really request secondary token from the user
+     * One problem is Android limitations of Wifi+mobile data
+     
+
+   * ?? user token 
+      * ActiveUserModel
+         * now first 'anonymous' -> support from server side ..(django)
+         
+         * later mainui is responsible for activating a user
+            * built-in action scheme in 'comms' so that other apps can use it also
+            
+            ?? first we could get user token when user logs in 
+               - but user could login also without head server login
+                  -> then making head server login would be requested from mobapp
+                     (as android devices can't have wlan and mobile data (not tested though), there needs to be this kind of ugly setup
+                     
+   
+
+#####
+
+!! because of event loop, some bugs/test problems may leak to other tests 
+  ?? should try clean out evenloop ?? extra processes ?? how to tear down per test automatically QTEST
+
+TASK: changing log level stuff
+?? how easily enable message logging
+?? how easily enable tracing level
+
+
+DOC: application connection (need to wait activation)
+ PROBLEM: mainui sends messages before connection is open
+  -> it should wait connection (waiting screen)
+     -> requires Connection objects (these needs to be documented)
+        -> TODO: how property signal changed (connected / activated)
+        
+TASK: ?? koska launch configit pro fileissä niin miten ne mukaan gittiin, pro templated?
+
+TASK: for console app: 
+discarding qrc, just files
+   ?? files under the app
+   
+TASK: qml only game
+ -> different game type (appcfg.json)
+ -> runner -> main qml as entry point
+    * perhaps needs to qml import path
+    
+    
+TASK: limited run environment on Raspi
+chroot
+ * some testing
+   * seems like symbolic links not ok ... google more
+   * doubts to get UI visible if no symlinks ok ...
+   
+TASK: instead of building totally new button we should restyle existing button
+
+FEATURE: deleting a game
+ * only console owner allowed to do that
+ 
+NOTE: QtCreator fails to show project if Rasb toolchain and no mount is on (libs not found)
+
+#####
+TASK: mobapp/appbox support qml files and images
+NOTES: Looks like I could intersect get requests
+ -> like certain operation e.g. appbox://
+ 
+ -> now return files
+    (asks qmldir)
+    
+ -> wrap packages
+ -> websocket receives package and sets it into customnetworkaccess manager (or referenced object)
+ 
+ * nyt voisi olla mahdollista käyttää suoraan loader elementtia -> appbox:/
+ 
+ JA sitten applikaatio päässä vaan QML_IMPORT_PATH kohdalleen
+ 
+ ## Why I'm not using URL for downloading app content?
+ -> As all communication goes through comms (principle)
+ -> Doesn't make easy to make customizations for AppBox views
+ -> Possible to push new content more easily
+ 
+?? Voisiko clientissa olla oma sisäinen webserveri, joka välittää tiedot
+?? tai sitten onnistuisiko levylle tallettaminen, ja oma qrc: style
+   * storing on Android ??
+
+void QQmlComponent::​setData(const QByteArray & data, const QUrl & url)
+
+Sets the QQmlComponent to use the given QML data. If url is provided, it is used to set the component name and to provide a base path for items resolved by this component.
+
+example of making C++ created qml object visible
+http://sohu.io/questions/1025358/qtquick-2-0-create-qml-element-in-c
+
+http://sohu.io/questions/1015174/why-is-a-dynamically-by-c-generated-qml-item-not-aware-of-other-pre-existing-i
+
+#####
+
+DOC:
+!! There is mystical "QML/JS -> Reset Code model"
+
+
+## To get new QML module work
+
+1) Runtime QML import path
+ * Either QML_IMPORT_PATH
+ * Or 
+   engine.addImportPath("/home/tevuore/workspace/QMLModuleTest/ui2");
+   engine.addImportPath("/home/tevuore/workspace/QMLModuleTest/qml");
+   
+Note that folder matters, not what module name is qmldir (of course they should be in sync)
+
+2) To get QtCreator context sensitive help work
+ * In *.pro file
+ QML_IMPORT_PATH = $$PWD/ui $$PWD/ui2 $$PWD/qml
+ (or without $$PWD)
+ 
+  QMLEngine has example of creating qml components  (appbox)
+   * QMlComponent.create() can get custom context (e.g memory context)
+   ?? still need to set parent
+   
+   
+ ? mikä on enginessä namedBundle (add())
+ 
+ enginellä on QQmlNetworkAccessManagerFactory
+    - voisi ajatella että tälle tulisi kaikki url requestit
+       -> oma wrapperin
+       
+resolving full urls
+QUrl QQmlContext::​resolvedUrl(const QUrl & src)
+ !! ehkä voisin tehdä root contextillle wrapperin ...
+ 
+QML import loading problems:
+ * It seems that each file uses current context to load a file
+   * and the current context knows where it has been loaded
+   * and tries by default to load from same context
+     * Now problem, if root file is loaded from qrc
+       -> normal imports fail as it tries to use qrc paths
+          -> you can specify for example file:
+             import "file:/home/tevuore/workspace/gberry/gberry-console/mainui/testmodule/" 1.0
+             but above absolute path works but useless because of absolute path.
+             
+          But by defining set search path (gb:
+          
+          import "gb:/qml/." 1.0 as GBerry
+          
+          
+          BUT NOW subsequent import work
+            * Relative imports in GButton and DeveloperLog.js
+ 
+#####
+
+TASK&DOC: skeleton app: C++ and QML
+
+sharing qml+js code
+ a) directly in QtCreator env
+ b) shared in install location
+-> doc this
+    
+mobappia ei tarvitse skeletoida
+-> mobapp tarvitsee kirjastot ja headerit gberrylibistä
+   -> staattinen kirjastot
+   -> include files to qmlrc
+      * something shared via gberrylib
+      
+
+
+#####
+Adding new qml files
+!! feels like qrc is not so flexible -> you need to add always into file
+   ?? could it be files during dev
+        * and then packaging for release
+        * for dev qt creator should work
+#####
+
+TASK: SMTPSERVER for testing wstore email sending
+!! Wstore not configured properly
+SMTPSERVER = 'localhost:2525' # FakeSMTP
+
+TASK: we should just id based users
+ * Possible to change name
+ * Possible to change email
+ 
+ 
+Qt5.5 on Raspi
+!! Qt5 on RPI
+ * We may need to support different Qt versions
+   -> own folder might be better
+      qt.conf like with epec
+ * include sounds
+ * webkit
+ 
+
+ TASK: WStore sign out -> to IDM home page (not so good thing)
+
+ 
+TASK: filab should use objectstorage, local dev filesystem
+ * What is the structure for different architectures
+ * What is the structure for different versions
+ * What is the structure for the same provider
+ 
+?? password change unsuccesful in IDM !! -> tech support?
+
+
+####
+wstore changes:
+
+ TODO: confirmation_instructions.html.erb contains FIWare refs
+
+ 
+ header on _header.html.erb:ssä
+  * yläpalkin linkit
+  
+  
+ for terms and policies now using /static/xxx
+  but should be really something else
+  
+  idm: signOut.js on vähän epäselvä kun sielläkin on portal lista
+  
+  fiware_devise_helper sähköposti osoite (NOW TODO)
+  
+ this helped to suburi case
+ http://www.redmine.org/projects/redmine/wiki/HowTo_Install_Redmine_in_a_sub-URI
+  config.ru maps applications
+   * mitä muuta tarvitaan? application.rb: config.relative_root_url
+   * it might be that production setting with precompiled assets won't work with this setup -> worry later
+###
+
+ 
