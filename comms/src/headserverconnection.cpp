@@ -64,7 +64,7 @@ public:
                 [=] () { this->onPingError(); invocation->deleteLater(); });
 
         //invocation->defineGetOperation("/user/ping?user_token=81555c66-25fe-4c75-a56a-37ff1ab72d90");
-        invocation->defineGetOperation("/ping");
+        invocation->defineGetOperation("/ping/");
         invocation->execute();
         pingState = SENT_AND_WAITING;
 
