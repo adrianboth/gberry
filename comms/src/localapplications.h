@@ -15,7 +15,7 @@ class LocalApplications : public QObject, public BaseApplications
     Q_OBJECT
 public:
     explicit LocalApplications(IApplicationsStorage* storage, QObject *parent = 0);
-    ~LocalApplications();
+    virtual ~LocalApplications();
 
 signals:
 
