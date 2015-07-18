@@ -62,13 +62,15 @@ private:
     ClientSetup _setup;
     Assets _assets;
     DisplayProfile _displayProfile;
+    ApplicationSettings _settings;
+
     GameModelCommunication _gameModelCommunication;
     GameModel _gameModel;
     DownloadableGamesModelCommunication _downloadableGamesModelCommunication;
     DownloadableGamesModel _downloadableGamesModel;
     DownloadModelCommunication _downloadModelCommunication;
     DownloadModel _downloadModel;
-    ApplicationSettings _settings;
+
     ApplicationManager* _applicationManager;
     ConnectionCommunication _connectionCommunication;
     Connection _connection;

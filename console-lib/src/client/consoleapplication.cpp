@@ -9,6 +9,7 @@
 ConsoleApplication::ConsoleApplication(QObject *parent) :
     QObject(parent),
     _displayProfile(1920, 1080), // autoscale by default on
+
     _gameModelCommunication(_setup.controlChannel),
     _gameModel(&_gameModelCommunication),
     _downloadableGamesModelCommunication(_setup.controlChannel),
@@ -18,6 +19,7 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     _connectionCommunication(_setup.controlChannel),
     _connection(&_connectionCommunication, _setup.controlChannel)
 {
+
     if (!_settings.runningOnTargetDevice()) {
         TargetDisplay* targetDisplay = new TargetDisplay(1920, 1080, 110, 110, &_displayProfile);
         _displayProfile.useTargetDisplay(targetDisplay);
@@ -31,12 +33,10 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
 
     connect(&_downloadModel, &DownloadModel::downloadFinished,
             &_gameModel, &GameModel::onGameDownloaded);
-
 }
 
 ConsoleApplication::~ConsoleApplication()
 {
-
 }
 
 void ConsoleApplication::run(QString mainQmlUrl)
@@ -51,6 +51,8 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("Assets", &_assets);
     _engine.rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
     _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
+    _engine.rootContext()->setContextProperty("DownloadableGamesModel", &_downloadableGamesModel);
+    _engine.rootContext()->setContextProperty("DownloadModel", &_downloadModel);
     _engine.rootContext()->setContextProperty("ApplicationSettings", &_settings);
     _engine.rootContext()->setContextProperty("ApplicationManager", _applicationManager);
 
