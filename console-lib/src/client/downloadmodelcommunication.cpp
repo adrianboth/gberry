@@ -9,24 +9,48 @@
 
 namespace GBerry {
 
-class DownloadApplicationStartedReply : public ICommand
+class DownloadApplicationReply : public ICommand
 {
 public:
-    DownloadApplicationStartedReply(DownloadModelCommunication* comm) :
-        ICommand("DownloadApplicationStartedReply"),
+    DownloadApplicationReply(DownloadModelCommunication* comm) :
+        ICommand("DownloadApplicationReply"),
         _icomm(comm) {}
 
-    virtual ~DownloadApplicationStartedReply() {}
+    virtual ~DownloadApplicationReply() {}
 
     // TODO: wondering should somehow separate command and reply in function signatures, as replies won't need response ... typical for client side
     // ICommand interface
     virtual bool process(const QJsonObject& json, ICommandResponse& response) override {
         Q_UNUSED(response);
-        DEBUG("process(): DownloadApplicationStartedReply");
+        DEBUG("process(): DownloadApplicationReply");
         // TODO: validation of json ...
-
         QString applicationFullId = json["application_id"].toString();
-        emit _icomm->downloadStarted(applicationFullId);
+
+        if (json["result"].toString() == "ok") {
+            emit _icomm->downloadFinished(applicationFullId);
+
+        } else if (json["result"].toString() == "failure") {
+            // TODO: how to show error reason
+            emit _icomm->downloadAborted(applicationFullId);
+
+        } else if (json["result"].toString() == "status") {
+
+            if (json["status"].toString() == "started") {
+                emit _icomm->downloadStarted(applicationFullId);
+
+            } else if (json["status"].toString() == "progress") {
+                int progress = json["progress_percentage"].toInt();
+                emit _icomm->downloadProgress(applicationFullId, progress);
+
+            } else {
+                ERROR("Unknown type of DownloadApplicationReply 'status':" << json["status"].toString());
+                return false;
+            }
+        } else {
+            ERROR("Unknown type of DownloadApplicationReply:" << json["result"].toString());
+            return false;
+        }
+
         return true;
     }
 
@@ -34,7 +58,8 @@ private:
     IDownloadModelCommunication* _icomm;
 };
 
-
+// TOD: how abort would go (not error)
+/*
 class DownloadApplicationAbortedReply : public ICommand
 {
 public:
@@ -57,56 +82,7 @@ public:
 private:
     IDownloadModelCommunication* _icomm;
 };
-
-
-class DownloadApplicationFinishedReply : public ICommand
-{
-public:
-    DownloadApplicationFinishedReply(DownloadModelCommunication* comm) :
-        ICommand("DownloadApplicationFinishedReply"),
-        _icomm(comm) {}
-
-    virtual ~DownloadApplicationFinishedReply() {}
-
-    virtual bool process(const QJsonObject& json, ICommandResponse& response) override {
-        Q_UNUSED(response);
-        DEBUG("process(): DownloadApplicationFinishedReply");
-        // TODO: validation of json ...
-
-        QString applicationFullId = json["application_id"].toString();
-        emit _icomm->downloadFinished(applicationFullId);
-        return true;
-    }
-
-private:
-    IDownloadModelCommunication* _icomm;
-};
-
-
-class DownloadApplicationProgressReply : public ICommand
-{
-public:
-    DownloadApplicationProgressReply(DownloadModelCommunication* comm) :
-        ICommand("DownloadApplicationProgressReply"),
-        _icomm(comm) {}
-
-    virtual ~DownloadApplicationProgressReply() {}
-
-    virtual bool process(const QJsonObject& json, ICommandResponse& response) override {
-        Q_UNUSED(response);
-        DEBUG("process(): DownloadApplicationProgressReply");
-        // TODO: validation of json ...
-
-        QString applicationFullId = json["application_id"].toString();
-        int progress = json["progress_percentage"].toInt();
-
-        emit _icomm->downloadProgress(applicationFullId, progress);
-        return true;
-    }
-
-private:
-    IDownloadModelCommunication* _icomm;
-};
+*/
 
 
 DownloadModelCommunication::DownloadModelCommunication(
@@ -116,10 +92,7 @@ DownloadModelCommunication::DownloadModelCommunication(
     _controlChannel(controlChannel)
 {
     // channel takes ownership of commands
-    controlChannel->registerCommand(new DownloadApplicationStartedReply(this));
-    controlChannel->registerCommand(new DownloadApplicationAbortedReply(this));
-    controlChannel->registerCommand(new DownloadApplicationFinishedReply(this));
-    controlChannel->registerCommand(new DownloadApplicationProgressReply(this));
+    controlChannel->registerCommand(new DownloadApplicationReply(this));
 }
 
 DownloadModelCommunication::~DownloadModelCommunication()
