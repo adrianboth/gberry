@@ -35,7 +35,7 @@ public:
     void requestGames() {
         // TODO: add to a message factory?
         QJsonObject json;
-        json["command"]  = "QueryDownloadbleApplications";
+        json["command"]  = "QueryDownloadableApplications";
         comm->sendMessage(json);
     }
 
