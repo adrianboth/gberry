@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     ApplicationMain main(&app);
 
     ConsoleApplication consoleApp;
+
     if (main.hasApplicationCode())
         consoleApp.setApplicationCode(main.applicationCode());
 
