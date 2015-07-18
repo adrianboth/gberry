@@ -14,15 +14,17 @@ Rectangle {
     }
 
     function serverAddress() {
-        return consoleAddress.editText
+        return serverAddress.editText
     }
 
     onVisibleChanged: {
         // when hidden make sure we do closing actions
         if (!visible)
             close()
-        else
-            consoleAddress.currentIndex = SettingsModel.indexOfCurrent()
+        else {
+            consoleAddress.currentIndex = SettingsModel.indexOfCurrentConsole()
+            serverAddress.currentIndex = SettingsModel.indexOfCurrentServer()
+        }
     }
 
     // should be called when this view is closed externally
@@ -37,6 +39,9 @@ Rectangle {
         // if address already listed - doesn't do anything
         SettingsModel.addConsole(consoleAddress.editText)
         SettingsModel.setActiveConsole(consoleAddress.editText)
+
+        SettingsModel.addServer(serverAddress.editText)
+        SettingsModel.setActiveServer(serverAddress.editText)
     }
 
     ScrollView {
@@ -97,19 +102,20 @@ Rectangle {
                         Layout.fillWidth: true
                         model: serverModel
 
+                        onActivated: {
+                            console.debug("Set active server to " + textAt(index))
+                            SettingsModel.setActiveServer(textAt(index))
+                        }
+
                         onAccepted: {
                              if (find(currentText) === -1) {
-                                 model.append({text: editText})
+                                 SettingsModel.addServer(editText)
+                                 SettingsModel.setActiveServer(editText)
+                                 refreshServerListModel()
                                  currentIndex = find(editText)
-
-                                 var db = LocalStorage.openDatabaseSync("QQmlExampleDB", "1.0", "The Example QML SQL!", 1000000);
-                                 db.transaction(
-                                     function(tx) {
-                                         tx.executeSql('INSERT INTO ServerAddress VALUES(?)', [ editText ]);
-                                     }
-                                 )
                              }
-                         }
+                        }
+
                     }
                 }
 
@@ -130,7 +136,16 @@ Rectangle {
         }
     }
 
+    function refreshServerListModel() {
+        var servers = SettingsModel.servers
+        serverModel.clear() // remove all previous
+        for (var i = 0; i < servers.length; i++) {
+            serverModel.append({text: servers[i].address})
+        }
+    }
+
     Component.onCompleted: {
         refreshConsoleListModel()
+        refreshServerListModel()
     }
 }

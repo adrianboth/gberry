@@ -369,6 +369,11 @@ Window {
                 //settingsView.visible = false
             }
 
+        } else if (actionId === "Webstore") {
+            console.debug("Opening webstore: " + SettingsModel.serverAddress())
+            // TODO: should this be configurable?? (/store)
+            Qt.openUrlExternally("http://" + SettingsModel.serverAddress() +"/store")
+
         } else if (actionId === "Home") {
             // first put to unvisible to that hooks may set model
             aboutview.hide()
@@ -571,6 +576,7 @@ Window {
         localGeneralActions.setActions(
             [{actionId: "Home", actionName: "Home"},
              {actionId: "Console", actionName: "Console"},
+             {actionId: "Webstore", actionName: "Webstore"},
              {actionId: "Settings", actionName: "Settings"},
              {actionId: "About", actionName: "About"}
         ])
