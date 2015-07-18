@@ -58,6 +58,9 @@ public:
 
     bool updateApplication(const Application& application, Result& result);
 
+    // cleans up possible temp files
+    bool pruneApplication(QSharedPointer<IApplication> application);
+
 signals:
     void applicationsUpdated();
 

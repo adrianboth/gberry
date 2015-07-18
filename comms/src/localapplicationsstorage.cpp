@@ -75,12 +75,48 @@ bool LocalApplicationsStorage::updateApplication(const Application &application,
 
     ApplicationConfigReaderWriter::Result writerResult;
     if (writer.writeApplication(application, writerResult)) {
-        emit applicationsUpdated();
+        IApplicationsStorage* ii = this;
+        emit ii->applicationsUpdated();
         return true;
     } else {
         result.record(Result::ApplicationConfigurationWritingFailed, QString("Failed to write application configuration to disk: %1").arg(writerResult.errorString));
         return false;
     }
+}
+
+bool LocalApplicationsStorage::pruneApplication(QSharedPointer<IApplication> application)
+{
+    QDir appDir(application->meta()->applicationDirPath());
+    QStringList appcfgNameFilter;
+    appcfgNameFilter << "*appcfg.json";
+    appDir.setNameFilters(appcfgNameFilter);
+
+    QStringList cfgFiles = appDir.entryList(QDir::Files);
+    if (cfgFiles.length() == 0) {
+        DEBUG("Read" << appDir.path() << "but didn't found *appcfg.json");
+        return false;
+    }
+    if (cfgFiles.length() == 1) {
+        DEBUG("One config file found - nothing to do.");
+        return false;
+    }
+
+    // several files -> delete default if such exists
+    if (cfgFiles.contains("appcfg.json")) { // TODO: constant
+        QFile defaultCfgFile(appDir.filePath("appcfg.json"));
+        if (!defaultCfgFile.remove()) {
+            WARN("Deletion of" << defaultCfgFile.fileName() << "failed");
+            return false;
+        }
+
+        // deletion ok
+
+        IApplicationsStorage* ii = this;
+        emit ii->applicationsUpdated();
+        return true;
+    }
+
+    return false;
 }
 
 bool LocalApplicationsStorage::addApplication(Application &application, Result& result)
@@ -114,7 +150,8 @@ bool LocalApplicationsStorage::addApplication(Application &application, Result& 
 
     ApplicationConfigReaderWriter::Result writerResult;
     if (writer.writeApplication(application, writerResult)) {
-        emit applicationsUpdated();
+        IApplicationsStorage* ii = this;
+        emit ii->applicationsUpdated();
         return true;
     } else {
         result.record(Result::ApplicationConfigurationWritingFailed, QString("Failed to write application configuration to disk: %1").arg(writerResult.errorString));

@@ -99,10 +99,21 @@ TEST(LocalApplicationsStorage, UpdateApplicationState)
 
     LocalApplicationsStorage storage(temporaryDir.path());
 
+    // -- interface test (should get all updates)
+    QSharedPointer<LocalApplications> app_xx = storage.localApplications();
+    EXPECT_TRUE(app_xx->application("app3-downloading-1.0.0")->state() == Application::Downloading);
+    // TODO: is problem assigment??
+    //QSharedPointer<IApplications> iapp_xx = (qSharedPointerCast<IApplications>(app_xx));
+    //QSharedPointer<IApplications> iapp_xx(qSharedPointerCast<IApplications>(app_xx));
+    // --
+
     QSharedPointer<LocalApplications> apps = storage.localApplications();
     QSharedPointer<IApplication> iapp = apps->application("app3-downloading-1.0.0");
     ASSERT_FALSE(iapp.isNull()); // sanity check that test data ok
     EXPECT_TRUE(iapp->state() == Application::Downloading);
+
+    // TODO: dummy test: does taking new localApps disconnect old ones??
+    QSharedPointer<LocalApplications> apps_yy = storage.localApplications();
 
     // TODO: nasty casting, any other way
     QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp));
@@ -119,13 +130,59 @@ TEST(LocalApplicationsStorage, UpdateApplicationState)
     EXPECT_TRUE(iapp2->state() == Application::Valid);
 
     // and actually existing LocalApplications should update itself
-    QSharedPointer<LocalApplications> apps3 = storage.localApplications();
-    QSharedPointer<IApplication> iapp3 = apps3->application("app3-downloading-1.0.0");
+    QSharedPointer<IApplication> iapp3 = apps->application("app3-downloading-1.0.0");
     EXPECT_TRUE(iapp3->state() == Application::Valid);
+
+// -- interface test
+    QSharedPointer<IApplication> iapp4 = app_xx->application("app3-downloading-1.0.0");
+    EXPECT_TRUE(iapp4->state() == Application::Valid);
+
 }
 
 
+TEST(LocalApplicationsStorage, UpdateApplicationState2)
+{
+    QString appsDir = TestUtils::testdataDirPath("states_case1");
 
+    // as we are going to modify data -> make copy
+    QTemporaryDir temporaryDir;
+    DEBUG("Copy testdata from" << appsDir << "to" << temporaryDir.path());
+    ASSERT_TRUE(GBerryLib::copyRecursively(appsDir, temporaryDir.path())); // verify ok
+
+    LocalApplicationsStorage storage(temporaryDir.path());
+
+    // -- interface test (should get all updates)
+    QSharedPointer<LocalApplications> apps_xx = storage.localApplications();
+    QSharedPointer<IApplication> iapp_xx = apps_xx->application("app3-downloading-1.0.0");
+    EXPECT_TRUE(iapp_xx->state() == Application::Downloading);
+    // TODO: is problem assigment??
+    //QSharedPointer<IApplications> iapp_xx = (qSharedPointerCast<IApplications>(app_xx));
+    //QSharedPointer<IApplications> iapp_xx(qSharedPointerCast<IApplications>(app_xx));
+    // --
+
+    QSharedPointer<LocalApplications> apps = storage.localApplications();
+    QSharedPointer<IApplication> iapp = storage.localApplications()->application("app3-downloading-1.0.0");
+    EXPECT_TRUE(iapp->state() == Application::Downloading);
+
+    // TODO: dummy test: does taking new localApps disconnect old ones??
+    QSharedPointer<LocalApplications> apps_yy = storage.localApplications();
+    QSharedPointer<IApplication> iapp_yy = apps_yy->application("app3-downloading-1.0.0");
+    QSharedPointer<Application> app_yy(qSharedPointerCast<Application>(iapp_yy));
+
+    // CHANGE STATE TO VALID
+
+    QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp_xx)); app->markState(IApplication::Valid);
+    LocalApplicationsStorage::Result updateResult; storage.updateApplication(*app.data(), updateResult);
+
+    // there are events in event queue (signals)
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 5000);
+
+    // existing LocalApplications should update itself;
+    EXPECT_TRUE(apps->application("app3-downloading-1.0.0")->state() == Application::Valid);
+    EXPECT_TRUE(apps_yy->application("app3-downloading-1.0.0")->state() == Application::Valid);
+    EXPECT_TRUE(apps_xx->application("app3-downloading-1.0.0")->state() == Application::Valid);
+
+}
 // TODO: how downloading works?
 
 // TODO: when signaling that new apps available
