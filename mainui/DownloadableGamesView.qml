@@ -12,6 +12,7 @@ Item {
 
     signal backSelected()
     signal launchRequested(string gameId)
+    signal downloadRequested(string gameId)
 
     readonly property var firstItemSelectedControlActions: ["Down", "OK", "Back"]
     readonly property var defaultControlActions: ["Up", "Down", "OK", "Back"]
@@ -28,7 +29,7 @@ Item {
         else if (action === "Back")
             backButton.triggerButtonClick()
         else
-            localGameDetails.processControlAction(action)
+            gameDetails.processControlAction(action)
 
     }
 
@@ -64,10 +65,55 @@ Item {
             id: contentArea
 
             Rectangle {
-                id: listViewBackground
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
+                anchors.leftMargin: gdisplay.touchCellWidth()
+                anchors.bottomMargin: gdisplay.touchCellHeight()
+                border.width: 1
+                border.color: "gray"
+                color: "snow"
+
+                width: contentArea.width - listViewBackground.width * 1.1
+
+                DownloadableGameDetails {
+                    id: gameDetails
+                    anchors.fill: parent
+
+                    onGameDownloadRequested: {
+                        console.debug("GAME DOWNLOAD!")
+                        // TODO: what happens when downloading initiated
+                        //  ?? if game is already installed, then say so and provide possibility to launch
+
+                        //  first and later
+                        //    a) details will show download progress
+                        //       - not possible to download again
+                        //
+
+                        // when download finished
+                        //    LATER: we could have a feeback box that download finished
+                        //    some kind of trigger so that if details open -> updates
+
+
+                        downloadRequested(gamesUiModel.get(gameList.currentIndex).id)
+
+                        // TODO: somehow update details
+                        //     -> check download ok stuff
+                    }
+
+                    onGameLaunchRequested: {
+                        console.debug("GAME LAUNCH!")
+                        // we trust that game is found locally
+                        launchRequested(gamesUiModel.get(gameList.currentIndex).id)
+                    }
+                }
+            }
+
+            Rectangle {
+                id: listViewBackground
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
                 anchors.margins: 1
                 width: parent.width * 0.33
 
@@ -91,8 +137,8 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             id: headerText
-                            text: qsTr("Games")
-                            font.pixelSize: gdisplay.largeSizeText
+                            text: qsTr("Webstore")
+                            font.pixelSize: 55 //gdisplay.largeSizeText
                         }
                     }
 
@@ -100,20 +146,22 @@ Item {
                         updateDetails()
                         if (currentIndex === 0)
                             self.enabledControlActions = firstItemSelectedControlActions
-                        else if (currentIndex === localGamesModel.count - 1)
+                        else if (currentIndex === gamesUiModel.count - 1)
                             self.enabledControlActions = lastItemSelectedControlActions
                         else
                             self.enabledControlActions = defaultControlActions
                     }
 
                     function updateDetails() {
-                        var selectedGame = localGamesModel.get(currentIndex)
+                        var selectedGame = gamesUiModel.get(currentIndex)
                         if (typeof(selectedGame) !== 'undefined') {
-                            localGameDetails.gameName = selectedGame.name
-                            localGameDetails.gameDescription = selectedGame.description
+                            gameDetails.gameFullId = selectedGame.id
+                            gameDetails.gameName = selectedGame.name
+                            gameDetails.gameDescription = selectedGame.description
                         } else {
-                            localGameDetails.gameName = "undefined"
-                            localGameDetails.gameDescription = "undefined description"
+                            gameDetails.gameFullId = ""
+                            gameDetails.gameName = "undefined"
+                            gameDetails.gameDescription = "undefined description"
                         }
 
                     }
@@ -124,7 +172,7 @@ Item {
                             id: wrapper
                             width: listViewBackground.realWidth
                             height: contactInfo.implicitHeight + gdisplay.touchCellHeight() // +margins
-                            color: ListView.isCurrentItem ? "black" : "red"
+                            color: ListView.isCurrentItem ? "orange" : "white"
 
                             MouseArea {
                                 anchors.fill: parent
@@ -137,11 +185,17 @@ Item {
                             Row {
                                 anchors.verticalCenter: parent.verticalCenter
 
-                                Rectangle  { // fake image
-                                    width: gdisplay.mediumSizeText
+                                // spacer
+                                Item {
+                                    width: gdisplay.smallSizeText / 2
                                     height: gdisplay.mediumSizeText
+                                }
+
+                                Rectangle  { // fake image
+                                    width: gdisplay.smallSizeText
+                                    height: gdisplay.smallSizeText
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: "blue"
+                                    color: "lightblue"
                                     //source: "file"
                                 }
 
@@ -154,25 +208,26 @@ Item {
                                     id: contactInfo
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: name
-                                    color: wrapper.ListView.isCurrentItem ? "red" : "black"
+                                    color: wrapper.ListView.isCurrentItem ? "black" : "black"
                                     font.pixelSize: gdisplay.mediumSizeText
                                 }
                             }
                         }
                     }
 
-                    model: localGamesModel
+                    model: gamesUiModel
                     delegate: contactsDelegate
                     focus: true
                 }
             }
 
             ListModel {
-                id: localGamesModel
+                id: gamesUiModel
                 property bool modelPopulated: false
 
                 // model: id, name, description
 
+                /*
                 function onLocalGamesAvailable() {
                     console.debug("### onLocalGamesAvailable()")
 
@@ -183,40 +238,50 @@ Item {
 
                     gameList.updateDetails()
                 }
+                */
+
+                function onGamesAvailable() {
+                    console.debug("### onGamesAvailable()")
+                    // either got initial set of games of there is an update
+
+                    // TODO: we could use map()
+                    var gameIds = DownloadableGamesModel.gameIds()
+                    for (var i = 0; i < gameIds.length; i++) {
+                        gamesUiModel.append(DownloadableGamesModel.game(gameIds[i]))
+                    }
+
+                    gameList.updateDetails()
+                }
 
                 Component.onCompleted: {
                     console.debug("### game model onCompleted()")
+                    /*
                     GameModel.localGamesAvailable.connect(onLocalGamesAvailable)
                     var available = GameModel.requestLocalGames()
                     if (available)
                         onLocalGamesAvailable()
+                    */
+                    DownloadableGamesModel.gamesAvailable.connect(onGamesAvailable)
+                    DownloadableGamesModel.gamesUpdated.connect(onGamesAvailable)
+                    //DownloadableGamesModel.requestGames();
+
+                    // TODO: actually games should be freshed more often, like when showing this view: other wise requires restart of mainui
+                    //       (in that we could make request() but if returns true, then update immediately to show what we have)
                 }
             }
 
-            Rectangle {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.rightMargin: gdisplay.touchCellWidth()
-                anchors.bottomMargin: gdisplay.touchCellHeight()
-                border.width: 1
-                border.color: "gray"
-                color: "snow"
-
-                width: contentArea.width - listViewBackground.width * 1.1
-
-                LocalGameDetails {
-                    id: localGameDetails
-                    anchors.fill: parent
-
-                    onGameLauchRequested: {
-                        console.debug("GAME LAUNCH!")
-                        launchRequested(localGamesModel.get(gameList.currentIndex).id)
-                    }
-                }
-            }
         }
 
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            // TODO: we good have some kind of waiting dialog
+
+            if (DownloadableGamesModel.requestGames()) {
+                onGamesAvailable()
+            }
+        }
     }
 
     Keys.onPressed: {
@@ -231,6 +296,3 @@ Item {
             processControlAction("Back")
     }
 }
-/*
-
-*/

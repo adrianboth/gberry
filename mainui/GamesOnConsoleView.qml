@@ -92,7 +92,7 @@ Item {
                             anchors.centerIn: parent
                             id: headerText
                             text: qsTr("Games")
-                            font.pixelSize: gdisplay.largeSizeText
+                            font.pixelSize: 55 //gdisplay.largeSizeText
                         }
                     }
 
@@ -124,7 +124,7 @@ Item {
                             id: wrapper
                             width: listViewBackground.realWidth
                             height: contactInfo.implicitHeight + gdisplay.touchCellHeight() // +margins
-                            color: ListView.isCurrentItem ? "black" : "red"
+                            color: ListView.isCurrentItem ? "orange" : "white"
 
                             MouseArea {
                                 anchors.fill: parent
@@ -137,11 +137,17 @@ Item {
                             Row {
                                 anchors.verticalCenter: parent.verticalCenter
 
-                                Rectangle  { // fake image
-                                    width: gdisplay.mediumSizeText
+                                // spacer
+                                Item {
+                                    width: gdisplay.smallSizeText / 2
                                     height: gdisplay.mediumSizeText
+                                }
+
+                                Rectangle  { // fake image
+                                    width: gdisplay.smallSizeText
+                                    height: gdisplay.smallSizeText
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: "blue"
+                                    color: "lightblue" // TODO: some common place for colors
                                     //source: "file"
                                 }
 
@@ -154,7 +160,7 @@ Item {
                                     id: contactInfo
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: name
-                                    color: wrapper.ListView.isCurrentItem ? "red" : "black"
+                                    color: wrapper.ListView.isCurrentItem ? "black" : "black" // TODO
                                     font.pixelSize: gdisplay.mediumSizeText
                                 }
                             }
@@ -175,6 +181,7 @@ Item {
 
                 function onLocalGamesAvailable() {
                     console.debug("### onLocalGamesAvailable()")
+                    localGamesModel.clear()
 
                     var gameIds = GameModel.localGameIds()
                     for (var i = 0; i < gameIds.length; i++) {
@@ -187,6 +194,8 @@ Item {
                 Component.onCompleted: {
                     console.debug("### game model onCompleted()")
                     GameModel.localGamesAvailable.connect(onLocalGamesAvailable)
+                    GameModel.localGamesUpdated.connect(onLocalGamesAvailable)
+
                     var available = GameModel.requestLocalGames()
                     if (available)
                         onLocalGamesAvailable()

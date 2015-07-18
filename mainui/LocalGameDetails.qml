@@ -35,8 +35,7 @@ Item {
                 id: nameLabel
 
                 text: gameName
-                font.pixelSize: gdisplay.largeSizeText
-
+                font.pixelSize: 55 //gdisplay.largeSizeText
             }
         }
 

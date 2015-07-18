@@ -8,5 +8,7 @@
         <file>LocalGameDetails.qml</file>
         <file>MainView.qml</file>
         <file>DownloadableGamesView.qml</file>
+        <file>DownloadableGameDetails.qml</file>
+        <file>DownloadFeedbackBar.qml</file>
     </qresource>
 </RCC>

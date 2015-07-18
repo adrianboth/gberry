@@ -64,6 +64,7 @@ Window {
         if (Connection.isConnected) {
             console.debug("IS CONNECTED")
             mainViewLoader.active = true
+            connectionWaitingDialog.visible = false
         } else {
             connectionWaitingDialog.visible = true
 

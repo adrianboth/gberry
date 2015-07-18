@@ -66,7 +66,7 @@ Item {
                     text: qsTr("Games on webstore")
                     onSelected: {
                         if (Connection.isHeadServerConnected) {
-                            mainarea.push({item: gamesOnConsoleView, immediate: true})
+                            mainarea.push({item: downloadableGamesView, immediate: true})
                         } else {
                             noWebstoreConnectionDialog.visible = true
                         }
@@ -117,13 +117,15 @@ Item {
                 mainarea.pop({immediate: true})
             }
 
-            // TODO: download
-            /*
+            onDownloadRequested: {
+                console.debug("DOWNLOAD: " + gameId)
+                downloadFeedbackBar.startDownload(gameId)
+            }
+
             onLaunchRequested: {
                 console.debug("LAUNCH: " + gameId)
                 ApplicationManager.launchApplication(gameId)
             }
-            */
 
             onEnabledControlActionsChanged: mainarea.sendControlActions()
         }
@@ -165,6 +167,19 @@ Item {
         }
     }
 
+    DownloadFeedbackBar {
+        id: downloadFeedbackBar
+        //visible: true // TODO: dev
+
+        height: preferredHeight
+        textPixelSize: gdisplay.mediumSize * gdisplay.ppmText
+        initialOpacity: 0.6
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: 100
+        anchors.rightMargin: 100
+    }
 
     // --- FUNCTIONS
 
