@@ -48,6 +48,7 @@ public:
     explicit DownloadModel(IDownloadModelCommunication* comm, QObject *parent = 0);
     ~DownloadModel();
 
+    // TODO: would download() be better name?
     Q_INVOKABLE void startDownload(QString applicationFullId);
 
     Q_INVOKABLE void cancelDownload(QString applicationFullId);
@@ -59,6 +60,9 @@ public:
     // TODO: pause
 
 signals:
+    // when startDownload() was called
+    void downloadInitiated(QString applicationFullId);
+
     // download stream initiated
     void downloadStarted(QString applicationFullId);
 

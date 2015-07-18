@@ -56,10 +56,12 @@ DownloadModel::~DownloadModel()
 
 void DownloadModel::startDownload(QString applicationFullId)
 {
+    _d->ongoingDownloads.append(applicationFullId);
     QJsonObject json;
     json["command"]  = "DownloadApplication";
     json["application_id"] = applicationFullId;
     _d->comm->sendMessage(json);
+    emit downloadInitiated(applicationFullId);
 }
 
 void DownloadModel::cancelDownload(QString applicationFullId)
