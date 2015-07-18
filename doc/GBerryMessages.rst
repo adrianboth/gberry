@@ -30,10 +30,15 @@ application -> comms
  * DownloadApplication
     * 'application_id'
     -> DownloadApplicationReply
-	* 'result' = ok|failure
+	* 'result' = ok|failure|status|
 	* 'application_id'
 	* ['error_code']
 	* ['error_string']
+	* ['status' = started|progress]
+	* ['progress_percentage' = <int>]
+	
+	
+	
 
  * QueryHeadServerStatus
     -> HeadServerStatus
