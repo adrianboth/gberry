@@ -15,7 +15,17 @@ fi
 
 if [ -z "$1" ]; then
     echo "ERROR: Please provide application name!"
-else
-    # TODO: now simple structure, folder and binary with same name
-    $CONSOLE_ROOT/apps/$1/$1
+    exit 1
 fi
+
+APPDIR=$1
+
+if [ -z "$2" ]; then
+   EXE=$1
+else
+   EXE=$2
+fi
+
+
+# TODO: now simple structure, folder and binary with same name
+$CONSOLE_ROOT/apps/$APPDIR/$EXE
