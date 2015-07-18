@@ -169,7 +169,7 @@ void ApplicationController::launch()
         _d->process.setProcessChannelMode(QProcess::MergedChannels);
         QString logFilePath = GBerryLib::joinpath(
                     _d->app->meta()->applicationDirPath(),
-                    "outlog.log");
+                    "output.log");
 
         // write header to log file and test that log file is writable
         QFile logFile(logFilePath);
