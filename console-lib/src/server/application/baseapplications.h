@@ -12,9 +12,9 @@ namespace GBerry {
 class BaseApplications : public IApplications
 {
 public:
-    BaseApplications();
-    BaseApplications(QMap<QString, QSharedPointer<IApplication>>& apps);
-    ~BaseApplications();
+    explicit BaseApplications();
+    explicit BaseApplications(QMap<QString, QSharedPointer<IApplication>>& apps);
+    virtual ~BaseApplications();
 
     // -- IApplications
     virtual QList<QSharedPointer<IApplication>> applications() const override;
