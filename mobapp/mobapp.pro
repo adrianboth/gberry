@@ -23,3 +23,14 @@ HEADERS += \
 include($${PROJECTS_ROOT_DIR}/gberry-lib/qmake/functions.pri)
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
+
+DISTFILES += \
+    android/gradle/wrapper/gradle-wrapper.jar \
+    android/AndroidManifest.xml \
+    android/gradlew.bat \
+    android/res/values/libs.xml \
+    android/build.gradle \
+    android/gradle/wrapper/gradle-wrapper.properties \
+    android/gradlew
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
