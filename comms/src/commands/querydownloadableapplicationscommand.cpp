@@ -9,6 +9,8 @@
 #include "headserverconnection.h"
 #include "requests/downloableapplicationsrequest.h"
 #include "downloadableapplicationcache.h"
+#include "resultmessageformatter.h"
+using namespace GBerryLib;
 
 namespace GBerry
 {
@@ -90,7 +92,9 @@ void QueryDownloadableApplicationsCommand::processRequestOkResponse(Downloadable
     _d->controlChannel->sendJsonMessageToSouth(responseJson);
 }
 
-void QueryDownloadableApplicationsCommand::processRequestErrorResponse(DownloadableApplicationsRequest *request)
+void QueryDownloadableApplicationsCommand::processRequestErrorResponse(
+        DownloadableApplicationsRequest *request,
+        const Result& result)
 {
     _d->ongoingRequests.removeOne(request);
     //request->deleteLater();
@@ -99,6 +103,7 @@ void QueryDownloadableApplicationsCommand::processRequestErrorResponse(Downloada
     QJsonObject responseJson;
     responseJson["command"] = "QueryDownloadableApplicationsReply";
     responseJson["result"] = "failure";
+    responseJson["result_details"] = ResultMessageFormatter(result).toJson(); // TODO: localization would happen in this point
 
     _d->controlChannel->sendJsonMessageToSouth(responseJson);
 }

@@ -5,16 +5,19 @@
 #include <QString>
 #include <QList>
 
+#include <baseobject.h>
 #include "iapplication.h"
+
+#include <QDebug>
 
 namespace GBerry {
     namespace Console {
         namespace Server {
 
-class IApplications
+class IApplications : public GBerryLib::BaseObject
 {
 public:
-    IApplications() {}
+    explicit IApplications() : GBerryLib::BaseObject("IApplications") {}
     virtual ~IApplications() {}
 
 public:

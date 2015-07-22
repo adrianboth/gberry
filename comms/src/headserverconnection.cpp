@@ -100,7 +100,9 @@ public:
             requestQueue.empty();
 
             foreach(auto req, currentlyWaitingRequests) {
-                req->finishedError(Request::ERROR_NO_CONNECTION, nullptr);
+                Result res(RequestErrors::NO_CONNECTION);
+                res << Result::Meta("address", invocationFactory->defaultHostName());
+                req->finishedError(res, nullptr);
             }
         }
         if (oldConnectionState == CONNECTED) {
@@ -173,7 +175,7 @@ public:
     /* */
     void requestFailed(Request* request, Invocation* inv)
     {
-        request->finishedError(Request::ERROR_INVOCATION_FAILED, inv);
+        request->finishedError(Result(RequestErrors::INVOCATION_FAILED), inv);
 
         switch (inv->statusCode()) {
             case Invocation::CONNECTION_FAILED:

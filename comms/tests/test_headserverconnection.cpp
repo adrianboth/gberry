@@ -48,7 +48,7 @@ protected:
     }
 
     virtual void processOkResponse(Invocation *invocation) override { result = READY_OK; if (invocation) invocation->deleteLater(); }
-    virtual void processErrorResponse(Error err, Invocation *invocation) override { Q_UNUSED(err); result = READY_FAILED; if (invocation) invocation->deleteLater(); }
+    virtual void processErrorResponse(const Result& res, Invocation *invocation) override { Q_UNUSED(res); result = READY_FAILED; if (invocation) invocation->deleteLater(); }
 
 };
 

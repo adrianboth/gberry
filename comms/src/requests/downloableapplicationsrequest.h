@@ -4,6 +4,8 @@
 #include <QObject>
 
 #include "request.h"
+using namespace GBerryLib;
+
 #include "application.h"
 
 
@@ -26,9 +28,9 @@ public:
     QList<QSharedPointer<Application>> receivedApplications() const;
 
 protected:
-    virtual Invocation* processPrepare(InvocationFactory* factory);
-    virtual void processOkResponse(Invocation* invocation);
-    virtual void processErrorResponse(Request::Error error, Invocation* invocation);
+    virtual Invocation* processPrepare(InvocationFactory* factory) override;
+    virtual void processOkResponse(Invocation* invocation) override;
+    virtual void processErrorResponse(const Result& res, Invocation* invocation) override;
 
 private:
     QueryDownloadableApplicationsCommand* _command;

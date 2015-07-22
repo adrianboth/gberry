@@ -50,12 +50,12 @@ TEST(Request, FailedRequest)
 
 // -- test
     Invocation* inv = req->prepareInvocation(&mockFactory);
-    req->finishedError(Request::ERROR_INVOCATION_FAILED, &mockInv);
+    req->finishedError(Result(RequestErrors::INVOCATION_FAILED), &mockInv);
 
     ASSERT_EQ(1, req->ProcessErrorCallCount);
     ASSERT_EQ(&mockInv, inv);
     ASSERT_EQ(&mockInv, req->LastInvocation);
-    ASSERT_EQ(Request::ERROR_INVOCATION_FAILED, req->LastError);
+    ASSERT_TRUE(RequestErrors::INVOCATION_FAILED == req->LastError.errors().first());
 
     delete req;
 }
@@ -100,7 +100,7 @@ TEST(Request, CancelRequestAndErrorResponse)
     req->prepareInvocation(&mockFactory);
     req->cancel();
 
-    req->finishedError(Request::ERROR_NO_CONNECTION, &mockInv);
+    req->finishedError(RequestErrors::NO_CONNECTION, &mockInv);
     ASSERT_EQ(0, req->ProcessOkCallCount);
     ASSERT_EQ(0, req->ProcessErrorCallCount);
     ASSERT_EQ(nullptr, req->LastInvocation);

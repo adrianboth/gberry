@@ -6,6 +6,9 @@
 #include <QProcess>
 
 #include <server/icommand.h>
+#include <result.h>
+using namespace GBerryLib;
+
 
 class ServerSideControlChannel;
 class LocalApplicationsStorage;
@@ -17,10 +20,18 @@ using namespace GBerryComms;
 
 namespace GBerry {
 
+ERRORCLASS(DownloadApplicationCommandError)
+
+class DownloadApplicationCommandErrors {
+public:
+    static const DownloadApplicationCommandError INTERNAL_ERROR;
+};
+
 class HeadServerConnection;
 class DownloadApplicationCommandPrivate;
 class DownloadApplicationRequest;
 class UnzipOperation;
+class DownloadStreamInvocation;
 
 /**
  * @brief The DownloadApplicationCommand class
@@ -50,7 +61,9 @@ public:
 
     // callback from Request
     void processRequestOkResponse(DownloadApplicationRequest* request);
-    void processRequestErrorResponse(DownloadApplicationRequest* request);
+    void processRequestErrorResponse(DownloadApplicationRequest* request, const Result& result);
+    void downloadStarted(DownloadApplicationRequest* request);
+    void downloadProgress(DownloadApplicationRequest* request, DownloadStreamInvocation* inv);
 
 protected:
     void onUnzipFinished(UnzipOperation* op);

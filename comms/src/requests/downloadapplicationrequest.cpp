@@ -42,6 +42,12 @@ Invocation* DownloadApplicationRequest::processPrepare(InvocationFactory *factor
     inv->defineGetOperation("/application/download/" + _applicationId + "/" + _applicationVersion);
     inv->setOutputFilePath(_destinationFilePath);
 
+    connect(inv, &DownloadStreamInvocation::downloadStarted,
+            [&] (DownloadStreamInvocation* inv) { Q_UNUSED(inv); _command->downloadStarted(this); });
+
+    connect(inv, &DownloadStreamInvocation::downloadProgress,
+            [&] (DownloadStreamInvocation* inv) { emit _command->downloadProgress(this, inv); });
+
     return inv;
 }
 
@@ -59,12 +65,10 @@ void DownloadApplicationRequest::processOkResponse(Invocation *invocation)
     }
 }
 
-void DownloadApplicationRequest::processErrorResponse(Error err, Invocation *invocation)
+void DownloadApplicationRequest::processErrorResponse(const Result& result, Invocation *invocation)
 {
     Q_UNUSED(invocation);
-
-    // TODO: actual action
-    _command->processRequestErrorResponse(this);
+    _command->processRequestErrorResponse(this, result);
 
     // if request has failed to connection problems then might be that invocation has not been ever created
     if (_invocation != nullptr) {

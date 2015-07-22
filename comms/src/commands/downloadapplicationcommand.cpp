@@ -12,12 +12,18 @@
 #include "localapplicationsstorage.h"
 #include "requests/downloadapplicationrequest.h"
 #include "downloadableapplicationcache.h"
+#include <downloadstreaminvocation.h>
+#include <resultmessageformatter.h>
 
 #define LOG_AREA "DownloadApplicationCommand"
 #include "log/log.h"
 
 namespace GBerry
 {
+
+// TODO: at this point seems little bit useless to have uint codes; how to keep them in sync, better could be category DownloadApplicationCommandErrors
+const DownloadApplicationCommandError DownloadApplicationCommandErrors::INTERNAL_ERROR(2000, "INVALID_STATE");
+
 
 class DownloadApplicationCommandPrivate
 {
@@ -82,17 +88,19 @@ bool DownloadApplicationCommand::process(const QJsonObject &json, ICommandRespon
         ERROR("NOT IMPLEMENTED - In this stage appdef should be in cache!");
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
-        responseJson["result"] = "failure";
         responseJson["application_id"] = applicationFullId;
-        responseJson["error_code"] = "UNEXPECTED_ERROR";
-        responseJson["error_string"] = "Unexpected situation: application definition not found from cache";
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        res << Result::reasonFromDesc("Application definition not found from cache");
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
+
         response.set(responseJson);
         return true;
     }
 
     QSharedPointer<IApplication> iapp = _d->cache->application(applicationFullId);
 
-    //QSharedPointer<ApplicationMeta> newMeta(new ApplicationMeta(iapp->meta()));
     QSharedPointer<Application> newApp = Application::copy(iapp);
     newApp->markState(IApplication::Downloading);
 
@@ -103,10 +111,15 @@ bool DownloadApplicationCommand::process(const QJsonObject &json, ICommandRespon
 
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
-        responseJson["result"] = "failure";
         responseJson["application_id"] = applicationFullId;
-        responseJson["error_code"] = "FAILED_TO_WRITE_APPLICATION_DEFINITION";
-        responseJson["error_string"] = result.errorString;
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        // TODO: because() better keyword?
+        res << Result::reasonFromDesc("Failed to add application to local storage")
+            << Result::reasonFromDesc(result.errorString);
+
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
 
         response.set(responseJson);
         return true;
@@ -144,15 +157,19 @@ void DownloadApplicationCommand::processRequestOkResponse(DownloadApplicationReq
         ERROR("Downloaded zip file" << request->destinationFilePath() << "doesn't exist");
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
-        responseJson["result"] = "failure";
-        responseJson["error_code"] = "DOWNLOAD_INTERNAL_ERROR";
-        responseJson["error_string"] = QString("Unknown error. File %1 expected to exist but it does not").arg(request->destinationFilePath());
         responseJson["application_id"] = request->applicationFullId();
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        // TODO: because() better keyword?
+        res << Result::reasonFromDesc("File #{file_path} expected to exist but it does not.")
+            << Result::Meta("file_path", request->destinationFilePath());
+
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
+
         _d->controlChannel->sendJsonMessageToSouth(responseJson);
         return;
     }
-
-
 
     // TODO: maybe best approach would be using QuaZip (requires zlib too) but now
     //       quick solution is to call 'unzip'
@@ -177,10 +194,16 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
         ERROR("Failed to unzip application package for applicationId:" << unzipOp->applicationFullId());
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
-        responseJson["result"] = "failure";
-        responseJson["error_code"] = "UNZIP_INTERNAL_ERROR";
-        responseJson["error_string"] = QString("Failed to unzip application %1").arg(unzipOp->applicationFullId());
         responseJson["application_id"] = unzipOp->applicationFullId();
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        // TODO: because() better keyword?
+        res << Result::reasonFromDesc("Failed to unzip application")
+            << Result::Meta("exit_code", QString::number(unzipOp->exitCode()));
+
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
+
         _d->controlChannel->sendJsonMessageToSouth(responseJson);
         return;
     }
@@ -188,11 +211,18 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
     // update state of application
     // (note that extracting might have updated application configuration)
     // (in fact that would mean that we would need to validate it)
+
+    // we need to force rereading
+    QSharedPointer<LocalApplications> localApps = _d->applicationsStorage->localApplications();
+    // remove temp files
+    _d->applicationsStorage->pruneApplication(localApps->application(unzipOp->applicationFullId()));
+
+    // we need to read from the disk (applications get signal but we are not processing signal at this point)
     QSharedPointer<IApplication> iapp = _d->applicationsStorage->localApplications()->application(unzipOp->applicationFullId());
     QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp));
     app->markState(IApplication::Valid);
 
-    LocalApplicationsStorage::Result updateResult;
+    LocalApplicationsStorage::Result updateResult; // TODO: as we have global "Result", should this inner class be named differently?
     _d->applicationsStorage->updateApplication(*app.data(), updateResult);
 
     if (updateResult.hasError()) {
@@ -200,10 +230,16 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
         ERROR("Failed to update application" << unzipOp->applicationFullId());
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
-        responseJson["result"] = "failure";
-        responseJson["error_code"] = "DOWNLOAD_INTERNAL_ERROR";
-        responseJson["error_string"] = QString("Failed to update application %1: %2").arg(unzipOp->applicationFullId()).arg(updateResult.errorString);
         responseJson["application_id"] = unzipOp->applicationFullId();
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        // TODO: because() better keyword?
+        res << Result::reasonFromDesc("Failed to update application")
+            << Result::reasonFromDesc(updateResult.errorString);
+
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
+
         _d->controlChannel->sendJsonMessageToSouth(responseJson);
         return;
     }
@@ -221,7 +257,9 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
 
 }
 
-void DownloadApplicationCommand::processRequestErrorResponse(DownloadApplicationRequest *request)
+void DownloadApplicationCommand::processRequestErrorResponse(
+        DownloadApplicationRequest *request,
+        const Result& result)
 {
     _d->ongoingRequests.removeOne(request);
     request->deleteLater();
@@ -229,7 +267,31 @@ void DownloadApplicationCommand::processRequestErrorResponse(DownloadApplication
 
     QJsonObject responseJson;
     responseJson["command"] = "DownloadApplicationReply";
+    responseJson["application_id"] = request->applicationFullId();
     responseJson["result"] = "failure";
+    responseJson["result_details"] = ResultMessageFormatter(result).toJson();
+
+    _d->controlChannel->sendJsonMessageToSouth(responseJson);
+}
+
+void DownloadApplicationCommand::downloadStarted(DownloadApplicationRequest *request)
+{
+    QJsonObject responseJson;
+    responseJson["command"] = "DownloadApplicationReply";
+    responseJson["result"] = "status";
+    responseJson["status"] = "started";
+    responseJson["application_id"] = request->applicationFullId();
+
+    _d->controlChannel->sendJsonMessageToSouth(responseJson);
+}
+
+void DownloadApplicationCommand::downloadProgress(DownloadApplicationRequest *request, DownloadStreamInvocation *inv)
+{
+    QJsonObject responseJson;
+    responseJson["command"] = "DownloadApplicationReply";
+    responseJson["result"] = "status";
+    responseJson["status"] = "progress";
+    responseJson["progress_percentage"] = inv->progressPercentage();
     responseJson["application_id"] = request->applicationFullId();
 
     _d->controlChannel->sendJsonMessageToSouth(responseJson);
@@ -288,7 +350,5 @@ void UnzipOperation::onQProcessFinished(int exitCode, QProcess::ExitStatus exitS
     _exitCode = exitCode;
     emit finished(this);
 }
-
-
 
 } // eon

@@ -30,9 +30,9 @@ public:
     QString destinationFilePath() const;
 
 protected:
-    virtual Invocation* processPrepare(InvocationFactory* factory);
-    virtual void processOkResponse(Invocation* invocation);
-    virtual void processErrorResponse(Error err, Invocation* invocation);
+    virtual Invocation* processPrepare(InvocationFactory* factory) override;
+    virtual void processOkResponse(Invocation* invocation) override;
+    virtual void processErrorResponse(const Result& result, Invocation* invocation) override;
 
 private:
     DownloadApplicationCommand* _command;

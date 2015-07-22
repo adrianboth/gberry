@@ -56,7 +56,7 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
 
     if (error.error != QJsonParseError::NoError) {
         // TODO: handle error
-        this->processErrorResponse(Request::ERROR_INVALID_JSON_RESPONSE, invocation);
+        this->processErrorResponse(RequestErrors::INVALID_JSON_RESPONSE, invocation);
         return;
     }
     // TODO: we should validate that there is really array
@@ -64,7 +64,7 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
     foreach (QJsonValue jv, arr) {
         QJsonObject j = jv.toObject();
         ApplicationMeta* meta = new ApplicationMeta;
-        meta->setApplicationId(j["name"].toString()); // TODO: name is not really the id
+        meta->setApplicationId(j["id"].toString());
         meta->setVersion(j["version"].toString());
         meta->setName(j["name"].toString());
         meta->setDescription(j["description"].toString());
@@ -84,12 +84,12 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
     };
 }
 
-void DownloadableApplicationsRequest::processErrorResponse(Request::Error error, Invocation *invocation)
+void DownloadableApplicationsRequest::processErrorResponse(const Result& res, Invocation *invocation)
 {
-
+    Q_UNUSED(invocation);
     DEBUG("processErrorResponse()");
     // TODO: actual action
-    _command->processRequestErrorResponse(this);
+    _command->processRequestErrorResponse(this, res);
     DEBUG("processErrorResponse(): done");
 
     // if request has failed to connection problems then might be that invocation has not been ever created
@@ -99,6 +99,5 @@ void DownloadableApplicationsRequest::processErrorResponse(Request::Error error,
     }
 
 }
-
 
 } // eon

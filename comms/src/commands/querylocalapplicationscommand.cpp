@@ -5,6 +5,23 @@
 
 #include "server/application/application2json.h"
 
+#define LOG_AREA "QueryLocalApplicationsCommand"
+#include "log/log.h"
+
+#include <result.h>
+#include <resultmessageformatter.h>
+using namespace GBerryLib;
+
+ERRORCLASS(QueryLocalApplicationsCommandError)
+
+class QueryLocalApplicationsCommandErrors {
+public:
+    static const QueryLocalApplicationsCommandError APPLICATION_NOT_EXIST;
+};
+
+// TODO: should we mark this somehow internal error? no localization.
+const QueryLocalApplicationsCommandError QueryLocalApplicationsCommandErrors::APPLICATION_NOT_EXIST(3000, "APPLICATION_NOT_EXISTS");
+
 
 namespace GBerryComms
 {
@@ -39,12 +56,14 @@ bool QueryLocalApplicationsCommand::process(const QJsonObject &json, ICommandRes
     QJsonArray appsList;
 
     if (json.contains("application_id")) {
-        QSharedPointer<IApplication> app = _priv->apps->application(json["application_id"].toString());
+        QString applicationFullId = json["application_id"].toString();
+        DEBUG("Checking existance of local app:" << applicationFullId);
+        QSharedPointer<IApplication> app = _priv->apps->application(applicationFullId);
         if (!app.isNull()) {
             appsList << Application2Json::from(*app);
         } else {
             responseJson["result"] = "failure";
-            responseJson["result_code"] = "APPLICATION_NOT_EXISTS";
+            responseJson["result_details"] = ResultMessageFormatter(QueryLocalApplicationsCommandErrors::APPLICATION_NOT_EXIST).toJson();
         }
     } else {
         foreach(QSharedPointer<IApplication> app, _priv->apps->applications()) {

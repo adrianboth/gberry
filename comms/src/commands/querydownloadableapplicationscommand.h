@@ -5,6 +5,7 @@
 #include <QJsonObject>
 
 #include <server/icommand.h>
+#include <result.h>
 
 class ServerSideControlChannel;
 
@@ -45,7 +46,9 @@ public:
 
     // callback from Request
     void processRequestOkResponse(DownloadableApplicationsRequest* request);
-    void processRequestErrorResponse(DownloadableApplicationsRequest* request);
+    void processRequestErrorResponse(
+            DownloadableApplicationsRequest* request,
+            const GBerryLib::Result& result);
 
 private:
     const QScopedPointer<QueryDownloadableApplicationsCommandPrivate> _d;

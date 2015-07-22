@@ -20,12 +20,12 @@ public:
     int ProcessOkCallCount{0};
     int ProcessErrorCallCount{0};
     Invocation* LastInvocation{nullptr};
-    Error LastError;
+    Result LastError;
 
 protected:
     virtual GBerry::Invocation* processPrepare(InvocationFactory* factory) override { return factory->newRESTInvocation(); }
     virtual void processOkResponse(Invocation* inv) override { LastInvocation = inv; ProcessOkCallCount++; }
-    virtual void processErrorResponse(Error err, Invocation* inv) override { LastError = err; LastInvocation = inv; ProcessErrorCallCount++; }
+    virtual void processErrorResponse(const Result& res, Invocation* inv) override { LastError = res; LastInvocation = inv; ProcessErrorCallCount++; }
 
 };
 

@@ -8,6 +8,10 @@
 
 namespace GBerry {
 
+const RequestError RequestErrors::NO_CONNECTION(10000, "NO_CONNECTION", QT_TRANSLATE_NOOP("Errors", "TXT_No working connection to server #{address}"));
+const RequestError RequestErrors::INVOCATION_FAILED(10001, "INVOCATION_FAILED", QT_TRANSLATE_NOOP("Errors", "TXT_Invocation for server failed"));
+const RequestError RequestErrors::INVALID_JSON_RESPONSE(1002, "INVALID_JSON_RESPONSE", QT_TRANSLATE_NOOP("Errors", "TXT_Received invalid response for invocation"));
+
 Request::Request()
 {
 }
@@ -41,12 +45,12 @@ void Request::finishedOk(Invocation *invocation)
     _active = false;
 }
 
-void Request::finishedError(Error err, Invocation* invocation)
+void Request::finishedError(Result res, Invocation* invocation)
 {
     DEBUG("finishedError()");
 
     if (_active)
-        processErrorResponse(err, invocation);
+        processErrorResponse(res, invocation);
     else {
         DEBUG("finishedError(): Scheduling deletion");
         Request* req = this;

@@ -37,7 +37,27 @@ application -> comms
 	* ['status' = started|progress]
 	* ['progress_percentage' = <int>]
 	
-	
+<General result info>
+ * 'result' = ok|failure|status
+    * If error
+      * result_details:
+	* error_string = "<english description>"
+	* TODO: localized text
+	* errors = 
+	  * code
+	  * name
+	* metas
+	  * key
+	  * value
+	  
+	* reasons
+	  * [code]
+	  * description
+	  
+	* subresults
+	  * error_string
+	  * errors
+	  ...
 	
 
  * QueryHeadServerStatus
