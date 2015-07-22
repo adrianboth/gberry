@@ -4,12 +4,12 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>510</x>
-      <y>240</y>
+      <x>610</x>
+      <y>130</y>
       <w>160</w>
       <h>80</h>
     </coordinates>
-    <panel_attributes>Error
+    <panel_attributes>ErrorDefinition
 --
 code:uint
 name:str
@@ -19,8 +19,8 @@ name:str
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>330</x>
-      <y>130</y>
+      <x>320</x>
+      <y>110</y>
       <w>100</w>
       <h>30</h>
     </coordinates>
@@ -30,8 +30,8 @@ name:str
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>490</x>
-      <y>400</y>
+      <x>610</x>
+      <y>300</y>
       <w>140</w>
       <h>30</h>
     </coordinates>
@@ -41,8 +41,8 @@ name:str
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>750</x>
-      <y>240</y>
+      <x>800</x>
+      <y>180</y>
       <w>140</w>
       <h>30</h>
     </coordinates>
@@ -52,30 +52,30 @@ name:str
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>600</x>
-      <y>260</y>
-      <w>230</w>
-      <h>160</h>
+      <x>720</x>
+      <y>200</y>
+      <w>160</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes>
-    <additional_attributes>210.0;10.0;10.0;140.0</additional_attributes>
+    <additional_attributes>140.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>550</x>
-      <y>310</y>
-      <w>30</w>
-      <h>110</h>
+      <x>670</x>
+      <y>200</y>
+      <w>40</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+    <additional_attributes>20.0;10.0;10.0;100.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>150</x>
-      <y>240</y>
+      <x>100</x>
+      <y>220</y>
       <w>100</w>
       <h>100</h>
     </coordinates>
@@ -91,12 +91,12 @@ localizable
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>320</x>
-      <y>240</y>
+      <x>300</x>
+      <y>220</y>
       <w>170</w>
       <h>100</h>
     </coordinates>
-    <panel_attributes>Result::Reason
+    <panel_attributes>Result::RealizedEvent
 --
 [code:str] 
 |&amp; [description:str]</panel_attributes>
@@ -105,20 +105,20 @@ localizable
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>400</x>
-      <y>150</y>
-      <w>170</w>
-      <h>110</h>
+      <x>540</x>
+      <y>200</y>
+      <w>100</w>
+      <h>240</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
-m2=*</panel_attributes>
-    <additional_attributes>10.0;10.0;150.0;90.0</additional_attributes>
+m2=1</panel_attributes>
+    <additional_attributes>10.0;220.0;80.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
       <x>790</x>
-      <y>320</y>
+      <y>340</y>
       <w>140</w>
       <h>70</h>
     </coordinates>
@@ -130,30 +130,30 @@ bg=blue</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>850</x>
-      <y>260</y>
-      <w>30</w>
-      <h>80</h>
+      <y>200</y>
+      <w>80</w>
+      <h>160</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;60.0</additional_attributes>
+    <additional_attributes>60.0;10.0;10.0;140.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>220</x>
-      <y>150</y>
-      <w>160</w>
+      <x>170</x>
+      <y>130</y>
+      <w>200</w>
       <h>110</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m2=*</panel_attributes>
-    <additional_attributes>140.0;10.0;10.0;90.0</additional_attributes>
+    <additional_attributes>180.0;10.0;10.0;90.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>550</x>
-      <y>40</y>
+      <x>540</x>
+      <y>20</y>
       <w>200</w>
       <h>30</h>
     </coordinates>
@@ -163,8 +163,8 @@ m2=*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>370</x>
-      <y>150</y>
+      <x>360</x>
+      <y>130</y>
       <w>30</w>
       <h>110</h>
     </coordinates>
@@ -175,8 +175,8 @@ m2=*</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>260</x>
-      <y>90</y>
+      <x>250</x>
+      <y>70</y>
       <w>140</w>
       <h>80</h>
     </coordinates>
@@ -188,20 +188,20 @@ subresults
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>240</x>
-      <y>240</y>
-      <w>100</w>
+      <x>190</x>
+      <y>220</y>
+      <w>130</w>
       <h>40</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m2=*</panel_attributes>
-    <additional_attributes>80.0;10.0;10.0;10.0</additional_attributes>
+    <additional_attributes>110.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>420</x>
-      <y>60</y>
+      <x>410</x>
+      <y>40</y>
       <w>170</w>
       <h>100</h>
     </coordinates>
@@ -211,8 +211,8 @@ m2=*</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>140</x>
-      <y>490</y>
+      <x>280</x>
+      <y>590</y>
       <w>560</w>
       <h>230</h>
     </coordinates>
@@ -226,5 +226,93 @@ If no localization context is defined then "Errors" is used.
 
 bg=orange</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>100</x>
+      <y>370</y>
+      <w>150</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Result::Reason
+--
+[code:str] 
+|&amp; [description:str]</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>190</x>
+      <y>300</y>
+      <w>130</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=*</panel_attributes>
+    <additional_attributes>110.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>110</x>
+      <y>310</y>
+      <w>30</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=*</panel_attributes>
+    <additional_attributes>10.0;60.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>270</x>
+      <y>420</y>
+      <w>170</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Result::RealizedSuccess
+--
+[code:str] 
+|&amp; [description:str]</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>420</y>
+      <w>170</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Result::RealizedError
+--
+[code:str] 
+|&amp; [description:str]</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>440</x>
+      <y>310</y>
+      <w>120</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>350</x>
+      <y>310</y>
+      <w>30</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
   </element>
 </diagram>
