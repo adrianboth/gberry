@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 
 #include "httpinvocationdefinition.h"
+#include "networkerrorreasons.h"
 
 #define LOG_AREA "RESTInvocationImpl"
 #include "log/log.h"
@@ -29,27 +30,37 @@ public:
     HTTPInvocationDefinition def;
     QUrl url;
     QByteArray postData;
+    Result result;
 
     void doOperation() {
         doOperation(invocationFactory->buildUrl(def.invocationPath()));
     }
 
     void doOperation(QUrl url) {
+        result << Result::Meta("url", url.toString());
+
         switch (def.httpOperation()) {
             case HTTPInvocationDefinition::NOT_DEFINED:
-                // TODO: error
+                result << InvocationErrors::INVOCATION_INVALID
+                       << Result::reasonFromDesc("Http operation not defined");
+                emit q->finishedError(q);
                 break;
+
             case HTTPInvocationDefinition::GET:
+                result << Result::Meta("http_operation", "GET");
                 get(url);
                 break;
 
             case HTTPInvocationDefinition::POST:
+                result << Result::Meta("http_operation", "POST");
                 post(url);
                 break;
 
             default:
                 ERROR("Unsupported http operation");
-                // TODO: error
+                result << InvocationErrors::INVOCATION_INVALID
+                       << Result::reasonFromDesc("Unknown http operation");
+                emit q->finishedError(q);
         }
     }
 
@@ -101,10 +112,15 @@ public:
             WARN("HTTP ERROR: " << qreply->errorString());
             // TODO: error code
             httpStatus = HTTPInvocationDefinition::UNDEFINED;
-            invocationStatus = Invocation::RESPONSE_RECEIVED;
+            invocationStatus = Invocation::ERROR;
+            result << InvocationErrors::CONNECTION_FAILED
+                   << Result::Meta("qnetworkreply_error_string", qreply->errorString());
+
+            QNetworkReply::NetworkError err = qreply->error();
+            result << NetworkErrorReasons::from(err);
 
             // get possible return data
-            replyData = qreply->readAll();
+            //replyData = qreply->readAll();
 
             emit q->finishedError(q);
         }
@@ -124,6 +140,9 @@ public:
                 default:
                     httpStatus = HTTPInvocationDefinition::UNDEFINED;
                 }
+            } else {
+                result << InvocationErrors::INVOCATION_FAILED
+                       << Result::reasonFromDesc("Invalid http status code");
             }
 
             invocationStatus = Invocation::RESPONSE_RECEIVED;
@@ -201,10 +220,7 @@ QString RESTInvocationImpl::responseString() const
     return _d->replyData;
 }
 
-QString RESTInvocationImpl::errorString() const
+Result RESTInvocationImpl::result() const
 {
-    if (_d->qreply)
-        return _d->qreply->errorString();
-    else
-        return "";
+    return _d->result;
 }

@@ -31,9 +31,7 @@ public:
     virtual void setOutputFilePath(QString filePath) = 0;
 
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const = 0;
-    virtual QString errorString() const = 0;
 
-    // --
     virtual int progressPercentage() const = 0;
 
 signals:

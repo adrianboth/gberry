@@ -8,8 +8,8 @@
 #include <QFile>
 #include <QDataStream>
 
-
 #include "httpinvocationdefinition.h"
+#include "networkerrorreasons.h"
 
 #define LOG_AREA "DownloadStreamInvocationImpl"
 #include "log/log.h"
@@ -37,13 +37,13 @@ public:
     Invocation::InvocationStatus invocationStatus{Invocation::NOT_STARTED};
     HTTPInvocationDefinition::Status httpStatus{HTTPInvocationDefinition::UNDEFINED};
     QString responseErrorData;
-    QString errorString;
     // TODO: encoding,  content-type
     QNetworkReply* qreply{nullptr};
     qint64 totalReadBytes{0};
 
     QUrl url;
     HTTPInvocationDefinition def;
+    Result result;
 
     QByteArray postData;
     QString outputFilePath;
@@ -58,18 +58,29 @@ public:
     }
 
     void doOperation(QUrl url) {
+        result << Result::Meta("url", url.toString());
+
         switch (def.httpOperation()) {
             case HTTPInvocationDefinition::GET:
+                result << Result::Meta("http_operation", "GET");
                 get(url);
                 break;
+
             case HTTPInvocationDefinition::POST:
+                result << Result::Meta("http_operation", "POST");
                 post(url);
                 break;
+
             case HTTPInvocationDefinition::NOT_DEFINED:
-                // TODO: error
+                result << InvocationErrors::INVOCATION_INVALID
+                       << Result::reasonFromDesc("Http operation not defined");
+                emit q->finishedError(q);
                 break;
+
             default:
-                // TODO: unknown -> error
+                result << InvocationErrors::INVOCATION_INVALID
+                       << Result::reasonFromDesc("Unknown http operation");
+                emit q->finishedError(q);
                 break;
         }
     }
@@ -142,11 +153,17 @@ public:
         } else {
             // TODO: what to do, when no code?
             invocationStatus = Invocation::ERROR;
+            result << InvocationErrors::INVOCATION_FAILED
+                   << Result::reasonFromDesc("Http status code not valid");
             return;
         }
 
         if (httpStatus != HTTPInvocationDefinition::OK_200) {
             invocationStatus = Invocation::ERROR;
+            result << InvocationErrors::INVOCATION_FAILED
+                   << Result::reasonFromDesc("Http error response code (not 200)")
+                   << Result::Meta("http_code", statusCode.toString());
+
             // nothing to save to file
             DEBUG("Error no data to save to file");
             return;
@@ -156,7 +173,10 @@ public:
         if (!outputFile.isOpen()) {
             if (!outputFile.open(QIODevice::WriteOnly)) {
                 q->abort();
-                errorString = "Open output file failed"; // TODO: how to pass more accurate information
+                result << InvocationErrors::INVOCATION_INVALID
+                       << Result::reasonFromDesc("Open output file failed")
+                       << Result::Meta("file_path", outputFilePath);
+
                 invocationStatus = Invocation::INVALID_INVOCATION;
                 emit q->finishedError(q);
                 return;
@@ -202,18 +222,27 @@ public:
         else if (qreply->error())
         {
             WARN("HTTP ERROR: " << qreply->errorString());
+            result << InvocationErrors::INVOCATION_FAILED;
+
             QVariant statusCode = qreply->attribute( QNetworkRequest::HttpStatusCodeAttribute );
             if (statusCode.isValid()) {
                 httpStatus = HTTPInvocationDefinition::resolveHttpStatus(statusCode.toInt());
             } else {
                 httpStatus = HTTPInvocationDefinition::UNDEFINED;
+                result << Result::reasonFromDesc("Http response code is not valid");
             }
 
             invocationStatus = Invocation::ERROR;
 
             // get possible return data (detailed error info)
-            responseErrorData = qreply->readAll();
-            errorString = qreply->errorString();
+            // responseErrorData = qreply->readAll();
+            result << InvocationErrors::CONNECTION_FAILED
+                   << Result::Meta("qnetworkreply_error_string", qreply->errorString());
+
+            QNetworkReply::NetworkError err = qreply->error();
+            result << NetworkErrorReasons::from(err);
+
+            //result << Result::reasonFromCode("QNETWORKREPLY_ERROR", qreply->errorString());
             emit q->finishedError(q);
         }
         else
@@ -264,8 +293,9 @@ void DownloadStreamInvocationImpl::definePostOperation(const QString& invocation
 void DownloadStreamInvocationImpl::execute()
 {
    if (_d->outputFilePath.isEmpty()) {
-       _d->errorString = "No output file path was defined";
        _d->invocationStatus = Invocation::INVALID_INVOCATION;
+       _d->result << InvocationErrors::INVOCATION_INVALID
+                  << Result::reasonFromDesc("No output file path was defined");
        emit finishedError(this);
    } else {
        _d->doOperation();
@@ -288,9 +318,9 @@ HTTPInvocationDefinition::Status DownloadStreamInvocationImpl::responseHttpStatu
     return _d->httpStatus;
 }
 
-QString DownloadStreamInvocationImpl::errorString() const
+Result DownloadStreamInvocationImpl::result() const
 {
-    return _d->errorString;
+    return _d->result;
 }
 
 int DownloadStreamInvocationImpl::progressPercentage() const
@@ -299,12 +329,10 @@ int DownloadStreamInvocationImpl::progressPercentage() const
     return percentage;
 }
 
-
 void GBerry::DownloadStreamInvocationImpl::setOutputFilePath(QString outputFilePath)
 {
     _d->outputFilePath = outputFilePath;
     _d->outputFile.setFileName(outputFilePath);
 }
-
 
 } // eon

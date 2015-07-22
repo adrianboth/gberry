@@ -24,6 +24,12 @@ public:
     DownloadStreamInvocationImpl(InvocationFactoryImpl* factory, QObject* parent = 0);
     virtual ~DownloadStreamInvocationImpl();
 
+    // -- Invocation
+    virtual void execute() override;
+    virtual void abort() override;
+    virtual Result result() const override;
+    virtual Invocation::InvocationStatus statusCode() const override;
+
     // -- RESTInvocation
 
     virtual void defineGetOperation(const QString& invocationPath) override;
@@ -32,20 +38,8 @@ public:
     // TODO: later support for stream (possible to continue writing)
     virtual void setOutputFilePath(QString filePath);
 
-    virtual void execute() override;
-    virtual void abort() override;
-
-    virtual Invocation::InvocationStatus statusCode() const override;
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const override;
-    /*
-    virtual bool responseAvailable() const; // TODO: needed?
-    virtual QByteArray responseByteData() const;
-    virtual QString responseString() const;
-    */
-    // TODO: virtual QString errorResponseData(); // TODO: case where returns error data
-    virtual QString errorString() const override;
 
-    // --
     virtual int progressPercentage() const override;
 
 private:

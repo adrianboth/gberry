@@ -6,6 +6,8 @@
 #include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 #include "client/websocketclient.h"
+#include "resultmessageformatter.h"
+
 
 #define LOG_AREA "ConsoleSessionManager"
 #include "log/log.h"
@@ -86,6 +88,7 @@ void ConsoleSessionManager::onOpenConsoleSessionError(Invocation* invocation)
 {
     RESTInvocation* inv = qobject_cast<RESTInvocation*>(invocation);
     if (!inv) {
+        // TODO: this is like DeveloperError
         ERROR("Failed to cast to RESTInvocation");
         invocation->deleteLater();
         return;
@@ -94,12 +97,18 @@ void ConsoleSessionManager::onOpenConsoleSessionError(Invocation* invocation)
     // TODO: there can be different reasons for error
     // TODO: how to localize them all for all (well maybe not all are needed?)
     QString err;
-    if (inv->responseString().length() > 0)
+    if (inv->responseString().length() > 0) {
+        // TODO: this would more line error response from the console
         err = inv->responseString();
-    else
-        err = inv->errorString();
+        WARN("Console session open received error response:" << err);
+    } else {
+        // this is more like failed connection (e.g. connection problem)
+        ResultMessageFormatter msgCreator(inv->result());
+        WARN("Console session error:" << msgCreator.createDeveloperMessage());
+        err = msgCreator.createEndUserMessage(); // TODO: localization
+    }
 
-    emit consoleSessionOpenFailed(QString(err.toLatin1()));
+    emit consoleSessionOpenFailed(err);
     inv->deleteLater();
 }
 

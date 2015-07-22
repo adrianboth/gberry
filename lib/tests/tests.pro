@@ -27,7 +27,9 @@ SOURCES += main.cpp \
     test_log.cpp \
     utils/testlogmsghandler.cpp \
     test_displayprofile.cpp \
-    test_downloadstreaminvocation.cpp
+    test_downloadstreaminvocation.cpp \
+    test_errors.cpp \
+    test_resultmessageformatter.cpp
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 

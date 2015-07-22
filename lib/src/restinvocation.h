@@ -36,7 +36,6 @@ public:
     virtual bool responseAvailable() const = 0;
     virtual QByteArray responseByteData() const = 0;
     virtual QString responseString() const = 0;
-    virtual QString errorString() const = 0;
 
     // TODO: json data response
 

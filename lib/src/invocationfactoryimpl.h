@@ -26,8 +26,9 @@ public:
     QUrl buildUrl(QString invocationPath) const;
 
     // RESTInvocationFactory
-    virtual RESTInvocation* newRESTInvocation();
-    virtual DownloadStreamInvocation* newDownloadStreamInvocation();
+    virtual RESTInvocation* newRESTInvocation() override;
+    virtual DownloadStreamInvocation* newDownloadStreamInvocation() override;
+    virtual QString defaultHostName() const;
 
 private:
     QNetworkAccessManager* _qnam;

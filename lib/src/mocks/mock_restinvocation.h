@@ -16,7 +16,7 @@ class MockRESTInvocation : public RESTInvocation
      MOCK_CONST_METHOD0(responseAvailable, bool());
      MOCK_CONST_METHOD0(responseByteData, QByteArray());
      MOCK_CONST_METHOD0(responseString, QString());
-     MOCK_CONST_METHOD0(errorString, QString());
+     MOCK_CONST_METHOD0(result, Result());
 
      MOCK_METHOD0(execute, void());
      MOCK_METHOD0(abort, void());

@@ -35,3 +35,9 @@ DownloadStreamInvocation *InvocationFactoryImpl::newDownloadStreamInvocation()
 {
     return new DownloadStreamInvocationImpl(this);
 }
+
+QString InvocationFactoryImpl::defaultHostName() const
+{
+    QString baseUrl = this->property("url_prefix").toString();
+    return QUrl(baseUrl).host();
+}

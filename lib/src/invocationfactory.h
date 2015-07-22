@@ -23,6 +23,7 @@ public:
 
     virtual RESTInvocation* newRESTInvocation() = 0;
     virtual DownloadStreamInvocation* newDownloadStreamInvocation() = 0;
+    virtual QString defaultHostName() const = 0;
 
 signals:
 

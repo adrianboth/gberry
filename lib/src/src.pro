@@ -62,7 +62,12 @@ HEADERS += \
     downloadstreaminvocationimpl.h \
     httpinvocationdefinition.h \
     invocationfactory.h \
-    invocationfactoryimpl.h
+    invocationfactoryimpl.h \
+    baseobject.h \
+    error.h \
+    result.h \
+    networkerrorreasons.h \
+    resultmessageformatter.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -118,7 +123,12 @@ SOURCES += \
     httpinvocationdefinition.cpp \
     invocationfactory.cpp \
     invocationfactoryimpl.cpp \
-    utils/fileutils.cpp
+    utils/fileutils.cpp \
+    baseobject.cpp \
+    error.cpp \
+    result.cpp \
+    networkerrorreasons.cpp \
+    resultmessageformatter.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

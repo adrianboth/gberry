@@ -1,0 +1,236 @@
+#include "resultmessageformatter.h"
+
+#include <QString>
+#include <QJsonArray>
+#include <QCoreApplication>
+#include <QRegExp>
+
+namespace GBerryLib {
+
+class Metas {
+public:
+    Metas(const Result& result) : _result(result), _reason(Result::Reason()) {}
+    Metas(const Result& result, const Result::Reason& reason) :
+        _result(result), _reason(reason) {}
+
+    bool hasMeta(const QString& key) const {
+        return _result.hasMeta(key) || _reason.hasMeta(key);
+    }
+    Result::Meta meta(const QString& key) const {
+        if (_reason.hasMeta(key))
+            return _reason.meta(key);
+        else
+            return _result.meta(key);
+    }
+
+private:
+    Result _result;
+    Result::Reason _reason;
+};
+
+static QString createDeveloperMessageFrom(const Result& result);
+static QString createEndUserMessageFrom(const Result& result); // TODO: localized
+static QJsonObject jsonFrom(const Result& result);
+static QString translateError(const Error& err, const Result& result);
+static QString translateReason(const Result::Reason& err, const Result& result);
+static QString expand(const QString& err, const Metas& metas, bool localize);
+
+
+
+ResultMessageFormatter::ResultMessageFormatter(const Result &result) :
+    _result(result)
+{
+}
+
+ResultMessageFormatter::~ResultMessageFormatter()
+{
+}
+
+QString ResultMessageFormatter::createDeveloperMessage() const
+{
+    return createDeveloperMessageFrom(_result);
+}
+
+QString ResultMessageFormatter::createEndUserMessage() const
+{
+    return createEndUserMessageFrom(_result);
+}
+
+QJsonObject ResultMessageFormatter::toJson() const
+{
+    return jsonFrom(_result);
+}
+
+// -----------------------------------------------------------------------------
+
+QString createEndUserMessageFrom(const Result& result)
+{
+    // TODO: localization
+
+    QString msg;
+
+    foreach(Error err, result.errors()) {
+        if (msg.size() > 0)
+            msg.append(" "); // space between sentences
+
+        if (err.localizable()) {
+            QString errmsg = translateError(err, result);
+            msg.append(errmsg);
+
+            if (!errmsg.endsWith("."))
+                msg.append(".");
+        }
+    }
+
+    foreach(Result::Reason reason, result.reasons()) {
+        if (msg.size() > 0)
+            msg.append(" "); // space between sentences
+
+        if (reason.localizable()) {
+            QString errmsg = translateReason(reason, result);
+            msg.append(errmsg);
+
+            if (!errmsg.endsWith("."))
+                msg.append(".");
+        }
+    }
+
+    foreach(Result subresult, result.subresults()) {
+        QString submsg = createEndUserMessageFrom(subresult);
+        if (submsg.length() > 0) {
+            if (msg.size() > 0)
+                msg.append(" "); // space between sentences
+
+            msg.append(submsg);
+        }
+    }
+
+    return msg;
+}
+
+QString createDeveloperMessageFrom(const Result& result)
+{
+    QString msg;
+
+    foreach(Error err, result.errors()) {
+        if (msg.size() > 0)
+            msg.append(" "); // space between sentences
+
+        QString errmsg = expand(err.description(), result, false);
+        msg.append(errmsg);
+
+        if (!errmsg.endsWith("."))
+            msg.append(".");
+    }
+
+    foreach(Result::Reason reason, result.reasons()) {
+        if (msg.size() > 0)
+            msg.append(" "); // space between sentences
+
+        QString errmsg = expand(reason.description(), result, false);
+        msg.append(errmsg);
+
+        if (!errmsg.endsWith("."))
+            msg.append(".");
+    }
+
+    foreach(Result subresult, result.subresults()) {
+        QString submsg = createDeveloperMessageFrom(subresult);
+        if (submsg.length() > 0) {
+            if (msg.size() > 0)
+                msg.append(" "); // space between sentences
+
+            msg.append(submsg);
+        }
+    }
+
+    return msg;
+}
+
+QString translateError(const Error &err, const Result& result)
+{
+    return expand(QCoreApplication::translate(
+                      err.errorL10nContext().toUtf8(),
+                      err.errorL10nKey().toUtf8()),
+                  Metas(result),
+                  true);
+}
+
+QString translateReason(const Result::Reason &reason, const Result& result)
+{
+    return expand(QCoreApplication::translate(
+                      reason.l10nContext().toUtf8(),
+                      reason.l10nKey().toUtf8()),
+                  Metas(result, reason),
+                  true);
+}
+
+QString expand(const QString& msg, const Metas& metas, bool localize)
+{
+    QRegExp rx("#{([a-z_0-9]+)}");
+    QString m(msg);
+    int pos = 0;
+    while ((pos = rx.indexIn(msg, pos)) != -1) {
+        QString key = rx.cap(1);
+        if (metas.hasMeta(key)) {
+            Result::Meta meta = metas.meta(key);
+            QString metaStr;
+            if (localize && meta.localizable()) {
+                metaStr = QCoreApplication::translate(meta.l10nContext().toUtf8(), meta.l10nKey().toUtf8());
+            } else {
+                metaStr = meta.metaString();
+            }
+            m.replace(rx.cap(0), metaStr);
+        }
+        pos += rx.matchedLength();
+    }
+
+    return m;
+}
+
+QJsonObject jsonFrom(const Result& result)
+{
+    QJsonObject json;
+    json["error_string"] = createEndUserMessageFrom(result); // TODO: should have both, localized and
+    QJsonArray errors;
+    json["errors"] = errors;
+
+    foreach(Error err, result.errors()) {
+        QJsonObject errJson;
+        errJson["code"] = QString::number(err.code());
+        errJson["name"] = err.name();
+
+        errors.append(errJson);
+    }
+
+    QJsonArray reasons;
+    json["reasons"] = reasons;
+
+    foreach(Result::Reason reason, result.reasons()) {
+        QJsonObject reasonJson;
+        reasonJson["code"] = reason.code();
+        reasonJson["description"] = reason.description();
+        reasons.append(reasonJson);
+    }
+
+    QJsonArray metas;
+    json["metas"] = metas;
+
+    foreach(Result::Meta meta, result.metas()) {
+        QJsonObject metaJson;
+        metaJson["key"] = meta.key();
+        metaJson["value"] = meta.value();
+        metas.append(metaJson);
+    }
+
+    QJsonArray subresults;
+    json["subresults"] = subresults;
+
+    foreach(Result sub, result.subresults()) {
+        subresults.append(jsonFrom(sub));
+    }
+
+    return json;
+}
+
+} // eon

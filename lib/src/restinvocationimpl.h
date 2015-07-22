@@ -30,20 +30,20 @@ public:
     RESTInvocationImpl(InvocationFactoryImpl* factory, QObject* parent = 0);
     virtual ~RESTInvocationImpl();
 
+    // -- Invocation
+    virtual void execute() override;
+    virtual void abort() override;
+    virtual Invocation::InvocationStatus statusCode() const;
+    virtual Result result() const override;
+
     // -- RESTInvocation
 
     virtual void defineGetOperation(const QString& invocationPath) override;
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) override;
-
-    virtual void execute() override;
-    virtual void abort() override;
-
-    virtual Invocation::InvocationStatus statusCode() const;
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const;
     virtual bool responseAvailable() const;
     virtual QByteArray responseByteData() const;
     virtual QString responseString() const;
-    virtual QString errorString() const;
 
 private:
     const QScopedPointer<RESTInvocationImplPrivate> _d;
