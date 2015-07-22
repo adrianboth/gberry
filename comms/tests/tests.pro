@@ -25,8 +25,6 @@ SOURCES += main.cpp \
     test_headserverconnection.cpp \
     test_request.cpp \
     commands/test_querydownloadableapplicationscommand.cpp \
-    integration/int_downloadapplicationcommand.cpp \
-    integration/int_querydownloadableapplicationscommand.cpp \
     test_applicationconfigreaderwriter.cpp
 
 HEADERS += \

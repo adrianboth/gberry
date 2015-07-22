@@ -1,6 +1,10 @@
 TEMPLATE = subdirs
 
-SUBDIRS += src app tests
+SUBDIRS += src app tests integration
+
+app.depends = src
+tests.depends = src
+integration.depends = src
 
 CONFIG += ordered
 
