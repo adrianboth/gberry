@@ -279,7 +279,7 @@ Item {
             // TODO: we good have some kind of waiting dialog
 
             if (DownloadableGamesModel.requestGames()) {
-                onGamesAvailable()
+                gamesUiModel.onGamesAvailable()
             }
         }
     }
