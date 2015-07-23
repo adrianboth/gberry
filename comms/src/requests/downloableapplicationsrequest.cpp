@@ -34,8 +34,8 @@ QList<QSharedPointer<Application> > DownloadableApplicationsRequest::receivedApp
 Invocation* DownloadableApplicationsRequest::processPrepare(InvocationFactory *factory)
 {
     RESTInvocation* inv = factory->newRESTInvocation();
-    // TODO: hard coded token
-    inv->defineGetOperation("/application/list?user_token=818ec382-5a10-484a-a22f-fc90015643cb");
+    // TODO: at this point only 'free' games, user auth not implemented
+    inv->defineGetOperation("/application/list?type=free");
 
     return inv;
 }
