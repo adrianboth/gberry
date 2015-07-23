@@ -17,13 +17,13 @@ public:
 */
 
 static const CommunicationError CONNECTION_ERROR(
-        1000, "CONNECTION_FAILED", QT_TRANSLATE_NOOP("Errors", "TXT_Connection failed to #{address}."));
+        1000, "CONNECTION_FAILED", QT_TRANSLATE_NOOP("Errors", "TXT_Connection failed to #{address}"));
 
 //static const CommunicationError CONNECTION_TIMEOUT_ERROR = CommunicationError("CONNECTION_FAILED") << Error::Reason("TIMEOUT") << ErrorDescription("Connection failed because of connection timeout.");
 static const CommunicationError CONNECTION_TIMEOUT_ERROR =
         CommunicationError(
             1001,
-            "CONNECTION_FAILED",
+            "CONNECTION_TIMEOUT",
             QT_TRANSLATE_NOOP("Errors", "TXT_Connection failed because of connection timeout."));
 
 
@@ -31,7 +31,26 @@ TEST(Errors, ErrorGetters)
 {
     EXPECT_TRUE(CONNECTION_ERROR.code() == 1000);
     EXPECT_TRUE(CONNECTION_ERROR.name() == "CONNECTION_FAILED");
-    EXPECT_TRUE(CONNECTION_ERROR.description() == "Connection failed to #{address}.") << CONNECTION_ERROR.description();
+    EXPECT_TRUE(CONNECTION_ERROR.description() == "Connection failed to #{address}") << CONNECTION_ERROR.description();
+    EXPECT_TRUE(CONNECTION_ERROR.localizable());
+    EXPECT_TRUE(CONNECTION_ERROR.errorL10nContext() == "Errors");
+    EXPECT_TRUE(CONNECTION_ERROR.errorL10nKey() == "TXT_Connection failed to #{address}");
+
+// -- unlocalized
+    Error testErr(1, "TEST", "Test error");
+    EXPECT_TRUE(testErr.code() == 1);
+    EXPECT_TRUE(testErr.name() == "TEST");
+    EXPECT_TRUE(testErr.description() == "Test error");
+    EXPECT_FALSE(testErr.localizable());
+    EXPECT_TRUE(testErr.errorL10nContext() == "Errors");
+    EXPECT_TRUE(testErr.errorL10nKey() == "");
+
+// localized with different context
+    Error testErr2(1, "TEST", QT_TRANSLATE_NOOP("TestCtx", "TXT_Test error"), "TestCtx");
+    EXPECT_TRUE(testErr2.description() == "Test error");
+    EXPECT_TRUE(testErr2.localizable());
+    EXPECT_TRUE(testErr2.errorL10nContext() == "TestCtx");
+    EXPECT_TRUE(testErr2.errorL10nKey() == "TXT_Test error");
 }
 
 TEST(Errors, CreateResult)
@@ -53,10 +72,10 @@ TEST(Errors, CreateResult)
     EXPECT_TRUE(result.hasErrors());
     EXPECT_EQ(1, result.errors().length());
     EXPECT_EQ(0, result.subresults().length());
-    EXPECT_TRUE(result.errors().first().description() == "Connection failed because of connection timeout");
+    EXPECT_TRUE(result.errors().first().description() == "Connection failed because of connection timeout.") << result.errors().first().description();
 
     Error err = result.errors().first();
-    EXPECT_TRUE(err.name() == "CONNECTION_FAILED");
+    EXPECT_TRUE(err.name() == "CONNECTION_TIMEOUT") << err.name();
     EXPECT_TRUE(err.description() == "Connection failed because of connection timeout.");
     EXPECT_TRUE(err.errorL10nKey() == "TXT_Connection failed because of connection timeout.");
     EXPECT_TRUE(err.errorL10nContext() == "Errors");
@@ -81,7 +100,8 @@ TEST(Errors, CreateResult)
 
     Result::Reason reason = result.reasons().first();
     EXPECT_TRUE(reason.description() == "Internal error");
-    EXPECT_TRUE(reason.l10nKey() == "Internal error");
+    EXPECT_FALSE(reason.localizable());
+    EXPECT_TRUE(reason.l10nKey() == "");
 
 // -- subresult
     result = Result(CONNECTION_ERROR)
@@ -92,5 +112,5 @@ TEST(Errors, CreateResult)
     EXPECT_EQ(1, result.subresults().length());
 
     Result subresult = result.subresults().first();
-    EXPECT_TRUE(subresult.errors().first().name() == "TIMEOUT");
+    EXPECT_TRUE(subresult.errors().first().name() == "CONNECTION_TIMEOUT");
 }

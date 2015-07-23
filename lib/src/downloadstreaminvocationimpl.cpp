@@ -105,10 +105,12 @@ public:
             this->onQNetworkReplyReadyRead();
         });
 
+        /* Download progress doesn't behave as expected -> call by ourselves when reading bytes
         QObject::connect(qreply, &QNetworkReply::downloadProgress,
                           [this] (qint64 bytesReceived, qint64 bytesTotal) {
             this->onQNetworkReplyDownloadProgress(bytesReceived, bytesTotal);
         });
+        */
 
         invocationStatus = Invocation::ONGOING;
     }
@@ -143,6 +145,7 @@ public:
     }
 
     void onQNetworkReplyReadyRead() {
+        DEBUG("onQNetworkReplyReadyRead()");
         bool firstRead = invocationStatus != Invocation::RESPONSE_RECEIVED;
         invocationStatus = Invocation::RESPONSE_RECEIVED;
 
@@ -325,6 +328,10 @@ Result DownloadStreamInvocationImpl::result() const
 
 int DownloadStreamInvocationImpl::progressPercentage() const
 {
+    // guard against division by zero if for some reason total bytes not know
+    if (_d->bytesTotal == 0)
+        return 0;
+
     int percentage = _d->bytesTotal != -1 ? _d->bytesReceived * 100 / _d->bytesTotal : 0;
     return percentage;
 }

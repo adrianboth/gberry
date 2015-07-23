@@ -31,6 +31,7 @@ SOURCES += main.cpp \
     test_errors.cpp \
     test_resultmessageformatter.cpp
 
+
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src
 
 LIBS += -L../../gmock -lgmock -L../src -lgberrylib -L../../qhttpserver/src -lqhttpserver

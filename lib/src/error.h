@@ -27,11 +27,26 @@ public:
     Error(const Error& err);
     virtual ~Error();
 
-    uint code() const;
+    int code() const;
     QString name() const;
+
+    /**
+     * Returns developer description of error. If original description contains
+     * TXT_ prefix (meaning localizable key) it is removed.
+     */
     QString description() const;
+    /**
+     * Returns a localization key, which is a description if it has TXT_ prefix.
+     * If not localizable then empty string is returned, i.e. no localization.
+     */
     QString errorL10nKey() const;
     QString errorL10nContext() const;
+
+    /**
+     * Returns true if description can be localized. If localizable then
+     * errorL10Key() returns non-empty localization key. Error description is
+     * marked to be localizable by putting TXT_ prefix into description.
+     */
     bool localizable() const;
 
     Error& operator=(const Error& err);

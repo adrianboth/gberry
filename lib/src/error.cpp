@@ -11,7 +11,7 @@ public:
     ErrorPrivate(uint code_, const QString& name_, const QString& description_) : code(code_), name(name_), description(description_) {}
     ErrorPrivate(uint code_, const QString& name_, const QString& description_, const QString& l10nContext_) : code(code_), name(name_), description(description_), l10nContext(l10nContext_) {}
 
-    uint code{0};
+    int code{0};
     QString name;
     QString description;
     QString l10nContext{"Errors"};
@@ -41,7 +41,7 @@ Error::~Error()
 {
 }
 
-uint Error::code() const
+int Error::code() const
 {
     return _d->code;
 }
@@ -53,16 +53,21 @@ QString Error::name() const
 
 QString Error::description() const
 {
-    return _d->description;
-}
-
-QString Error::errorL10nKey() const
-{
     if (localizable()) {
         QString desc(_d->description);
         return desc.remove(0, 4); // TXT_
     } else {
         return _d->description;
+    }
+
+}
+
+QString Error::errorL10nKey() const
+{
+    if (localizable()) {
+        return _d->description;
+    } else {
+        return "";
     }
 }
 

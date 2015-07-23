@@ -29,6 +29,7 @@ HEADERS += \
     testutils/signalrecorder.h \
     testutils/waiter.h \
     testutils/qtgtest.h \
+    testutils/jsonutils.h \
     server/websocketserver.h \
     client/websocketclient.h \
     server/playersessionmanager.h \
@@ -67,7 +68,8 @@ HEADERS += \
     error.h \
     result.h \
     networkerrorreasons.h \
-    resultmessageformatter.h
+    resultmessageformatter.h \
+    testutils/stringutils.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -95,6 +97,7 @@ SOURCES += \
     systemservices.cpp \
     testutils/gtestrunner.cpp \
     testutils/qtgtest.cpp \
+    testutils/jsonutils.cpp \
     server/websocketserver.cpp \
     client/websocketclient.cpp \
     server/playersessionmanager.cpp \
@@ -128,7 +131,8 @@ SOURCES += \
     error.cpp \
     result.cpp \
     networkerrorreasons.cpp \
-    resultmessageformatter.cpp
+    resultmessageformatter.cpp \
+    testutils/stringutils.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

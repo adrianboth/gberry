@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <QCoreApplication>
 #include <QRegExp>
+#include <QDebug>
 
 namespace GBerryLib {
 
@@ -66,6 +67,8 @@ QJsonObject ResultMessageFormatter::toJson() const
 QString createEndUserMessageFrom(const Result& result)
 {
     // TODO: localization
+    if (result.errors().isEmpty())
+        return QT_TRANSLATE_NOOP("Errors", "TXT_No errors.");
 
     QString msg;
 
@@ -82,16 +85,29 @@ QString createEndUserMessageFrom(const Result& result)
         }
     }
 
-    foreach(Result::Reason reason, result.reasons()) {
-        if (msg.size() > 0)
-            msg.append(" "); // space between sentences
+    if (!result.reasons().isEmpty()) {
+        bool firstLocalizableFound = false;
 
-        if (reason.localizable()) {
-            QString errmsg = translateReason(reason, result);
-            msg.append(errmsg);
+        foreach(Result::Reason reason, result.reasons()) {
+            if (firstLocalizableFound && msg.size() > 0)
+                msg.append(" "); // space between sentences
 
-            if (!errmsg.endsWith("."))
-                msg.append(".");
+            if (reason.localizable()) {
+                // now there is at least one localized reason convert delimiter between errors and reasons
+                // between errors and reasons there is ":"
+                if (!firstLocalizableFound) {
+                    if (msg.endsWith(".")) {
+                        msg.replace(msg.length() - 1, 1, ":");
+                        msg.append((" "));
+                    }
+                    firstLocalizableFound = true;
+                }
+                QString errmsg = translateReason(reason, result);
+                msg.append(errmsg);
+
+                if (!errmsg.endsWith("."))
+                    msg.append(".");
+            }
         }
     }
 
@@ -110,6 +126,9 @@ QString createEndUserMessageFrom(const Result& result)
 
 QString createDeveloperMessageFrom(const Result& result)
 {
+    if (result.errors().isEmpty())
+        return "No errors.";
+
     QString msg;
 
     foreach(Error err, result.errors()) {
@@ -123,15 +142,26 @@ QString createDeveloperMessageFrom(const Result& result)
             msg.append(".");
     }
 
-    foreach(Result::Reason reason, result.reasons()) {
-        if (msg.size() > 0)
-            msg.append(" "); // space between sentences
+    if (!result.reasons().isEmpty()) {
+        // between errors and reasons there is ":"
+        if (msg.endsWith("."))
+            msg.replace(msg.length() - 1, 1, ":");
 
-        QString errmsg = expand(reason.description(), result, false);
-        msg.append(errmsg);
+        foreach(Result::Reason reason, result.reasons()) {
+            if (msg.size() > 0)
+                msg.append(" "); // space between sentences
 
-        if (!errmsg.endsWith("."))
-            msg.append(".");
+            QString errmsg = expand(reason.description(), Metas(result, reason), false);
+            msg.append(errmsg);
+
+            if (!errmsg.endsWith("."))
+                msg.append(",");
+            else
+                msg.replace(msg.length() - 1, 1, ',');
+        }
+
+        if (msg.endsWith(","))
+            msg.replace(msg.length() - 1, 1, '.');
     }
 
     foreach(Result subresult, result.subresults()) {
@@ -167,7 +197,7 @@ QString translateReason(const Result::Reason &reason, const Result& result)
 
 QString expand(const QString& msg, const Metas& metas, bool localize)
 {
-    QRegExp rx("#{([a-z_0-9]+)}");
+    QRegExp rx("#\\{([a-zA-Z_0-9]+)\\}");
     QString m(msg);
     int pos = 0;
     while ((pos = rx.indexIn(msg, pos)) != -1) {
@@ -191,43 +221,58 @@ QString expand(const QString& msg, const Metas& metas, bool localize)
 QJsonObject jsonFrom(const Result& result)
 {
     QJsonObject json;
-    json["error_string"] = createEndUserMessageFrom(result); // TODO: should have both, localized and
-    QJsonArray errors;
-    json["errors"] = errors;
+    json["error_message"] = createEndUserMessageFrom(result); // TODO: should have both, localized and
+    json["error_string"] = createDeveloperMessageFrom(result); // TODO: should have both, localized and
 
-    foreach(Error err, result.errors()) {
-        QJsonObject errJson;
-        errJson["code"] = QString::number(err.code());
-        errJson["name"] = err.name();
+    if (!result.errors().isEmpty()) {
+        QJsonArray errors;
 
-        errors.append(errJson);
+        foreach(Error err, result.errors()) {
+            QJsonObject errJson;
+            errJson["code"] = err.code();
+            errJson["name"] = err.name();
+
+            errors.append(errJson);
+        }
+        json["errors"] = errors;
     }
 
-    QJsonArray reasons;
-    json["reasons"] = reasons;
+    if (!result.reasons().isEmpty()) {
+        QJsonArray reasons;
 
-    foreach(Result::Reason reason, result.reasons()) {
-        QJsonObject reasonJson;
-        reasonJson["code"] = reason.code();
-        reasonJson["description"] = reason.description();
-        reasons.append(reasonJson);
+        foreach(Result::Reason reason, result.reasons()) {
+            QJsonObject reasonJson;
+
+            // 'code' is optional for reason
+            if (!reason.code().isEmpty())
+                reasonJson["code"] = reason.code();
+
+            reasonJson["description"] = reason.description();
+            reasons.append(reasonJson);
+        }
+        json["reasons"] = reasons;
     }
 
-    QJsonArray metas;
-    json["metas"] = metas;
+    if (!result.metas().isEmpty()) {
+        QJsonArray metas;
 
-    foreach(Result::Meta meta, result.metas()) {
-        QJsonObject metaJson;
-        metaJson["key"] = meta.key();
-        metaJson["value"] = meta.value();
-        metas.append(metaJson);
+        foreach(Result::Meta meta, result.metas()) {
+            QJsonObject metaJson;
+            metaJson["key"] = meta.key();
+            metaJson["value"] = meta.value();
+            metas.append(metaJson);
+        }
+        json["metas"] = metas;
     }
 
-    QJsonArray subresults;
-    json["subresults"] = subresults;
+    if (!result.subresults().isEmpty()) {
+        QJsonArray subresults;
 
-    foreach(Result sub, result.subresults()) {
-        subresults.append(jsonFrom(sub));
+        foreach(Result sub, result.subresults()) {
+            subresults.append(jsonFrom(sub));
+        }
+        json["subresults"] = subresults;
+
     }
 
     return json;
