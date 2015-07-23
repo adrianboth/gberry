@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QScopedPointer>
+#include <QTemporaryDir>
 
 #include "server/application/applicationmeta.h"
 #include "application.h"
@@ -26,7 +27,17 @@ TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
 {
     QSharedPointer<ApplicationMeta> meta(new ApplicationMeta()); // this now linux only
     meta->setName("test");
-    meta->setApplicationExecutablePath("/bin/bash");
+
+    QTemporaryDir tempDir; // dir created right away
+    QFile myscriptFile(tempDir.path() + "/testscript.sh");
+    ASSERT_TRUE(myscriptFile.open(QIODevice::WriteOnly));
+    myscriptFile.write("!#/bin/bash\nsleep 60");
+    myscriptFile.flush();
+    myscriptFile.close();
+    ASSERT_TRUE(myscriptFile.setPermissions(QFileDevice::ExeOwner | QFileDevice::WriteOwner | QFileDevice::ReadUser));
+    qDebug() << "SCRIPT:" << myscriptFile.fileName();
+
+    meta->setApplicationExecutablePath(myscriptFile.fileName());
     ApplicationRegistry applicationRegistry;
     QSharedPointer<Application> app(new Application(meta));
     ApplicationController controller(qSharedPointerCast<IApplication>(app), &applicationRegistry);

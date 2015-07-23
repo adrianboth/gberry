@@ -32,8 +32,9 @@ using ::testing::InSequence;
 class TestRequest : public Request
 {
 public:
-    enum RequestResult { NOT_READY, READY_OK, READY_FAILED };
-    RequestResult result{NOT_READY};
+    enum RequestState { NOT_READY, READY_OK, READY_FAILED };
+    RequestState state{NOT_READY};
+    Result result;
 
 protected:
     virtual Invocation* processPrepare(InvocationFactory *factory) override {
@@ -47,8 +48,8 @@ protected:
         return inv;
     }
 
-    virtual void processOkResponse(Invocation *invocation) override { result = READY_OK; if (invocation) invocation->deleteLater(); }
-    virtual void processErrorResponse(const Result& res, Invocation *invocation) override { Q_UNUSED(res); result = READY_FAILED; if (invocation) invocation->deleteLater(); }
+    virtual void processOkResponse(Invocation *invocation) override { result = Result(); state = READY_OK; if (invocation) invocation->deleteLater(); }
+    virtual void processErrorResponse(const Result& res, Invocation *invocation) override { result = res; state = READY_FAILED; if (invocation) invocation->deleteLater(); }
 
 };
 
@@ -77,7 +78,7 @@ TEST(HeadServerConnection, PingOK)
               .Times(1)
               .WillOnce(Return(invocationMock));
 
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should start ping
@@ -97,7 +98,7 @@ TEST(HeadServerConnection, PingOK)
     invocationMock = new MockRESTInvocation;
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     // verify that single shot timer gets time that is in property
@@ -121,7 +122,7 @@ TEST(HeadServerConnection, PingOK)
     invocationMock = new MockRESTInvocation;
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     // fast forward time to trigger single shot
@@ -154,7 +155,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     HeadServerConnection conn(&factoryMock);
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
@@ -175,13 +176,13 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     TestRequest* request = new TestRequest; // always allocate in heap
-    ASSERT_EQ(TestRequest::NOT_READY, request->result);
+    ASSERT_EQ(TestRequest::NOT_READY, request->state);
 
     conn.makeRequest(request);
 
     invocationMock->emitFinishedOK();
 
-    WAIT_AND_ASSERT(request->result == TestRequest::READY_OK);
+    WAIT_AND_ASSERT(request->state == TestRequest::READY_OK);
     Mock::VerifyAndClearExpectations(&factoryMock);
     Mock::VerifyAndClearExpectations(invocationMock);
 
@@ -205,7 +206,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     // is what mock returns -> no extra ping
     invocationMock->emitFinishedError();
 
-    WAIT_AND_ASSERT(request->result == TestRequest::READY_FAILED);
+    WAIT_AND_ASSERT(request->state == TestRequest::READY_FAILED);
     Mock::VerifyAndClearExpectations(&factoryMock);
     Mock::VerifyAndClearExpectations(invocationMock);
 
@@ -226,7 +227,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     EXPECT_CALL(*invocationMock, execute()).Times(1);
     EXPECT_CALL(*invocationMock, statusCode()).WillOnce(Return(Invocation::CONNECTION_FAILED));
     EXPECT_CALL(factoryMock, newRESTInvocation()).WillOnce(Return(pingInvocationMock));
-    EXPECT_CALL(*pingInvocationMock, defineGetOperation(QString("/ping")));
+    EXPECT_CALL(*pingInvocationMock, defineGetOperation(QString("/ping/")));
     EXPECT_CALL(*pingInvocationMock, execute());
 
     conn.makeRequest(request);
@@ -235,7 +236,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     // is what mock returns -> no extra ping
     invocationMock->emitFinishedError();
 
-    WAIT_AND_ASSERT(request->result == TestRequest::READY_FAILED);
+    WAIT_AND_ASSERT(request->state == TestRequest::READY_FAILED);
     Mock::VerifyAndClearExpectations(&factoryMock);
     Mock::VerifyAndClearExpectations(invocationMock);
     Mock::VerifyAndClearExpectations(pingInvocationMock);
@@ -258,7 +259,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionNotOK)
     HeadServerConnection conn(&factoryMock);
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
@@ -278,18 +279,25 @@ TRACE("Test: Make request that will fail because of no connection");
     invocationMock = new MockRESTInvocation;
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
-
+    EXPECT_CALL(factoryMock, defaultHostName()).Times(1).WillOnce(Return("192.168.0.1"));
     TestRequest request;
     conn.makeRequest(&request);
 
     invocationMock->emitFinishedError(); // ping still fails
 
     // and as ping failed also request is failed
-    WAIT_AND_ASSERT(request.result == TestRequest::READY_FAILED);
+    WAIT_AND_ASSERT(request.state == TestRequest::READY_FAILED);
     Mock::VerifyAndClearExpectations(&factoryMock);
     Mock::VerifyAndClearExpectations(invocationMock);
+
+    // test error info passing
+    EXPECT_TRUE(request.result.hasErrors());
+    EXPECT_FALSE(request.result.metas().isEmpty());
+
+    // defaultHostName() was called to get info for error
+    EXPECT_TRUE(request.result.meta("address").value() == "192.168.0.1");
 }
 
 
@@ -309,7 +317,7 @@ TEST(HeadServerConnection, CancelRequestWhenConnectionOK)
     HeadServerConnection conn(&factoryMock);
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
-    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping"))).Times(1);
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
 
     conn.open(); // should make initial ping
@@ -339,7 +347,7 @@ TEST(HeadServerConnection, CancelRequestWhenConnectionOK)
     invocationMock->emitFinishedOK();
 
     // when cancelled then actual action is not executed
-    WAIT_AND_ASSERT(request->result == TestRequest::NOT_READY);
+    WAIT_AND_ASSERT(request->state == TestRequest::NOT_READY);
     Mock::VerifyAndClearExpectations(&factoryMock);
     Mock::VerifyAndClearExpectations(invocationMock);
 

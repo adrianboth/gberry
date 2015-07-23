@@ -18,8 +18,10 @@
 #include "server/application/applicationmeta.h"
 #include "utils/fileutils.h"
 
-#define LOG_AREA "IntegrationyDownloadApplicationCommand"
+#define LOG_AREA "IntegrationDownloadApplicationCommand"
 #include "log/log.h"
+
+#include "testutils/jsonutils.h"
 
 using namespace GBerry;
 
@@ -34,10 +36,12 @@ public:
     virtual void channelCloseReceived() override { Q_ASSERT(false); } // should not happen in this tes
 
     int channelSendMessageToSouthCallCount{0};
+    QList<QByteArray> receivedMessages;
+
     QByteArray lastSentMessage;
     virtual void channelSendMessageToSouth(const QByteArray& msg) override {
         channelSendMessageToSouthCallCount++;
-        lastSentMessage = msg;
+        receivedMessages.append(msg);
     }
 
 };
@@ -87,15 +91,52 @@ TEST(DownloadApplicationCommand, DownloadOk)
 
     controlChannel.receiveMessageFromSouth(QJsonDocument(json).toJson());
 
-    WAIT_WITH_TIMEOUT(testChannelSouthPartner->channelSendMessageToSouthCallCount > 0, 30000); // 30s
-    ASSERT_EQ(1, testChannelSouthPartner->channelSendMessageToSouthCallCount);
+    int indexOfProcessMessages = 0;
 
-    ASSERT_TRUE(testChannelSouthPartner->lastSentMessage.size() > 0);
+    // we will receive several messages
+    bool waitForMessages = true;
+    while (waitForMessages) {
+        WAIT_CUSTOM_AND_ASSERT(testChannelSouthPartner->channelSendMessageToSouthCallCount > indexOfProcessMessages, 15000, 250);
 
-    QJsonObject answerJson = QJsonDocument::fromJson(testChannelSouthPartner->lastSentMessage).object();
-    EXPECT_TRUE(answerJson["command"].toString() == "DownloadApplicationReply");
-    EXPECT_TRUE(answerJson["result"].toString() == "ok") << answerJson["error_string"].toString();
-    EXPECT_TRUE(answerJson["application_id"].toString() == json["application_id"].toString());
+        // validate message
+        while (indexOfProcessMessages < testChannelSouthPartner->channelSendMessageToSouthCallCount) {
+            DEBUG("Validating a message: index =" << indexOfProcessMessages);
+            QJsonObject answerJson = QJsonDocument::fromJson(testChannelSouthPartner->receivedMessages.at(indexOfProcessMessages)).object();
+            JsonUtils::debugPrint("DownloadApplicationReply", answerJson);
+
+            // all reply should be this type
+            EXPECT_TRUE(answerJson["command"].toString() == "DownloadApplicationReply");
+            EXPECT_TRUE(answerJson["application_id"].toString() == app->id());
+
+            // first we expect answer that download has started
+            // then progress
+            // and finally ok
+            if (indexOfProcessMessages == 0) {
+                ASSERT_TRUE(answerJson["result"].toString() == "status");
+                ASSERT_TRUE(answerJson["status"].toString() == "started");
+            } else {
+
+                QString resultString(answerJson["result"].toString());
+                if (resultString == "status") {
+                    ASSERT_TRUE(answerJson["status"].toString() == "progress");
+                    ASSERT_TRUE(answerJson.contains("progress_percentage"));
+
+                } else if (resultString == "ok") {
+                    // download ok -> no more messages expected
+                    waitForMessages = false;
+                    break;
+                } else {
+                    ERROR("Got unknown result:" << resultString);
+                    FAIL();
+                }
+
+            }
+
+            indexOfProcessMessages++;
+        }
+    }
+
+    // all messages received, download finished
 
     QSharedPointer<IApplication> updatedApp = appsStorage.localApplications()->application(app->id());
     EXPECT_TRUE(updatedApp->state() == IApplication::Valid);
