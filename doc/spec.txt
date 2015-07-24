@@ -1,0 +1,103 @@
+GOAL
+
+[OK] BasicControls sends messages
+[OK] * JSON
+[OK] Controls menu moving
+[OK]  * Up, Down, OK
+
+From one menu entry app sends UI
+ * mobapp shows UI
+ 
+Appmob UI contains four selections
+ * Enable / disable commands
+ * Selections
+
+App can be exited / restarted
+ * Menu (application specific global commands)
+ * Full exit
+
+(Moving between game and menu)
+(Reaction game)
+
+TODO: AppBox
+TODO: GeneralGameActions
+----
+
+What kind of JSON messages?
+
+action: 
+
+DefineGeneralActions: [{id: xx, text: Menu}]
+
+DefineAppBox: [data: xxxxx]
+ShowAppBox
+
+action: SelectAppGeneralAction
+id: xx
+ * -> ShowBasicControls
+
+AppBoxMessage
+
+action: "AppBoxMessage"
+data: { action: "DisableButtons" }
+
+data: { action: "EnableButtons"}
+
+action: "AppBoxMessage"
+data: { action: "Button1Selected" }
+
+
+<responses to give information that everything ok>
+action: OKResponse
+ref: DefineAppBox
+
+action: OKResponse
+ref: DisableButtons
+
+action: ErrResponse
+ref: ShowAppBox
+reason: AppBoxNotDefined
+ * -> DefineAppBox
+   (defined allways when player comes in)
+   
+Logic in .pragma javascript
+
+?? how callbacks from javascript module
+ -> MMem has example
+ 
+
+----
+
+[OK] MessageDialog question app->mobapp
+
+[OK] mobapp side communication with appbox
+
+
+[TO ARCH SPEC] Different communication layers
+ * Adding tokens in comms
+ * app vs mobapp
+ 
+[OK] when app in menu -> send ShowBasicControls
+[OK] * either when new player in or ...
+ 
+ 
+For development time:
+ * Reload button to mobapp (rerequest)
+ * mainui to load from local file system (not just qrc)
+ 
+ 
+[OK] EVENT: NewPlayer
+[OK]  -> If on menu -> send show basic controls
+
+[OK] CloseConfirmationQuestion
+
+----
+storing settings -> sqlite or local file path
+
+game itself
+
+chef
+
+
+---
+wallet management etc

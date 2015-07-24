@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ApplicationSettings.qml</file>
+        <file>appbox/AppBox.qml</file>
+        <file>GamesOnConsoleView.qml</file>
+        <file>MainMenuView.qml</file>
+        <file>LocalGameDetails.qml</file>
+        <file>MainView.qml</file>
+        <file>DownloadableGamesView.qml</file>
+        <file>DownloadableGameDetails.qml</file>
+        <file>DownloadFeedbackBar.qml</file>
+    </qresource>
+</RCC>

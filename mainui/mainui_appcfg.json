@@ -1,0 +1,11 @@
+{
+"id": "mainui",
+"version": "0.1",
+"name": "MainUI",
+"description": "",
+"application_exe": "mainui.sh",
+"system_app": true,
+"developer_comments":
+    "MainUI is application for controlling GBerry console. It\
+is launched by 'comms'"
+}

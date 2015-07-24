@@ -1,0 +1,7 @@
+{
+"id": "app3-downloading",
+"version": "1.0.0",
+"name": "Application3",
+"description": "This is a test application 3",
+"catalog_image": "app1_image.png"
+}
