@@ -242,7 +242,8 @@ Item {
 
                 function onGamesAvailable() {
                     console.debug("### onGamesAvailable()")
-                    // either got initial set of games of there is an update
+                    // either got initial set of games of there is an update but read all
+                    gamesUiModel.clear()
 
                     // TODO: we could use map()
                     var gameIds = DownloadableGamesModel.gameIds()
