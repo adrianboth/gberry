@@ -13,4 +13,5 @@ own terms
  * [gmock](gberry-lib/gmock/LICENSE)
  * [qhttpserver](gberry-lib/qhttpserver/LICENSE)
  
- 
+GBerry uses Qt library under LGPLv3 license.
+ * http://doc.qt.io/qt-5/lgpl.html

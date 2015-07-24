@@ -12,7 +12,8 @@ import re
 excludePaths = ['\\.git', 
                 '/gtest',
                 '/gmock',
-                '/qhttpserver']
+                '/qhttpserver',
+                '/qt5rpi']
 
 def update_source(filename, oldcopyright, copyright):
     utfstr = chr(0xef)+chr(0xbb)+chr(0xbf)
