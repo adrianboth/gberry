@@ -1,0 +1,1 @@
+.. include:: ../../../gberry-console/doc/GBerryConsole.rst

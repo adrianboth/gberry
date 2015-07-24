@@ -1,0 +1,184 @@
+DESIGN THINKING
+===============
+
+Design Memo
+===========
+
+This a memo of thought Qt/C++ design patterns
+ - As a memo 
+ - Clarifying thinking
+ 
+Blog ideas
+ * GTest intergration
+    * driving signals
+    
+ * testdata
+ * shared lib vs recompilation
+       
+* Qt having multiple projects, qml libs
+
+
+ 
+!! private classia käyttäessä on hankalampaa periä (tosin periminen usein johtaa sekavampaa kokonaisuuteen)
+
+?? how downloadinv is created
+-> we need interface for test mocking
+-> if separate method in factory then how request knows what to create?
+     -> request needs to create and return RESTInvocation??
+        ?? how to continue download on the side but other can go on?
+           -> maybe headserverconnection should not limit parallel operations, is there really so many that there is benefit??
+           -> maybe some parallel limit?? 10 -> 
+
+?? how to mark private class members
+
+!! with smart pointer inheritance stuff in function params doesn't work well -> favoring pointer
+!! with smart pointer it still doesn't automatically cover that resource is not anymore functioning -> with plain pointers consequences are just more severe.
+
+!!! writing a big software requires unit tests 
+  -> you need to be able run individual tests easily
+  -> you need to be able run debugger with tests
+  
+
+  
+!! unit testing with C++
+ -> get nasty crash errors earlier and debug them in isolation
+    * these are nasty to track down
+      
+C++/Qt benefit is portability
+ -> more direct as with Java or Python you still need to port to runtime platform
+ 
+!!! some need to separate inteface (/towards apps) and internal classes
+  -> what is the best way?
+  
+  
+  
+ signal&slot is by nature async
+ - overhead
+ - looses control
+ - crosses thread boundaries (good)
+ 
+// Typically GTest *.cpp files don't need header files but
+// Qt class definitions (inheriting from QObject) don't work
+// well in *.cpp files, because Qt moc needs to analyse and
+// generate classes. Of course alternative could be placing
+// test classes to own *.h files but if there are many then
+// having one common is more handy.
+
+signal&slot setup is tear down when qobjects are destroyed
+ -> if using lambdas then 'source' defines when dissolving
+     -> IMPORTANT as you can't tear down lambda -- unless you take signal connection object stored for later use
+ 
+testable API, how?
+ - avoid singletons -> pass pointers / references
+ - use "interfaces" where possible
+ 
+inheriting from QObject in interfaces may cause problems as QObject can be inherited only once and realizations may want to implement several interfaces
+
+NOTE: If there is a name class (same class name) it might cause crash as compilation goes ok, but linking links to wrong
+
+
+Memory Management
+-----------------
+
+In principle excess memory allocation should be avoided and there are different
+guidelines to various situations.
+
+Copying object parameters should be avoided in function parameters
+ * Use reference (&) if possible
+ * Declare reference to be 'const' if no purpose of modifying
+ * In Qt signals references SHOULD NOT BE USED. They may cause crashed as 
+   source object goes out of scope.
+    ** However slots can have const <object>& eventhough signal uses full 
+       object.
+    
+ * Many Qt types are implicitly shared -> they ok from performace point of view
+   to use in signal function signatures. 
+    ** You can create own shared objects using QSharedData
+    
+Creating objects in stack (as class members) is preferred instead of dynamic
+allocation (using 'new').
+
+
+## References
+
+Use references only in function parameters
+
+Avoid using references in function return values if they refer to class
+members.
+
+## Namespaces
+
+Use namespace "GBerry"
+
+## File Locations
+
+In console-lib 
+ * All that is "visible" for applications
+   * "Visible" means generic framework so that there is testable setup in communications
+   
+Other server specific to 'comms'
+
+
+?? How signal should be used wisely, vs using interfaces ??
+  -- what is good strategy?
+  
+  ?? objects inside *.cpp files -> NOT
+  
+  pitfalls -> accidentally emitting a SLOT
+  
+
+!! if emitting parent class
+
+IGameModelCommunication* icomm = qobject_cast<IGameModelCommunication*>(_comm);
+        emit icomm->messageReceived(json);
+        
+
+?? qsharedpointer
+
+PATTERN TO AVOID inheriting from QObject
+_signalConnection = QObject::connect(comm, &IDownloadableGamesModelCommunication::messageReceived,
+                                             [this] (const QJsonObject& msg) {
+            this->onMessageReceived(msg);
+        });
+    }
+    ~DownloadableGamesModelPrivate() {
+        QObje
+        
+
+        
+?? how to have different timeouts for debugger setup ??
+ - connection creation fails
+ => guaranteed number of loops?? 
+   * or environment variable to point ouf where we are
+   
+   
+?? how skip Qt classes during debugging ??
+ => it looks like not possible at the moment
+ 
+WHEN UNIT TESTING (red light first)
+FIRST: Find out why crashes -> robustness
+THEN: fix possible test problems
+
+
+ ----
+ Memory management practices
+  - & when (can not be null), for temporary use, as parameters
+  - *
+      global objects, that where can be kept pointers
+        ?? how to prevent crashes
+           -> preferred to use QSharedPointer
+           
+   * can be used if object is totally under control of class -> but then dynamic allocation could be avoided
+   '*' enables forward declaration -> less stuff to headers -> faster compilation -> less dependencies
+   
+        
+        
+  - Q*Pointer, dynamic data, that might be deleted (standalone objects, very root level)
+      *QWeakPointer just keeps ref, doesn't prevent deletionin
+      * QSharedPointer keeps object alive
+      
+  - having class hierarchies is little bit difficult with safe pointers as casting is easily needed   
+   
+  - Copying
+     * Only for really editable data, or via interfaces to client sides who could abuse it
+
