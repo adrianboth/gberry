@@ -25,7 +25,7 @@ However you can check prototype releases from [GBerry binary repository](https:/
 
 ## License
 
-GBerry is licensed under LGPLv3. See (license summary)[LICENSE_SUMMARY.md] for
+GBerry is licensed under LGPLv3. See [license summary](LICENSE_SUMMARY.md) for
 details.
 
 
