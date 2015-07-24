@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ConnectButton.qml</file>
+        <file>TopBar.qml</file>
+        <file>BasicControls.qml</file>
+        <file>BasicControlsButton.qml</file>
+        <file>GeneralActions.qml</file>
+        <file>settings/Settings.qml</file>
+        <file>login/LoginView.qml</file>
+        <file>ApplicationSettings.qml</file>
+        <file>AboutView.qml</file>
+        <file>DefaultMainArea.qml</file>
+        <file>settings/SettingsModel.js</file>
+        <file>ApplicationSettingsJS.js</file>
+        <file>ViewTitleBar.qml</file>
+        <file>ModalDialogFrame.qml</file>
+    </qresource>
+    <qresource prefix="/js">
+        <file alias="AppBox.js">js/AppBox.js</file>
+        <file alias="MobileClientMessages.js">js/MobileClientMessages.js</file>
+    </qresource>
+    <qresource prefix="/ui/gberry-lib">
+        <file alias="GBerry/qmldir">ui/gberry-lib/GBerry/qmldir</file>
+        <file alias="GBerry/js/DeveloperLog.js">ui/gberry-lib/GBerry/js/DeveloperLog.js</file>
+        <file alias="GBerry/GButton.qml">ui/gberry-lib/GBerry/GButton.qml</file>
+        <file alias="GBerry/GDisplayProfile.qml">ui/gberry-lib/GBerry/GDisplayProfile.qml</file>
+        <file alias="GBerry/GConfirmationDialog.qml">ui/gberry-lib/GBerry/GConfirmationDialog.qml</file>
+        <file alias="GBerry/GErrorDialog.qml">ui/gberry-lib/GBerry/GErrorDialog.qml</file>
+        <file alias="GBerry/GFeedbackDialog.qml">ui/gberry-lib/GBerry/GFeedbackDialog.qml</file>
+    </qresource>
+</RCC>
