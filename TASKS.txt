@@ -16,11 +16,6 @@ TASK: doc how webstore ID is generated
  - spaces a way
  ?? if id is used in API, how we match incoming stuff to right app (comments, usages, etc)
     -> this id stuff needs to be thought through
-    
-    
-BUG: invalid download (no binary found) crashed the whole thing
- -> unit test
- !! failing download (no such file) -> causes floating point exception ...
 
 
 THINKIG: what is best way to organize error handling?
@@ -50,31 +45,13 @@ state changes
          * name should be also quite similar
          * some changes in description allowed ...
          
-         
- 
-TASK: qt.conf
- * Part of Qt strategy, in future different Qt versions supported
-    - Qt is part console. In principle app can use whatever to version, it is even possible that implemented with other progamming language
-    
- * I think absolute path is needed ...
- * Raspberry requires qt.conf
- * Raspberry requires starting via shell
-    * At least normal linux works without it
-    -> No Qt stuff there
-    -> Use separate starting script (now on Raspberry)
-        -> generates qt.conf, does it have to be next binary?? verify
-        ?? what is writable area of apps -> best to have separate dir under app
-            -> do not allow changing downloaded files
-            ?? what about version updates 
-               -> better to have other directory structure
                
 TASK: does current Application structure make sense??
 
 TASK: rsync script for deployment, to avoid scp symlink problems, would be also faster
 
 
-
-
+TASK:
 !! plan python util script, would fab make sense?
  -> fab is more directed to running remote commands
  
@@ -110,15 +87,39 @@ Command(SyncRaspi(ip='192.168.100.4'))
 
 # could call shell scripts at this point
 # build in steps
+---------------------------------
+TASK: qt.conf
+ * Part of Qt strategy, in future different Qt versions supported
+    - Qt is part console. In principle app can use whatever to version, it is even possible that implemented with other progamming language
+    
+ * I think absolute path is needed ...
+ * Raspberry requires qt.conf
+ * Raspberry requires starting via shell
+    * At least normal linux works without it
+    -> No Qt stuff there
+    -> Use separate starting script (now on Raspberry)
+        -> generates qt.conf, does it have to be next binary?? verify
+        ?? what is writable area of apps -> best to have separate dir under app
+            -> do not allow changing downloaded files
+            ?? what about version updates 
+               -> better to have other directory structure
+               
+BUG: invalid download (no binary found) crashed the whole thing
+ -> unit test
+ !! failing download (no such file) -> causes floating point exception ...
 
-
+ 
 BUG: if started application fails with exit code 0 (and maybe with others too)
  then start mainui with feedback dialog
  
 TASK: timeout for starting the game -> i.e. kill game if it hasn't started for certain time -> info
 
-INVESTIGATE: pelin starttaaminen raspilla: TV:lle tulee nopeasti, mutta mobapp päivittyy hitaasti... miksi? WLANin syy?
 
+TASK: generic error structure
+ * error, suberror, multiple errors
+ * formatter (default formatter))
+ * ?? key value pairs, for extra info, parameters in error text
+ 
 BUG: resolve rasp font issue, how to bypass it?
 
 BUG: rasp comms taitaa kaatua kun se ei saa yhteyttä headserveriin -> täytyy konffata osoite kuntoon (ei heti, mutta hetken päästä)
@@ -130,6 +131,17 @@ BUG: mobapp settins address syöttöön saisi olla validointi, ettei tule accide
 BUG: mobapp menu height needs to scale to available screen size 
  -> use scaling stuff
  
+BUG: now hardcoded in title of mainui 55 to make them visible on raspberry
+  a) either find font fix
+  b) or provide max value for via gdisplay
+  
+  
+TASK: integrointi testit pitää laittaa omaan folderiin, niin että kääntyy oma binääri
+
+---------------------------
+
+INVESTIGATE: pelin starttaaminen raspilla: TV:lle tulee nopeasti, mutta mobapp päivittyy hitaasti... miksi? WLANin syy?
+
 DOC: configuration guide for development setup
  wstore url
  idm db
@@ -164,17 +176,10 @@ TASK: laboratory development setup: getting local dev + real mob devices -> loca
         
     -> we need somekind of configuration script
     
-    
-
  
 TASK: how to make static pages url configurable in wstore
  * how to get same look & feel
  
- 
-WORK: No way to have qt.conf elsewhere -> we need to generate it next to application binary
-
-updates to repository marketplace? wstore
-    
 
 DOC: as temp appcfg.json is written with default name then one from zip package is with different name?
    -> temp one is finally wrong, but is there any way to delete it?
@@ -190,11 +195,6 @@ TASK: onko slugista official versiota? gberry file systeemiin tehdään slug nam
   * slug is managed when app is uploaded into wstore
     * verification
   
-        
-TASK: generic error structure
- * error, suberror, multiple errors
- * formatter (default formatter))
- * ?? key value pairs, for extra info, parameters in error text
 
 DESIGN:
  * Could it be so that for console there is locale
@@ -281,7 +281,7 @@ BARCELONA:
 THINKING: ?? entäs *.so.1.0.0 versio numerointi??
  * console-lib as main issue
  
-TASK: integrointi testit pitää laittaa omaan folderiin, niin että kääntyy oma binääri
+
 
 FEATURE: !! in wstore we wouldn't need to show resource for games
 
