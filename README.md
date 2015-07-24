@@ -29,3 +29,8 @@ GBerry is licensed under LGPLv3. See [license summary](LICENSE_SUMMARY.md) for
 details.
 
 
+## Contact Information
+
+GBerry project: project(at)gberry.xyz
+
+Tero Vuorela: tero.vuorela(at)gberry.xyz
