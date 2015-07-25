@@ -5,7 +5,7 @@
 THIS_DIR=`cd $(dirname $0) && pwd`
 
 BUILDS_DIR=$THIS_DIR/../builds
-DEPLOY_PROJECT=$THIS_DIR/../gberry
+DEPLOY_PROJECT=$THIS_DIR/../../gberry-deploy
 die() { echo "$@" 1>&2 ; exit 1; }
 
 echo "Copying mobile application ..."
