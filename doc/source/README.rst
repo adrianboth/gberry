@@ -15,12 +15,12 @@ TODO: explaing parts
 Checkout
 --------
 
-TODO: how to checkout
+Git project: https://github.com/gberryproject/gberry
 
 Build
 -----
 
-TODO: how to build
+See [CompilingPlatform].
 
 Contribute
 ----------

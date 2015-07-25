@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
    
    README
+   CompilingPlatform
    gberry_console_link
    gberry_mobile_link
    
