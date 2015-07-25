@@ -43,7 +43,7 @@ function build_desktop {
   fi
   SPEC="-spec linux-g++"
 
-  build gberry-$2-game games/gberry-$2-game/$2.pro
+  build gberry-$2 games/gberry-$2/$2.pro
 }
 
 function build_rpi {
@@ -62,7 +62,7 @@ function build_rpi {
   #SPEC=linux-g++
   SPEC=""
   
-  build gberry-$2-game games/gberry-$2-game/$2.pro
+  build gberry-$2 games/gberry-$2/$2.pro
 }
 
 function run_build {

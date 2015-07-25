@@ -18,7 +18,7 @@
 ##
 
 # Project specific settings
-PROJECTS_ROOT_DIR=$$PWD/..
+PROJECTS_ROOT_DIR=$$PWD/../..
 
 include($${PROJECTS_ROOT_DIR}/gberry-lib/qmake/functions.pri)
 
