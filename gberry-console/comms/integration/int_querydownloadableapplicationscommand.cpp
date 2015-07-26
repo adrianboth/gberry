@@ -35,19 +35,19 @@
 
 using namespace GBerry;
 
-
-class TestChannelSouthPartner : public ChannelSouthPartner
+// different class name than in other tests, otherwise problems
+class TestChannelSouthPartner2 : public ChannelSouthPartner
 {
 public:
-    TestChannelSouthPartner() {}
-    virtual ~TestChannelSouthPartner() {}
+    TestChannelSouthPartner2() {}
+    virtual ~TestChannelSouthPartner2() {}
 
     // channel has received closing message from other end
-    virtual void channelCloseReceived() override { Q_ASSERT(false); } // should not happen in this tes
+    virtual void channelCloseReceived() { Q_ASSERT(false); } // should not happen in this tes
 
     int channelSendMessageToSouthCallCount{0};
     QByteArray lastSentMessage;
-    virtual void channelSendMessageToSouth(const QByteArray& msg) override {
+    virtual void channelSendMessageToSouth(const QByteArray& msg) {
         channelSendMessageToSouthCallCount++;
         lastSentMessage = msg;
     }
@@ -57,6 +57,10 @@ public:
 // this is integration test with real local server.
 TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
 {
+    //TestChannelSouthPartner2* testChannelSouthPartner2 = new TestChannelSouthPartner2;
+    //QString* koe = new QString("test");
+    //return;
+
     RealSystemServices systemServices;
     systemServices.registerItself();
 
@@ -67,7 +71,7 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
 
     HeadServerConnection headServerConnection(&invocationFactory); // TODO: some interface for this
 
-    TestChannelSouthPartner* testChannelSouthPartner = new TestChannelSouthPartner; // channel takes ownership
+    TestChannelSouthPartner2* testChannelSouthPartner = new TestChannelSouthPartner2; // channel takes ownership
 
     ServerSideControlChannel controlChannel; // TODO: some interface for message sending
     controlChannel.attachSouthPartner(testChannelSouthPartner);
@@ -83,6 +87,7 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
     controlChannel.receiveMessageFromSouth(QJsonDocument(json).toJson());
 
     WAIT_WITH_TIMEOUT(testChannelSouthPartner->channelSendMessageToSouthCallCount > 0, 30000); // 30s
+
     ASSERT_EQ(1, testChannelSouthPartner->channelSendMessageToSouthCallCount);
 
     ASSERT_TRUE(testChannelSouthPartner->lastSentMessage.size() > 0);
@@ -102,4 +107,5 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
         EXPECT_TRUE(appFullId.size() > 0);
         DEBUG("ApplicationFullId:" << appFullId);
     }
+
 }
