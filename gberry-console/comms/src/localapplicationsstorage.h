@@ -43,7 +43,9 @@ public:
         enum Error {
             NoError,
             ApplicationExists,
+            ApplicationNotExists,
             ApplicationDirExists,
+            ApplicationDeletionFailed,
             FailedToCreateApplicationDirectory,
             ApplicationConfigurationWritingFailed,
             UpdateErrorApplicationNotExists, // TODO: make diff between update and add errors
@@ -79,13 +81,15 @@ public:
     // cleans up possible temp files
     bool pruneApplication(QSharedPointer<IApplication> application);
 
+    bool deleteApplication(const Application& application, Result& result);
+
 signals:
     void applicationsUpdated();
 
 public slots:
 
 private:
-    const QScopedPointer<LocalApplicationsStoragePrivate> _priv;
+    const QScopedPointer<LocalApplicationsStoragePrivate> _d;
 
 };
 

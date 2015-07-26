@@ -34,15 +34,35 @@ public:
     LocalApplicationsStoragePrivate() {}
 
     QDir appsDir;
+    QList<QSharedPointer<Application>> apps;
+    bool appsReadFirstTime{false};
+
+    void readApplications() {
+
+        // iterate folders in apps dir
+        // read *appcfg.json from each folder
+
+        QStringList dirs = appsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        foreach(QString dirName, dirs) {
+            ApplicationConfigReaderWriter reader(appsDir.filePath(dirName));
+
+            QSharedPointer<Application> app(reader.readApplication());
+            if (!app.isNull()) {
+                DEBUG("Application" << app->id() << "read successfully");
+                apps.append(app);
+            }
+        }
+    }
 };
 
 LocalApplicationsStorage::LocalApplicationsStorage(QString appsDir, QObject *parent) :
     IApplicationsStorage(parent),
-    _priv(new LocalApplicationsStoragePrivate)
+    _d(new LocalApplicationsStoragePrivate)
 {
-    _priv->appsDir = appsDir;
+    _d->appsDir = appsDir;
 
-    if (!_priv->appsDir.exists()) {
+    if (!_d->appsDir.exists()) {
         WARN("Apps directory doesn't exist");
     }
 }
@@ -53,24 +73,11 @@ LocalApplicationsStorage::~LocalApplicationsStorage()
 
 QList<QSharedPointer<Application>> LocalApplicationsStorage::applications()
 {
-    QList<QSharedPointer<Application>> apps;
-
-    // iterate folders in apps dir
-    // read *appcfg.json from each folder
-
-    QStringList dirs = _priv->appsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-
-    foreach(QString dirName, dirs) {
-        ApplicationConfigReaderWriter reader(_priv->appsDir.filePath(dirName));
-
-        QSharedPointer<Application> app(reader.readApplication());
-        if (!app.isNull()) {
-            DEBUG("Application" << app->id() << "read successfully");
-            apps.append(app);
-        }
+    if (!_d->appsReadFirstTime) {
+        _d->readApplications();
+        _d->appsReadFirstTime = true;
     }
-
-    return apps;
+    return _d->apps;
 }
 
 QSharedPointer<LocalApplications> LocalApplicationsStorage::localApplications()
@@ -93,9 +100,24 @@ bool LocalApplicationsStorage::updateApplication(const Application &application,
 
     ApplicationConfigReaderWriter::Result writerResult;
     if (writer.writeApplication(application, writerResult)) {
+        // ok
+        QSharedPointer<Application> app(writer.readApplication());
+        if (!app.isNull()) {
+            DEBUG("Updated application" << app->id() << "read successfully");
+            // remove old entr and then add new entry
+            for (int i = 0; i < _d->apps.size(); i++) {
+                if (_d->apps.at(i)->id() == app->id()) {
+                    _d->apps.removeAt(i);
+                    break;
+                }
+            }
+            _d->apps.append(app);
+        }
+
         IApplicationsStorage* ii = this;
         emit ii->applicationsUpdated();
         return true;
+
     } else {
         result.record(Result::ApplicationConfigurationWritingFailed, QString("Failed to write application configuration to disk: %1").arg(writerResult.errorString));
         return false;
@@ -137,6 +159,34 @@ bool LocalApplicationsStorage::pruneApplication(QSharedPointer<IApplication> app
     return false;
 }
 
+bool LocalApplicationsStorage::deleteApplication(const Application &application, LocalApplicationsStorage::Result &result)
+{
+    QSharedPointer<LocalApplications> applications(localApplications());
+    QSharedPointer<IApplication> existingApp = applications->application(application.id());
+
+    if (existingApp.isNull()) {
+        return result.record(Result::ApplicationNotExists, QString("Can't delete applicaiton %1 as it does not exist.").arg(application.id()));
+    }
+
+    // remove from internal bookkeeping
+    for (int i = 0; i < _d->apps.size(); i++) {
+        if (_d->apps.at(i)->id() == application.id()) {
+            _d->apps.removeAt(i);
+            break;
+        }
+    }
+
+    // then from filesystem
+    QDir appDir(_d->appsDir.filePath(application.id()));
+    if (!appDir.removeRecursively()) {
+        return result.record(Result::ApplicationDeletionFailed, QString("Failed to delete diretory %1.").arg(appDir.path()));
+    }
+
+    IApplicationsStorage* ii = this;
+    emit ii->applicationsUpdated();
+    return true;
+}
+
 bool LocalApplicationsStorage::addApplication(Application &application, Result& result)
 {
     // TODO:
@@ -151,7 +201,7 @@ bool LocalApplicationsStorage::addApplication(Application &application, Result& 
 
     // folder might still exist but it is not valid application
 
-    QDir appDir(_priv->appsDir.filePath(application.id()));
+    QDir appDir(_d->appsDir.filePath(application.id()));
     if (appDir.exists()) {
         // TODO: at least now in first place we fail if dir exists but maybe later we have better strategy
         return result.record(Result::ApplicationDirExists, QString("Application directory %1 already exists").arg(appDir.path()));
@@ -168,9 +218,13 @@ bool LocalApplicationsStorage::addApplication(Application &application, Result& 
 
     ApplicationConfigReaderWriter::Result writerResult;
     if (writer.writeApplication(application, writerResult)) {
+        // ok
+        _d->apps.append(writer.readApplication());
+
         IApplicationsStorage* ii = this;
         emit ii->applicationsUpdated();
         return true;
+
     } else {
         result.record(Result::ApplicationConfigurationWritingFailed, QString("Failed to write application configuration to disk: %1").arg(writerResult.errorString));
         return false;

@@ -201,6 +201,38 @@ TEST(LocalApplicationsStorage, UpdateApplicationState2)
     EXPECT_TRUE(apps_xx->application("app3-downloading-1.0.0")->state() == Application::Valid);
 
 }
+
+TEST(LocalApplicationsStorage, DeleteApplication)
+{
+    QString appsDir = TestUtils::testdataDirPath("states_case1");
+
+    // as we are going to modify data -> make copy
+    QTemporaryDir temporaryDir;
+    DEBUG("Copy testdata from" << appsDir << "to" << temporaryDir.path());
+    ASSERT_TRUE(GBerryLib::copyRecursively(appsDir, temporaryDir.path())); // verify ok
+
+    LocalApplicationsStorage storage(temporaryDir.path());
+
+    QSharedPointer<LocalApplications> apps_xx = storage.localApplications();
+    QSharedPointer<IApplication> iapp_xx = apps_xx->application("app3-downloading-1.0.0");
+    ASSERT_FALSE(iapp_xx.isNull());
+
+    QSharedPointer<Application> app_xx(qSharedPointerCast<Application>(iapp_xx));
+    LocalApplicationsStorage::Result deleteResult;
+    storage.deleteApplication(*app_xx.data(), deleteResult);
+
+    // there are events in event queue (signals)
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 5000);
+
+    QSharedPointer<LocalApplications> apps_yy = storage.localApplications();
+    QSharedPointer<IApplication> iapp_yy = apps_yy->application("app3-downloading-1.0.0");
+    ASSERT_TRUE(iapp_yy.isNull());
+
+    // existing LocalApplications should update itself;
+    EXPECT_TRUE(apps_xx->application("app3-downloading-1.0.0").isNull());
+}
+
+
 // TODO: how downloading works?
 
 // TODO: when signaling that new apps available
