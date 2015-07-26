@@ -23,23 +23,19 @@
 #include <QDebug>
 #include <QSharedPointer>
 
+#include "baseobject.h"
+using namespace GBerryLib;
+
 #include "application.h"
 
-class IApplicationsStorage : public QObject
+class IApplicationsStorage : public QObject, public BaseObject
 {
     Q_OBJECT
 
 public:
-    explicit IApplicationsStorage(QObject* parent = 0) : QObject(parent) {
-
-        static int counter = 0;
-        objId = ++counter;
-        qDebug() << "--- IApplicationsStorage " << objId;
-    }
-    ~IApplicationsStorage() { qDebug() << "--- IApplicationsStorage DESC " << objId;}
-
-    int objId;
-    int objectId() const { return objId; }
+    explicit IApplicationsStorage(QObject* parent = 0) :
+        QObject(parent), BaseObject("IApplicationsStorage") {}
+    virtual ~IApplicationsStorage() {}
 
     // reads applications from local storage. Caller takes ownership
     virtual QList<QSharedPointer<Application>> applications() = 0;
