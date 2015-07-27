@@ -26,14 +26,24 @@ namespace GBerryLib {
 BaseObject::BaseObject(const QString& className) :
     _objectClassName(className)
 {
-    static int objectCounter = 0;
-    _objectId = ++objectCounter;
+    static QMap<QString, int> counters;
+    if (counters.contains(className)) {
+        int currentValue = counters[className];
+        currentValue++;
+        counters[className] = currentValue;
+        _objectId = currentValue;
+    } else {
+        int currentValue = 0;
+        counters[className] = currentValue;
+        _objectId = currentValue;
+    }
+
     DEBUG("Constructor:" << _objectClassName << "-" << _objectId);
 }
 
 BaseObject::~BaseObject()
 {
-    TRACE("Desctructor:" << _objectClassName << "-" << _objectId);
+    TRACE("Destructor:" << _objectClassName << "-" << _objectId);
 }
 
 int BaseObject::objectId() const
