@@ -134,16 +134,21 @@ public:
     /* */
     void doMainStateLoop()
     {
+        //TRACE("doMainStateLoop()");
+
         // if ping ongoing then wait that to finish
         if (pingState == SENT_AND_WAITING) {
+            //DEBUG("Ping wait state -> continue waiting");
             return;
         }
 
         if (connectionState == CONNECTED && !requestQueue.isEmpty()) {
+            //DEBUG("Execute request");
             Request* req = requestQueue.dequeue();
             executeRequest(req);
 
         } else {
+            //DEBUG("Schedule new ping");
             // nothing else -> schedule new ping after some wait time
             int pingInterval = q->property(HeadServerConnection::PING_INTERVAL_INT_PROP).toInt();
             // only old style connection available

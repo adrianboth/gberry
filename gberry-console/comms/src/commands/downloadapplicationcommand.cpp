@@ -61,6 +61,19 @@ public:
     DownloadableApplicationCache* cache;
     LocalApplicationsStorage* applicationsStorage;
     QList<DownloadApplicationRequest*> ongoingRequests;
+
+    // this meant for cleanup in case of errors
+    //   - no much reporting if cleanup fails
+    void deleteApplicationFromFileSystem(const QString& applicationFullId) {
+        LocalApplicationsStorage::Result result;
+        QSharedPointer<IApplication> iapp = applicationsStorage->localApplications()->application(applicationFullId);
+        QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp));
+        applicationsStorage->deleteApplication(*app.data(), result);
+
+        if (result.hasError()) {
+            ERROR("Failed to delete application" << applicationFullId << "from file system:" << result.errorString);
+        }
+    }
 };
 
 DownloadApplicationCommand::DownloadApplicationCommand(
@@ -144,6 +157,7 @@ bool DownloadApplicationCommand::process(const QJsonObject &json, ICommandRespon
     }
 
     // everything is ok so far
+    // if we fail after this point we need to delete our application dir
 
     // TODO: do we need to downloadengine (yes, to continue downloads)
 
@@ -173,6 +187,8 @@ void DownloadApplicationCommand::processRequestOkResponse(DownloadApplicationReq
     if (!QFile(request->destinationFilePath()).exists()) {
         // something went wrong, because ok has been recorded but no actual zip file
         ERROR("Downloaded zip file" << request->destinationFilePath() << "doesn't exist");
+        _d->deleteApplicationFromFileSystem(request->applicationFullId());
+
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
         responseJson["application_id"] = request->applicationFullId();
@@ -210,6 +226,8 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
     if (unzipOp->exitCode() != 0) {
         // something went wrong
         ERROR("Failed to unzip application package for applicationId:" << unzipOp->applicationFullId());
+        _d->deleteApplicationFromFileSystem(unzipOp->applicationFullId());
+
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
         responseJson["application_id"] = unzipOp->applicationFullId();
@@ -246,6 +264,8 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
     if (updateResult.hasError()) {
         // something went wrong, because ok has been recorded but no actual zip file
         ERROR("Failed to update application" << unzipOp->applicationFullId());
+        _d->deleteApplicationFromFileSystem(unzipOp->applicationFullId());
+
         QJsonObject responseJson;
         responseJson["command"] = "DownloadApplicationReply";
         responseJson["application_id"] = unzipOp->applicationFullId();
@@ -282,6 +302,8 @@ void DownloadApplicationCommand::processRequestErrorResponse(
     _d->ongoingRequests.removeOne(request);
     request->deleteLater();
     // TODO: some kind of error code (possible localization required later)
+
+    _d->deleteApplicationFromFileSystem(request->applicationFullId());
 
     QJsonObject responseJson;
     responseJson["command"] = "DownloadApplicationReply";
