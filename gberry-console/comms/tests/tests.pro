@@ -44,7 +44,8 @@ SOURCES += main.cpp \
     test_headserverconnection.cpp \
     test_request.cpp \
     commands/test_querydownloadableapplicationscommand.cpp \
-    test_applicationconfigreaderwriter.cpp
+    test_applicationconfigreaderwriter.cpp \
+    commands/test_downloadapplicationcommand.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \

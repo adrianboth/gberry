@@ -32,7 +32,7 @@ using ::testing::_;
 
 #include "serverconnectionimpl.h"
 #include "mocks/mock_restinvocation.h"
-#include "mocks/mock_restinvocationfactory.h"
+#include "mocks/mock_invocationfactory.h"
 #include "testutils/signalrecorder.h"
 #include "testobjects/stub_systemservices.h"
 
@@ -48,7 +48,7 @@ using ::testing::_;
 
 TEST(serverConnectionImpl, pingOk_first_then_fail)
 {
-    MockRESTInvocationFactory factoryMock;
+    MockInvocationFactory factoryMock;
     MockRESTInvocation invocationMock;
 
     QCoreApplication* coreapp = QCoreApplication::instance();

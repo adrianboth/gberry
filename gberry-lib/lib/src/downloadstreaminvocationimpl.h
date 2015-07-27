@@ -54,7 +54,7 @@ public:
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) override;
 
     // TODO: later support for stream (possible to continue writing)
-    virtual void setOutputFilePath(QString filePath);
+    virtual void setOutputFilePath(const QString& filePath);
 
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const override;
 

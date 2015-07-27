@@ -35,10 +35,12 @@ using ::testing::StrictMock;
 using ::testing::_;
 using ::testing::InSequence;
 
-#include "invocationfactory.h"
-#include "mocks/mock_restinvocationfactory.h"
-#include "mocks/mock_restinvocation.h"
 #include "testobjects/stub_systemservices.h"
+
+#include "invocationfactory.h"
+#include "mocks/mock_invocationfactory.h"
+#include "mocks/mock_restinvocation.h"
+
 
 #define LOG_AREA "HeadServerConnectionTests"
 #include "log/log.h"
@@ -74,7 +76,7 @@ protected:
 
 TEST(HeadServerConnection, PingOK)
 {
-    MockRESTInvocationFactory factoryMock;
+    MockInvocationFactory factoryMock;
     MockRESTInvocation* invocationMock = new MockRESTInvocation;
 
     TestSystemServices testservices; // for single shot timer faking
@@ -159,7 +161,7 @@ TEST(HeadServerConnection, PingOK)
 
 TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 {
-    MockRESTInvocationFactory factoryMock;
+    MockInvocationFactory factoryMock;
 
     // We need to create fresh RESTInvocation for each request because
     // otherwise signal connection would pile up and as HeadServerConnection
@@ -267,7 +269,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 
 TEST(HeadServerConnection, MakeRequestWhenConnectionNotOK)
 {
-    MockRESTInvocationFactory factoryMock;
+    MockInvocationFactory factoryMock;
     MockRESTInvocation* invocationMock = new MockRESTInvocation;
 
     TestSystemServices testservices; // for single shot timer faking
@@ -321,7 +323,7 @@ TRACE("Test: Make request that will fail because of no connection");
 
 TEST(HeadServerConnection, CancelRequestWhenConnectionOK)
 {
-    MockRESTInvocationFactory factoryMock;
+    MockInvocationFactory factoryMock;
 
     // We need to create fresh RESTInvocation for each request because
     // otherwise signal connection would pile up and as HeadServerConnection

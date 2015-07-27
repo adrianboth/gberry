@@ -354,7 +354,7 @@ int DownloadStreamInvocationImpl::progressPercentage() const
     return percentage;
 }
 
-void GBerry::DownloadStreamInvocationImpl::setOutputFilePath(QString outputFilePath)
+void GBerry::DownloadStreamInvocationImpl::setOutputFilePath(const QString& outputFilePath)
 {
     _d->outputFilePath = outputFilePath;
     _d->outputFile.setFileName(outputFilePath);

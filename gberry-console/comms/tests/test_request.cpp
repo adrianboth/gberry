@@ -32,7 +32,7 @@ using ::testing::_;
 #include "request.h"
 #include "restinvocation.h"
 #include "mocks/mock_restinvocation.h"
-#include "mocks/mock_restinvocationfactory.h"
+#include "mocks/mock_invocationfactory.h"
 
 // SimpleRequest comes from here
 #include "test_request.h"
@@ -43,7 +43,7 @@ TEST(Request, OKRequest)
     SimpleRequest* req = new SimpleRequest;
 
     MockRESTInvocation mockInv;
-    MockRESTInvocationFactory mockFactory;
+    MockInvocationFactory mockFactory;
     EXPECT_CALL(mockFactory, newRESTInvocation()).Times(1).WillOnce(Return(&mockInv));
 
 // -- test
@@ -63,7 +63,7 @@ TEST(Request, FailedRequest)
     SimpleRequest* req = new SimpleRequest;
 
     MockRESTInvocation mockInv;
-    MockRESTInvocationFactory mockFactory;
+    MockInvocationFactory mockFactory;
     EXPECT_CALL(mockFactory, newRESTInvocation()).Times(1).WillOnce(Return(&mockInv));
 
 // -- test
@@ -85,7 +85,7 @@ TEST(Request, CancelRequestAndOKResponse)
     bool destroyedCalled = false;
     QObject::connect(req, &SimpleRequest::destroyed, [&] () { destroyedCalled = true; });
 
-    MockRESTInvocationFactory mockFactory;
+    MockInvocationFactory mockFactory;
     MockRESTInvocation mockInv;
 
 // --
@@ -110,7 +110,7 @@ TEST(Request, CancelRequestAndErrorResponse)
     QObject::connect(req, &SimpleRequest::destroyed, [&] () { destroyedCalled = true; });
 
     MockRESTInvocation mockInv;
-    MockRESTInvocationFactory mockFactory;
+    MockInvocationFactory mockFactory;
 
 // --
     EXPECT_CALL(mockFactory, newRESTInvocation()).Times(1).WillOnce(Return(&mockInv));

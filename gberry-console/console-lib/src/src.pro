@@ -126,7 +126,8 @@ HEADERS +=\
     client/downloadablegamesmodelcommunication.h \
     client/4qml/downloadmodel.h \
     client/downloadmodelcommunication.h \
-    client/connectioncommunication.h
+    client/connectioncommunication.h \
+    testobjects/stub_channelsouthpartner.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/

@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef TESTSYSTEMSERVICES_H
+#ifndef TESTSYSTEMSERVICES_H
 #define TESTSYSTEMSERVICES_H
 
 #include "systemservices.h"

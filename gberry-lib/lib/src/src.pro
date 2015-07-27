@@ -39,7 +39,6 @@ HEADERS += \
     restinvocation.h \
     serverconnection.h \
     serverconnectionimpl.h \
-    mocks/mock_restinvocationfactory.h \
     mocks/mock_restinvocation.h \
     restinvocationimpl.h \
     systemservices.h \
@@ -88,7 +87,9 @@ HEADERS += \
     result.h \
     networkerrorreasons.h \
     resultmessageformatter.h \
-    testutils/stringutils.h
+    testutils/stringutils.h \
+    mocks/mock_invocationfactory.h \
+    mocks/mock_downloadstreaminvocation.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -151,7 +152,9 @@ SOURCES += \
     result.cpp \
     networkerrorreasons.cpp \
     resultmessageformatter.cpp \
-    testutils/stringutils.cpp
+    testutils/stringutils.cpp \
+    mocks/mock_restinvocation.cpp \
+    mocks/mock_downloadstreaminvocation.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

@@ -33,7 +33,7 @@ BaseApplication::BaseApplication(QSharedPointer<ApplicationMeta> meta) :
 
 BaseApplication::~BaseApplication()
 {
-    //qDebug() << "[BaseApplication] desctructor";
+    //qDebug() << "[BaseApplication] destructor";
 }
 
 QString BaseApplication::id() const
