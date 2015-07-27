@@ -33,34 +33,15 @@
 #define LOG_AREA "IntegrationQueryDownloadableApplicationsCommand"
 #include "log/log.h"
 
+#include "testobjects/stub_channelsouthpartner.h"
+
 using namespace GBerry;
+using namespace GBerryConsole::Test;
 
-// different class name than in other tests, otherwise problems
-class TestChannelSouthPartner2 : public ChannelSouthPartner
-{
-public:
-    TestChannelSouthPartner2() {}
-    virtual ~TestChannelSouthPartner2() {}
-
-    // channel has received closing message from other end
-    virtual void channelCloseReceived() { Q_ASSERT(false); } // should not happen in this tes
-
-    int channelSendMessageToSouthCallCount{0};
-    QByteArray lastSentMessage;
-    virtual void channelSendMessageToSouth(const QByteArray& msg) {
-        channelSendMessageToSouthCallCount++;
-        lastSentMessage = msg;
-    }
-
-};
 
 // this is integration test with real local server.
 TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
 {
-    //TestChannelSouthPartner2* testChannelSouthPartner2 = new TestChannelSouthPartner2;
-    //QString* koe = new QString("test");
-    //return;
-
     RealSystemServices systemServices;
     systemServices.registerItself();
 
@@ -71,10 +52,10 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
 
     HeadServerConnection headServerConnection(&invocationFactory); // TODO: some interface for this
 
-    TestChannelSouthPartner2* testChannelSouthPartner = new TestChannelSouthPartner2; // channel takes ownership
+    StubChannelSouthPartner* stubChannelSouthPartner = new StubChannelSouthPartner; // channel takes ownership
 
     ServerSideControlChannel controlChannel; // TODO: some interface for message sending
-    controlChannel.attachSouthPartner(testChannelSouthPartner);
+    controlChannel.attachSouthPartner(stubChannelSouthPartner);
 
     QueryDownloadableApplicationsCommand* cmd =
             new QueryDownloadableApplicationsCommand(&headServerConnection, &controlChannel, &applicationCache);
@@ -86,13 +67,13 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
 
     controlChannel.receiveMessageFromSouth(QJsonDocument(json).toJson());
 
-    WAIT_WITH_TIMEOUT(testChannelSouthPartner->channelSendMessageToSouthCallCount > 0, 30000); // 30s
+    WAIT_WITH_TIMEOUT(stubChannelSouthPartner->channelSendMessageToSouthCallCount > 0, 30000); // 30s
 
-    ASSERT_EQ(1, testChannelSouthPartner->channelSendMessageToSouthCallCount);
+    ASSERT_EQ(1, stubChannelSouthPartner->channelSendMessageToSouthCallCount);
 
-    ASSERT_TRUE(testChannelSouthPartner->lastSentMessage.size() > 0);
+    ASSERT_TRUE(stubChannelSouthPartner->lastSentMessage.size() > 0);
 
-    QJsonObject answerJson = QJsonDocument::fromJson(testChannelSouthPartner->lastSentMessage).object();
+    QJsonObject answerJson = QJsonDocument::fromJson(stubChannelSouthPartner->lastSentMessage).object();
     EXPECT_TRUE(answerJson["command"].toString() == "QueryDownloadableApplicationsReply");
     EXPECT_TRUE(answerJson["result"].toString() == "ok");
     EXPECT_TRUE(answerJson.contains("applications"));

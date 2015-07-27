@@ -40,29 +40,10 @@
 #include "log/log.h"
 
 #include "testutils/jsonutils.h"
+#include "testobjects/stub_channelsouthpartner.h"
 
 using namespace GBerry;
-
-// TODO: other integration tests have this same ... duplicate
-class TestChannelSouthPartner : public ChannelSouthPartner
-{
-public:
-    TestChannelSouthPartner() {}
-    virtual ~TestChannelSouthPartner() {}
-
-    // channel has received closing message from other end
-    virtual void channelCloseReceived() override { Q_ASSERT(false); } // should not happen in this tes
-
-    int channelSendMessageToSouthCallCount{0};
-    QList<QByteArray> receivedMessages;
-
-    QByteArray lastSentMessage;
-    virtual void channelSendMessageToSouth(const QByteArray& msg) override {
-        channelSendMessageToSouthCallCount++;
-        receivedMessages.append(msg);
-    }
-
-};
+using namespace GBerryConsole::Test;
 
 // this is integration test with real local server.
 TEST(DownloadApplicationCommand, DownloadOk)
@@ -86,10 +67,10 @@ TEST(DownloadApplicationCommand, DownloadOk)
 
     HeadServerConnection headServerConnection(&invocationFactory); // TODO: some interface for this
 
-    TestChannelSouthPartner* testChannelSouthPartner = new TestChannelSouthPartner; // channel takes ownership
+    StubChannelSouthPartner* stubChannelSouthPartner = new StubChannelSouthPartner; // channel takes ownership
 
     ServerSideControlChannel controlChannel; // TODO: some interface for message sending
-    controlChannel.attachSouthPartner(testChannelSouthPartner);
+    controlChannel.attachSouthPartner(stubChannelSouthPartner);
 
     QTemporaryDir tempDir;
     QDir tempDirObj(tempDir.path());
@@ -114,12 +95,12 @@ TEST(DownloadApplicationCommand, DownloadOk)
     // we will receive several messages
     bool waitForMessages = true;
     while (waitForMessages) {
-        WAIT_CUSTOM_AND_ASSERT(testChannelSouthPartner->channelSendMessageToSouthCallCount > indexOfProcessMessages, 15000, 250);
+        WAIT_CUSTOM_AND_ASSERT(stubChannelSouthPartner->channelSendMessageToSouthCallCount > indexOfProcessMessages, 15000, 250);
 
         // validate message
-        while (indexOfProcessMessages < testChannelSouthPartner->channelSendMessageToSouthCallCount) {
+        while (indexOfProcessMessages < stubChannelSouthPartner->channelSendMessageToSouthCallCount) {
             DEBUG("Validating a message: index =" << indexOfProcessMessages);
-            QJsonObject answerJson = QJsonDocument::fromJson(testChannelSouthPartner->receivedMessages.at(indexOfProcessMessages)).object();
+            QJsonObject answerJson = QJsonDocument::fromJson(stubChannelSouthPartner->receivedMessages.at(indexOfProcessMessages)).object();
             JsonUtils::debugPrint("DownloadApplicationReply", answerJson);
 
             // all reply should be this type
