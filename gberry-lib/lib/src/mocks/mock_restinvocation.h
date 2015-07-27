@@ -27,9 +27,12 @@
 class MockRESTInvocation : public RESTInvocation
 {
  public:
+     MockRESTInvocation();
+     virtual ~MockRESTInvocation();
+
      MOCK_METHOD1(defineGetOperation, void(const QString& path));
      MOCK_METHOD2(definePostOperation, void(const QString&  path, const QJsonDocument& jsondoc));
-     MOCK_CONST_METHOD0(statusCode, RESTInvocation::InvocationStatus());
+     MOCK_CONST_METHOD0(statusCode, Invocation::InvocationStatus());
      MOCK_CONST_METHOD0(responseHttpStatusCode, HTTPInvocationDefinition::Status());
      MOCK_CONST_METHOD0(responseAvailable, bool());
      MOCK_CONST_METHOD0(responseByteData, QByteArray());

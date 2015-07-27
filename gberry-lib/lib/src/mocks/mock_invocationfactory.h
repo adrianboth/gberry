@@ -16,15 +16,15 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef MOCK_RESTINVOCATIONFACTORY_H
-#define MOCK_RESTINVOCATIONFACTORY_H
+ #ifndef MOCK_INVOCATIONFACTORY_H
+#define MOCK_INVOCATIONFACTORY_H
 
 #include "invocationfactory.h"
 
 #include <gmock/gmock.h>
 
 
-class MockRESTInvocationFactory : public InvocationFactory
+class MockInvocationFactory : public InvocationFactory
 {
 public:
 
@@ -33,5 +33,5 @@ public:
     MOCK_CONST_METHOD0(defaultHostName, QString());
 };
 
-#endif // MOCK_RESTINVOCATIONFACTORY_H
+#endif // MOCK_INVOCATIONFACTORY_H
 
