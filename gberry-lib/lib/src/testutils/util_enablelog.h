@@ -35,7 +35,7 @@
 #include "log/stdoutlogmsghandler.h"
 #include "log/logcontrol.h"
 
-#define ENABLE_LOGGING() namespace { static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging(); }
+//#define ENABLE_LOGGING() namespace { static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging(); }
 
 namespace TestUtils
 {

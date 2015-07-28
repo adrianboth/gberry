@@ -21,7 +21,7 @@
 
 namespace GBerryLib
 {
-QString joinpath (QString appDir, QString path) {
+QString joinpath (const QString& appDir, const QString& path) {
     return QDir(appDir).absoluteFilePath(path);
 }
 
@@ -54,6 +54,22 @@ bool copyRecursively(const QString &srcFilePath,
             return false;
     }
     return true;
+}
+
+QString joinpath(const QStringList& paths)
+{
+    if (paths.length() == 0)
+        return "";
+    if (paths.length() == 1)
+        return paths.first();
+
+    QDir dir(paths.first());
+
+    for (int i = 1; i < paths.length(); i++) {
+        dir = dir.absoluteFilePath(paths.at(i));
+    }
+
+    return dir.path();
 }
 
 } // eon

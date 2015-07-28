@@ -18,34 +18,38 @@
 ##
 
 TEMPLATE = app
-TARGET = integrationtests
+TARGET = testapp
 
-QT       += core network testlib
-# TODO: temporary enabling
-#QT       -= gui
-QT       += gui widgets
+QT += qml quick network widgets
+CONFIG += c++11
 
-CONFIG   += console c++11
-CONFIG   -= app_bundle
+include(project.pri)
+SOURCES += main.cpp
 
-DEFINES += TESTDATA_ROOT=$$PWD/testdata
+RESOURCES += qml.qrc
 
-include(../project.pri)
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH = $$PWD/ui/gberry-lib $$PWD/ui/console-lib
 
-SOURCES += main.cpp \
-    int_downloadapplicationcommand.cpp \
-    int_querydownloadableapplicationscommand.cpp \
-    int_launchapplication.cpp
+CONFIG(debug) {
+    DEFINES += GBERRY_DEBUG_QML_IMPORT_PATH=$$PWD/ui/gberry-lib:$$PWD/ui/console-lib
+    DEFINES += GBERRY_ASSETS_FIXED_ROOT_PATH=$$PWD/assets
+}
 
-HEADERS +=  
+target.path = $${DEPLOY_DIR}/apps/$$TARGET/
+INSTALLS += target
 
-INCLUDEPATH += ../src
-LIBS += -L../src -lcomms
+assets.files = assets/*
+assets.path = $$DEPLOY_DIR/apps/$$TARGET/
+INSTALLS += assets
+
+appcfg.files = $${TARGET}_appcfg.json
+appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
+INSTALLS += appcfg
 
 includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR})
 
-includeStaticLibrary("gmock", $${GMOCK_SRC_DIR}, $${GMOCK_BUILD_DIR})
-
-includeStaticLibrary("gtest", $${GTEST_SRC_DIR}, $${GTEST_BUILD_DIR})
-
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
+
+DISTFILES += \
+    $${TARGET}_appcfg.json

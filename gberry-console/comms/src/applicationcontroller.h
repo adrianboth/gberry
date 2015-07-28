@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef APPLICATIONCONTROLLER_H
+#ifndef APPLICATIONCONTROLLER_H
 #define APPLICATIONCONTROLLER_H
 
 #include <QObject>
@@ -25,7 +25,8 @@
 
 #include "interfaces/iapplicationcontroller.h"
 #include "server/application/iapplication.h"
-#include "server/applicationregistry.h"
+#include "iapplicationexecutionsetup.h"
+using namespace GBerryComms;
 
 using namespace GBerry::Console::Server;
 
@@ -38,9 +39,9 @@ class ApplicationController : public IApplicationController
 public:
     explicit ApplicationController(
             QSharedPointer<IApplication> app,
-            ApplicationRegistry* registry,
+            IApplicationExecutionSetup* executionSetup,
             QObject *parent = 0);
-    ApplicationController(QObject *parent = 0);
+    ApplicationController(IApplicationExecutionSetup* exectionSetup, QObject *parent = 0);
     ~ApplicationController();
 
     // IApplicationController
@@ -55,8 +56,6 @@ public:
     virtual void setApplication(QSharedPointer<IApplication> app);
     virtual QSharedPointer<IApplication> application();
     virtual void enableSimulatedMode(bool enabled);
-
-    virtual void enableOutputLogging(bool enabled);
 
     // -- dynamic properties
     static const char* PROCESS_KILL_WAIT_MS_PROP;

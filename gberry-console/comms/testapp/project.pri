@@ -17,14 +17,18 @@
 # along with GBerry. If not, see <http://www.gnu.org/licenses/>.
 ##
 
-TEMPLATE = subdirs
+# Project specific settings
+PROJECTS_ROOT_DIR=$$PWD/../../..
 
-SUBDIRS += src app tests testapp integration
+include($${PROJECTS_ROOT_DIR}/gberry-lib/qmake/functions.pri)
 
-app.depends = src
-tests.depends = src
-integration.depends = src testapp
+# for all console apps
+DEPLOY_DIR=$$BUILDS_DIR/deploy-console-$${BUILD_NAME}
 
-CONFIG += ordered
+# Refs to used software. In *.pro these can be use including libs as
+# these are not automatically added.
+GBERRYLIB_BUILD_DIR=$$BUILDS_DIR/build-gberry-lib-$${BUILD_NAME}/lib/src
+GBERRYLIB_SRC_DIR=$$PROJECTS_ROOT_DIR/gberry-lib/lib/src
 
-OTHER_FILES = TODO.txt
+CONSOLELIB_BUILD_DIR=$$BUILDS_DIR/build-console-lib-$${BUILD_NAME}/src
+CONSOLELIB_SRC_DIR=$$PROJECTS_ROOT_DIR/gberry-console/console-lib/src

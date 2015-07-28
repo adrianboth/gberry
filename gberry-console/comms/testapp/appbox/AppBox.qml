@@ -16,24 +16,34 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef FILEUTILS_H
-#define FILEUTILS_H
+ import QtQuick 2.0
 
-#include <QString>
-#include <QStringList>
-#include <QDir>
+// TODO: create button that sends data back to mainui
 
-namespace GBerryLib
-{
-QString joinpath(const QString& appDir, const QString& path);
-QString joinpath(const QStringList& paths);
+Rectangle {
+    color: "lightgrey"
+    border.width: 1
+    border.color: "black"
+    width: 200
+    height: 50
+    anchors.centerIn: parent
+    Text {
+      text: "CONTENT FROM MAINUI"
+      anchors.centerIn: parent
+    }
 
-//https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189
-// taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
-bool copyRecursively(const QString &srcFilePath,
-                            const QString &tgtFilePath);
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        onPressed: outgoingMessage("hello mainui")
+    }
 
-} // eon
+    // -- API --
 
-#endif // FILEUTILS_H
+    signal outgoingMessage(var data)
 
+    function incomingMessage(data) {
+        console.debug("### MAINUI APPBOX MSG: " + data)
+        outgoingMessage("got appbox msg")
+    }
+}

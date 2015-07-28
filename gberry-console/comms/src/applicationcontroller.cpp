@@ -25,8 +25,12 @@
 #include <signal.h>
 
 #include <utils/fileutils.h>
-#include "systemservices.h"
+#include <systemservices.h>
 #include <utils/qtsignalproxy.h>
+#include <resultmessageformatter.h>
+
+#include "applicationexecutionsetup.h"
+using namespace GBerryComms;
 
 #define LOG_AREA "ApplicationController"
 #include "log/log.h"
@@ -43,8 +47,11 @@ const char* ApplicationController::PROCESS_KILL_WAIT_MS_PROP = "processKillWaitM
 class ApplicationControllerPrivate
 {
 public:
-    ApplicationControllerPrivate(ApplicationController* q_) :
-        q(q_) {
+    ApplicationControllerPrivate(
+            ApplicationController* q_,
+            IApplicationExecutionSetup* executionSetup_) :
+        q(q_),
+        executionSetup(executionSetup_) {
         // these will be disconnect safely when *Private is destroyed
         // as 'process will be destroyed too.
 
@@ -65,7 +72,7 @@ public:
 
     ApplicationController* q;
     QSharedPointer<IApplication> app;
-    ApplicationRegistry* registry{nullptr};
+    IApplicationExecutionSetup* executionSetup;
     QProcess process;
     QtSignalProxy proxy;
     QtSignalProxy relaunchProxy;
@@ -74,7 +81,6 @@ public:
     bool running{false};
     bool simulated{false};
     int timerCalledCounterForWaitingProcessToStopRunning{0};
-    bool enableOutputLogging{false};
 
     void onProcessFinished(int exitCode) {
         DEBUG("Process finished with code: app_id = " << app->id() << ", exitCode =" << exitCode);
@@ -125,17 +131,16 @@ public:
 
 ApplicationController::ApplicationController(
         QSharedPointer<IApplication> app,
-        ApplicationRegistry* registry,
+        IApplicationExecutionSetup* executionSetup,
         QObject *parent) :
-    ApplicationController(parent)
+    ApplicationController(executionSetup, parent)
 {
     _d->app = app;
-    _d->registry = registry;
 }
 
-ApplicationController::ApplicationController(QObject *parent) :
+ApplicationController::ApplicationController(IApplicationExecutionSetup* executionSetup, QObject *parent) :
     IApplicationController(parent),
-    _d(new ApplicationControllerPrivate(this))
+    _d(new ApplicationControllerPrivate(this, executionSetup))
 {
     this->setProperty(PROCESS_KILL_WAIT_MS_PROP, DEFAULT_PROCESS_KILL_WAIT_MS);
 }
@@ -175,44 +180,15 @@ void ApplicationController::launch()
         return;
     }
 
-    QString appExe = _d->app->meta()->applicationExecutablePath();
-    if (!QFile::exists(appExe)) {
-        WARN("Launch failed as requested application executable not exists");
+    Result res;
+    _d->executionSetup->prepare(_d->process, *_d->app.data(), res);
+    if (res.hasErrors()) {
+        ERROR(ResultMessageFormatter(res).createDeveloperMessage());
         emit launchFailed();
         return;
     }
 
-    DEBUG("Launching process: " << appExe);
-    if (_d->enableOutputLogging) {
-        _d->process.setProcessChannelMode(QProcess::MergedChannels);
-        QString logFilePath = GBerryLib::joinpath(
-                    _d->app->meta()->applicationDirPath(),
-                    "output.log");
-
-        // write header to log file and test that log file is writable
-        QFile logFile(logFilePath);
-        if (logFile.open(QIODevice::Append)) {
-            // TODO: write timestamp and perhaps other info
-            logFile.write("\n---------- LAUNCHING ----------\n");
-            logFile.close();
-            _d->process.setStandardOutputFile(logFilePath, QIODevice::Append);
-
-        } else {
-            ERROR("Failed to open log for writing:" << logFilePath);
-        }
-
-    } else {
-        _d->process.setProcessChannelMode(QProcess::ForwardedErrorChannel);
-        _d->process.setStandardOutputFile(QProcess::nullDevice());
-    }
-    _d->process.setProgram(appExe);
-    if (_d->registry) {
-        // registry is used to identify who is making TCP connections
-        QStringList args;
-        args << "--application-code=" + _d->registry->createIdentificationCode(_d->app->meta()->applicationId());
-        _d->process.setArguments(args);
-    }
-
+    DEBUG("Launching application" << _d->app->id() << ", process: " << _d->process.program());
     _d->currentAction = LAUNCHING;
     _d->process.start();
 }
@@ -266,9 +242,4 @@ QString ApplicationController::fullApplicationId() const
 void ApplicationController::enableSimulatedMode(bool enabled)
 {
     _d->simulated = enabled;
-}
-
-void ApplicationController::enableOutputLogging(bool enabled)
-{
-    _d->enableOutputLogging = enabled;
 }

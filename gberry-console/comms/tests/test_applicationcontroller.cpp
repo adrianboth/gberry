@@ -28,9 +28,11 @@
 #include "applicationcontroller.h"
 
 #include "testobjects/stub_systemservices.h"
+#include "testobjects/simpleapplicationexecutionsetup.h"
 
 #include "testutils/waiter.h"
 #include "testutils/util_enablelog.h"
+
 
 // test fixture
 class ApplicationControllerF : public ::testing::Test {
@@ -39,6 +41,8 @@ class ApplicationControllerF : public ::testing::Test {
     TestUtils::enabledStdoutLogging();
   }
 };
+
+
 
 
 TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
@@ -56,9 +60,9 @@ TEST_F(ApplicationControllerF, LaunchOKWithAdvancedConstructor)
     qDebug() << "SCRIPT:" << myscriptFile.fileName();
 
     meta->setApplicationExecutablePath(myscriptFile.fileName());
-    ApplicationRegistry applicationRegistry;
+    SimpleApplicationExecutionSetup executionSetup;
     QSharedPointer<Application> app(new Application(meta));
-    ApplicationController controller(qSharedPointerCast<IApplication>(app), &applicationRegistry);
+    ApplicationController controller(qSharedPointerCast<IApplication>(app), &executionSetup);
 
     bool launched = false;
     QObject::connect(&controller, &ApplicationController::launched, [&] () { launched = true; });
@@ -82,7 +86,8 @@ TEST_F(ApplicationControllerF, LaunchOKWithDefaultConstructor)
     meta->setApplicationExecutablePath("/bin/bash");
 
     QSharedPointer<Application> app(new Application(meta));
-    ApplicationController controller;
+    SimpleApplicationExecutionSetup executionSetup;
+    ApplicationController controller(&executionSetup);
     controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
@@ -107,7 +112,8 @@ TEST_F(ApplicationControllerF, PauseAndResume)
     meta->setApplicationExecutablePath("/bin/bash");
 
     QSharedPointer<Application> app(new Application(meta));
-    ApplicationController controller;
+    SimpleApplicationExecutionSetup executionSetup;
+    ApplicationController controller(&executionSetup);
     controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;
@@ -145,7 +151,9 @@ TEST_F(ApplicationControllerF, StopTakesSometimeAndLaunchIsDelayed)
     meta->setApplicationExecutablePath("/bin/bash");
     QSharedPointer<Application> app(new Application(meta));
 
-    ApplicationController controller;
+    SimpleApplicationExecutionSetup executionSetup;
+    ApplicationController controller(&executionSetup);
+
     controller.setApplication(qSharedPointerCast<IApplication>(app));
 
     bool launched = false;

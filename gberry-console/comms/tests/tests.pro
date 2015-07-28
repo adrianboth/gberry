@@ -45,14 +45,17 @@ SOURCES += main.cpp \
     test_request.cpp \
     commands/test_querydownloadableapplicationscommand.cpp \
     test_applicationconfigreaderwriter.cpp \
-    commands/test_downloadapplicationcommand.cpp
+    commands/test_downloadapplicationcommand.cpp \
+    test_qtlibrariesmanager.cpp \
+    test_applicationexecutionsetup.cpp
 
 HEADERS += \
     mocks/mock_iapplicationcontroller.h \
     utils/util_controllerproxy.h \
     mocks/mock_iapplicationstorage.h \
     mocks/mock_iapplications.h \
-    test_request.h
+    testobjects/simpleapplicationexecutionsetup.h \
+    testobjects/simplerequest.h
 
 INCLUDEPATH += ../src
 LIBS += -L../src -lcomms

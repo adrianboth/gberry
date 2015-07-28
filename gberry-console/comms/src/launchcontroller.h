@@ -27,7 +27,9 @@ class LaunchController : public ILaunchController
     Q_OBJECT
 
 public:
-    LaunchController(IApplications* apps, QObject* parent = 0);
+    LaunchController(IApplications* apps,
+                     IApplicationExecutionSetup* executionSetup,
+                     QObject* parent = 0);
     ~LaunchController();
 
     virtual void launch() override;

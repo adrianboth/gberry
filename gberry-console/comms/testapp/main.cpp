@@ -16,24 +16,30 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef FILEUTILS_H
-#define FILEUTILS_H
+ #include <QGuiApplication>
+#include <client/applicationmain.h>
+#include <client/consoleapplication.h>
 
-#include <QString>
-#include <QStringList>
-#include <QDir>
+using namespace GBerryApplication;
 
-namespace GBerryLib
+int main(int argc, char *argv[])
 {
-QString joinpath(const QString& appDir, const QString& path);
-QString joinpath(const QStringList& paths);
+    QGuiApplication app(argc, argv);
+    ApplicationMain main(&app);
 
-//https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189
-// taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
-bool copyRecursively(const QString &srcFilePath,
-                            const QString &tgtFilePath);
+    ConsoleApplication consoleApp;
+    if (main.hasApplicationCode())
+        consoleApp.setApplicationCode(main.applicationCode());
 
-} // eon
+#ifdef GBERRY_DEBUG_QML_IMPORT_PATH
+    consoleApp.setImportPaths(QString(xstr(GBERRY_DEBUG_QML_IMPORT_PATH)));
+#endif
 
-#endif // FILEUTILS_H
+#ifdef GBERRY_ASSETS_FIXED_ROOT_PATH
+    consoleApp.assets().setRootPath(QString(xstr(GBERRY_ASSETS_FIXED_ROOT_PATH)));
+#endif
 
+    consoleApp.run("qrc:/main.qml");
+
+    return main.exec();
+}

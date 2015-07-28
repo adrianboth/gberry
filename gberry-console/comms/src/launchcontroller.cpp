@@ -18,11 +18,14 @@
  
  #include "launchcontroller.h"
 
-LaunchController::LaunchController(IApplications* apps, QObject* parent) :
+LaunchController::LaunchController(
+        IApplications* apps,
+        IApplicationExecutionSetup* executionSetup,
+        QObject* parent) :
     ILaunchController(parent),
     _apps(apps)
 {
-    _appController = new ApplicationController(this);
+    _appController = new ApplicationController(executionSetup, this);
     connect(_appController, &ApplicationController::launched, [&] () { emit this->launched(); });
     connect(_appController, &ApplicationController::launchFailed, [&] () { emit this->launchFailed(); });
     connect(_appController, &ApplicationController::resumed, [&] () { emit this->resumed(); });
@@ -50,8 +53,5 @@ bool LaunchController::useApplication(const QString& appID)
     _appController->stop();
     QSharedPointer<IApplication> app(_apps->application(appID));
     _appController->setApplication(app);
-    // enabling logging is not stricly required when we update app, but to
-    // this is to highlight that log will go to app specific dir
-    _appController->enableOutputLogging(true);
     return !app.isNull();
 }

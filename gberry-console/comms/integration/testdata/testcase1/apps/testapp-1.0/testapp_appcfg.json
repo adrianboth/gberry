@@ -1,0 +1,7 @@
+{
+"id": "testapp",
+"version": "1.0",
+"name": "Test Application",
+"description": "This is a test application 1",
+"application_exe": "testapp"
+}

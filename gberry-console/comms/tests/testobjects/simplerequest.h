@@ -16,8 +16,8 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef TEST_REQUEST_H
-#define TEST_REQUEST_H
+#ifndef SIMPLEREQUEST_H
+#define SIMPLEREQUEST_H
 
 // Typically GTest *.cpp files don't need header files but
 // Qt class definitions (inheriting from QObject) don't work
@@ -47,4 +47,4 @@ protected:
 
 };
 
-#endif // TEST_REQUEST_H
+#endif // SIMPLEREQUEST_H

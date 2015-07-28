@@ -16,24 +16,8 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef FILEUTILS_H
-#define FILEUTILS_H
+ .pragma library // stateless
 
-#include <QString>
-#include <QStringList>
-#include <QDir>
+.import GBerry 1.0 as GBerry
 
-namespace GBerryLib
-{
-QString joinpath(const QString& appDir, const QString& path);
-QString joinpath(const QStringList& paths);
-
-//https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189
-// taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
-bool copyRecursively(const QString &srcFilePath,
-                            const QString &tgtFilePath);
-
-} // eon
-
-#endif // FILEUTILS_H
-
+var logLevel = GBerry.Log.DEBUG_LEVEL

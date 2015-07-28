@@ -61,7 +61,9 @@ SOURCES += \
     applicationconfigreaderwriter.cpp \
     downloadableapplicationcache.cpp \
     commands/headserverstatuscommand.cpp \
-    commsconfig.cpp
+    commsconfig.cpp \
+    qtlibrariesmanager.cpp \
+    applicationexecutionsetup.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -95,7 +97,10 @@ HEADERS += \
     applicationconfigreaderwriter.h \
     downloadableapplicationcache.h \
     commands/headserverstatuscommand.h \
-    commsconfig.h
+    commsconfig.h \
+    qtlibrariesmanager.h \
+    applicationexecutionsetup.h \
+    iapplicationexecutionsetup.h
 
 DEPENDPATH += .
 

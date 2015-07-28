@@ -15,25 +15,40 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- #ifndef FILEUTILS_H
-#define FILEUTILS_H
+
+#ifndef QTLIBRARIESMANAGER_H
+#define QTLIBRARIESMANAGER_H
 
 #include <QString>
-#include <QStringList>
-#include <QDir>
+#include <QScopedPointer>
 
-namespace GBerryLib
+#include <result.h>
+using namespace GBerryLib;
+
+namespace GBerryComms {
+
+ERRORCLASS(QtLibrariesManagerError)
+
+class QtLibrariesManagerErrors {
+public:
+    static const QtLibrariesManagerError QT_VERSION_NOT_FOUND;
+    static const QtLibrariesManagerError QT_CONF_WRITING_FAILED;
+};
+
+class QtLibrariesManager
 {
-QString joinpath(const QString& appDir, const QString& path);
-QString joinpath(const QStringList& paths);
+public:
+    // qtVersionsDir contains versions as subdirectories
+    QtLibrariesManager(const QString& qtVersionsDir);
+    ~QtLibrariesManager();
 
-//https://qt.gitorious.org/qt-creator/qt-creator/source/1a37da73abb60ad06b7e33983ca51b266be5910e:src/app/main.cpp#L13-189
-// taken from utils/fileutils.cpp. We can not use utils here since that depends app_version.h.
-bool copyRecursively(const QString &srcFilePath,
-                            const QString &tgtFilePath);
+    bool createQtConf(const QString& dstDirPath, Result& result);
+
+private:
+    class Private;
+    const QScopedPointer<Private> _d;
+};
 
 } // eon
 
-#endif // FILEUTILS_H
-
+#endif // QTLIBRARIESMANAGER_H

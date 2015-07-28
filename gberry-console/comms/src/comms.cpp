@@ -38,6 +38,7 @@
 #include "utils/fileutils.h"
 #include "commands/commscommands.h"
 #include "commsconfig.h"
+#include "applicationexecutionsetup.h"
 
 #include <invocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -132,9 +133,14 @@ int Comms::run(int argc, char *argv[])
         return foundApps[0];
     };
 
+    // -- apps execution env setup
+    QString qtlibsPath = GBerryLib::joinpath({rootPath, "lib", "Qt"});
+    QtLibrariesManager qtlibsManager(qtlibsPath);
+
     DEBUG("Initializing configuration for 'waitapp' and 'mainui'");
-    ApplicationController waitAppController(getapp("waitapp"), &setup.applicationRegistry);
-    waitAppController.enableOutputLogging(true);
+    ApplicationExecutionSetup executionSetup(&qtlibsManager, &setup.applicationRegistry, true); // enablelogging=true
+
+    ApplicationController waitAppController(getapp("waitapp"), &executionSetup);
 
     QObject::connect(&waitAppController, &ApplicationController::paused,
                      [&] () {
@@ -158,11 +164,10 @@ int Comms::run(int argc, char *argv[])
         }
     });
 
-    ApplicationController mainuiController(getapp("mainui"), &setup.applicationRegistry);
-    mainuiController.enableOutputLogging(true);
+    ApplicationController mainuiController(getapp("mainui"), &executionSetup);
 
     // TODO: using safe pointer goes too far ...
-    LaunchController currentAppController(apps.data());
+    LaunchController currentAppController(apps.data(), &executionSetup);
 
     UIAppStateMachine stateMachine(&waitAppController, &mainuiController, &currentAppController);
 

@@ -15,8 +15,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- 
 #include <gtest/gtest.h>
 
 #include <QCoreApplication>
@@ -27,20 +25,16 @@
 
 #include "mocks/mock_iapplications.h"
 
-#include "testutils/waiter.h"
+#include <testutils/waiter.h>
+#include "testobjects/simpleapplicationexecutionsetup.h"
 
-#include "testutils/util_enablelog.h"
-ENABLE_LOGGING()
-
-//namespace {
-//    static TestUtils::StdoutLoggingEnabler& logging = TestUtils::enabledStdoutLogging();
-//}
 
 TEST(LaunchController, LaunchController)
 {
     QMap<QString, QSharedPointer<IApplication>> appsMap;
     StubIApplications apps(appsMap);
-    LaunchController controller(&apps);
+    SimpleApplicationExecutionSetup executionSetup;
+    LaunchController controller(&apps, &executionSetup);
 
     bool launchCalled = false;
     QObject::connect(&controller, &LaunchController::launched, [&] () { launchCalled = true; });
