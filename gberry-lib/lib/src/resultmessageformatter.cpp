@@ -85,8 +85,10 @@ QJsonObject ResultMessageFormatter::toJson() const
 QString createEndUserMessageFrom(const Result& result)
 {
     // TODO: localization
-    if (result.errors().isEmpty())
-        return QT_TRANSLATE_NOOP("Errors", "TXT_No errors.");
+    if (result.errors().isEmpty()) {
+        const char* errormsg = QT_TRANSLATE_NOOP("Errors", "TXT_No errors.");
+        return QCoreApplication::translate("Errors", errormsg);
+    }
 
     QString msg;
 
