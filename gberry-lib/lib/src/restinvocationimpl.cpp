@@ -138,7 +138,7 @@ public:
             result << NetworkErrorReasons::from(err);
 
             // get possible return data
-            //replyData = qreply->readAll();
+            replyData = qreply->readAll();
 
             emit q->finishedError(q);
         }
