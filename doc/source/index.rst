@@ -9,10 +9,14 @@ Welcome to GBerry's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
    README
+   architecture/PlatformTechnicalOverview
    CompilingPlatform
+   RunDevelopmentPlatform
+   GameDevelopmentSetup
+   
    gberry_console_link
    gberry_mobile_link
    
