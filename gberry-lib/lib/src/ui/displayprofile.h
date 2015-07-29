@@ -54,6 +54,8 @@ public:
     ~DisplayProfile();
 
     Mode mode() const { return _mode; }
+    Q_INVOKABLE QString modeString() const { return _mode == PixelMatch ? "pixel" : "dimension"; }
+    Q_INVOKABLE bool isTargetHardware() const;
 
     int windowWidth() const;
     int windowHeight() const;

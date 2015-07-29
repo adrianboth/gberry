@@ -94,6 +94,16 @@ DisplayProfile::~DisplayProfile()
 
 }
 
+bool DisplayProfile::isTargetHardware() const
+{
+    // based on compilation time
+#ifdef TARGET_DESKTOP
+    return false;
+#else
+    return true;
+#endif
+}
+
 int DisplayProfile::windowWidth() const
 {
     if (_targetDisplay) {
