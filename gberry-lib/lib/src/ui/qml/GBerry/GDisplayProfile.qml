@@ -37,6 +37,7 @@ Rectangle {
     property real mediumSize: 10 * scaleFactor
     property real largeSize: 20 * scaleFactor
 
+    // TODO: why these are functions?
     function touchCellWidth() {
         return mediumSize * ppmText
     }
@@ -80,6 +81,8 @@ Rectangle {
         Log.debug("dpi: " + DisplayProfile.xdpi + "x" + DisplayProfile.ydpi)
         Log.debug("window size: " + DisplayProfile.windowWidth + "x" + DisplayProfile.windowHeight)
         Log.debug("DisplayProfile.sizeScaleFactor: " + DisplayProfile.sizeScaleFactor)
+        Log.debug("IsTargetHardware: " + DisplayProfile.isTargetHardware())
+        Log.debug("DisplayMode: " + DisplayProfile.modeString())
         Log.debug("Local scaleFactor: " + scaleFactor)
         Log.debug("orientation: " + Screen.orientation)
         Log.debug("primaryOrientation: " + Screen.primaryOrientation)
