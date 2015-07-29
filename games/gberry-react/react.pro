@@ -43,7 +43,7 @@ assets.files = assets/*
 assets.path = $$DEPLOY_DIR/apps/react/
 INSTALLS += assets
 
-appcfg.files = react_appcfg.json react.sh
+appcfg.files = $${TARGET}_appcfg.json
 appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += appcfg
 
@@ -52,5 +52,4 @@ includeStaticLibrary("gberrylib", $${GBERRYLIB_SRC_DIR}, $${GBERRYLIB_BUILD_DIR}
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
 
 DISTFILES += \
-    react_appcfg.json \
-    react.sh
+    $${TARGET}_appcfg.json

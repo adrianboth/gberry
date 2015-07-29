@@ -34,8 +34,7 @@ using ::testing::_;
 #include "mocks/mock_restinvocation.h"
 #include "mocks/mock_invocationfactory.h"
 
-// SimpleRequest comes from here
-#include "test_request.h"
+#include "testobjects/simplerequest.h"
 
 // basic usage of Request (subclassing)
 TEST(Request, OKRequest)

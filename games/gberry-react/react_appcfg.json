@@ -4,5 +4,5 @@
 "name": "React!",
 "description": "Reaction game where player who enters row of number fastest wins.",
 "catalog_image": "",
-"application_exe": "react.sh"
+"application_exe": "react"
 }

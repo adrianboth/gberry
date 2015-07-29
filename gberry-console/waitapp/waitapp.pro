@@ -38,7 +38,7 @@ CONFIG(debug, debug|release) {
 target.path = $${DEPLOY_DIR}/apps/$$TARGET/
 INSTALLS += target
 
-appcfg.files = waitapp_appcfg.json waitapp.sh
+appcfg.files = $${TARGET}_appcfg.json
 appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += appcfg
 
@@ -49,5 +49,4 @@ includeStaticLibrary("qhttpserver", $${QHTTPSERVER_SRC_DIR}, $${QHTTPSERVER_BUIL
 includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_DIR})
 
 DISTFILES += \
-    waitapp_appcfg.json \
-    waitapp.sh
+    $${TARGET}_appcfg.json
