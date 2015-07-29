@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.0
+import QtQuick 2.0
 import QtQuick.Layouts 1.1
 
 // TODO: create button that sends data back to mainui
@@ -30,19 +30,53 @@ Rectangle {
     }
 
     property real buttonOpacity: 0.5
+    property int buttonTextFontPixelSize: gdisplay.touchCellHeight()
+
 
     ColumnLayout {
         anchors.centerIn: parent
 
         Item {
             id: feedback
+            //Layout.preferredWidth: feedbackText.implicitWidth * 1.5
             Layout.fillWidth: true
-            Layout.preferredHeight: feedbackText.implicitHeight * 2
+            Layout.preferredHeight: feedbackText.implicitHeight * 1.5
+            Layout.alignment: Qt.AlignHCenter
 
             Rectangle {
                 id: feedbackBox
                 anchors.fill: parent
                 radius: 10
+            }
+
+            Text {
+                id: feedbackText
+                text: "" // "undefined"
+                anchors.centerIn: parent
+                font.pixelSize: gdisplay.mediumSizeText * 0.75
+
+                function setFeedback(txt) {
+                    // onTextChanged() doesn't work as text is not every time really
+                    // chaning, just same text again
+
+                    feedback.setNormalMode()
+                    feedbackText.text = txt
+                    feedbackText.opacity = 1.0
+                    feedbackTimer.running = true
+                }
+                Timer {
+                    id: feedbackTimer
+                    running: false
+                    interval: 100
+                    repeat: true
+                    onTriggered: {
+                        if (feedbackText.opacity == 0) {
+                            feedbackTimer.running = false
+                        } else {
+                            feedbackText.opacity -= 0.1
+                        }
+                    }
+                }
             }
 
             function setWaitMode() {
@@ -86,37 +120,6 @@ Rectangle {
                 }
             }
 
-            Text {
-                id: feedbackText
-                text: "" // "undefined"
-                anchors.centerIn: parent
-                // TODO: get resolution from parent
-                font.pixelSize: 24
-
-                function setFeedback(txt) {
-                    // onTextChanged() doesn't work as text is not every time really
-                    // chaning, just same text again
-
-                    feedback.setNormalMode()
-                    feedbackText.text = txt
-                    feedbackText.opacity = 1.0
-                    feedbackTimer.running = true
-                }
-                Timer {
-                    id: feedbackTimer
-                    running: false
-                    interval: 100
-                    repeat: true
-                    onTriggered: {
-                        if (feedbackText.opacity == 0) {
-                            feedbackTimer.running = false
-                        } else {
-                            feedbackText.opacity -= 0.1
-                        }
-                    }
-                }
-            }
-
         }
 
         RowLayout {
@@ -137,8 +140,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText1
                     text: button1.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -164,8 +166,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText2
                     text: button2.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -191,8 +192,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText3
                     text: button3.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -221,8 +221,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText4
                     text: button4.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -248,8 +247,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText5
                     text: button5.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -275,8 +273,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText6
                     text: button6.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -304,8 +301,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText7
                     text: button7.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -331,8 +327,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText8
                     text: button8.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -358,8 +353,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText9
                     text: button9.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -393,8 +387,7 @@ Rectangle {
                     anchors.centerIn: parent
                     id: buttonText0
                     text: button0.number.toString()
-                    // TODO: how to get display size through
-                    font.pixelSize: 36
+                    font.pixelSize: self.buttonTextFontPixelSize
                 }
                 MouseArea {
                     anchors.fill: parent

@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.0
+import QtQuick 2.0
 
 Rectangle {
     // what number is shown in button
@@ -39,7 +39,8 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: number.toString()
-        font.pixelSize: gdisplay.largeSize * gdisplay.ppmText
+        color: black
+        font.pixelSize: Math.min(55, gdisplay.largeSize * gdisplay.ppmText)
     }
 }
 

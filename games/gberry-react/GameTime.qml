@@ -45,7 +45,7 @@ Text {
 
     text: "0.0"
     z: 100 // always on top when visible
-    font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+    font.pixelSize: Math.min(55, gdisplay.mediumSize * gdisplay.ppmText)
 
     function setTime(time) {
         // 0.0 resolution

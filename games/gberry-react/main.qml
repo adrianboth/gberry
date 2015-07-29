@@ -82,7 +82,7 @@ Window {
 
                 Text {
                     text: "React!"
-                    font.pixelSize: gdisplay.text_mm(25)
+                    font.pixelSize: Math.min(55, gdisplay.text_mm(25))
                     anchors.centerIn: parent
                 }
             }
@@ -153,7 +153,7 @@ Window {
             Text {
                 id: todaysbestlabel
                 text: "undefined"
-                font.pixelSize: gdisplay.mediumSize * gdisplay.ppmText
+                font.pixelSize: Math.min(55, gdisplay.mediumSize * gdisplay.ppmText)
                 z: 100
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -279,7 +279,7 @@ Window {
         messageBoard.insertPlayerMessage(pid, "New player")
 
         var js = {action: "DefineGeneralActions",
-                  actions: [{actionId: "GameMenu", actionName: "Menu"}]}
+                  actions: [{actionId: "GameMenu", actionName: "Abort Game"}]}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         if (mainarea.state === "MENU") {

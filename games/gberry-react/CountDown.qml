@@ -42,7 +42,7 @@ Rectangle {
 
     Text {
         id: number
-        font.pixelSize: gdisplay.largeSize * gdisplay.ppmText
+        font.pixelSize: Math.min(55, gdisplay.largeSize * gdisplay.ppmText)
         anchors.centerIn: parent
     }
 

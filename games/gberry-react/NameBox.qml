@@ -34,13 +34,13 @@ Rectangle {
         self.border.color = Qt.lighter(bgColor)
     }
 
-    Behavior on x { SmoothedAnimation { velocity: 200 } }
+    Behavior on x { SmoothedAnimation { velocity: 500 } }
 
     Text {
         id: nameBoxText
         text: self.name
         anchors.centerIn: parent
-        font.pixelSize: gdisplay.smallSize * gdisplay.ppmText
+        font.pixelSize: Math.min(55, gdisplay.smallSize *1.5 * gdisplay.ppmText) // TODO: raspi bug
     }
 
     function shake() {
@@ -68,4 +68,3 @@ Rectangle {
         }
     }
 }
-
