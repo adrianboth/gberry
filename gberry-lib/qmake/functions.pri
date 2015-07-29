@@ -62,6 +62,7 @@ isEmpty(BUILD_NAME) {
     message("BUILD_NAME not defined -> using default")
 }
 message(" -- BUILD_NAME: $${BUILD_NAME}")
+message(" DEFINES = $$DEFINES")
 
 
 defineTest(includeStaticLibrary) {
