@@ -12,6 +12,21 @@ TODO:
  * creating symlinks
  * packaging
  
+Referring to Platform QML
+-------------------------
+
+For console applications both `console-lib` and `gberry-lib` provide provide
+QML components. For the final deployment setup these QML components are copied
+to `lib/`. In other words applications do not need to include those into their
+binary.
+
+During development time QML libraries are found via symbolic links. In 
+application there is `ui/` folder that contains symbolic links to `gberry-lib`
+and `console-lib`.
+
+The `development/create_application_qml_symlinks.sh` can be used to create
+needed symbolic links. Call it with a path to a game project directory.
+
  
 Development Tips
 ----------------
