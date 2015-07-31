@@ -26,7 +26,11 @@
 #include "log/log.h"
 
 namespace {
+    static const char* FILE_VERSION_KEY = "version";
+    static const char* FILE_VERSION_VALUE = "0.1"; // update this when significant changes that you need to handle
+
     static const char* USERNAME_KEY = "username";
+    static const char* EMAIL_KEY = "password";
     static const char* PASSWORD_KEY = "password";
     static const char* GUEST_KEY = "guest";
     static const char* REMEMBER_PASSWORD_KEY = "remember_password";
@@ -52,6 +56,15 @@ UserModel::UserModel(ApplicationStorage* storage, QObject* parent) :
     if (iniFile.exists()) {
         // read it
         DEBUG("Reading users from ini file");
+        if (_ini->contains(FILE_VERSION_KEY)) {
+            QString version = _ini->value(FILE_VERSION_KEY).toString();
+            DEBUG("Users ini file version:" << version);
+        } else {
+            DEBUG("No version information in Users ini file");
+            // set version and it will be saved when users data is saved next time
+            _ini->setValue(FILE_VERSION_KEY, FILE_VERSION_VALUE);
+        }
+
         int index = 1;
 
         auto mkkey = [](const char* baseKey, int i) { QString key(baseKey);  key.append(QString::number(i)); return key; };
@@ -65,6 +78,7 @@ UserModel::UserModel(ApplicationStorage* storage, QObject* parent) :
             UserInfo user; // initialized by defaults
             user.userName = _ini->value(mkkey(USERNAME_KEY, index)).toString();
 
+            if (_ini->contains(mkkey(EMAIL_KEY, index))) user.email = _ini->value(mkkey(EMAIL_KEY, index)).toString();
             if (_ini->contains(mkkey(PASSWORD_KEY, index))) user.password = _ini->value(mkkey(PASSWORD_KEY, index)).toString();
             if (_ini->contains(mkkey(GUEST_KEY, index))) user.guest = _ini->value(mkkey(GUEST_KEY, index)).toBool();
             if (_ini->contains(mkkey(REMEMBER_PASSWORD_KEY, index))) user.rememberPassword = _ini->value(mkkey(REMEMBER_PASSWORD_KEY, index)).toBool();
@@ -112,7 +126,17 @@ bool UserModel::autoLoginEnabled() const
 QString UserModel::currentUserName() const
 {
     if (_activeUserIndex != -1) {
+        DEBUG("Active index:" << _activeUserIndex << ", list size:" << _users.size());
         return _users.at(_activeUserIndex).userName;
+    } else {
+        return "";
+    }
+}
+
+QString UserModel::currentEmail() const
+{
+    if (_activeUserIndex != -1) {
+        return _users.at(_activeUserIndex).email;
     } else {
         return "";
     }
@@ -145,7 +169,7 @@ bool UserModel::currentIsRememberPassword() const
     }
 }
 
-bool UserModel::selectCurrentUser(QString userName)
+bool UserModel::selectCurrentUser(const QString& userName)
 {
     for (int i = 0; i < _users.length(); i++) {
         if (_users.at(i).userName == userName) {
@@ -153,6 +177,7 @@ bool UserModel::selectCurrentUser(QString userName)
             save();
             emit currentUserIsActiveChanged();
             emit currentUserNameChanged();
+            emit currentIsGuestChanged(); // even if value wasn't really changed, but trigger
             return true;
         }
     }
@@ -165,6 +190,7 @@ void UserModel::unselectCurrentUser() {
     save();
     emit currentUserIsActiveChanged();
     emit currentUserNameChanged();
+    emit currentIsGuestChanged();
 }
 
 QList<QString> UserModel::userNames() const
@@ -177,7 +203,16 @@ QList<QString> UserModel::userNames() const
     return names;
 }
 
-QString UserModel::password(QString userName)
+QString UserModel::email(const QString& userName)
+{
+    if (updateCachedUser(userName)) {
+        return _cachedUser.email;
+    }
+    // user not found
+    return "";
+}
+
+QString UserModel::password(const QString& userName)
 {
     if (updateCachedUser(userName)) {
         return _cachedUser.password;
@@ -186,7 +221,7 @@ QString UserModel::password(QString userName)
     return "";
 }
 
-bool UserModel::isGuest(QString userName)
+bool UserModel::isGuest(const QString& userName)
 {
     if (updateCachedUser(userName)) {
         return _cachedUser.guest;
@@ -195,7 +230,7 @@ bool UserModel::isGuest(QString userName)
     return true;
 }
 
-bool UserModel::isRememberPassword(QString userName)
+bool UserModel::isRememberPassword(const QString& userName)
 {
     if (updateCachedUser(userName)) {
         return _cachedUser.rememberPassword;
@@ -204,7 +239,7 @@ bool UserModel::isRememberPassword(QString userName)
     return false;
 }
 
-bool UserModel::updateCachedUser(QString &userName)
+bool UserModel::updateCachedUser(const QString& userName)
 {
     if (_cachedUser.userName == userName) {
         // already in cache
@@ -221,7 +256,7 @@ bool UserModel::updateCachedUser(QString &userName)
     return false;
 }
 
-void UserModel::setUser(UserInfo& userInfo)
+void UserModel::setUser(const UserInfo& userInfo)
 {
     // TODO: we could take only those that has been changed
     for (int i = 0; i < _users.length(); i++) {
@@ -233,6 +268,8 @@ void UserModel::setUser(UserInfo& userInfo)
 
             if (i == _activeUserIndex) {
                 emit currentUserInfoChanged();
+                emit currentUserNameChanged();
+                emit currentIsGuestChanged();
             }
             return;
         }
@@ -247,14 +284,18 @@ void UserModel::setUser(UserInfo& userInfo)
 
 void UserModel::save()
 {
-    // TODO: deleting / claering users
+    // TODO: deleting / clearing users
     auto mkkey = [](const char* baseKey, int i) { QString key(baseKey);  key.append(QString::number(i + 1)); return key; };
 
     for (int i = 0; i < _users.length(); i++) {
         _ini->setValue(mkkey(USERNAME_KEY, i), _users.at(i).userName);
-        _ini->setValue(mkkey(PASSWORD_KEY, i), _users.at(i).password);
+        _ini->setValue(mkkey(EMAIL_KEY, i), _users.at(i).email);
         _ini->setValue(mkkey(GUEST_KEY, i), _users.at(i).guest);
         _ini->setValue(mkkey(REMEMBER_PASSWORD_KEY, i), _users.at(i).rememberPassword);
+
+        if (_users.at(i).rememberPassword) {
+            _ini->setValue(mkkey(PASSWORD_KEY, i), _users.at(i).password);
+        }
     }
 
     _ini->setValue(LAST_ACTIVE_USER, _activeUserIndex + 1);
@@ -264,8 +305,12 @@ void UserModel::save()
     DEBUG("Saved user info");
 }
 
-void UserModel::setUser(QString userName, QString password, bool guest, bool rememberPassword)
+void UserModel::setUser(const QString& userName,
+                        const QString& email,
+                        const QString& password,
+                        bool guest,
+                        bool rememberPassword)
 {
-    UserInfo userInfo(userName, password, guest, rememberPassword);
+    UserInfo userInfo(userName, email, password, guest, rememberPassword);
     setUser(userInfo);
 }

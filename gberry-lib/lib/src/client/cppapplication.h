@@ -23,6 +23,9 @@
 
 #include "applicationstorage.h"
 #include "usermodel.h"
+#include "loginmodel.h"
+using namespace GBerryClient;
+
 #include "ui/displayprofile.h"
 #include "applicationsettings.h"
 
@@ -43,7 +46,8 @@ public:
 private:
     QQmlApplicationEngine* _engine;
     ApplicationStorage _appStorage;
-    UserModel* _userModel;
+    UserModel* _userModel{nullptr};
+    LoginModel* _loginModel{nullptr};
     DisplayProfile _displayProfile;
     ApplicationSettings _settings;
 };

@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef USERMODEL_H
+#ifndef USERMODEL_H
 #define USERMODEL_H
 
 #include <QObject>
@@ -27,16 +27,29 @@
 class UserInfo {
 
 public:
-    UserInfo() : userName(""), password(""), guest(true), rememberPassword(false) {}
+    UserInfo() : guest(true), rememberPassword(false) {}
 
-    UserInfo(QString& userName_, QString& password_, bool guest_, bool rememberPassword_) :
-        userName(userName_), password(password_), guest(guest_), rememberPassword(rememberPassword_) {}
+    UserInfo(const QString& userName_,
+             const QString& email_,
+             const QString& password_,
+             bool guest_,
+             bool rememberPassword_) :
+        userName(userName_),
+        email(email_),
+        password(password_),
+        guest(guest_),
+        rememberPassword(rememberPassword_) {}
 
     UserInfo(const UserInfo& other) :
-        userName(other.userName), password(other.password), guest(other.guest), rememberPassword(other.rememberPassword) {}
+        userName(other.userName),
+        email(other.email),
+        password(other.password),
+        guest(other.guest),
+        rememberPassword(other.rememberPassword) {}
 
     UserInfo& operator=(const UserInfo& other) {
         userName = other.userName;
+        email = other.email;
         password = other.password;
         guest = other.guest;
         rememberPassword = other.rememberPassword;
@@ -44,6 +57,7 @@ public:
     }
 
     QString userName;
+    QString email;
     QString password;
     bool guest;
     bool rememberPassword;
@@ -57,21 +71,23 @@ class UserModel : public QObject
     // intefacing towards QML happens through properties
     Q_PROPERTY(bool currentUserIsActive READ currentUserIsActive NOTIFY currentUserIsActiveChanged)
     Q_PROPERTY(QString currentUserName READ currentUserName NOTIFY currentUserNameChanged)
+    Q_PROPERTY(QString currentEmail READ currentEmail)
     Q_PROPERTY(QString currentPassword READ currentPassword)
-    Q_PROPERTY(QString currentIsGuest READ currentIsGuest)
+    Q_PROPERTY(bool currentIsGuest READ currentIsGuest NOTIFY currentIsGuestChanged)
     Q_PROPERTY(QString currentIsRememberPassword READ currentIsRememberPassword)
 
     // dev time util for making automatic login
     Q_PROPERTY(bool autoLoginEnabled READ autoLoginEnabled)
 
 public:
-    UserModel(ApplicationStorage* storage, QObject* parent = NULL);
+    explicit UserModel(ApplicationStorage* storage, QObject* parent = NULL);
     ~UserModel();
 
     // -- properties
     bool currentUserIsActive() { return _activeUserIndex != -1; }
     QString currentUserName() const;
-    QString currentPassword() const ;
+    QString currentEmail() const;
+    QString currentPassword() const;
     bool currentIsGuest() const;
     bool currentIsRememberPassword() const;
 
@@ -79,25 +95,31 @@ public:
 
     // -- functions
 
-    Q_INVOKABLE bool selectCurrentUser(QString userName);
+    Q_INVOKABLE bool selectCurrentUser(const QString& userName);
     Q_INVOKABLE void unselectCurrentUser();
 
     Q_INVOKABLE QList<QString> userNames() const;
-    Q_INVOKABLE QString password(QString userName);
-    Q_INVOKABLE bool isGuest(QString userName);
-    Q_INVOKABLE bool isRememberPassword(QString userName);
+    Q_INVOKABLE QString password(const QString& userName);
+    Q_INVOKABLE QString email(const QString& userName);
+    Q_INVOKABLE bool isGuest(const QString& userName);
+    Q_INVOKABLE bool isRememberPassword(const QString& userName);
 
-    void setUser(UserInfo& userInfo);
-    Q_INVOKABLE void setUser(QString userName, QString password, bool guest, bool rememberPassword);
+    void setUser(const UserInfo& userInfo);
+    Q_INVOKABLE void setUser(const QString& userName,
+                             const QString& email,
+                             const QString& password,
+                             bool guest,
+                             bool rememberPassword);
 
 signals:
     void currentUserInfoChanged();
     void currentUserNameChanged();
     void currentUserIsActiveChanged();
+    void currentIsGuestChanged();
 
 private:
     void save();
-    bool updateCachedUser(QString& userName);
+    bool updateCachedUser(const QString& userName);
 
     ApplicationStorage* _storage;
     int _activeUserIndex;
@@ -105,6 +127,8 @@ private:
     QSettings* _ini;
     UserInfo _cachedUser;
 
+private:
+    Q_DISABLE_COPY(UserModel)
 };
 
 #endif // USERMODEL_H

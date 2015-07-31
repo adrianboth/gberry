@@ -89,7 +89,8 @@ HEADERS += \
     resultmessageformatter.h \
     testutils/stringutils.h \
     mocks/mock_invocationfactory.h \
-    mocks/mock_downloadstreaminvocation.h
+    mocks/mock_downloadstreaminvocation.h \
+    client/loginmodel.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -154,7 +155,8 @@ SOURCES += \
     resultmessageformatter.cpp \
     testutils/stringutils.cpp \
     mocks/mock_restinvocation.cpp \
-    mocks/mock_downloadstreaminvocation.cpp
+    mocks/mock_downloadstreaminvocation.cpp \
+    client/loginmodel.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

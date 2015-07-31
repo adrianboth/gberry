@@ -47,6 +47,8 @@ Item {
     signal login(string userName)
     signal logout(string userName)
 
+    property bool currentUserDirty: false
+
     onVisibleChanged: {
         if (self.visible) {
             refreshComboboxModel()
@@ -55,10 +57,12 @@ Item {
 
             if (UserModel.currentUserIsActive && index > -1) {
                 userNameField.currentIndex = index
+                refreshFields(index)
 
             } else {
                 // zero is "no selection"
                 userNameField.currentIndex = 0
+                clearFields()
             }
         }
     }
@@ -137,6 +141,7 @@ Item {
 
                     function debugCalc() {
                         console.debug("userNameLabel.implicitWidth:" + userNameLabel.implicitWidth)
+                        console.debug("emailLabel.implicitWidth:" + emailLabel.implicitWidth)
                         console.debug("passwordLabel.implicitWidth:" + passwordLabel.implicitWidth)
                         console.debug("rememberPasswordCheckbox.implicitWidth:" + rememberPasswordCheckbox.implicitWidth)
                         console.debug("gdisplay.touchCellWidth()" + gdisplay.touchCellWidth())
@@ -188,10 +193,7 @@ Item {
                                 if (currentIndex > -1) {
 
                                     var item = profileModel.get(currentIndex)
-                                    passwordField.text = item.password
-                                    guestCheckbox.checked = item.guest
-                                    rememberPasswordCheckbox.checked = item.rememberPassword
-                                    console.debug("User name changed, guest: " + item.guest)
+                                    refreshFields(currentIndex)
                                 }
                             }
 
@@ -236,7 +238,7 @@ Item {
                             ListModel {
                                 id: profileModel
                                 // very initial data to avoid creation time errors
-                                ListElement {text: "foobar"; password: ""; guest: false; rememberPassword: false}
+                                ListElement {text: "foobar"; email: "foo@mail"; password: ""; guest: false; rememberPassword: false}
                             }
                         }
 
@@ -259,7 +261,40 @@ Item {
                             enabled: userNameField.validSelection
                             checked: false
                             onCheckedChanged: {
-                                // TODO
+                                if (UserModel.currentUserName == userNameField.currentText)
+                                    self.currentUserDirty = true
+                            }
+                        }
+                    }
+
+                    RowLayout {
+                        id: emailRow
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: column.rowHeight
+                        spacing: column.columnSpacing
+
+                        enabled: !guestCheckbox.checked && userNameField.validSelection
+
+                        Rectangle {
+                            id: emailRect
+                            //color: "lightblue" // for debugging
+                            Layout.preferredHeight: emailLabel.implicitHeight
+                            Layout.preferredWidth: column.labelColumnWidth
+
+                            Label {
+                                id: emailLabel
+                                text: qsTr("Email")
+                            }
+                        }
+
+                        TextField {
+                            id: emailField
+                            Layout.preferredHeight: emailField.implicitHeight
+                            Layout.fillWidth: true
+
+                            onTextChanged: {
+                                if (UserModel.currentUserName == userNameField.currentText)
+                                    self.currentUserDirty = true
                             }
                         }
                     }
@@ -289,6 +324,11 @@ Item {
                             Layout.preferredHeight: passwordField.implicitHeight
                             Layout.fillWidth: true
                             echoMode: TextInput.Password
+
+                            onTextChanged: {
+                                if (UserModel.currentUserName == userNameField.currentText)
+                                    self.currentUserDirty = true
+                            }
                         }
                     }
 
@@ -329,11 +369,15 @@ Item {
 
                         GButton {
                             id: loginButton
+                            // login possible when:
+                            //   a) current user is not active
+
+                            property bool loginModeEnabled: (UserModel.currentUserName != userNameField.currentText) || self.currentUserDirty
                             label: {
-                                if (UserModel.currentUserIsActive && userNameField.invalidSelection) {
-                                    return qsTr("Logout")
-                                } else {
+                                if (loginModeEnabled) {
                                     return qsTr("Login")
+                                } else {
+                                    return qsTr("Logout")
                                 }
                             }
                             labelTextPixelSize: gdisplay.smallSizeText
@@ -345,7 +389,7 @@ Item {
                             anchors.centerIn: parent
                             onButtonClicked: {
                                 var userName = profileModel.get(userNameField.currentIndex).text
-                                if (userNameField.validSelection) {
+                                if (loginModeEnabled) {
                                     saveCurrent(userNameField.currentIndex)
                                     login(userName)
                                 } else {
@@ -366,11 +410,13 @@ Item {
         profileModel.clear() // remove all previous
         // "no selection" is always first
         profileModel.append({ text: "<no selection>",
+                              email: "",
                               password: "",
                               guest: false,
                               rememberPassword: false })
         for (var i = 0; i < users.length; i++) {
             profileModel.append({text: users[i],
+                                 email: UserModel.email(users[i]),
                                  password: UserModel.password(users[i]),
                                  guest: UserModel.isGuest(users[i]),
                                  rememberPassword: UserModel.isRememberPassword(users[i])
@@ -385,12 +431,37 @@ Item {
         }
 
         var newData = {text: userNameField.editText,
+                       email: emailField.text,
                        password: passwordField.text,
                        guest: guestCheckbox.checked,
                        rememberPassword: rememberPasswordCheckbox.checked}
 
         profileModel.set(index, newData)
-        UserModel.setUser(newData.text, newData.password, newData.guest, newData.rememberPassword)
+        UserModel.setUser(newData.text, newData.email, newData.password, newData.guest, newData.rememberPassword)
+        self.currentUserDirty = false
+    }
+
+    function refreshFields(index) {
+        var item = profileModel.get(index)
+        emailField.text = item.email
+        guestCheckbox.checked = item.guest
+        rememberPasswordCheckbox.checked = item.rememberPassword
+
+        if (item.rememberPassword) {
+            passwordField.text = item.password
+        } else {
+            passwordField.text = ""
+        }
+
+        self.currentUserDirty = false
+        console.debug("User name changed, guest: " + item.guest)
+    }
+
+    function clearFields() {
+        emailField.text = ""
+        passwordField.text = ""
+        guestCheckbox.text = ""
+        rememberPasswordCheckbox.checked = true
     }
 
     // actions when view is about to close

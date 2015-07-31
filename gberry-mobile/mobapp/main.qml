@@ -102,6 +102,25 @@ Window {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
 
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: currentPlayerLabel.left
+                    anchors.margins: 2
+                    width: 5
+                    height: 5
+                    color: {
+                        if (UserModel.currentIsGuest) {
+                            return topbar.color
+                        }
+
+                        if (LoginModel.isLoggedIn) {
+                            return "green"
+                        } else {
+                            return "yellow"
+                        }
+                    }
+                }
+
                 Text {
                     id: currentPlayerLabel
 
@@ -252,6 +271,17 @@ Window {
 
             function show(msg) { parent.show() }
             function hide() { parent.hide() }
+        }
+    }
+
+    ModalDialogFrame {
+        content: LoginWait {
+            id: loginWait
+
+            function show(msg) { parent.show() }
+            function hide() { parent.hide() }
+
+            onViewClosed: { parent.hide() }
         }
     }
 
@@ -494,6 +524,7 @@ Window {
 
     function onLogin(userName)
     {
+        console.debug("onLogin()")
         loginview.hide()
 
         if (mobapp.loggedIn) {
@@ -507,6 +538,13 @@ Window {
 
         } else {
             UserModel.selectCurrentUser(userName)
+        }
+
+        if (!UserModel.currentIsGuest) {
+            loginWait.show()
+            LoginModel.login()
+        } else {
+            console.debug("Guest login")
         }
 
         // no really actions
@@ -567,6 +605,10 @@ Window {
 
     function onLogout(userName) {
         loginview.hide()
+
+        if (LoginModel.isLoggedIn) {
+            LoginModel.logout()
+        }
 
         if (mobapp.loggedIn) {
             onDisconnectRequested()
@@ -631,6 +673,7 @@ Window {
         // testing
         //feedbackDialog.show("jjadadadasdafdafa")
         //errorDialog.show("Test error")
+        //loginWait.show()
     }
 }
 

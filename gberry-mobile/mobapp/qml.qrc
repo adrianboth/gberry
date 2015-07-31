@@ -15,6 +15,7 @@
         <file>ApplicationSettingsJS.js</file>
         <file>ViewTitleBar.qml</file>
         <file>ModalDialogFrame.qml</file>
+        <file>login/LoginWait.qml</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="AppBox.js">js/AppBox.js</file>
