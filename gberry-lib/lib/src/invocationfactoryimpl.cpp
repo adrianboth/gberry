@@ -20,6 +20,7 @@
 
 #include <QNetworkAccessManager>
 #include <QVariant>
+#include <QUrlQuery>
 
 #include "restinvocation.h"
 #include "restinvocationimpl.h"
@@ -41,6 +42,19 @@ QUrl InvocationFactoryImpl::buildUrl(QString invocationPath) const
 {
     QString baseUrl = this->property("url_prefix").toString();
     return QUrl(baseUrl + invocationPath);
+}
+
+QUrl InvocationFactoryImpl::buildUrl(QString invocationPath, const QMap<QString, QString>& params) const
+{
+    QString baseUrl = this->property("url_prefix").toString();
+    QUrl url(baseUrl + invocationPath);
+    QUrlQuery query;
+    foreach(QString key, params.keys())
+        query.addQueryItem(key, params[key]);
+
+    url.setQuery(query);
+    // TODO: using QString instead of QUrl
+    return url;
 }
 
 

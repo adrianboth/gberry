@@ -526,25 +526,26 @@ Window {
     {
         console.debug("onLogin()")
         loginview.hide()
+        var wasConnectedToConsole = mobapp.loggedIn
 
         if (mobapp.loggedIn) {
             onDisconnectRequested()
-
-            // if valid user -> reconnect
-            if (UserModel.currentUserIsActive) {
-                UserModel.selectCurrentUser(userName)
-                onConnectRequested()
-            }
-
-        } else {
-            UserModel.selectCurrentUser(userName)
         }
+
+        UserModel.selectCurrentUser(userName)
+
+        // login is async operation -> reconnection to console can occur on background
 
         if (!UserModel.currentIsGuest) {
             loginWait.show()
             LoginModel.login()
         } else {
             console.debug("Guest login")
+        }
+
+        // if valid user -> reconnect
+        if (wasConnectedToConsole && UserModel.currentUserIsActive) {
+            onConnectRequested()
         }
 
         // no really actions

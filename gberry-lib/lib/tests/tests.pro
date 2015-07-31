@@ -48,7 +48,8 @@ SOURCES += main.cpp \
     test_displayprofile.cpp \
     test_downloadstreaminvocation.cpp \
     test_errors.cpp \
-    test_resultmessageformatter.cpp
+    test_resultmessageformatter.cpp \
+    client/test_loginmodel.cpp
 
 
 INCLUDEPATH += ../src ../../gmock/include ../../gtest/include ../../qhttpserver/src

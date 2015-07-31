@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QSettings>
 
-#include "applicationstorage.h"
+#include "iapplicationstorage.h"
 
 class UserInfo {
 
@@ -69,6 +69,8 @@ class UserModel : public QObject
     Q_OBJECT
 
     // intefacing towards QML happens through properties
+
+    // active means that non-empty user has been selected
     Q_PROPERTY(bool currentUserIsActive READ currentUserIsActive NOTIFY currentUserIsActiveChanged)
     Q_PROPERTY(QString currentUserName READ currentUserName NOTIFY currentUserNameChanged)
     Q_PROPERTY(QString currentEmail READ currentEmail)
@@ -80,7 +82,7 @@ class UserModel : public QObject
     Q_PROPERTY(bool autoLoginEnabled READ autoLoginEnabled)
 
 public:
-    explicit UserModel(ApplicationStorage* storage, QObject* parent = NULL);
+    explicit UserModel(IApplicationStorage* storage, QObject* parent = NULL);
     ~UserModel();
 
     // -- properties
@@ -121,7 +123,7 @@ private:
     void save();
     bool updateCachedUser(const QString& userName);
 
-    ApplicationStorage* _storage;
+    IApplicationStorage* _storage;
     int _activeUserIndex;
     QList<UserInfo> _users;
     QSettings* _ini;

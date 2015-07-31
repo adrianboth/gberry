@@ -42,6 +42,7 @@ public:
 
     QNetworkAccessManager* getQNetworkAccessManager() const { return _qnam; }
     QUrl buildUrl(QString invocationPath) const;
+    QUrl buildUrl(QString invocationPath, const QMap<QString, QString>& params) const;
 
     // RESTInvocationFactory
     virtual RESTInvocation* newRESTInvocation() override;

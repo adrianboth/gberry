@@ -29,7 +29,7 @@ CppApplication::CppApplication(QQmlApplicationEngine* engine) :
     _displayProfile(480, 800, DisplayProfile::PixelMatch, 1.0) // Nexus S, portrait
 {
     _userModel = new UserModel(&_appStorage); // reads defaults when constructed
-    _loginModel = new LoginModel(_userModel);
+    _loginModel = new LoginModel(_userModel, &_appStorage, &_invocationFactory);
 
     if (!_settings.runningOnTargetDevice()) {
         qDebug() << "[CppApplication] Setting target display for development";

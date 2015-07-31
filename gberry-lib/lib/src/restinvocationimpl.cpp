@@ -49,9 +49,10 @@ public:
     QUrl url;
     QByteArray postData;
     Result result;
+    QMap<QString, QString> params;
 
     void doOperation() {
-        doOperation(invocationFactory->buildUrl(def.invocationPath()));
+        doOperation(invocationFactory->buildUrl(def.invocationPath(), params));
     }
 
     void doOperation(QUrl url) {
@@ -199,6 +200,11 @@ void RESTInvocationImpl::definePostOperation(const QString& invocationPath, cons
     _d->def.setHttpOperation(HTTPInvocationDefinition::POST);
     _d->def.setInvocationPath(invocationPath);
     _d->postData = jsondoc.toJson();
+}
+
+void RESTInvocationImpl::defineParameter(const QString &paramName, const QString &paramValue)
+{
+    _d->params[paramName] = paramValue;
 }
 
 void RESTInvocationImpl::execute()

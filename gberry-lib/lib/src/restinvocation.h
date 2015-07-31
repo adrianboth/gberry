@@ -48,6 +48,7 @@ public:
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) = 0;
 
     // TODO: functions to define url parameters
+    virtual void defineParameter(const QString& paramName, const QString& paramValue) = 0;
 
     // TODO: could some of these moved to impl class?
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const = 0;

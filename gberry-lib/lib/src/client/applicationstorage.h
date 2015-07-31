@@ -16,10 +16,12 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef APPLICATIONSTORAGE_H
+#ifndef APPLICATIONSTORAGE_H
 #define APPLICATIONSTORAGE_H
 
 #include <QQmlApplicationEngine>
+
+#include "iapplicationstorage.h"
 
 /**
  * @brief The ApplicationStorage class
@@ -33,13 +35,13 @@
  *
  * The path is set for provided QQmlApplicationEngine.
  */
-class ApplicationStorage
+class ApplicationStorage : public IApplicationStorage
 {
 public:
     ApplicationStorage(QQmlApplicationEngine* engine);
     ~ApplicationStorage();
 
-    QString storagePath() const;
+    QString storagePath() const override;
 
 private:
     QQmlApplicationEngine* _engine;

@@ -16,25 +16,90 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-using ::testing::AtLeast;
-using ::testing::Return;
-using ::testing::StrictMock;
-using ::testing::_;
+#include <testutils/qtgtest.h>
+#include <testutils/waiter.h>
 
 #include <QCoreApplication>
 #include <QTime>
 #include <QThread>
-
 
 #include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 #include "testutils/signalrecorder.h"
 #include "utils/testhttpserver.h"
 
-TEST(restInvocationFactoryImpl, realGetOperation)
+
+TEST(RestInvocationFactoryImpl, RealGetOperationWithParameters)
+{
+    InvocationFactoryImpl factoryObj;
+    InvocationFactory* factory = &factoryObj; // operate through public interface
+
+    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+
+    RESTInvocation* inv = factory->newRESTInvocation();
+    SignalRecorder okRecorder;
+    SignalRecorder errRecorder;
+
+    QObject::connect(inv, &RESTInvocation::finishedOK,
+                     &okRecorder, &SignalRecorder::signal1_QObjectPointer);
+
+    QObject::connect(inv, &RESTInvocation::finishedError,
+                     &errRecorder, &SignalRecorder::signal1_QObjectPointer);
+
+    // set http server to localhost
+    TestHttpServer server(9999);
+
+    bool requestReceived = false;
+    QString expectedPath("/gberryrest/v1/testop");
+    auto mySlot = [&](QHttpRequest* req, QHttpResponse* resp)
+    {
+        requestReceived = true;
+
+        // TODO: later more flexible checking
+        //QRegExp exp("^/console/v1/([a-z]+)?$");
+        //if( exp.indexIn(req->path()) != -1 )
+        //QString name = exp.capturedTexts()[1];
+
+        if (req->path() != expectedPath)
+        {
+            resp->writeHead(403);
+            QString errorMsg("Expected path: " + expectedPath + "\nGot path: " + req->path());
+            resp->end(errorMsg.toLatin1());
+            return;
+        }
+
+        resp->setHeader("Content-Type", "text/html");
+        resp->writeHead(200);
+
+        QString body = "ping";
+        resp->end(body.toUtf8());
+    };
+
+    QObject::connect(&server, &TestHttpServer::request, mySlot);
+
+    inv->defineGetOperation("/testop");
+    inv->defineParameter("test1", "test1value");
+    inv->defineParameter("test2", "test2value");
+    inv->execute();
+
+    EXPECT_FALSE(okRecorder.received());
+    EXPECT_FALSE(errRecorder.received());
+    WAIT_AND_ASSERT(requestReceived); // http server got request
+
+    // wait that client side receives response
+    WAIT_AND_ASSERT(okRecorder.received_QObjectPointer()); // if not ok, would cause segfaults
+
+    RESTInvocation* inv2 = qobject_cast<RESTInvocation *>(okRecorder.getQObjectPointer());
+    ASSERT_TRUE(inv2->responseAvailable());
+    EXPECT_EQ(inv2->responseHttpStatusCode(), HTTPInvocationDefinition::OK_200); // TODO: better name
+    EXPECT_EQ(inv2->statusCode(), RESTInvocation::RESPONSE_RECEIVED);
+
+    QString responseData = inv2->responseString();
+    EXPECT_TRUE(responseData == "ping");
+}
+
+
+TEST(RestInvocationFactoryImpl, RealGetOperation)
 {
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
@@ -112,22 +177,8 @@ TEST(restInvocationFactoryImpl, realGetOperation)
     inv->execute();
     qDebug("## AFTER PING");
 
-    EXPECT_FALSE(okRecorder.received());
-    EXPECT_FALSE(errRecorder.received());
-    EXPECT_FALSE(replyReceived);
+    WAIT_AND_ASSERT(okRecorder.received());
 
-    QTime t; t.start();
-   // 0.5s timeout
-    int c = 0;
-    while (t.elapsed() < 100 && !okRecorder.received_QObjectPointer())
-    {
-        QCoreApplication::processEvents();
-        QThread::msleep(10);
-        c++;
-        //qDebug("Waiting");
-    }
-    //QCoreApplication::processEvents();
-    qDebug() << "After processing events: c=" << c;
     ASSERT_TRUE(replyReceived);
     ASSERT_TRUE(okRecorder.received_QObjectPointer()); // if not ok, would cause segfaults
 
@@ -139,7 +190,6 @@ TEST(restInvocationFactoryImpl, realGetOperation)
     QString responseData = inv2->responseString();
     EXPECT_TRUE(responseData == "ping");
 }
-
 
 // TODO: test case if property not defined
 // TODO: test case if connection not allowed

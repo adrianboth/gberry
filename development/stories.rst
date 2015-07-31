@@ -59,7 +59,34 @@ TODO
 = x.x. Launching a game
 
 
+= x.x. Login Dialog
 
+- ENTERING: Pressing top bar user name
+
+- fields to edit
+
+- ACTION: Login
+  * 'Save'
+  * Try to do login on background
+    * Animation (first just static icon)
+    * If ok -> give indication (icon), feedback dialog
+    * If fail -> give feedback
+    * Store received tokens
+       -> LoginModel
+            * doLogin
+            * user name
+            * tokens
+            * clear
+    
+
+- ACTION: Close
+  * 'Cancel'
+    * ?? Forget changes that are not saved
+
+- ACTION: Selecting user name
+  * ?? Save current
+  
+- ACTION: Editing user name
 
 
  

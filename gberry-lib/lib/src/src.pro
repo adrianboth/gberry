@@ -90,7 +90,11 @@ HEADERS += \
     testutils/stringutils.h \
     mocks/mock_invocationfactory.h \
     mocks/mock_downloadstreaminvocation.h \
-    client/loginmodel.h
+    client/loginmodel.h \
+    client/iapplicationstorage.h \
+    testobjects/stubinvocationfactory.h \
+    testobjects/stubrestinvocation.h \
+    testobjects/stubdownloadstreaminvocation.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -156,7 +160,10 @@ SOURCES += \
     testutils/stringutils.cpp \
     mocks/mock_restinvocation.cpp \
     mocks/mock_downloadstreaminvocation.cpp \
-    client/loginmodel.cpp
+    client/loginmodel.cpp \
+    testobjects/stubinvocationfactory.cpp \
+    testobjects/stubrestinvocation.cpp \
+    testobjects/stubdownloadstreaminvocation.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

@@ -27,7 +27,7 @@
 
 namespace {
     static const char* FILE_VERSION_KEY = "version";
-    static const char* FILE_VERSION_VALUE = "0.1"; // update this when significant changes that you need to handle
+    static const char* FILE_VERSION_VALUE = "1"; // update this when significant changes that you need to handle
 
     static const char* USERNAME_KEY = "username";
     static const char* EMAIL_KEY = "password";
@@ -38,7 +38,7 @@ namespace {
     static const char* LAST_ACTIVE_USER = "last_active_user";
 }
 
-UserModel::UserModel(ApplicationStorage* storage, QObject* parent) :
+UserModel::UserModel(IApplicationStorage* storage, QObject* parent) :
     QObject(parent),
     _storage(storage),
     _activeUserIndex(-1),

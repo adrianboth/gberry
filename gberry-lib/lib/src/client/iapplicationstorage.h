@@ -1,3 +1,6 @@
+#ifndef IAPPLICATIONSTORAGE_H
+#define IAPPLICATIONSTORAGE_H
+
 /* This file is part of GBerry.
  *
  * Copyright 2015 Tero Vuorela
@@ -15,38 +18,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- #ifndef RESTINVOCATIONFACTORY_H
-#define RESTINVOCATIONFACTORY_H
 
-#include <QObject>
-#include <QNetworkAccessManager>
-
-class RESTInvocation;
-
-namespace GBerry {
-    class DownloadStreamInvocation;
-}
-using namespace GBerry;
-
-// TODO: namespace
-// TODO: I prefix (then *.cpp file could be removed
-// TODO: is this necessary to be QObject
-
-class InvocationFactory : public QObject
+/**
+ * This interface manages file location where information can be saved.
+ */
+class IApplicationStorage
 {
-    Q_OBJECT
 public:
-    explicit InvocationFactory(QObject *parent = 0);
-    virtual ~InvocationFactory();
+    IApplicationStorage() {}
+    ~IApplicationStorage() {}
 
-    virtual RESTInvocation* newRESTInvocation() = 0;
-    virtual DownloadStreamInvocation* newDownloadStreamInvocation() = 0;
-    virtual QString defaultHostName() const = 0;
+    virtual QString storagePath() const = 0;
 
-signals:
-
-public slots:
 };
 
-#endif // RESTINVOCATIONFACTORY_H
+#endif // IAPPLICATIONSTORAGE_H
+

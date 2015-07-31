@@ -58,6 +58,7 @@ public:
 
     virtual void defineGetOperation(const QString& invocationPath) override;
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) override;
+    virtual void defineParameter(const QString& paramName, const QString& paramValue) override;
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const;
     virtual bool responseAvailable() const;
     virtual QByteArray responseByteData() const;

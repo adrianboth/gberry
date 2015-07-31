@@ -28,6 +28,7 @@ using namespace GBerryClient;
 
 #include "ui/displayprofile.h"
 #include "applicationsettings.h"
+#include "invocationfactoryimpl.h"
 
 /**
  * @brief Internal application model
@@ -45,6 +46,7 @@ public:
 
 private:
     QQmlApplicationEngine* _engine;
+    InvocationFactoryImpl _invocationFactory;
     ApplicationStorage _appStorage;
     UserModel* _userModel{nullptr};
     LoginModel* _loginModel{nullptr};
