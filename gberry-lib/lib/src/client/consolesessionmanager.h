@@ -16,22 +16,57 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef CONSOLESESSIONMANAGER_H
+#ifndef CONSOLESESSIONMANAGER_H
 #define CONSOLESESSIONMANAGER_H
 
 #include <QObject>
 #include <QString>
 
-#include "consoledevice.h"
 #include "websocketclient.h"
 #include "restinvocation.h"
 
 class InvocationFactory;
 
 
-namespace mobile
+namespace GBerryClient
 {
 
+class ConsoleDevice
+{
+public:
+    ConsoleDevice(const QString& hostAddress) : _hostAddress(hostAddress) {}
+    ~ConsoleDevice() {}
+
+    QString host() const { return _hostAddress; }
+
+private:
+    QString _hostAddress;
+};
+
+
+// user information for making login to console
+class UserLoginMeta {
+public:
+    UserLoginMeta(const QString& userName) : _userName(userName) {}
+    UserLoginMeta(const QString& userName, const QString& userToken) :
+        _userName(userName), _userToken(userToken) {}
+
+    QString userName() const { return _userName; }
+    QString userToken() const { return _userToken; }
+    bool isGuest() const { return !_userToken.isEmpty(); }
+
+private:
+    QString _userName;
+    QString _userToken;
+};
+
+
+// TODO: as this is not exposed to QML this file should be located in different folder
+/**
+ * Opens and closes connection to a console.
+ *
+ * Internal API, not exposed to QML.
+ */
 class ConsoleSessionManager : public QObject
 {
     Q_OBJECT
@@ -39,7 +74,7 @@ public:
     explicit ConsoleSessionManager(QObject *parent = 0);
     ~ConsoleSessionManager();
 
-    void open(ConsoleDevice console, QString playerName);
+    void open(const ConsoleDevice& console, const UserLoginMeta& loginMeta);
     void openWebsocket(QString token);
     void close();
 

@@ -25,6 +25,7 @@
 #define LOG_AREA "LoginModel"
 #include "log/log.h"
 
+#include "client/iapplicationstorage.h"
 #include "invocationfactoryimpl.h"
 #include "restinvocation.h"
 #include "resultmessageformatter.h"

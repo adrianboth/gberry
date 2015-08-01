@@ -16,11 +16,13 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "applicationstorage.h"
+#include "applicationstorage.h"
 
 #include <QProcessEnvironment>
 #include <QDir>
 #include <QDebug>
+
+namespace GBerryClient {
 
 ApplicationStorage::ApplicationStorage(QQmlApplicationEngine* engine) :
     _engine(engine)
@@ -60,3 +62,5 @@ ApplicationStorage::~ApplicationStorage()
 QString ApplicationStorage::storagePath() const {
     return _engine->offlineStoragePath();
 }
+
+} // eon

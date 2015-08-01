@@ -16,17 +16,15 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <gtest/gtest.h>
-
+#include "testutils/qtgtest.h"
 #include "testutils/waiter.h"
 
 #include "server/playersessionmanager.h"
 #include "server/consolerestserver.h"
 #include "server/websocketserver.h"
 #include "client/consolesessionmanager.h"
-#include "client/consoledevice.h"
 
-using namespace mobile;
+using namespace GBerryClient;
 
 
 TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration)
@@ -44,7 +42,8 @@ TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration)
 
     // --
     ConsoleDevice console("localhost");
-    clientSessionManager.open(console, "BarGuest");
+    UserLoginMeta loginmeta("BarGuest");
+    clientSessionManager.open(console, loginmeta);
 
     WAIT_CUSTOM_AND_ASSERT(clientSessionIsOpen, 5000, 50);
 }

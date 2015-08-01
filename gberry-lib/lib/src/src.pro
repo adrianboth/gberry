@@ -55,7 +55,6 @@ HEADERS += \
     server/websocketconnection.h \
     mocks/mock_playersessionmanager.h \
     server/consolerestserver.h \
-    client/consoledevice.h \
     client/consolesessionmanager.h \
     log/ilogmsghandler.h \
     log/log.h \
@@ -63,9 +62,9 @@ HEADERS += \
     log/stdoutlogmsghandler.h \
     ui/displayprofile.h \
     client/applicationstorage.h \
-    client/qmlapplication.h \
+    client/qml/qmlapplication.h \
     client/cppapplication.h \
-    client/usermodel.h \
+    client/qml/usermodel.h \
     ui/targetdisplay.h \
     ui/actualdisplay.h \
     ui/display.h \
@@ -90,7 +89,7 @@ HEADERS += \
     testutils/stringutils.h \
     mocks/mock_invocationfactory.h \
     mocks/mock_downloadstreaminvocation.h \
-    client/loginmodel.h \
+    client/qml/loginmodel.h \
     client/iapplicationstorage.h \
     testobjects/stubinvocationfactory.h \
     testobjects/stubrestinvocation.h \
@@ -129,16 +128,15 @@ SOURCES += \
     server/playersession.cpp \
     server/websocketconnection.cpp \
     server/consolerestserver.cpp \
-    client/consoledevice.cpp \
     client/consolesessionmanager.cpp \
     log/log.cpp \
     log/logcontrol.cpp \
     log/stdoutlogmsghandler.cpp \
     ui/displayprofile.cpp \
     client/applicationstorage.cpp \
-    client/qmlapplication.cpp \
+    client/qml/qmlapplication.cpp \
     client/cppapplication.cpp \
-    client/usermodel.cpp \
+    client/qml/usermodel.cpp \
     ui/targetdisplay.cpp \
     ui/actualdisplay.cpp \
     applicationsettings.cpp \
@@ -160,7 +158,7 @@ SOURCES += \
     testutils/stringutils.cpp \
     mocks/mock_restinvocation.cpp \
     mocks/mock_downloadstreaminvocation.cpp \
-    client/loginmodel.cpp \
+    client/qml/loginmodel.cpp \
     testobjects/stubinvocationfactory.cpp \
     testobjects/stubrestinvocation.cpp \
     testobjects/stubdownloadstreaminvocation.cpp

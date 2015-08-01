@@ -30,7 +30,7 @@
 #define LOG_AREA "ConsoleSessionManager"
 #include "log/log.h"
 
-using namespace mobile;
+namespace GBerryClient {
 
 ConsoleSessionManager::ConsoleSessionManager(QObject *parent) : QObject(parent), _restInvocationFactory(NULL)
 {
@@ -42,17 +42,22 @@ ConsoleSessionManager::~ConsoleSessionManager()
 {
 }
 
-void ConsoleSessionManager::open(ConsoleDevice console, QString playerName)
+void ConsoleSessionManager::open(const ConsoleDevice &console, const UserLoginMeta &loginMeta)
 {
     initRESTInvocationFactory(console);
     _hostAddress = console.host();
 
-    // first get token
+    // first get token from console to open websocket channel
 
     QJsonObject json;
     json["action"] = "open_console_session";
-    json["id"] = "guest";
-    json["name"] = playerName;
+
+    if (loginMeta.isGuest()) {
+        json["id"] = "guest";
+    } else {
+        json["id"] = loginMeta.userToken();
+    }
+    json["name"] = loginMeta.userName();
 
     QJsonDocument jsondoc(json);
 
@@ -159,3 +164,5 @@ void ConsoleSessionManager::initRESTInvocationFactory(ConsoleDevice console)
     QString urlPrefix("http://%1:8050/console/v1");
     _restInvocationFactory->setProperty("url_prefix", urlPrefix.arg(console.host()));
 }
+
+} // eon

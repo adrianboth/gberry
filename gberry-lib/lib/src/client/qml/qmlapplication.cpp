@@ -16,12 +16,18 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "qmlapplication.h"
+#include "qmlapplication.h"
 
-namespace mobile
+#include "client/cppapplication.h"
+
+
+namespace GBerryClient
 {
 
-QmlApplication::QmlApplication(QObject *parent) : QObject(parent), _loggedIn(false)
+QmlApplication::QmlApplication(CppApplication* cppApp, QObject *parent) :
+    QObject(parent),
+    _cppApp(cppApp),
+    _loggedIn(false)
 {
     connect(&_consoleSession, &ConsoleSessionManager::consoleSessionOpened,
             this, &QmlApplication::onConsoleSessionOpened);
@@ -40,23 +46,19 @@ QmlApplication::~QmlApplication()
 {
 }
 
-void QmlApplication::loginGuest(QString guestName)
+void QmlApplication::openConsoleConnection(const QString& hostName)
 {
-    // TODO: deeper impl, no all players are guests
-    _currentPlayerName = guestName;
-}
+    UserModel& users = _cppApp->userModel();
+    if (users.currentIsGuest()) {
+        _consoleSession.open(ConsoleDevice(hostName),
+                            UserLoginMeta(users.currentUserName()));
 
-void QmlApplication::openConsoleConnection(ConsoleDevice console)
-{
-    _consoleSession.open(console, _currentPlayerName);
-}
-
-void QmlApplication::openConsoleConnection(QString hostName)
-{
-    // TODO: temporary until we know better
-    // TODO: does console device has proper copy constructors
-
-    _consoleSession.open(ConsoleDevice(hostName), _currentPlayerName);
+    } else {
+        LoginModel& login = _cppApp->loginModel();
+        _consoleSession.open(ConsoleDevice(hostName),
+                            UserLoginMeta(users.currentUserName(),
+                                          login.userToken()));
+    }
 }
 
 void QmlApplication::closeConsoleConnection()
@@ -69,7 +71,7 @@ bool QmlApplication::isConsoleConnectionOpen() const
     return _consoleSession.isOpen();
 }
 
-void QmlApplication::sendMessage(QString message)
+void QmlApplication::sendMessage(const QString& message)
 {
     if (_consoleSession.isOpen())
     {
@@ -84,12 +86,12 @@ void QmlApplication::onConsoleSessionOpened()
     emit loggedInChanged();
 }
 
-void QmlApplication::onConsoleSessionOpenFailed(QString message)
+void QmlApplication::onConsoleSessionOpenFailed(const QString& message)
 {
     emit consoleConnectionOpenFailed(message);
 }
 
-void QmlApplication::onWebsocketMessageReceived(QString message)
+void QmlApplication::onWebsocketMessageReceived(const QString& message)
 {
     emit playerMessageReceived(message);
 }

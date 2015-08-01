@@ -22,13 +22,13 @@
 #include <QQmlApplicationEngine>
 
 #include "applicationstorage.h"
-#include "usermodel.h"
-#include "loginmodel.h"
-using namespace GBerryClient;
-
+#include "client/qml/usermodel.h"
+#include "client/qml/loginmodel.h"
 #include "ui/displayprofile.h"
 #include "applicationsettings.h"
 #include "invocationfactoryimpl.h"
+
+namespace GBerryClient {
 
 /**
  * @brief Internal application model
@@ -43,6 +43,8 @@ public:
     ~CppApplication();
 
     ApplicationStorage& applicationStorage();
+    UserModel& userModel();
+    LoginModel& loginModel();
 
 private:
     QQmlApplicationEngine* _engine;
@@ -53,5 +55,7 @@ private:
     DisplayProfile _displayProfile;
     ApplicationSettings _settings;
 };
+
+} // eon
 
 #endif // CPPAPPLICATION_H

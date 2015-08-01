@@ -23,6 +23,8 @@
 
 #include "iapplicationstorage.h"
 
+namespace GBerryClient {
+
 /**
  * @brief The ApplicationStorage class
  *
@@ -46,5 +48,7 @@ public:
 private:
     QQmlApplicationEngine* _engine;
 };
+
+} // eon
 
 #endif // APPLICATIONSTORAGE_H

@@ -16,11 +16,13 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "usermodel.h"
+#include "usermodel.h"
 
 #include <QSettings>
 #include <QFile>
 #include <QProcessEnvironment>
+
+#include "client/iapplicationstorage.h"
 
 #define LOG_AREA "UserModel"
 #include "log/log.h"
@@ -37,6 +39,8 @@ namespace {
 
     static const char* LAST_ACTIVE_USER = "last_active_user";
 }
+
+namespace GBerryClient {
 
 UserModel::UserModel(IApplicationStorage* storage, QObject* parent) :
     QObject(parent),
@@ -314,3 +318,5 @@ void UserModel::setUser(const QString& userName,
     UserInfo userInfo(userName, email, password, guest, rememberPassword);
     setUser(userInfo);
 }
+
+} // eon

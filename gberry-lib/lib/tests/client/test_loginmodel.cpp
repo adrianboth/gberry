@@ -23,13 +23,14 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
-#include "client/loginmodel.h"
-#include "client/usermodel.h"
+#include "client/iapplicationstorage.h"
+#include "client/qml/loginmodel.h"
+#include "client/qml/usermodel.h"
 using namespace GBerryClient;
 
 #include "utils/fileutils.h"
-
 #include "testobjects/stubinvocationfactory.h"
+
 
 class TempDirApplicationStorage : public IApplicationStorage {
 public:

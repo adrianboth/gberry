@@ -22,7 +22,10 @@
 #include <QObject>
 #include <QSettings>
 
-#include "iapplicationstorage.h"
+namespace GBerryClient {
+
+// fwds
+class IApplicationStorage;
 
 class UserInfo {
 
@@ -132,5 +135,7 @@ private:
 private:
     Q_DISABLE_COPY(UserModel)
 };
+
+} // eon
 
 #endif // USERMODEL_H

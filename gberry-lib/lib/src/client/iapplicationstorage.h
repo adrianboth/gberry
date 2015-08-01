@@ -19,6 +19,8 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace GBerryClient {
+
 /**
  * This interface manages file location where information can be saved.
  */
@@ -31,6 +33,8 @@ public:
     virtual QString storagePath() const = 0;
 
 };
+
+} // eon
 
 #endif // IAPPLICATIONSTORAGE_H
 

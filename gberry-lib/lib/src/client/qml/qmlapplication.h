@@ -16,17 +16,18 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef APPLICATION_H
+#ifndef APPLICATION_H
 #define APPLICATION_H
 
 #include <QObject>
 
-#include "consolesessionmanager.h"
-#include "consoledevice.h"
+#include "client/consolesessionmanager.h"
 
-
-namespace mobile
+namespace GBerryClient
 {
+
+// fwds
+class CppApplication;
 
 /**
  * @brief Application abstraction for QML side
@@ -39,16 +40,14 @@ class QmlApplication : public QObject
     Q_PROPERTY(bool loggedIn READ loggedIn NOTIFY loggedInChanged)
 
 public:
-    explicit QmlApplication(QObject *parent = 0);
+    explicit QmlApplication(CppApplication* cppApp, QObject *parent = 0);
     ~QmlApplication();
 
-    Q_INVOKABLE void loginGuest(QString guestName);
-    Q_INVOKABLE void openConsoleConnection(ConsoleDevice console);
-    Q_INVOKABLE void openConsoleConnection(QString hostName);
+    Q_INVOKABLE void openConsoleConnection(const QString& hostName);
     Q_INVOKABLE void closeConsoleConnection();
     Q_INVOKABLE bool isConsoleConnectionOpen() const;
 
-    Q_INVOKABLE void sendMessage(QString message);
+    Q_INVOKABLE void sendMessage(const QString& message);
 
     bool loggedIn() const { return _loggedIn; }
 
@@ -62,13 +61,13 @@ signals:
 
 public slots:
     void onConsoleSessionOpened();
-    void onConsoleSessionOpenFailed(QString message);
-    void onWebsocketMessageReceived(QString message);
+    void onConsoleSessionOpenFailed(const QString& message);
+    void onWebsocketMessageReceived(const QString& message);
     void onWebsocketClosed();
 
 private:
+    CppApplication* _cppApp;
     ConsoleSessionManager _consoleSession;
-    QString _currentPlayerName;
     bool _loggedIn; // using separate var, as isConsoleConnectionOpen() is about websocket
 };
 

@@ -22,6 +22,9 @@
 #include <QDebug>
 
 #include "ui/targetdisplay.h"
+#include "applicationstorage.h"
+
+namespace GBerryClient {
 
 CppApplication::CppApplication(QQmlApplicationEngine* engine) :
     _engine(engine),
@@ -55,3 +58,15 @@ CppApplication::~CppApplication()
 ApplicationStorage& CppApplication::applicationStorage() {
     return _appStorage;
 }
+
+UserModel &CppApplication::userModel()
+{
+    return *_userModel;
+}
+
+LoginModel &CppApplication::loginModel()
+{
+    return *_loginModel;
+}
+
+} // eon
