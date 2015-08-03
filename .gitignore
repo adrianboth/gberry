@@ -1,3 +1,4 @@
+*.pyc
 *.pro.user
 *.autosave
 *.kate-swp
