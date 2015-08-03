@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# $ build_all.sh [clean]
-
 THIS_DIR=`cd $(dirname $0) && pwd`
-
 BUILDS_DIR=$THIS_DIR/../builds
 
-# TODO: x86
-# TODO: arm
-# TODO: android
+if [ "$1" == "help" ]; then
+  echo "USAGE: $0 [realhw|desktop|both(default)] [debug|release|all(default)]"
+  exit 0
+fi
+
 
 die() { echo "$@" 1>&2 ; exit 1; }
 
@@ -22,15 +21,28 @@ function clean_builds {
 
 if [ "$1" == "clean" ]; then
   clean_builds
+  shift
+fi
+
+if [ -z "$1" ]; then
+   TARGET=both
+else
+   TARGET=$1
+fi
+
+if [ -z "$2" ]; then
+    TYPE=debug
+else
+    TYPE=$2
 fi
 
 if [ ! -e $BUILDS_DIR ]; then
   mkdir -p $BUILDS_DIR
 fi
 
-./build_console.sh both all || die "Building gberry-console failed!"
+./build_console.sh $TARGET $TYPE || die "Building gberry-console failed!"
 ./build_mobapp.sh both all || die "Building gberry-mobile failed!"
-./build_game.sh both all react || die "Building gberry-react-game failed!"
-./build_game.sh both all tictactoe|| die "Building gberry-tictactoe-game failed!"
+./build_game.sh $TARGET $TYPE react || die "Building gberry-react-game failed!"
+./build_game.sh $TARGET $TYPE tictactoe|| die "Building gberry-tictactoe-game failed!"
 
 echo "[DONE]"

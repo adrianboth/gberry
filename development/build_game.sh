@@ -4,7 +4,8 @@ WORKSPACE_ROOT=`cd $THIS_DIR/.. && pwd`
 BUILDS_DIR=$THIS_DIR/../builds
 
 if [ "$1" == "help" ]; then
-  echo "USAGE: $0 rpi|desktop|both(default)] [debug|release|all(default)]"
+  echo "USAGE: $0 [realhw|desktop|both(default)] [debug|release|all(default)]"
+  exit 0
 fi
 
 # -- Build
@@ -85,7 +86,7 @@ function run_build {
 
 if [ "$1" == "desktop" ]; then
   run_build build_desktop $2 $3
-elif [ "$1" == "rpi" ]; then
+elif [ "$1" == "realhw" ]; then
   run_build build_rpi $2 $3
 else
   run_build build_desktop $2 $3
