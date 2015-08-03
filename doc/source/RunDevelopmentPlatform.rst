@@ -43,7 +43,20 @@ In `deploy-<target>/` setup a single application can be started as standalone
 by using script `bin/start_app.sh <app_folder_name> <app_executable>`. Note
 that application is not reading *appcfg.json because it is read by `comms`.
 
-TODO: how to run mainui standalone
+## Defining Application Identity
+
+Normally `comms` provides an application code for a launched application via 
+command line parameter, and the application passes the code when creation
+TCP/IP connection. This way `comms` knows that connected application was the
+one that was just launched. This especially necessary for `mainui` and 
+`waitapp` applications.
+
+If during development time `comms` is launched in minimal mode by disabling
+normal `waitapp` and `mainui` launch, then an application code can be
+provided on command line, for example: `--application-code=mainui` 
+
+Normally code is generated but if `comms` is in minimal mode then it 
+recognizes codes `mainui` and `waitapp`.
 
 
 Running Unit Tests
