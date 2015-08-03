@@ -31,7 +31,7 @@ NetworkErrorReasons::~NetworkErrorReasons()
 }
 
 // this will now convert only errors that would be interest of end user
-Result::Reason NetworkErrorReasons::from(QNetworkReply::NetworkError error)
+Result::Reason NetworkErrorReasons::from(QNetworkReply::NetworkError error, const QString& errorString)
 {
     switch (error) {
     case QNetworkReply::ConnectionRefusedError:
@@ -59,6 +59,14 @@ Result::Reason NetworkErrorReasons::from(QNetworkReply::NetworkError error)
         return Result::reasonFromCode("NetworkSessionFailedError", QT_TRANSLATE_NOOP("Errors", "TXT_Connection failed because no working network connection available"));
 
     // QNetworkReply::BackgroundRequestNotAllowedError	9	the background request is not currently allowed due to platform policy.
+
+    case QNetworkReply::UnknownNetworkError:
+        if (errorString == "Host unreachable") {
+            return Result::reasonFromCode("HostNotReachable", QT_TRANSLATE_NOOP("Errors", "TXT_Remote host not reachable"));
+        } else {
+            return Result::reasonFromCode("UnknownNetworkError", QT_TRANSLATE_NOOP("Errors", "TXT_Unknown network error"));
+        }
+
     // QNetworkReply::ProxyConnectionRefusedError	101	the connection to the proxy server was refused (the proxy server is not accepting requests)
     // QNetworkReply::ProxyConnectionClosedError	102	the proxy server closed the connection prematurely, before the entire reply was received and processed
     // QNetworkReply::ProxyNotFoundError	103	the proxy host name was not found (invalid proxy hostname)

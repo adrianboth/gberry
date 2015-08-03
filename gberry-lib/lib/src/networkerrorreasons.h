@@ -31,7 +31,7 @@ public:
     NetworkErrorReasons();
     ~NetworkErrorReasons();
 
-    static Result::Reason from(QNetworkReply::NetworkError error);
+    static Result::Reason from(QNetworkReply::NetworkError error, const QString& errorString);
 };
 
 }

@@ -127,8 +127,9 @@ void ConsoleSessionManager::onOpenConsoleSessionError(Invocation* invocation)
     } else {
         // this is more like failed connection (e.g. connection problem)
         ResultMessageFormatter msgCreator(inv->result());
+
         WARN("Console session error:" << msgCreator.createDeveloperMessage());
-        err = msgCreator.createEndUserMessage(); // TODO: localization
+        err = msgCreator.createEndUserMessage(true); // TODO: removing TXT_ as we don't have valid localizations
     }
 
     emit consoleSessionOpenFailed(err);

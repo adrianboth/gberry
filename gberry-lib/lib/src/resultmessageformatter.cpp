@@ -47,17 +47,27 @@ private:
     Result::Reason _reason;
 };
 
-static QString createDeveloperMessageFrom(const Result& result);
-static QString createEndUserMessageFrom(const Result& result); // TODO: localized
-static QJsonObject jsonFrom(const Result& result);
-static QString translateError(const Error& err, const Result& result);
-static QString translateReason(const Result::Reason& err, const Result& result);
-static QString expand(const QString& err, const Metas& metas, bool localize);
 
 
+
+class ResultMessageFormatter::Private {
+public:
+    Private(const Result& result_) : _result(result_) {}
+
+    Result _result;
+    bool _removeTxtPrefix{false};
+
+    QString createDeveloperMessageFrom(const Result& result);
+    QString createEndUserMessageFrom(const Result& result); // TODO: localized
+    QJsonObject jsonFrom(const Result& result);
+    QString translate(const QString& ctx, const QString& msg);
+    QString translateError(const Error& err, const Result& result);
+    QString translateReason(const Result::Reason& err, const Result& result);
+    QString expand(const QString& err, const Metas& metas, bool localize);
+};
 
 ResultMessageFormatter::ResultMessageFormatter(const Result &result) :
-    _result(result)
+    _d(new Private(result))
 {
 }
 
@@ -67,27 +77,28 @@ ResultMessageFormatter::~ResultMessageFormatter()
 
 QString ResultMessageFormatter::createDeveloperMessage() const
 {
-    return createDeveloperMessageFrom(_result);
+    return _d->createDeveloperMessageFrom(_d->_result);
 }
 
-QString ResultMessageFormatter::createEndUserMessage() const
+QString ResultMessageFormatter::createEndUserMessage(bool removeTxtPrefix) const
 {
-    return createEndUserMessageFrom(_result);
+    _d->_removeTxtPrefix = removeTxtPrefix;
+    return _d->createEndUserMessageFrom(_d->_result);
 }
 
 QJsonObject ResultMessageFormatter::toJson() const
 {
-    return jsonFrom(_result);
+    return _d->jsonFrom(_d->_result);
 }
 
 // -----------------------------------------------------------------------------
 
-QString createEndUserMessageFrom(const Result& result)
+QString ResultMessageFormatter::Private::createEndUserMessageFrom(const Result& result)
 {
     // TODO: localization
     if (result.errors().isEmpty()) {
         const char* errormsg = QT_TRANSLATE_NOOP("Errors", "TXT_No errors.");
-        return QCoreApplication::translate("Errors", errormsg);
+        return translate("Errors", errormsg);
     }
 
     QString msg;
@@ -144,7 +155,7 @@ QString createEndUserMessageFrom(const Result& result)
     return msg;
 }
 
-QString createDeveloperMessageFrom(const Result& result)
+QString ResultMessageFormatter::Private::createDeveloperMessageFrom(const Result& result)
 {
     if (result.errors().isEmpty())
         return "No errors.";
@@ -197,25 +208,32 @@ QString createDeveloperMessageFrom(const Result& result)
     return msg;
 }
 
-QString translateError(const Error &err, const Result& result)
+QString ResultMessageFormatter::Private::translate(const QString &ctx, const QString& msg)
 {
-    return expand(QCoreApplication::translate(
-                      err.errorL10nContext().toUtf8(),
-                      err.errorL10nKey().toUtf8()),
+    QString str = QCoreApplication::translate(ctx.toUtf8(), msg.toUtf8());
+    if (_removeTxtPrefix && str.startsWith("TXT_"))
+        str.remove(0, 4);
+
+    return str;
+}
+
+QString ResultMessageFormatter::Private::translateError(const Error &err, const Result& result)
+{
+    return expand(translate(err.errorL10nContext(),
+                            err.errorL10nKey()),
                   Metas(result),
                   true);
 }
 
-QString translateReason(const Result::Reason &reason, const Result& result)
+QString ResultMessageFormatter::Private::translateReason(const Result::Reason &reason, const Result& result)
 {
-    return expand(QCoreApplication::translate(
-                      reason.l10nContext().toUtf8(),
-                      reason.l10nKey().toUtf8()),
+    return expand(translate(reason.l10nContext(),
+                            reason.l10nKey()),
                   Metas(result, reason),
                   true);
 }
 
-QString expand(const QString& msg, const Metas& metas, bool localize)
+QString ResultMessageFormatter::Private::expand(const QString& msg, const Metas& metas, bool localize)
 {
     QRegExp rx("#\\{([a-zA-Z_0-9]+)\\}");
     QString m(msg);
@@ -226,7 +244,7 @@ QString expand(const QString& msg, const Metas& metas, bool localize)
             Result::Meta meta = metas.meta(key);
             QString metaStr;
             if (localize && meta.localizable()) {
-                metaStr = QCoreApplication::translate(meta.l10nContext().toUtf8(), meta.l10nKey().toUtf8());
+                metaStr = translate(meta.l10nContext(), meta.l10nKey());
             } else {
                 metaStr = meta.metaString();
             }
@@ -238,7 +256,7 @@ QString expand(const QString& msg, const Metas& metas, bool localize)
     return m;
 }
 
-QJsonObject jsonFrom(const Result& result)
+QJsonObject ResultMessageFormatter::Private::jsonFrom(const Result& result)
 {
     QJsonObject json;
     json["error_message"] = createEndUserMessageFrom(result); // TODO: should have both, localized and

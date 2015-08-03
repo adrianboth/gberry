@@ -130,15 +130,16 @@ public:
         }
         else if (qreply->error())
         {
-            WARN("HTTP ERROR: " << qreply->errorString());
-            // TODO: error code
+            WARN("HTTP ERROR:" << qreply->error() << qreply->errorString());
+
             httpStatus = HTTPInvocationDefinition::UNDEFINED;
             invocationStatus = Invocation::ERROR;
             result << InvocationErrors::CONNECTION_FAILED
-                   << Result::Meta("qnetworkreply_error_string", qreply->errorString());
+                   << Result::Meta("qnetworkreply_error_string", qreply->errorString())
+                   << Result::Meta("qnetworkreply_error_number", qreply->error());
 
             QNetworkReply::NetworkError err = qreply->error();
-            result << NetworkErrorReasons::from(err);
+            result << NetworkErrorReasons::from(err, qreply->errorString());
 
             // get possible return data
             replyData = qreply->readAll();

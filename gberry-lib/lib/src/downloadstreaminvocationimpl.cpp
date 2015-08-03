@@ -262,7 +262,7 @@ public:
                    << Result::Meta("qnetworkreply_error_string", qreply->errorString());
 
             QNetworkReply::NetworkError err = qreply->error();
-            result << NetworkErrorReasons::from(err);
+            result << NetworkErrorReasons::from(err, qreply->errorString());
 
             //result << Result::reasonFromCode("QNETWORKREPLY_ERROR", qreply->errorString());
             emit q->finishedError(q);

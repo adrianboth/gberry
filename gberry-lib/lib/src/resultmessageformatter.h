@@ -20,6 +20,7 @@
 #define RESULTMESSAGEFORMATTER_H
 
 #include <QJsonObject>
+#include <QScopedPointer>
 
 #include "result.h"
 
@@ -32,7 +33,7 @@ public:
     ~ResultMessageFormatter();
 
     QString createDeveloperMessage() const;
-    QString createEndUserMessage() const; // TODO: localized
+    QString createEndUserMessage(bool removeTxtPrefix = false) const; // TODO: localized
 
     // JSON format:
     //
@@ -47,7 +48,8 @@ public:
     QJsonObject toJson() const;
 
 private:
-    Result _result;
+    class Private;
+    const QScopedPointer<Private> _d;
 };
 
 } // eon
