@@ -60,6 +60,7 @@ public:
     qint64 totalReadBytes{0};
 
     QUrl url;
+    QMap<QString, QString> params;
     HTTPInvocationDefinition def;
     Result result;
 
@@ -72,7 +73,7 @@ public:
 
 
     void doOperation() {
-        doOperation(invocationFactory->buildUrl(def.invocationPath()));
+        doOperation(invocationFactory->buildUrl(def.invocationPath(), params));
     }
 
     void doOperation(QUrl url) {
@@ -309,6 +310,11 @@ void DownloadStreamInvocationImpl::definePostOperation(const QString& invocation
     _d->def.setInvocationPath(invocationPath);
 
     _d->postData = jsondoc.toJson();
+}
+
+void DownloadStreamInvocationImpl::defineParameter(const QString &paramName, const QString &paramValue)
+{
+    _d->params[paramName] = paramValue;
 }
 
 void DownloadStreamInvocationImpl::execute()

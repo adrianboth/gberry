@@ -57,11 +57,19 @@ void ServerSidePlayerChannel::open()
         _southPartner->channelSendMessageToSouth(MessageFactory::createOpenChannelCommand(_playerMeta));
 }
 
-bool ServerSidePlayerChannel::receiveMessageFromSouth(const QByteArray& msg)
+//bool ServerSidePlayerChannel::receiveMessageFromSouth(const QByteArray& msg)
+bool ServerSidePlayerChannel::processJsonMessage(const QJsonObject& json)
 {
     DEBUG("receiveMessageFromSouth(): cid: " << _id);
-    QJsonDocument doc(QJsonDocument::fromJson(msg));
-    QJsonObject json(doc.object());
+
+    bool messageProcessed = Channel::processJsonMessage(json);
+    if (messageProcessed)
+        return true;
+
+    //QJsonDocument doc(QJsonDocument::fromJson(msg));
+    //QJsonObject json(doc.object());
+
+    // TODO: we could have these as registered commands, but too much trouble as so integrated ...?
 
     if (json.contains("command") && json["command"] == "CloseChannel")
     {

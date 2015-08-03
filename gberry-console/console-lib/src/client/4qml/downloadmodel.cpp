@@ -16,21 +16,26 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "downloadmodel.h"
+#include "downloadmodel.h"
 
 #include <QJsonObject>
+
+#include "activeplayermodel.h"
 
 #define LOG_AREA "DownloadModel"
 #include <log/log.h>
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class DownloadModelPrivate
 {
 public:
-    DownloadModelPrivate(IDownloadModelCommunication* comm_, DownloadModel* q_) :
+    DownloadModelPrivate(IDownloadModelCommunication* comm_,
+                         ActivePlayerModel* activePlayerModel_,
+                         DownloadModel* q_) :
         q(q_),
-        comm(comm_) {
+        comm(comm_),
+        activePlayerModel(activePlayerModel_){
 
         QObject::connect(comm, &IDownloadModelCommunication::downloadStarted,
                          [&] (const QString& applicationFullId) {
@@ -58,13 +63,14 @@ public:
 
     DownloadModel* q;
     IDownloadModelCommunication* comm;
+    ActivePlayerModel* activePlayerModel;
     QStringList ongoingDownloads;
 };
 
 
-DownloadModel::DownloadModel(IDownloadModelCommunication* comm, QObject *parent) :
+DownloadModel::DownloadModel(IDownloadModelCommunication* comm, ActivePlayerModel* activePlayerModel, QObject *parent) :
     QObject(parent),
-    _d(new DownloadModelPrivate(comm, this))
+    _d(new DownloadModelPrivate(comm, activePlayerModel, this))
 {
 }
 
@@ -76,8 +82,12 @@ void DownloadModel::startDownload(QString applicationFullId)
 {
     _d->ongoingDownloads.append(applicationFullId);
     QJsonObject json;
-    json["command"]  = "DownloadApplication";
+    json["command"] = "DownloadApplication";
     json["application_id"] = applicationFullId;
+    if (_d->activePlayerModel->hasActivePlayer()) {
+        json["player_id"] = _d->activePlayerModel->activePlayerId();
+    }
+
     _d->comm->sendMessage(json);
     emit downloadInitiated(applicationFullId);
 }

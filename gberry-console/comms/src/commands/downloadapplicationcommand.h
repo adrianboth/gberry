@@ -30,6 +30,7 @@ using namespace GBerryLib;
 
 class ServerSideControlChannel;
 class LocalApplicationsStorage;
+class PlayerSessionManager;
 
 namespace GBerryComms {
     class DownloadableApplicationCache;
@@ -64,11 +65,11 @@ class DownloadApplicationCommand : public QObject, public ICommand
 
 public:
     // TODO: how to create factory like
-    explicit DownloadApplicationCommand(
-            HeadServerConnection* headServerConnection,
+    explicit DownloadApplicationCommand(HeadServerConnection* headServerConnection,
             ServerSideControlChannel* controlChannel,
             DownloadableApplicationCache* applicationCache,
-            LocalApplicationsStorage* applicationsStorage);
+            LocalApplicationsStorage* applicationsStorage,
+            PlayerSessionManager *playerSessions);
     virtual ~DownloadApplicationCommand();
 
     // ICommand

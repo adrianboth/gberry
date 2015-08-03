@@ -28,7 +28,7 @@ PlayerSessionManager::~PlayerSessionManager()
 {
 }
 
-bool PlayerSessionManager::isPlayerNameReserved(QString& playerName) const
+bool PlayerSessionManager::isPlayerNameReserved(const QString& playerName) const
 {
     foreach (auto token, _sessions) {
 
@@ -38,9 +38,9 @@ bool PlayerSessionManager::isPlayerNameReserved(QString& playerName) const
     return false;
 }
 
-void PlayerSessionManager::insertSession(PlayerSession& session)
+void PlayerSessionManager::insertSession(const PlayerSession& session)
 {
-    _sessions.insert(session.token(), session);
+    _sessions.insert(session.sessionToken(), session);
 }
 
 void PlayerSessionManager::removeSession(int playerId)
@@ -50,17 +50,29 @@ void PlayerSessionManager::removeSession(int playerId)
     {
         if (session.playerId() == playerId)
         {
-            _sessions.remove(session.token());
+            _sessions.remove(session.sessionToken());
             break;
         }
     }
 }
 
-PlayerSession PlayerSessionManager::sessionByToken(QString token)
+PlayerSession PlayerSessionManager::session(int playerId) const
 {
-    if (_sessions.contains(token))
+    foreach(auto session, _sessions) {
+        if (session.playerId() == playerId) {
+            return session;
+        }
+    }
+
+    // not found
+    return InvalidPlayerSession();
+}
+
+PlayerSession PlayerSessionManager::sessionByToken(const QString& sessionToken) const
+{
+    if (_sessions.contains(sessionToken))
     {
-        return _sessions[token];
+        return _sessions[sessionToken];
     }
     return InvalidPlayerSession();
 }

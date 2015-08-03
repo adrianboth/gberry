@@ -24,9 +24,9 @@
 namespace GBerryClient
 {
 
-QmlApplication::QmlApplication(CppApplication* cppApp, QObject *parent) :
+QmlApplication::QmlApplication(IConsoleApplication* consoleApp, QObject *parent) :
     QObject(parent),
-    _cppApp(cppApp),
+    _consoleApp(consoleApp),
     _loggedIn(false)
 {
     connect(&_consoleSession, &ConsoleSessionManager::consoleSessionOpened,
@@ -48,13 +48,13 @@ QmlApplication::~QmlApplication()
 
 void QmlApplication::openConsoleConnection(const QString& hostName)
 {
-    UserModel& users = _cppApp->userModel();
+    UserModel& users = _consoleApp->userModel();
     if (users.currentIsGuest()) {
         _consoleSession.open(ConsoleDevice(hostName),
                             UserLoginMeta(users.currentUserName()));
 
     } else {
-        LoginModel& login = _cppApp->loginModel();
+        LoginModel& login = _consoleApp->loginModel();
         _consoleSession.open(ConsoleDevice(hostName),
                             UserLoginMeta(users.currentUserName(),
                                           login.userToken()));

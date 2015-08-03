@@ -25,7 +25,8 @@ Rectangle {
     // public
     property string text: "<undefined>"
 
-    signal selected()
+    // 'pid' of player who initiated action
+    signal selected(var pid)
 
     // expects parent to have 'textPixelHeight' -> common for all menu items
     property int textPixelHeight: parent.textPixelHeight
@@ -58,6 +59,6 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: selected()
+        onClicked: selected(-1) // if clicked by mouse no specific user is associated, meant for development time
     }
 }

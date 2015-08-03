@@ -28,7 +28,7 @@
 
 #include "serverconnectionmodel.h"
 
-#include <client/qmlapplication.h>
+#include <client/qml/qmlapplication.h>
 #include <client/cppapplication.h>
 
 #define LOG_AREA "MobApp"
@@ -51,8 +51,9 @@ int main(int argc, char *argv[])
     RealSystemServices systemServices;
     systemServices.registerItself();
 
+    /*
     InvocationFactoryImpl factory;
-    factory.setProperty("url_prefix", "http://localhost:9000/gberryrest/v1");
+    factory.setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9000/gberryrest/v1");
 
     ServerConnectionImpl serverConnection(&factory);
     ServerConnectionModel model;
@@ -65,25 +66,13 @@ int main(int argc, char *argv[])
                      &model,            &ServerConnectionModel::serverConnected);
     QObject::connect(&serverConnection, &ServerConnectionImpl::disconnected,
                      &model,            &ServerConnectionModel::serverDisconnected);
-/*
-    RESTInvocationFactoryImpl factory2;
-    factory2.setProperty("url_prefix", "http://localhost:8050/console/v1");
+    */
 
-    ServerConnectionImpl consoleConnection(&factory2);
-
-    QObject::connect(&consoleConnection, &ServerConnectionImpl::pingOK,
-                     &model,            &ServerConnectionModel::consolePingOK);
-    QObject::connect(&consoleConnection, &ServerConnectionImpl::pingFailure,
-                     &model,            &ServerConnectionModel::consolePingFailure);
-    QObject::connect(&consoleConnection, &ServerConnectionImpl::connected,
-                     &model,            &ServerConnectionModel::consoleConnected);
-    QObject::connect(&consoleConnection, &ServerConnectionImpl::disconnected,
-                     &model,            &ServerConnectionModel::consoleDisconnected);
-*/
-    mobile::QmlApplication mobapp;
+    QQmlApplicationEngine engine;
+    GBerryClient::CppApplication cppApp(&engine);
+    GBerryClient::QmlApplication mobapp(&cppApp);
 
     QQmlPropertyMap screenProps;
-
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
     if (env.contains("PREF_WINDOW_WIDTH")) {
@@ -98,21 +87,12 @@ int main(int argc, char *argv[])
         screenProps.insert("preferredWindowHeight", QVariant(400));
     }
 
-    QQmlApplicationEngine engine;
-
-    CppApplication cppApp(&engine);
-
     engine.addImportPath("qrc:/ui/gberry-lib");
 
-    engine.rootContext()->setContextProperty("app", &model);
+    //engine.rootContext()->setContextProperty("app", &model);
     engine.rootContext()->setContextProperty("mobapp", &mobapp);
     engine.rootContext()->setContextProperty("screen", &screenProps);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-
-
-    // TODO: temp disable
-    //serverConnection.open();
-    //consoleConnection.open();
 
     return app.exec();
 }

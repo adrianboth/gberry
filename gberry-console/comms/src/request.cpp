@@ -16,8 +16,9 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "restinvocation.h"
+#include "restinvocation.h"
 #include "request.h"
+#include "resultmessageformatter.h"
 
 #include <QTimer>
 
@@ -66,11 +67,12 @@ void Request::finishedOk(Invocation *invocation)
 void Request::finishedError(Result res, Invocation* invocation)
 {
     DEBUG("finishedError()");
+    fillInErrorDetails(res);
 
     if (_active)
         processErrorResponse(res, invocation);
     else {
-        DEBUG("finishedError(): Scheduling deletion");
+        DEBUG("finishedError(): Scheduling deletion. Result was:" << ResultMessageFormatter(res).createDeveloperMessage());
         Request* req = this;
         TRACE("Setting up deletion of Request in event loop");
         QTimer::singleShot(0, [=] () { delete req; });

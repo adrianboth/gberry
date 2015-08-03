@@ -95,7 +95,12 @@ void ClientChannelManager::processMessage(int channelId, const QByteArray& msg)
     TRACE("processMessage(): cid=" << channelId << ", data=" << msg);
 
     if (channelId == ROOT_CHANNEL) {
-        if (_d->controlChannel) _d->controlChannel->receiveMessage(msg);
+        if (_d->controlChannel) {
+            bool messageProcessed = _d->controlChannel->receiveMessage(msg);
+            if (!messageProcessed) {
+                WARN("Unknow control channel message - not processed:" << QString(msg));
+            }
+        }
     }
     else if (!_d->playerChannels.contains(channelId))
     {

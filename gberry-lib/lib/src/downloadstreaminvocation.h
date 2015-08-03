@@ -44,6 +44,7 @@ public:
 
     virtual void defineGetOperation(const QString& invocationPath) = 0;
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) = 0;
+    virtual void defineParameter(const QString& paramName, const QString& paramValue) = 0;
 
     // TODO: later support for stream (possible to continue writing)
     virtual void setOutputFilePath(const QString& filePath) = 0;

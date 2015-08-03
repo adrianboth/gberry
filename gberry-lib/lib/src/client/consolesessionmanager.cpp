@@ -162,7 +162,7 @@ void ConsoleSessionManager::initRESTInvocationFactory(ConsoleDevice console)
     }
     _restInvocationFactory = new InvocationFactoryImpl();
     QString urlPrefix("http://%1:8050/console/v1");
-    _restInvocationFactory->setProperty("url_prefix", urlPrefix.arg(console.host()));
+    _restInvocationFactory->setProperty(InvocationFactory::URL_PREFIX_PROP, urlPrefix.arg(console.host()));
 }
 
 } // eon

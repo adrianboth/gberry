@@ -22,7 +22,11 @@
 #include <QObject>
 #include <QStringList>
 
-namespace GBerry {
+namespace GBerryApplication {
+
+// fwds
+class ActivePlayerModel;
+
 
 // TODO: Maybe there could be a common base class for communication objects ...
 class IDownloadModelCommunication : public QObject
@@ -63,7 +67,9 @@ class DownloadModel : public QObject
     Q_OBJECT
 
 public:
-    explicit DownloadModel(IDownloadModelCommunication* comm, QObject *parent = 0);
+    explicit DownloadModel(IDownloadModelCommunication* comm,
+                           ActivePlayerModel* activePlayerModel,
+                           QObject *parent = 0);
     ~DownloadModel();
 
     // TODO: would download() be better name?

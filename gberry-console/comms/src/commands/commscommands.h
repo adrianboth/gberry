@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef COMMSCOMMANDS_H
+#ifndef COMMSCOMMANDS_H
 #define COMMSCOMMANDS_H
 
 #include <QObject>
@@ -34,6 +34,7 @@ using namespace GBerry::Console::Server;
 
 class ServerSideControlChannel;
 class LocalApplicationsStorage;
+class PlayerSessionManager;
 
 namespace GBerryComms {
 
@@ -45,6 +46,7 @@ public:
                   ApplicationRegistry* registry,
                   HeadServerConnection* headServerConnection,
                   DownloadableApplicationCache* _downloadableApplicationCache,
+                  PlayerSessionManager* playerSessions,
                   QObject *parent = 0);
     ~CommsCommands();
 
@@ -66,6 +68,7 @@ private:
     DownloadableApplicationCache* _downloadableApplicationCache;
     LocalApplicationsStorage* _applicationsStorage;
     QSharedPointer<IApplications> _iapps;
+    PlayerSessionManager* _playerSessions;
 
 };
 

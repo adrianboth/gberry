@@ -35,8 +35,8 @@ class ApplicationMeta : public IApplicationMeta
 {
 
 public:
-    ApplicationMeta() : _id(""),_isSystemApp(false) {}
-    ApplicationMeta(const IApplicationMeta& source) : _id(""),_isSystemApp(false) {
+    ApplicationMeta() {}
+    ApplicationMeta(const IApplicationMeta& source) {
         setApplicationId(source.applicationId());
         setName(source.name());
         setVersion(source.version());
@@ -45,6 +45,7 @@ public:
         setApplicationExecutablePath(source.applicationExecutablePath());
         setCatalogImageFilePath(source.catalogImageFilePath());
         setIsSystemApp(source.isSystemApp());
+        setIsFree(source.isFree());
 
         // TODO: how downloadable app has applicationdirpath, executable can catalogimage
         //   -- they don't except image ... but how it is transfered ...
@@ -80,6 +81,9 @@ public:
     virtual bool isSystemApp() const override { return _isSystemApp; }
     virtual void setIsSystemApp(bool newValue) { _isSystemApp = newValue; }
 
+    virtual bool isFree() const override { return _isFree; }
+    virtual void setIsFree(bool newValue) { _isFree = newValue; }
+
 private:
     // TODO: this could move to BaseApplication
     void buildID() { _id = _applicationId + "-" + _version; }
@@ -87,12 +91,13 @@ private:
 
     QString _applicationId;
     ApplicationVersion _version;
-    bool _isSystemApp;
+    bool _isSystemApp{false};
     QString _name;
     QString _description;
     QString _applicationDirPath;
     QString _applicationExecutablePath;
     QString _catalogImageFilePath;
+    bool _isFree{false};
 };
 
 }}} // eon

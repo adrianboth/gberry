@@ -22,8 +22,10 @@
 #include <QJsonArray>
 #include <QList>
 
-#include "server/serversidecontrolchannel.h"
-#include "server/application/application2json.h"
+#include <server/serversidecontrolchannel.h>
+#include <server/playersessionmanager.h>
+#include <server/playersession.h>
+#include <server/application/application2json.h>
 #include "headserverconnection.h"
 #include "requests/downloableapplicationsrequest.h"
 #include "downloadableapplicationcache.h"
@@ -39,25 +41,28 @@ public:
     QueryDownloadableApplicationsCommandPrivate(
             HeadServerConnection* headServerConnection_,
             ServerSideControlChannel* controlChannel_,
-            DownloadableApplicationCache* cache_) :
+            DownloadableApplicationCache* cache_,
+            PlayerSessionManager* playerSessions_) :
         headServerConnection(headServerConnection_),
         controlChannel(controlChannel_),
-        cache(cache_) {}
+        cache(cache_),
+        playerSessions(playerSessions_) {}
 
     HeadServerConnection* headServerConnection;
     ServerSideControlChannel* controlChannel;
     DownloadableApplicationCache* cache;
+    PlayerSessionManager* playerSessions;
     QList<DownloadableApplicationsRequest*> ongoingRequests;
 };
 
-QueryDownloadableApplicationsCommand::QueryDownloadableApplicationsCommand(
-        HeadServerConnection* headServerConnection,
+QueryDownloadableApplicationsCommand::QueryDownloadableApplicationsCommand(HeadServerConnection* headServerConnection,
         ServerSideControlChannel* controlChannel,
-        DownloadableApplicationCache *applicationCache) :
+        DownloadableApplicationCache *applicationCache, PlayerSessionManager *playerSessions) :
     ICommand("QueryDownloadableApplications"),
     _d(new QueryDownloadableApplicationsCommandPrivate(headServerConnection,
                                                        controlChannel,
-                                                       applicationCache))
+                                                       applicationCache,
+                                                       playerSessions))
 {
 }
 
@@ -76,10 +81,17 @@ QueryDownloadableApplicationsCommand::~QueryDownloadableApplicationsCommand()
 bool QueryDownloadableApplicationsCommand::process(const QJsonObject &json, ICommandResponse& response)
 {
     // no params for request
-    Q_UNUSED(json);
     Q_UNUSED(response);
 
     DownloadableApplicationsRequest* request = new DownloadableApplicationsRequest(this);
+    if (json.contains("player_id")) {
+        int playerId = json["player_id"].toInt();
+        PlayerSession session = _d->playerSessions->session(playerId);
+        if (session.isValid() && !session.isGuest()) {
+            request->setUserToken(playerId, session.userToken());
+        }
+    }
+
     _d->ongoingRequests.append(request);
     _d->headServerConnection->makeRequest(request);
 
@@ -96,6 +108,9 @@ void QueryDownloadableApplicationsCommand::processRequestOkResponse(Downloadable
     QJsonObject responseJson;
     responseJson["command"] = "QueryDownloadableApplicationsReply";
     responseJson["result"] = "ok";
+    if (request->playerDefined()) {
+        responseJson["player_id"] = request->playerId();
+    }
 
     QJsonArray appsList;
     QList<QSharedPointer<Application>> apps = request->receivedApplications();

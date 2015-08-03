@@ -46,8 +46,11 @@ namespace
 
     static const char* JSON_STATE = "state";
 
+    static const char* JSON_ISFREE = "is_free";
+
     static const char* DEFAULT_APPLICATION_CONFIG_FILE_NAME = "appcfg.json";
     static const char* APPLICATION_STATE_FILE_NAME = "state.json";
+    static const char* APPLICATION_META_FILE_NAME = "meta.json";
 }
 
 QSharedPointer<JsonDefinition> createApplicationConfigDefinition()
@@ -184,8 +187,11 @@ QSharedPointer<Application> ApplicationConfigReaderWriter::readApplication()
 
     QSharedPointer<Application> app(readApplicationConfig(cfgFilePath));
 
-    QString stateFilePath = appDir.filePath("state.json");
+    QString stateFilePath = appDir.filePath(APPLICATION_STATE_FILE_NAME);
     readApplicationState(stateFilePath, *app.data());
+
+    QString metaFilePath = appDir.filePath(APPLICATION_META_FILE_NAME);
+    readApplicationMeta(metaFilePath, *app.data());
 
     return app;
 }
@@ -217,6 +223,9 @@ bool ApplicationConfigReaderWriter::writeApplication(const Application &applicat
     if (writeApplicationConfig(cfgFilePath, application, result)) {
         QString stateFilePath = appDir.filePath(APPLICATION_STATE_FILE_NAME);
         writeApplicationState(stateFilePath, application, result);
+
+        QString metaFilePath = appDir.filePath(APPLICATION_META_FILE_NAME);
+        writeApplicationMeta(metaFilePath, application, result);
     }
 
     // TODO: error situation is not clear, should we delete everything or what
@@ -259,6 +268,32 @@ void ApplicationConfigReaderWriter::readApplicationState(const QString &stateFil
         }
     } else {
         application.markState(Application::Valid);
+    }
+}
+
+void ApplicationConfigReaderWriter::readApplicationMeta(const QString &metaFilePath, Application &application)
+{
+    // missing state file means app is OK
+    QFile metaFile(metaFilePath);
+    if (metaFile.exists()) {
+        if (!metaFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            WARN("Failed to open " << metaFilePath << ": " << metaFile.errorString());
+            return;
+        }
+
+        QByteArray data = metaFile.readAll();
+        metaFile.close();
+
+        QJsonDocument doc(QJsonDocument::fromJson(data));
+        QJsonObject json(doc.object());
+
+        // TODO: add validator
+
+        bool isFree = json[JSON_ISFREE].toBool();
+        application.metaRef().setIsFree(isFree);
+
+    } else {
+        application.metaRef().setIsFree(true);
     }
 }
 
@@ -339,6 +374,31 @@ bool ApplicationConfigReaderWriter::writeApplicationState(const QString &stateFi
 
     if (file.write(jdoc.toJson()) == -1) {
         return result.record(Result::FileWriteFailed, QString("Writing to file %1 failed").arg(stateFilePath));
+    }
+
+    file.close();
+    return true;
+}
+
+bool ApplicationConfigReaderWriter::writeApplicationMeta(const QString &metaFilePath, const Application &application, ApplicationConfigReaderWriter::Result &result)
+{
+    QFile file(metaFilePath);
+
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return result.record(Result::FileNotWritable, QString("Failed to open %1").arg(metaFilePath));
+
+    // TODO: is this check needed?
+    if (!file.isWritable())
+        return result.record(Result::FileNotWritable, QString("File %1 not writable").arg(metaFilePath));
+
+    QJsonObject json;
+    json[JSON_ISFREE] = application.meta()->isFree();
+    QJsonDocument jdoc(json);
+
+    // TODO: add validatorr
+
+    if (file.write(jdoc.toJson()) == -1) {
+        return result.record(Result::FileWriteFailed, QString("Writing to file %1 failed").arg(metaFilePath));
     }
 
     file.close();

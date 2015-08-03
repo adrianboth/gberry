@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <testutils/qtgtest.h>
+#include <testutils/qtgtest.h>
 #include <testutils/waiter.h>
 
 #include <QJsonObject>
@@ -27,7 +27,8 @@
 #include "headserverconnection.h"
 #include "invocationfactoryimpl.h"
 #include "downloadableapplicationcache.h"
-#include "server/serversidecontrolchannel.h"
+#include <server/serversidecontrolchannel.h>
+#include <server/playersessionmanager.h>
 #include "realsystemservices.h"
 
 #define LOG_AREA "IntegrationQueryDownloadableApplicationsCommand"
@@ -48,7 +49,7 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
     DownloadableApplicationCache applicationCache; // so simple that no mock need ...
 
     InvocationFactoryImpl invocationFactory;
-    invocationFactory.setProperty("url_prefix", "http://localhost/gberryrest/v1");
+    invocationFactory.setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost/gberryrest/v1");
 
     HeadServerConnection headServerConnection(&invocationFactory); // TODO: some interface for this
 
@@ -57,8 +58,10 @@ TEST(IntegrationQueryDownloadableApplicationsCommand, OK)
     ServerSideControlChannel controlChannel; // TODO: some interface for message sending
     controlChannel.attachSouthPartner(stubChannelSouthPartner);
 
+    PlayerSessionManager playerSessions;
+
     QueryDownloadableApplicationsCommand* cmd =
-            new QueryDownloadableApplicationsCommand(&headServerConnection, &controlChannel, &applicationCache);
+            new QueryDownloadableApplicationsCommand(&headServerConnection, &controlChannel, &applicationCache, &playerSessions);
     controlChannel.registerCommand(cmd); // channel will take ownership
 
 // -- test

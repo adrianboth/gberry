@@ -29,6 +29,7 @@ namespace GBerryClient {
 CppApplication::CppApplication(QQmlApplicationEngine* engine) :
     _engine(engine),
     _appStorage(engine),
+    _serverConnectionModel(&_invocationFactory),
     _displayProfile(480, 800, DisplayProfile::PixelMatch, 1.0) // Nexus S, portrait
 {
     _userModel = new UserModel(&_appStorage); // reads defaults when constructed
@@ -45,6 +46,7 @@ CppApplication::CppApplication(QQmlApplicationEngine* engine) :
 
     _engine->rootContext()->setContextProperty("UserModel", _userModel);
     _engine->rootContext()->setContextProperty("LoginModel", _loginModel);
+    _engine->rootContext()->setContextProperty("ServerConnectionModel", &_serverConnectionModel);
     _engine->rootContext()->setContextProperty("DisplayProfile", &_displayProfile);
     _engine->rootContext()->setContextProperty("ApplicationSettings", &_settings);
 }

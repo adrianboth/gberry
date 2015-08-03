@@ -30,17 +30,7 @@ using namespace GBerryClient;
 
 #include "utils/fileutils.h"
 #include "testobjects/stubinvocationfactory.h"
-
-
-class TempDirApplicationStorage : public IApplicationStorage {
-public:
-
-    virtual QString storagePath() const {
-        return tempDir.path();
-    }
-
-    QTemporaryDir tempDir;
-};
+#include "testobjects/stubapplicationstorage.h"
 
 // no real http request
 TEST(LoginModel, LoginOkLogoutOk)

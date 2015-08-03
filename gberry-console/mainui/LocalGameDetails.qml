@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.2
+import QtQuick 2.2
 import QtQuick.Layouts 1.1
 
 import GBerry 1.0
@@ -26,6 +26,14 @@ Item {
     property string gameName: qsTr("No games found")
     property string gameDescription: ""
     property string gameImageUrl: ""
+
+    function readValues(gameMeta) {
+        // these values come directly from the model
+        gameName = gameMeta.name
+        gameDescription = gameMeta.description
+        freeTypeLabel.text = gameMeta.is_free ? qsTr("Free") : qsTr("Purchased")
+        versionLabel.text = gameMeta.version
+    }
 
     signal gameLauchRequested()
 
@@ -54,6 +62,26 @@ Item {
 
                 text: gameName
                 font.pixelSize: 55 //gdisplay.largeSizeText
+            }
+
+            Text {
+                id: freeTypeLabel
+                text: "undefined"
+                visible: text != "undefined"
+                font.pixelSize: gdisplay.smallSizeText
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 10 // TODO: do not hardcode!
+            }
+
+            Text {
+                id: versionLabel
+                text: "undefined"
+                visible: text != "undefined"
+                font.pixelSize: gdisplay.smallSizeText
+                anchors.top: freeTypeLabel.bottom
+                anchors.right: parent.right
+                anchors.margins: 10 // TODO: do not hardcode!
             }
         }
 

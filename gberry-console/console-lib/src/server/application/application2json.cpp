@@ -33,6 +33,7 @@ QJsonObject Application2Json::from(const IApplication& app)
     json["description"] = app.meta()->description();
     json["catalog_image"] = app.meta()->catalogImageFilePath();
     json["status"] = app.stateString();
+    json["is_free"] = app.meta()->isFree();
 
     return json;
 }

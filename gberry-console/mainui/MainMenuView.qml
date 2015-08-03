@@ -29,13 +29,13 @@ Item {
 
     property var enabledControlActions: ["Up", "Down", "OK"] // defaults
 
-    function processControlAction(action) {
+    function processControlAction(action, pid) {
         if (action === "Up")
             mainMenu.moveFocusToPrevious()
         else if (action === "Down")
             mainMenu.moveFocusToNext()
         else if (action === "OK")
-            mainMenu.selectCurrent()
+            mainMenu.selectCurrent(pid)
     }
 
 

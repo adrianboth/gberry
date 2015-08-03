@@ -35,6 +35,7 @@ public:
         Meta();
         Meta(const Meta& other);
         Meta(const QString& key, const QString& value);
+        Meta(const QString& key, int value);
         Meta(const QString& key, const QString& value, const QString& l10nContext);
         virtual ~Meta();
 

@@ -127,8 +127,8 @@ Item {
                     function updateDetails() {
                         var selectedGame = localGamesModel.get(currentIndex)
                         if (typeof(selectedGame) !== 'undefined') {
-                            localGameDetails.gameName = selectedGame.name
-                            localGameDetails.gameDescription = selectedGame.description
+                            localGameDetails.readValues(selectedGame)
+
                         } else {
                             localGameDetails.gameName = "undefined"
                             localGameDetails.gameDescription = "undefined description"

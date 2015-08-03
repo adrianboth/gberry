@@ -57,6 +57,10 @@ public:
     // self-destroyed when RESTInvocation finishes.
     virtual void cancel();
 
+    // TODO: could be protected func?
+    // used to populate debug information in case of errors
+    virtual void fillInErrorDetails(Result& res) = 0;
+
 protected:
     virtual Invocation* processPrepare(InvocationFactory* factory) = 0;
     virtual void processOkResponse(Invocation* invocation) = 0;

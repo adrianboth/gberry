@@ -16,7 +16,9 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <gtest/gtest.h>
+#include <testutils/qtgtest.h>
+#include <testutils/waiter.h>
+
 #include <gmock/gmock.h>
 using ::testing::AtLeast;
 using ::testing::Return;
@@ -28,18 +30,14 @@ using ::testing::_;
 #include "client/websocketclient.h"
 
 #include "mocks/mock_playersessionmanager.h"
-#include "testutils/waiter.h"
-
 
 TEST(WebSockets, ConnectDisconnectWithEchoImpl)
 {
     // test case where server accepts all connections and echoes messages
 
-    // TODO: mock to return valid sessions
-    MockPlayerSessionManager sessionManager; // just to get ref
+    MockPlayerSessionManager sessionManager;
 
-    EXPECT_CALL(sessionManager, sessionByToken(_))
-              .Times(1)
+    EXPECT_CALL(sessionManager, sessionByToken(QString("12345")))
               .WillOnce( Return(GuestPlayerSession("Guest1", "abc123")));
 
     WebsocketServer server(&sessionManager, 8888);
@@ -57,15 +55,15 @@ TEST(WebSockets, ConnectDisconnectWithEchoImpl)
                      [&] (QString message) { clientReceivedMessage = message; });
 
     client.open(url);
-    Waiter::waitAndAssert([&] () { return client.isConnected(); });
+    WAIT_CUSTOM_AND_ASSERT(client.isConnected(), 10000, 50);
     client.sendMessage(("Hello web!"));
 
-    Waiter::waitAndAssert([&] () { return clientReceivedMessage.length() > 0; });
+    WAIT_AND_ASSERT(clientReceivedMessage.length() > 0);
 
     // -- second message
     clientReceivedMessage.clear();
     client.sendMessage(("FOOBAR message"));
 
-    Waiter::waitAndAssert([&] () { return clientReceivedMessage.length() > 0; });
+    WAIT_AND_ASSERT(clientReceivedMessage.length() > 0);
 }
 

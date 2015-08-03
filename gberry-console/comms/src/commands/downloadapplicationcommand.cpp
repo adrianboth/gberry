@@ -23,9 +23,11 @@
 #include <QList>
 #include <QProcess>
 
-#include "server/serversidecontrolchannel.h"
-#include "server/application/iapplication.h"
-#include "server/application/application2json.h"
+#include <server/serversidecontrolchannel.h>
+#include <server/playersessionmanager.h>
+#include <server/playersession.h>
+#include <server/application/iapplication.h>
+#include <server/application/application2json.h>
 #include "headserverconnection.h"
 #include "localapplicationsstorage.h"
 #include "requests/downloadapplicationrequest.h"
@@ -50,16 +52,19 @@ public:
             HeadServerConnection* headServerConnection_,
             ServerSideControlChannel* controlChannel_,
             DownloadableApplicationCache* cache_,
-            LocalApplicationsStorage* applicationsStorage_) :
+            LocalApplicationsStorage* applicationsStorage_,
+            PlayerSessionManager* playerSessions_) :
         headServerConnection(headServerConnection_),
         controlChannel(controlChannel_),
         cache(cache_),
-        applicationsStorage(applicationsStorage_) {}
+        applicationsStorage(applicationsStorage_),
+        playerSessions(playerSessions_) {}
 
     HeadServerConnection* headServerConnection;
     ServerSideControlChannel* controlChannel;
     DownloadableApplicationCache* cache;
     LocalApplicationsStorage* applicationsStorage;
+    PlayerSessionManager* playerSessions;
     QList<DownloadApplicationRequest*> ongoingRequests;
 
     // this meant for cleanup in case of errors
@@ -80,12 +85,14 @@ DownloadApplicationCommand::DownloadApplicationCommand(
         HeadServerConnection* headServerConnection,
         ServerSideControlChannel* controlChannel,
         DownloadableApplicationCache *applicationCache,
-        LocalApplicationsStorage* applicationsStorage) :
+        LocalApplicationsStorage* applicationsStorage,
+        PlayerSessionManager* playerSessions) :
     ICommand("DownloadApplication"),
     _d(new DownloadApplicationCommandPrivate(headServerConnection,
                                              controlChannel,
                                              applicationCache,
-                                             applicationsStorage))
+                                             applicationsStorage,
+                                             playerSessions))
 {
 }
 
@@ -169,6 +176,14 @@ bool DownloadApplicationCommand::process(const QJsonObject &json, ICommandRespon
 
     DownloadApplicationRequest* request = new DownloadApplicationRequest(
                 this, newApp->meta()->applicationId(), newApp->meta()->version(), appZipFilePath);
+
+    if (json.contains("player_id")) {
+        int playerId = json["player_id"].toInt();
+        PlayerSession session = _d->playerSessions->session(playerId);
+        if (session.isValid() && !session.isGuest()) {
+            request->setUserToken(session.userToken());
+        }
+    }
 
     _d->ongoingRequests.append(request);
     _d->headServerConnection->makeRequest(request);

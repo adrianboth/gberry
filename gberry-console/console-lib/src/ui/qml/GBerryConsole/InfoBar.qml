@@ -58,6 +58,28 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
     }
 
+    // show who is active and whether guest or not
+    Text {
+        id: activePlayerText
+        text: qsTr("Active: ") + getText(ActivePlayerModel.activePlayerId)
+        visible: ActivePlayerModel.hasActivePlayer
+        anchors.right: time.left
+        anchors.rightMargin: gdisplay.touchCellWidth()
+        anchors.verticalCenter: parent.verticalCenter
+
+        function getText(pid) {
+            if (pid === -1) {
+                return "dev"
+            }
+
+            var str = playersManager.playerName(pid)
+            if (playersManager.isGuest(pid)) {
+                str += " (G)";
+            }
+            return str
+        }
+    }
+
     Text {
         id: time
         anchors.right: parent.right

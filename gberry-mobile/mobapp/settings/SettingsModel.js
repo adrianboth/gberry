@@ -30,6 +30,7 @@ var activeConsoleIndex
 var activeServerIndex
 var consoles
 var servers
+var serverConnectionModel // C++ model not visible to JS lib
 
 function consoleAddress() {
     GBerry.Log.debug("Current activeConsoleIndex: " + activeConsoleIndex)
@@ -98,7 +99,7 @@ function addServer(serverAddress) {
 
 function setActiveConsole(consoleAddress) {
     for (var i = 0; i < consoles.length; i++) {
-        console.debug("COMPARE: " + consoles[i].address + " vs " + consoleAddress)
+        //console.debug("COMPARE: " + consoles[i].address + " vs " + consoleAddress)
         if (consoles[i].address === consoleAddress) {
             var prevAddress = consoles[activeConsoleIndex].address
 
@@ -113,7 +114,7 @@ function setActiveConsole(consoleAddress) {
             consoles[activeConsoleIndex].last_used = 0
             consoles[i].last_used = 1
 
-            console.debug("activeConsoleIndex=" + i)
+            //console.debug("activeConsoleIndex=" + i)
             activeConsoleIndex = i
         }
     }
@@ -121,7 +122,7 @@ function setActiveConsole(consoleAddress) {
 
 function setActiveServer(serverAddress) {
     for (var i = 0; i < servers.length; i++) {
-        console.debug("COMPARE: " + servers[i].address + " vs " + serverAddress)
+        //console.debug("COMPARE: " + servers[i].address + " vs " + serverAddress)
         if (servers[i].address === serverAddress) {
             var prevAddress = servers[activeServerIndex].address
 
@@ -136,8 +137,10 @@ function setActiveServer(serverAddress) {
             servers[activeServerIndex].last_used = 0
             servers[i].last_used = 1
 
-            console.debug("activeServerIndex=" + i)
+            //console.debug("activeServerIndex=" + i)
             activeServerIndex = i
+
+            serverConnectionModel.setServerHost(serverAddress)
         }
     }
 }
@@ -164,7 +167,7 @@ function _initialize() {
             var row
             for(var i = 0; i < rs.rows.length; i++) {
                 row = rs.rows.item(i)
-                console.debug("Reading console: " + row.address)
+                //console.debug("Reading console: " + row.address)
                 consolesList.push({name: row.name, address: row.address, last_used: row.last_used})
             }
         }
@@ -177,7 +180,7 @@ function _initialize() {
             var row
             for(var i = 0; i < rs.rows.length; i++) {
                 row = rs.rows.item(i)
-                console.debug("Reading server: " + row.address)
+                //console.debug("Reading server: " + row.address)
                 serversList.push({name: row.name, address: row.address, last_used: row.last_used})
             }
         }
@@ -223,5 +226,10 @@ function _initialize() {
     servers = serversList
 }
 
-// read from DB
 _initialize()
+
+// read from DB
+function init(serverConnectionModel_) {
+    serverConnectionModel = serverConnectionModel_
+    serverConnectionModel.setServerHost(serverAddress())
+}

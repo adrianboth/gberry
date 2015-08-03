@@ -34,10 +34,12 @@
 #include "client/clientsidecontrolchannel.h"
 #include "client/commtcpclient.h"
 #include "client/clientsetup.h"
-#include <client/qmlapplication.h>
-#include <client/consoledevice.h>
+#include <client/qml/qmlapplication.h>
 
 #include "utils/testchannelfactory.h"
+
+#include "utils/stubconsoleapplication.h"
+#include "testobjects/stubinvocationfactory.h"
 
 // TEST
 #include <invocationfactoryimpl.h>
@@ -392,21 +394,24 @@ TEST(CommunicationIntegration, FullPipeFromSouthToNorth)
 
     // -- north side client
 
-    mobile::QmlApplication northApplication;
+    StubInvocationFactory stubInvocationFactory; // no need for head server connection
+    StubConsoleApplication stubConsoleApp(&stubInvocationFactory);
+    GBerryClient::QmlApplication northApplication(&stubConsoleApp);
 
     bool consoleConnectionIsOpen = false;
-    QObject::connect(&northApplication, &mobile::QmlApplication::consoleConnectionOpened,
+    QObject::connect(&northApplication, &GBerryClient::QmlApplication::consoleConnectionOpened,
                      [&] () { consoleConnectionIsOpen = true; });
 
     bool northSideClientMessageReceived = false;
     QString northSideClientMessage;
-    QObject::connect(&northApplication, &mobile::QmlApplication::playerMessageReceived,
+    QObject::connect(&northApplication, &GBerryClient::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClientMessageReceived = true; northSideClientMessage = msg; });
 
-    northApplication.loginGuest("GuestFoo");
+    UserModel& userModel = stubConsoleApp.userModel();
+    userModel.setUser(UserInfo("FooGuest", "", "", true, false));
+    userModel.selectCurrentUser("FooGuest");
 
-    mobile::ConsoleDevice console("localhost");
-    northApplication.openConsoleConnection(console);
+    northApplication.openConsoleConnection("localhost");
 
     WAIT_CUSTOM_AND_ASSERT(consoleConnectionIsOpen, 5000, 50);
 
@@ -430,7 +435,7 @@ TEST(CommunicationIntegration, FullPipeFromSouthToNorth)
     TRACE("DONE");
 }
 
-/*
+
 // multiple players
 TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
 {
@@ -462,35 +467,43 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
 
     // -- north side clients
 
-    mobile::QmlApplication northApplication1;
+    StubInvocationFactory stubInvocationFactory1; // no need for head server connection
+    StubConsoleApplication stubConsoleApp1(&stubInvocationFactory1);
+    GBerryClient::QmlApplication northApplication1(&stubConsoleApp1);
+
+    StubInvocationFactory stubInvocationFactory2; // no need for head server connection
+    StubConsoleApplication stubConsoleApp2(&stubInvocationFactory2);
+    GBerryClient::QmlApplication northApplication2(&stubConsoleApp2);
+
+    StubInvocationFactory stubInvocationFactory3; // no need for head server connection
+    StubConsoleApplication stubConsoleApp3(&stubInvocationFactory3);
+    GBerryClient::QmlApplication northApplication3(&stubConsoleApp3);
+
 
     QString northSideClient1Message;
-    QObject::connect(&northApplication1, &mobile::QmlApplication::playerMessageReceived,
+    QObject::connect(&northApplication1, &GBerryClient::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient1Message = msg; });
 
-    mobile::QmlApplication northApplication2;
-
     QString northSideClient2Message;
-    QObject::connect(&northApplication2, &mobile::QmlApplication::playerMessageReceived,
+    QObject::connect(&northApplication2, &GBerryClient::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient2Message = msg; });
 
-    mobile::QmlApplication northApplication3;
-
     QString northSideClient3Message;
-    QObject::connect(&northApplication3, &mobile::QmlApplication::playerMessageReceived,
+    QObject::connect(&northApplication3, &GBerryClient::QmlApplication::playerMessageReceived,
                      [&] (QString msg) { northSideClient3Message = msg; });
 
+    stubConsoleApp1.userModel().setUser(UserInfo("Guest1Foo", "", "", true, false));
+    stubConsoleApp1.userModel().selectCurrentUser("Guest1Foo");
+    northApplication1.openConsoleConnection("localhost");
 
-    mobile::ConsoleDevice console("localhost");
+    stubConsoleApp2.userModel().setUser(UserInfo("Guest2Foo", "", "", true, false));
+    stubConsoleApp2.userModel().selectCurrentUser("Guest2Foo");
+    northApplication2.openConsoleConnection("localhost");
 
-    northApplication1.loginGuest("Guest1Foo");
-    northApplication1.openConsoleConnection(console);
+    stubConsoleApp3.userModel().setUser(UserInfo("Guest3Foo", "", "", true, false));
+    stubConsoleApp3.userModel().selectCurrentUser("Guest3Foo");
+    northApplication3.openConsoleConnection("localhost");
 
-    northApplication2.loginGuest("Guest2Foo");
-    northApplication2.openConsoleConnection(console);
-
-    northApplication3.loginGuest("Guest3Foo");
-    northApplication3.openConsoleConnection(console);
 
     WAIT_CUSTOM_AND_ASSERT(northApplication1.isConsoleConnectionOpen(), 5000, 50);
     WAIT_CUSTOM_AND_ASSERT(northApplication2.isConsoleConnectionOpen(), 5000, 50);
@@ -513,6 +526,9 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
     southClientSetup->playersManager.sendPlayerMessage(playerIdByPlayerName["Guest1Foo"], "all1 ok");
     southClientSetup->playersManager.sendPlayerMessage(playerIdByPlayerName["Guest2Foo"], "all2 ok");
     northApplication2.sendMessage("test3 message");
+
+    WAIT_WITH_TIMEOUT(northSideClient1Message == "all1 ok", 5000);
+    DEBUG("northSideClient1Message:" << northSideClient1Message);
 
     WAIT_AND_ASSERT(northSideClient1Message == "all1 ok");
     WAIT_AND_ASSERT(northSideClient2Message == "all2 ok");
@@ -560,4 +576,3 @@ TEST(CommunicationIntegration, FullPipeWithThreeNorthClients)
     WAIT_AND_ASSERT(southClientSetup->playersManager.numberOfPlayers() == 0);
     qDebug("DONE");
 }
-*/

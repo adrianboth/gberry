@@ -29,7 +29,8 @@
 #include "headserverconnection.h"
 #include "invocationfactoryimpl.h"
 #include "downloadableapplicationcache.h"
-#include "server/serversidecontrolchannel.h"
+#include <server/serversidecontrolchannel.h>
+#include <server/playersessionmanager.h>
 #include "realsystemservices.h"
 #include "localapplicationsstorage.h"
 #include "application.h"
@@ -63,7 +64,7 @@ TEST(DownloadApplicationCommand, DownloadOk)
     applicationCache.cacheApplication(QSharedPointer<IApplication>(static_cast<IApplication*>(app)));
 
     InvocationFactoryImpl invocationFactory;
-    invocationFactory.setProperty("url_prefix", "http://localhost/gberryrest/v1");
+    invocationFactory.setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost/gberryrest/v1");
 
     HeadServerConnection headServerConnection(&invocationFactory); // TODO: some interface for this
 
@@ -78,9 +79,10 @@ TEST(DownloadApplicationCommand, DownloadOk)
     QString storageFilePath = tempDirObj.filePath("storage");
 
     LocalApplicationsStorage appsStorage(storageFilePath);
+    PlayerSessionManager playerSessions;
 
     DownloadApplicationCommand* cmd =
-            new DownloadApplicationCommand(&headServerConnection, &controlChannel, &applicationCache, &appsStorage);
+            new DownloadApplicationCommand(&headServerConnection, &controlChannel, &applicationCache, &appsStorage, &playerSessions);
     controlChannel.registerCommand(cmd); // channel will take ownership
 
 // -- test

@@ -163,7 +163,10 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        SettingsModel.init(ServerConnectionModel) // pass ref to model
+
         refreshConsoleListModel()
         refreshServerListModel()
+
     }
 }

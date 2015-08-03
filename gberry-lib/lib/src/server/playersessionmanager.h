@@ -25,7 +25,7 @@
 
 class PlayerSession;
 
-
+// TODO: needed to have QObject
 class PlayerSessionManager : public QObject
 {
     Q_OBJECT
@@ -33,10 +33,11 @@ public:
     explicit PlayerSessionManager(QObject *parent = 0);
     ~PlayerSessionManager();
 
-    virtual bool isPlayerNameReserved(QString& playerName) const;
-    virtual void insertSession(PlayerSession& session);
+    virtual bool isPlayerNameReserved(const QString& playerName) const;
+    virtual void insertSession(const PlayerSession& session);
     virtual void removeSession(int playerId);
-    virtual PlayerSession sessionByToken(QString token);
+    virtual PlayerSession sessionByToken(const QString& sessionToken) const;
+    virtual PlayerSession session(int playerId) const;
 
 signals:
 

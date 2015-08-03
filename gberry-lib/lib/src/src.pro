@@ -93,7 +93,10 @@ HEADERS += \
     client/iapplicationstorage.h \
     testobjects/stubinvocationfactory.h \
     testobjects/stubrestinvocation.h \
-    testobjects/stubdownloadstreaminvocation.h
+    testobjects/stubdownloadstreaminvocation.h \
+    client/iconsoleapplication.h \
+    testobjects/stubapplicationstorage.h \
+    client/qml/serverconnectionmodel.h
 
 #lib_headers.path    = $${INSTALLDIR}/include
 #lib_headers.files   += $$HEADERS
@@ -161,7 +164,8 @@ SOURCES += \
     client/qml/loginmodel.cpp \
     testobjects/stubinvocationfactory.cpp \
     testobjects/stubrestinvocation.cpp \
-    testobjects/stubdownloadstreaminvocation.cpp
+    testobjects/stubdownloadstreaminvocation.cpp \
+    client/qml/serverconnectionmodel.cpp
 
 INCLUDEPATH += ../../qhttpserver/src
 LIBS += -L../../qhttpserver/src -lqhttpserver

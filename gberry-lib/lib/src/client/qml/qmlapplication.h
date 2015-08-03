@@ -21,13 +21,11 @@
 
 #include <QObject>
 
+#include "client/iconsoleapplication.h"
 #include "client/consolesessionmanager.h"
 
 namespace GBerryClient
 {
-
-// fwds
-class CppApplication;
 
 /**
  * @brief Application abstraction for QML side
@@ -40,7 +38,7 @@ class QmlApplication : public QObject
     Q_PROPERTY(bool loggedIn READ loggedIn NOTIFY loggedInChanged)
 
 public:
-    explicit QmlApplication(CppApplication* cppApp, QObject *parent = 0);
+    explicit QmlApplication(IConsoleApplication* consoleApp, QObject *parent = 0);
     ~QmlApplication();
 
     Q_INVOKABLE void openConsoleConnection(const QString& hostName);
@@ -66,7 +64,7 @@ public slots:
     void onWebsocketClosed();
 
 private:
-    CppApplication* _cppApp;
+    IConsoleApplication* _consoleApp;
     ConsoleSessionManager _consoleSession;
     bool _loggedIn; // using separate var, as isConsoleConnectionOpen() is about websocket
 };

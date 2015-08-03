@@ -28,10 +28,13 @@ class MockPlayerSessionManager : public PlayerSessionManager
 {
 public:
 
-    MOCK_METHOD1(insertSession, void(PlayerSession&));
-    MOCK_METHOD1(sessionByToken, PlayerSession(QString));
-};
+    MOCK_CONST_METHOD1(isPlayerNameReserved, bool(const QString&));
+    MOCK_METHOD1(insertSession, void(const PlayerSession&));
+    MOCK_METHOD1(removeSession, void(int));
+    MOCK_CONST_METHOD1(sessionByToken, PlayerSession(const QString&));
+    MOCK_CONST_METHOD1(session, PlayerSession(int));
 
+};
 
 #endif // MOCK_PLAYERSESSIONMANAGER_H
 

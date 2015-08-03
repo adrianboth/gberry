@@ -33,12 +33,13 @@
 #include "client/4qml/downloadablegamesmodel.h"
 #include "client/4qml/connection.h"
 #include "client/4qml/downloadmodel.h"
+#include "client/4qml/activeplayermodel.h"
 #include "client/gamemodelcommunication.h"
 #include "client/downloadablegamesmodelcommunication.h"
 #include "client/downloadmodelcommunication.h"
 #include "client/connectioncommunication.h"
 
-using namespace GBerry;
+using namespace GBerryApplication;
 
 // trick to get define as a string
 #define xstr(s) str(s)
@@ -88,6 +89,7 @@ private:
     DownloadableGamesModel _downloadableGamesModel;
     DownloadModelCommunication _downloadModelCommunication;
     DownloadModel _downloadModel;
+    ActivePlayerModel _activePlayerModel;
 
     ApplicationManager* _applicationManager;
     ConnectionCommunication _connectionCommunication;

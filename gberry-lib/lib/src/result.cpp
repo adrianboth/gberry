@@ -151,6 +151,11 @@ Result::Meta::Meta(const QString& key, const QString& value) :
     _d(new Result::Meta::Private(key, value))
 {}
 
+// TODO: we should store so that 'int' type is kept (but requires changing Meta api, not get() always returns string
+Result::Meta::Meta(const QString& key, int value) :
+    _d(new Result::Meta::Private(key, QString::number(value)))
+{}
+
 Result::Meta::~Meta()
 {
 }

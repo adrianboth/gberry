@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef DOWNLOADMODELCOMMUNICATION_H
+#ifndef DOWNLOADMODELCOMMUNICATION_H
 #define DOWNLOADMODELCOMMUNICATION_H
 
 // TODO: could communication classes be moved to common subfolder ...
@@ -28,13 +28,14 @@
 
 class ClientSideControlChannel;
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class DownloadModelCommunication : public IDownloadModelCommunication
 {
     Q_OBJECT
 public:
-    explicit DownloadModelCommunication(ClientSideControlChannel* controlChannel, QObject *parent = 0);
+    explicit DownloadModelCommunication(ClientSideControlChannel* controlChannel,
+                                        QObject *parent = 0);
     virtual ~DownloadModelCommunication();
 
     virtual void sendMessage(const QJsonObject& msg) override;
@@ -47,6 +48,5 @@ private:
 };
 
 } // eon
-
 
 #endif // DOWNLOADMODELCOMMUNICATION_H

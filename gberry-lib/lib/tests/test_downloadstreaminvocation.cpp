@@ -46,7 +46,7 @@ TEST(DownloadStreamInvocation, OkOperationAllDataByOnce)
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
 
-    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+    factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9999/gberryrest/v1");
 
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
 
@@ -119,7 +119,7 @@ TEST(DownloadStreamInvocation, OkOperationDataReadInParts)
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
 
-    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+    factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9999/gberryrest/v1");
 
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
 
@@ -238,7 +238,7 @@ TEST(DownloadStreamInvocation, FailedDownload)
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
 
-    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+    factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9999/gberryrest/v1");
 
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
 

@@ -372,7 +372,7 @@ Item {
                             // login possible when:
                             //   a) current user is not active
 
-                            property bool loginModeEnabled: (UserModel.currentUserName != userNameField.currentText) || self.currentUserDirty
+                            property bool loginModeEnabled: !LoginModel.isLoggedIn && ((UserModel.currentUserName != userNameField.currentText) || self.currentUserDirty)
                             label: {
                                 if (loginModeEnabled) {
                                     return qsTr("Login")

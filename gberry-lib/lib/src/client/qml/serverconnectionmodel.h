@@ -1,6 +1,3 @@
-#ifndef IAPPLICATIONSTORAGE_H
-#define IAPPLICATIONSTORAGE_H
-
 /* This file is part of GBerry.
  *
  * Copyright 2015 Tero Vuorela
@@ -18,25 +15,37 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef SERVERCONNECTIONMODEL_H
+#define SERVERCONNECTIONMODEL_H
 
-#include <QString>
+#include <QObject>
+#include <QScopedPointer>
+
+class InvocationFactory;
 
 namespace GBerryClient {
 
-/**
- * This interface manages file location where information can be saved.
- */
-class IApplicationStorage
+// TODO: ?? would be better to move whole settings model to C++ side ??
+class ServerConnectionModel : public QObject
 {
+    Q_OBJECT
 public:
-    IApplicationStorage() {}
-    ~IApplicationStorage() {}
+    explicit ServerConnectionModel(InvocationFactory* invocationFactory, QObject *parent = 0);
+    ~ServerConnectionModel();
 
-    virtual QString storagePath() const = 0;
+    Q_INVOKABLE void setServerHost(const QString& host);
 
+    // TODO: ping stuff
+
+signals:
+
+public slots:
+
+private:
+    class Private;
+    const QScopedPointer<Private> _d;
 };
 
 } // eon
 
-#endif // IAPPLICATIONSTORAGE_H
-
+#endif // SERVERCONNECTIONMODEL_H

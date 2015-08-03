@@ -34,6 +34,7 @@ class MockDownloadStreamInvocation : public DownloadStreamInvocation
 
      MOCK_METHOD1(defineGetOperation, void(const QString& path));
      MOCK_METHOD2(definePostOperation, void(const QString&  path, const QJsonDocument& jsondoc));
+     MOCK_METHOD2(defineParameter, void(const QString&  key, const QString& value));
      MOCK_CONST_METHOD0(statusCode, Invocation::InvocationStatus());
      MOCK_CONST_METHOD0(responseHttpStatusCode, HTTPInvocationDefinition::Status());
      MOCK_METHOD1(setOutputFilePath, void(const QString& path));

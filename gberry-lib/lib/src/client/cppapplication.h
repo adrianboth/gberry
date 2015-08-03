@@ -21,9 +21,11 @@
 
 #include <QQmlApplicationEngine>
 
+#include "iconsoleapplication.h"
 #include "applicationstorage.h"
 #include "client/qml/usermodel.h"
 #include "client/qml/loginmodel.h"
+#include "client/qml/serverconnectionmodel.h"
 #include "ui/displayprofile.h"
 #include "applicationsettings.h"
 #include "invocationfactoryimpl.h"
@@ -36,24 +38,26 @@ namespace GBerryClient {
  * This class is application model for C++ side only but it contains also
  * initialization of QmlApplication.
  */
-class CppApplication
+class CppApplication : public IConsoleApplication
 {
 public:
     CppApplication(QQmlApplicationEngine* engine);
     ~CppApplication();
 
-    ApplicationStorage& applicationStorage();
-    UserModel& userModel();
-    LoginModel& loginModel();
+    virtual ApplicationStorage& applicationStorage() override;
+    virtual UserModel& userModel() override;
+    virtual LoginModel& loginModel() override;
 
 private:
     QQmlApplicationEngine* _engine;
     InvocationFactoryImpl _invocationFactory;
     ApplicationStorage _appStorage;
     UserModel* _userModel{nullptr};
+    ServerConnectionModel _serverConnectionModel;
     LoginModel* _loginModel{nullptr};
     DisplayProfile _displayProfile;
     ApplicationSettings _settings;
+
 };
 
 } // eon

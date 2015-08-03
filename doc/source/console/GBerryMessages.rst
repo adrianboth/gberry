@@ -32,11 +32,19 @@ application -> comms
     -> DownloadApplicationReply
 	* 'result' = ok|failure|status|
 	* 'application_id'
+	* 'player_id'
 	* ['error_code']
 	* ['error_string']
 	* ['status' = started|progress]
 	* ['progress_percentage' = <int>]
 	
+ * TODO: DownloadApplicationReply
+ 
+ * TODO: QueryDownloadableApplications + reply
+ 
+ * TODO: QueryLocalApplications + reply
+ 
+ 
 <General result info>
  * 'result' = ok|failure|status
     * If error

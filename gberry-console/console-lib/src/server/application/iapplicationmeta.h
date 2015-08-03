@@ -44,6 +44,7 @@ public:
     virtual QString applicationDirPath() const = 0;
     virtual QString applicationExecutablePath() const = 0;
     virtual QString catalogImageFilePath() const = 0;
+    virtual bool isFree() const = 0;
 };
 
 }}} // eon

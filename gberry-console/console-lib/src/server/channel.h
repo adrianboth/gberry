@@ -71,7 +71,7 @@ public:
 
 public slots:
     // true if message was handled, used in subclasses to know if parent handled to message
-    virtual bool receiveMessageFromSouth(const QByteArray& msg);
+    bool receiveMessageFromSouth(const QByteArray& msg);
 
 signals:
     void channelClosed();

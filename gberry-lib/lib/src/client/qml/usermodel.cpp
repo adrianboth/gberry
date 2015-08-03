@@ -32,7 +32,7 @@ namespace {
     static const char* FILE_VERSION_VALUE = "1"; // update this when significant changes that you need to handle
 
     static const char* USERNAME_KEY = "username";
-    static const char* EMAIL_KEY = "password";
+    static const char* EMAIL_KEY = "email";
     static const char* PASSWORD_KEY = "password";
     static const char* GUEST_KEY = "guest";
     static const char* REMEMBER_PASSWORD_KEY = "remember_password";

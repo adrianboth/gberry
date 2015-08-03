@@ -44,8 +44,11 @@ public:
             const QString& destinationFilePath);
     virtual ~DownloadApplicationRequest();
 
+    void setUserToken(const QString& userToken);
     QString applicationFullId() const;
     QString destinationFilePath() const;
+
+    void fillInErrorDetails(Result& res) override;
 
 protected:
     virtual Invocation* processPrepare(InvocationFactory* factory) override;
@@ -57,6 +60,7 @@ private:
     QString _applicationId;
     QString _applicationVersion;
     QString _destinationFilePath;
+    QString _userToken;
 };
 
 } // eon

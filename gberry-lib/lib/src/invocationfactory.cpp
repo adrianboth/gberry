@@ -16,7 +16,9 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "invocationfactory.h"
+#include "invocationfactory.h"
+
+const char* InvocationFactory::URL_PREFIX_PROP = "url_prefix";
 
 InvocationFactory::InvocationFactory(QObject *parent) : QObject(parent)
 {

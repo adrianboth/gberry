@@ -40,13 +40,13 @@ InvocationFactoryImpl::~InvocationFactoryImpl()
 
 QUrl InvocationFactoryImpl::buildUrl(QString invocationPath) const
 {
-    QString baseUrl = this->property("url_prefix").toString();
+    QString baseUrl = this->property(InvocationFactory::URL_PREFIX_PROP).toString();
     return QUrl(baseUrl + invocationPath);
 }
 
 QUrl InvocationFactoryImpl::buildUrl(QString invocationPath, const QMap<QString, QString>& params) const
 {
-    QString baseUrl = this->property("url_prefix").toString();
+    QString baseUrl = this->property(InvocationFactory::URL_PREFIX_PROP).toString();
     QUrl url(baseUrl + invocationPath);
     QUrlQuery query;
     foreach(QString key, params.keys())
@@ -70,6 +70,6 @@ DownloadStreamInvocation *InvocationFactoryImpl::newDownloadStreamInvocation()
 
 QString InvocationFactoryImpl::defaultHostName() const
 {
-    QString baseUrl = this->property("url_prefix").toString();
+    QString baseUrl = this->property(InvocationFactory::URL_PREFIX_PROP).toString();
     return QUrl(baseUrl).host();
 }

@@ -25,7 +25,7 @@
 #include <QStringList>
 #include <QVariantMap>
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class IDownloadableGamesModelCommunication : public QObject
 {
@@ -43,6 +43,8 @@ signals:
 
 // TODO: in first version not thinking about split search results, there are so few games
 
+class ActivePlayerModel;
+
 class DownloadableGamesModelPrivate;
 
 class DownloadableGamesModel : public QObject
@@ -52,6 +54,7 @@ class DownloadableGamesModel : public QObject
 public:
     explicit DownloadableGamesModel(
             IDownloadableGamesModelCommunication* comm,
+            ActivePlayerModel* activePlayerModel,
             QObject* parent = 0);
 
     ~DownloadableGamesModel();
@@ -63,7 +66,6 @@ public:
 
     Q_INVOKABLE QVariantMap game(QString gameId) const;
 
-
 signals:
     void gamesAvailable();
     void gamesUpdated();
@@ -71,8 +73,6 @@ signals:
     // because search happens against server in internet there can be failures
     // like 'no connection'
     void gamesRequestFailed(); // TODO: should have some kind of error message / code?
-
-public slots:
 
 private:
     const QScopedPointer<DownloadableGamesModelPrivate> _d;

@@ -20,7 +20,7 @@
 TEMPLATE = app
 TARGET = tests
 
-QT       += core network websockets
+QT       += core network websockets qml
 # TODO: should be separated to gui and non gui libs
 #QT       -= gui
 QT += gui widgets
@@ -49,7 +49,8 @@ SOURCES += main.cpp \
     client/4qml/test_gamemodel.cpp \
     client/test_gamemodelcommunication.cpp \
     server/application/test_baseapplications.cpp \
-    server/test_serversideplayerchannel.cpp
+    server/test_serversideplayerchannel.cpp \
+    utils/stubconsoleapplication.cpp
     
 HEADERS += \
     utils/testtcpserver.h \
@@ -57,7 +58,8 @@ HEADERS += \
     utils/testchannelfactory.h \
     utils/testplayerchannelnorthpartner.h \
     utils/util_messageparser.h \
-    utils/testclientsidechannelpartners.h
+    utils/testclientsidechannelpartners.h \
+    utils/stubconsoleapplication.h
 
 INCLUDEPATH += ../src
 LIBS += -L../src -lconsolelib

@@ -103,7 +103,9 @@ public:
         // store for redirects
         this->url = url;
 
-        DEBUG("Executing POST operation");
+        // TODO: behind debug flag
+        DEBUG("Executing POST operation:" << url.toString() << ", data:" << QString(postData));
+
         QNetworkRequest req(url);
         req.setHeader(QNetworkRequest::ContentTypeHeader,"application/json");
         qreply = invocationFactory->getQNetworkAccessManager()->post(req, postData);
@@ -140,6 +142,8 @@ public:
 
             // get possible return data
             replyData = qreply->readAll();
+            if (!replyData.isEmpty())
+                result << Result::Meta("response_data", replyData);
 
             emit q->finishedError(q);
         }

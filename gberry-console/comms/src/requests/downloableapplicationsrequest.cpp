@@ -44,16 +44,42 @@ DownloadableApplicationsRequest::~DownloadableApplicationsRequest()
 {
 }
 
+void DownloadableApplicationsRequest::setUserToken(int playerId, const QString &userToken)
+{
+    _playerId = playerId;
+    _userToken = userToken;
+}
+
+bool DownloadableApplicationsRequest::playerDefined() const
+{
+    return _playerId != -1;
+}
+
+int DownloadableApplicationsRequest::playerId() const
+{
+    return _playerId;
+}
+
 QList<QSharedPointer<Application> > DownloadableApplicationsRequest::receivedApplications() const
 {
     return _receivedApplications;
 }
 
+void DownloadableApplicationsRequest::fillInErrorDetails(Result &res)
+{
+    res << Result::Meta("player_id", _playerId);
+    res << Result::Meta("user_token", _userToken.isEmpty() ? "<empty>" : "<defined>");
+}
+
 Invocation* DownloadableApplicationsRequest::processPrepare(InvocationFactory *factory)
 {
     RESTInvocation* inv = factory->newRESTInvocation();
-    // TODO: at this point only 'free' games, user auth not implemented
-    inv->defineGetOperation("/application/list?type=free");
+    inv->defineGetOperation("/application/list");
+    if (_userToken.isEmpty()) {
+        inv->defineParameter("type", "free");
+    } else {
+        inv->defineParameter("user_token", _userToken);
+    }
 
     return inv;
 }
@@ -86,6 +112,7 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
         meta->setVersion(j["version"].toString());
         meta->setName(j["name"].toString());
         meta->setDescription(j["description"].toString());
+        meta->setIsFree(j["is_free"].toBool());
         QSharedPointer<Application> app(new Application(QSharedPointer<ApplicationMeta>(meta)));
         _receivedApplications << app;
 

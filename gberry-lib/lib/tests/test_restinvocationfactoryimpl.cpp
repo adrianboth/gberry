@@ -34,7 +34,7 @@ TEST(RestInvocationFactoryImpl, RealGetOperationWithParameters)
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
 
-    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
+    factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9999/gberryrest/v1");
 
     RESTInvocation* inv = factory->newRESTInvocation();
     SignalRecorder okRecorder;
@@ -104,8 +104,8 @@ TEST(RestInvocationFactoryImpl, RealGetOperation)
     InvocationFactoryImpl factoryObj;
     InvocationFactory* factory = &factoryObj; // operate through public interface
 
-    factory->setProperty("url_prefix", "http://localhost:9999/gberryrest/v1");
-    //factory->setProperty("url_prefix", "http://localhost:8050/console/v1");
+    factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:9999/gberryrest/v1");
+    //factory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:8050/console/v1");
 
     RESTInvocation* inv = factory->newRESTInvocation();
     SignalRecorder okRecorder;

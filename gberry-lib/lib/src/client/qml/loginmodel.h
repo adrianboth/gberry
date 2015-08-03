@@ -32,7 +32,7 @@ class LoginModel : public QObject
     Q_OBJECT
 
     Q_PROPERTY(bool isLoggedIn READ isLoggedIn NOTIFY isLoggedInChanged)
-    Q_PROPERTY(QString headServerHost READ headServerHost WRITE setHeadServerHost)
+    //Q_PROPERTY(QString headServerHost READ headServerHost WRITE setHeadServerHost)
 
 public:
     LoginModel(UserModel* userModel, IApplicationStorage* storage, InvocationFactory* invocationFactory);
@@ -48,9 +48,9 @@ public:
 
     // -- properties
     bool isLoggedIn() const;
-    QString headServerHost() const;
 
-    void setHeadServerHost(const QString& newHost);
+    //QString headServerHost() const;
+    //void setHeadServerHost(const QString& newHost);
 
 
 signals:

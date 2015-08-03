@@ -26,6 +26,7 @@
 #include <result.h>
 
 class ServerSideControlChannel;
+class PlayerSessionManager;
 
 namespace GBerryComms {
 class DownloadableApplicationCache;
@@ -53,7 +54,8 @@ public:
     explicit QueryDownloadableApplicationsCommand(
             HeadServerConnection* headServerConnection,
             ServerSideControlChannel* controlChannel,
-            DownloadableApplicationCache* applicationCache);
+            DownloadableApplicationCache* applicationCache,
+            PlayerSessionManager* playerSessions);
     virtual ~QueryDownloadableApplicationsCommand();
 
     // ICommand

@@ -198,7 +198,11 @@ public:
     /* */
     void requestFailed(Request* request, Invocation* inv)
     {
-        request->finishedError(Result(RequestErrors::INVOCATION_FAILED), inv);
+        Result res(RequestErrors::INVOCATION_FAILED);
+        if (inv)
+            res << inv->result();
+
+        request->finishedError(res, inv);
 
         switch (inv->statusCode()) {
             case Invocation::CONNECTION_FAILED:

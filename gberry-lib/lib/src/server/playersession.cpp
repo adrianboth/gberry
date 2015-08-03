@@ -19,35 +19,43 @@
  #include "playersession.h"
 
 PlayerSession::PlayerSession() :
-    QObject(NULL),
+    QObject(nullptr),
     _id(-1),
-    _name("EMPTY"),
-    _token("")
+    _name("EMPTY")
 {
 }
 
-PlayerSession::PlayerSession(int playerId, QString playerName, QString token) :
-    QObject(NULL), _id(playerId), _name(playerName), _token(token)
+PlayerSession::PlayerSession(int playerId,
+                             const QString& playerName,
+                             const QString& sessionToken,
+                             const QString& userToken) :
+    QObject(NULL),
+    _id(playerId),
+    _name(playerName),
+    _sessionToken(sessionToken),
+    _userToken(userToken)
 {
-
 }
 
 PlayerSession::PlayerSession(const PlayerSession &other) :
-    QObject(NULL), _id(other._id), _name(other._name), _token(other._token)
+    QObject(NULL),
+    _id(other._id),
+    _name(other._name),
+    _sessionToken(other._sessionToken),
+    _userToken(other._userToken)
 {
-
 }
 
 PlayerSession::~PlayerSession()
 {
-
 }
 
 PlayerSession& PlayerSession::operator =(const PlayerSession& other)
 {
     this->_id = other._id;
     this->_name = other._name;
-    this->_token = other._token;
+    this->_sessionToken = other._sessionToken;
+    this->_userToken = other._userToken;
     return *this;
 }
 
@@ -55,10 +63,22 @@ PlayerSession& PlayerSession::operator =(const PlayerSession& other)
 
 namespace
 {
-    static int __guestIdCounter = -2;
+    // note that 0 and -1 has been reserved
+    //  0 = means not defined
+    // -1 = development user (mouse + keyboard directly in app)
+
+    static int __playerIdCounter = 1; // player ids are always positive
+    static int __guestIdCounter = -2; // guest ids are always negative
 }
 
-GuestPlayerSession::GuestPlayerSession(QString guestName, QString token) :
-    PlayerSession(__guestIdCounter--, guestName, token)
+GuestPlayerSession::GuestPlayerSession(const QString& guestName, const QString& sessionToken) :
+    PlayerSession(__guestIdCounter--, guestName, sessionToken, "")
+{
+}
+
+SignedInPlayerSession::SignedInPlayerSession(const QString& playerName,
+                                             const QString& sessionToken,
+                                             const QString& userToken) :
+    PlayerSession(__playerIdCounter++, playerName, sessionToken, userToken)
 {
 }

@@ -65,7 +65,8 @@ public:
     virtual bool isOpen() const override;
     virtual void open() override;
     virtual void close() override;
-    virtual bool receiveMessageFromSouth(const QByteArray& msg) override;
+    //virtual bool receiveMessageFromSouth(const QByteArray& msg) override;
+    virtual bool processJsonMessage(const QJsonObject& json) override;
 
 signals:
     void playerRequestedMainMenu();

@@ -53,7 +53,7 @@ public:
 
     QString userName() const { return _userName; }
     QString userToken() const { return _userToken; }
-    bool isGuest() const { return !_userToken.isEmpty(); }
+    bool isGuest() const { return _userToken.isEmpty(); }
 
 private:
     QString _userName;

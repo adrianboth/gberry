@@ -44,7 +44,8 @@ Rectangle {
     property int buttonHeight: buttonLabel.implicitHeight + gdisplay.touchCellHeight() / 2 * sizeCellFactor
 
     function triggerButtonClick() {
-        emulatedMouseClickTimer.start()
+        if (enabled)
+            emulatedMouseClickTimer.start()
     }
 
     radius: 20

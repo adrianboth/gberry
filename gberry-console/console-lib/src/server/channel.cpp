@@ -105,7 +105,11 @@ bool Channel::receiveMessageFromSouth(const QByteArray& msg)
     }
 
     QJsonObject json(doc.object());
-    return processJsonMessage(json); // virtual
+    bool messageProcessed = processJsonMessage(json); // virtual
+    if (!messageProcessed)
+        WARN("Unknown message type - not processed:" << QString(msg));
+
+    return messageProcessed;
 }
 
 
@@ -120,11 +124,14 @@ public:
 bool Channel::processJsonMessage(const QJsonObject &json)
 {
     if (json.contains("command") && _commands.contains(json["command"].toString())) {
+        QString command(json["command"].toString());
+        DEBUG("Found registered command for" << command);
         CommandResponseImpl response;
         // commands are not required to have response message
         // 'result' tells if msg was processed
-        bool result = _commands[json["command"].toString()]->process(json, response);
+        bool result = _commands[command]->process(json, response);
         if (result && !response.json.empty()) {
+            DEBUG("Sending reply for" << command);
             // TODO: should we automatically add "command_response" ?
             QJsonDocument jsonDoc(response.json);
             _southPartner->channelSendMessageToSouth(jsonDoc.toJson());

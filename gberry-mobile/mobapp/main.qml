@@ -508,13 +508,6 @@ Window {
         }
     }
 
-
-    function updateTexts()
-    {
-        //debugview.serverTextStr = "Server " + (app.serverConnectionOK ? "OK" : "NOK") + ": ok=" + app.serverPingOKCounter + " nok=" + app.serverPingFailureCounter
-        //debugview.consoleTextStr = "Console " + (app.consoleConnectionOK ? "OK" : "NOK") + ": ok=" + app.consolePingOKCounter + " nok=" + app.consolePingFailureCounter
-    }
-
     function onLoginViewClosed()
     {
         // no actions, really a cancel operation of showing login view
@@ -564,9 +557,6 @@ Window {
         var rememberPassword = UserModel.currentIsRememberPassword
 
         console.debug("LOGIN: " + username + ", " + password + ", " + (guest ? "GUEST" : "NORMAL") + ", " + (rememberPassword ? "REMEMBER" : "-"))
-        // TODO: so far only guest login supported
-        mobapp.loginGuest(username)
-
         console.debug("USING CONSOLE ADDRESS: " + SettingsModel.consoleAddress())
         mobapp.openConsoleConnection(SettingsModel.consoleAddress()) // if opening fails then signal is emitted
         loginview.hide()
@@ -621,12 +611,6 @@ Window {
 
     Component.onCompleted: {
         Log.initLog("main", Log.DEBUG_LEVEL)
-
-        updateTexts()
-        app.serverCounterChanged.connect(updateTexts)
-        app.serverStatusChanged.connect(updateTexts)
-        app.consoleCounterChanged.connect(updateTexts)
-        app.consoleStatusChanged.connect(updateTexts)
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
         mobapp.consoleConnectionOpenFailed.connect(onLoginFailed)

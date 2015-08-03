@@ -26,6 +26,18 @@
 
 using namespace GBerryClient;
 
+TEST(RESTAPI, UserLoginMeta)
+{
+    UserLoginMeta guest("FooGuest");
+    EXPECT_TRUE(guest.isGuest());
+    EXPECT_TRUE(guest.userName() == "FooGuest");
+    EXPECT_TRUE(guest.userToken().isEmpty());
+
+    UserLoginMeta player("FooPlayer", "token123");
+    EXPECT_FALSE(player.isGuest());
+    EXPECT_TRUE(player.userName() == "FooPlayer");
+    EXPECT_TRUE(player.userToken() == "token123");
+}
 
 TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration)
 {
@@ -40,11 +52,58 @@ TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration)
     QObject::connect(&clientSessionManager, &ConsoleSessionManager::consoleSessionOpened,
                      [&] () { clientSessionIsOpen = true; });
 
+    ASSERT_FALSE(serverSessionManager.isPlayerNameReserved("BarGuest"));
+
     // --
     ConsoleDevice console("localhost");
     UserLoginMeta loginmeta("BarGuest");
     clientSessionManager.open(console, loginmeta);
 
     WAIT_CUSTOM_AND_ASSERT(clientSessionIsOpen, 5000, 50);
+
+    ASSERT_TRUE(serverSessionManager.isPlayerNameReserved("BarGuest"));
+    // we just happen to know how ids are generated, first guest is -2
+    PlayerSession session = serverSessionManager.session(-2);
+    ASSERT_TRUE(session.isValid());
+    ASSERT_TRUE(session.isGuest());
+    ASSERT_TRUE(session.playerName() == "BarGuest");
+
+    ASSERT_TRUE(clientSessionManager.isOpen());
+
+
 }
 
+
+TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration_RegisteredPlayer)
+{
+    PlayerSessionManager serverSessionManager;
+    ConsoleRESTServer restServer(serverSessionManager);
+    WebsocketServer websocketServer(&serverSessionManager);
+    websocketServer.start();
+
+    ConsoleSessionManager clientSessionManager;
+
+    bool clientSessionIsOpen = false;
+    QObject::connect(&clientSessionManager, &ConsoleSessionManager::consoleSessionOpened,
+                     [&] () { clientSessionIsOpen = true; });
+
+    ASSERT_FALSE(serverSessionManager.isPlayerNameReserved("FooBar"));
+
+    // --
+    ConsoleDevice console("localhost");
+    UserLoginMeta loginmeta("FooBar", "token123");
+    clientSessionManager.open(console, loginmeta);
+
+    WAIT_CUSTOM_AND_ASSERT(clientSessionIsOpen, 5000, 50);
+
+    ASSERT_TRUE(serverSessionManager.isPlayerNameReserved("FooBar"));
+    // we just happen to know how ids are generated, first is 1
+    PlayerSession session = serverSessionManager.session(1);
+    ASSERT_TRUE(session.isValid());
+    ASSERT_FALSE(session.isGuest());
+    ASSERT_TRUE(session.playerName() == "FooBar");
+
+    ASSERT_TRUE(clientSessionManager.isOpen());
+
+
+}

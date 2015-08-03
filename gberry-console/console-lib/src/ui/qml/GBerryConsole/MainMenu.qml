@@ -91,10 +91,10 @@ Rectangle {
         return focusIndex
     }
 
-    function selectCurrent() {
+    function selectCurrent(pid) {
         console.debug("Select current")
         var focusIndex = currentFocusIndex()
-        items[focusIndex].selected()
+        items[focusIndex].selected(pid)
     }
 
     function calculateMaxMenuTextWidth() {
@@ -132,7 +132,7 @@ Rectangle {
         if (event.key === Qt.Key_Down)
             moveFocusToNext()
         if (event.key === Qt.Key_Return)
-            selectCurrent()
+            selectCurrent(-1) // when pressing via keyboard, no specific user is associated: common guest
     }
 
     Component.onCompleted: {

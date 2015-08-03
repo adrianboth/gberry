@@ -82,6 +82,11 @@ QString PlayersManager::playerName(int playerId) const
     return QString("UNKNOWN");
 }
 
+bool PlayersManager::isGuest(int playerId) const
+{
+    return playerId < -1; // guest ids are -2 and downwards
+}
+
 void PlayersManager::newPlayer(ClientSidePlayerChannel* channel, PlayerMeta metadata)
 {
     Q_ASSERT(channel);

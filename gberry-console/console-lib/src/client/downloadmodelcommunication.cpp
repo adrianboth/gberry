@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "downloadmodelcommunication.h"
+#include "downloadmodelcommunication.h"
 
 #include <QJsonDocument>
 
@@ -25,7 +25,7 @@
 #define LOG_AREA "DownloadModelCommunication"
 #include "log/log.h"
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class DownloadApplicationReply : public ICommand
 {

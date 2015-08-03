@@ -46,7 +46,7 @@ ConsoleRESTServer::ConsoleRESTServer(PlayerSessionManager &sessionManager) :
     // TODO: configurable port
     int port = 8050;
     _server->listen(QHostAddress::Any, port);
-    DEBUG("Listening on  0.0.0.0:" << port);
+    DEBUG("Listening on 0.0.0.0:" << port);
 }
 
 ConsoleRESTServer::~ConsoleRESTServer()
@@ -96,7 +96,6 @@ void ConsoleRESTServer::handleRequest(QHttpRequest *req, QHttpResponse *resp)
 void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp)
 {
     // at this point http request full body is available
-    //QString body = QString::fromLocal8Bit(req->body());
 
     QRegExp exp("^/console/v1/([a-z]+)?$");
     if( exp.indexIn(req->path()) != -1 )
@@ -129,30 +128,40 @@ void ConsoleRESTServer::handlePostRequest(QHttpRequest *req, QHttpResponse *resp
             {
                 // TODO: now just guests
                 QString id = json["id"].toString();
-                QString name = json["name"].toString();
+                QString playerName = json["name"].toString();
 
                 // identical names are not allow
                 // TODO: should each player has some kind of nick that can be adjusted, or even several ones
-                if (_sessionManager.isPlayerNameReserved(name))
+                if (_sessionManager.isPlayerNameReserved(playerName))
                 {
                     // TODO: return error, json
                     resp->writeHead(403);
                     // TODO: how to localize these error messages?
                     QString msg("Player nick name %1 already used. Please provide other one.");
-                    msg = msg.arg(name);
+                    msg = msg.arg(playerName);
 
                     resp->end(QByteArray(msg.toLatin1()));
                     // TODO: this if()-else() could be refactored to some nicer...
                     return;
                 }
-                QString token("abc");
-                token.append(QString::number(_tokenCounter++));
-                GuestPlayerSession session(name, token); // TODO: just fixed token
+
+                // TODO: generate more compled session token
+                QString sessionToken("abc");
+                sessionToken.append(QString::number(_tokenCounter++));
+
+                PlayerSession session;
+                if (id == "guest") {
+                    session = GuestPlayerSession(playerName, sessionToken);
+                } else {
+                    // id = userToken
+                    session = SignedInPlayerSession(playerName, sessionToken, id);
+                }
+
                 _sessionManager.insertSession(session);
 
                 QJsonObject respJson;
                 respJson["response_type"] = "ok";
-                respJson["token"] = session.token();
+                respJson["token"] = session.sessionToken();
 
                 resp->setHeader("Content-Type", "application/json");
                 resp->writeHead(200);

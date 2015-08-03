@@ -106,7 +106,7 @@ int Comms::run(int argc, char *argv[])
     urlPrefix.append(commscfg.value("headserver_host", "localhost"));
     urlPrefix.append(commscfg.value("headserver_url_prefix", "not defined"));
     INFO("Using HeadServer:" << urlPrefix);
-    invocationFactory.setProperty("url_prefix", urlPrefix);
+    invocationFactory.setProperty(InvocationFactory::URL_PREFIX_PROP, urlPrefix);
 
     GBerry::HeadServerConnection headServerConnection(&invocationFactory);
 
@@ -114,7 +114,9 @@ int Comms::run(int argc, char *argv[])
     CommsCommands commands(&appStorage,
                            &setup.applicationRegistry,
                            &headServerConnection,
-                           &downloadableApplicationCache);
+                           &downloadableApplicationCache,
+                           &setup.sessionManager);
+
     CommsChannelFactory channelFactory(&setup.applicationRegistry, &commands);
     setup.use(&channelFactory);
     // create objects for additional setup

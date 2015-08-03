@@ -60,11 +60,13 @@ public:
     // TODO: how error code?
     static QSharedPointer<Application> readApplicationConfig(const QString& configFilePath);
     static void readApplicationState(const QString& stateFilePath, Application& application);
+    static void readApplicationMeta(const QString& metaFilePath, Application& application);
 
     // TODO: how error code?
 
     static bool writeApplicationConfig(const QString& configFilePath, const Application& application, Result& result);
     static bool writeApplicationState(const QString& stateFilePath, const Application& application, Result& result);
+    static bool writeApplicationMeta(const QString& metaFilePath, const Application& application, Result& result);
     static QString findApplicationConfigFile(const QString& applicationDirPath);
 
 private:

@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef DOWNLOADABLEGAMESMODELCOMMUNICATION_H
+#ifndef DOWNLOADABLEGAMESMODELCOMMUNICATION_H
 #define DOWNLOADABLEGAMESMODELCOMMUNICATION_H
 
 #include <QObject>
@@ -25,13 +25,14 @@
 
 class ClientSideControlChannel;
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class DownloadableGamesModelCommunication : public IDownloadableGamesModelCommunication
 {
     Q_OBJECT
 public:
-    explicit DownloadableGamesModelCommunication(ClientSideControlChannel* controlChannel, QObject *parent = 0);
+    explicit DownloadableGamesModelCommunication(ClientSideControlChannel* controlChannel,
+                                                 QObject *parent = 0);
     virtual ~DownloadableGamesModelCommunication();
 
     virtual void sendMessage(const QJsonObject& msg) override;

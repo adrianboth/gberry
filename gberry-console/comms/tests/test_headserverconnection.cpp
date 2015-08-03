@@ -56,6 +56,8 @@ public:
     RequestState state{NOT_READY};
     Result result;
 
+    void fillInErrorDetails(Result& res) override { Q_UNUSED(res); }
+
 protected:
     virtual Invocation* processPrepare(InvocationFactory *factory) override {
         RESTInvocation* inv = factory->newRESTInvocation();

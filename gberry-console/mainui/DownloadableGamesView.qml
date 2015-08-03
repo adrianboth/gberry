@@ -31,6 +31,7 @@ Item {
     signal backSelected()
     signal launchRequested(string gameId)
     signal downloadRequested(string gameId)
+    signal errorOccurred(string errorMsg)
 
     readonly property var firstItemSelectedControlActions: ["Down", "OK", "Back"]
     readonly property var defaultControlActions: ["Up", "Down", "OK", "Back"]
@@ -73,6 +74,15 @@ Item {
 
                 onButtonClicked: backSelected()
 
+            }
+
+            Text {
+                id: guestLoginShowingOnlyFreeAppsText
+                text: ActivePlayerModel.activePlayerIsGuest ? qsTr("For guests only free games are shown") : qsTr("Player") + " " + playersManager.playerName(ActivePlayerModel.activePlayerId)
+                font.pixelSize: gdisplay.mediumSizeText
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: gdisplay.touchCellWidth()
             }
         }
 
@@ -163,20 +173,19 @@ Item {
                     onCurrentIndexChanged: {
                         updateDetails()
                         if (currentIndex === 0)
-                            self.enabledControlActions = firstItemSelectedControlActions
+                            self.enabledControlActions = self.firstItemSelectedControlActions
                         else if (currentIndex === gamesUiModel.count - 1)
-                            self.enabledControlActions = lastItemSelectedControlActions
+                            self.enabledControlActions = self.lastItemSelectedControlActions
                         else
-                            self.enabledControlActions = defaultControlActions
+                            self.enabledControlActions = self.defaultControlActions
                     }
 
                     function updateDetails() {
                         var selectedGame = gamesUiModel.get(currentIndex)
                         if (typeof(selectedGame) !== 'undefined') {
-                            gameDetails.gameFullId = selectedGame.id
-                            gameDetails.gameName = selectedGame.name
-                            gameDetails.gameDescription = selectedGame.description
+                            gameDetails.readValues(selectedGame)
                         } else {
+                            // TODO: more reseting to gameDetails
                             gameDetails.gameFullId = ""
                             gameDetails.gameName = "undefined"
                             gameDetails.gameDescription = "undefined description"
@@ -297,6 +306,10 @@ Item {
         if (visible) {
             // TODO: we good have some kind of waiting dialog
 
+            // note that as each active player may see different games we need
+            // to do fresh every time. But model can cache (internally) for
+            // players what they see
+            gamesUiModel.clear()
             if (DownloadableGamesModel.requestGames()) {
                 gamesUiModel.onGamesAvailable()
             }
@@ -313,5 +326,24 @@ Item {
             processControlAction("OK")
         if (event.key === Qt.Key_Escape)
             processControlAction("Back")
+    }
+
+    function onActivePlayerIdChanged() {
+        // we have opened this view by activating certain player, if he leaves
+        // then we need to close view.
+        // (Main view have already shown feedback dialog)
+
+        if (visible && !ActivePlayerModel.hasActivePlayer) {
+            backSelected()
+        }
+    }
+
+    function onGamesRequestFailed() {
+        errorOccurred(qsTr("Failed to download game list"))
+    }
+
+    Component.onCompleted: {
+        ActivePlayerModel.activePlayerIdChanged.connect(onActivePlayerIdChanged)
+        DownloadableGamesModel.gamesRequestFailed.connect(onGamesRequestFailed)
     }
 }

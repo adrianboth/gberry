@@ -16,24 +16,90 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "downloadablegamesmodel.h"
+#include "downloadablegamesmodel.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
 
+#include "activeplayermodel.h"
+
 #define LOG_AREA "GameModel"
 #include <log/log.h>
 
-namespace GBerry {
+namespace GBerryApplication {
+
+class GameData {
+public:
+    GameData(const QString& gameId, const QVariantMap& metaData) :
+        _gameId(gameId),
+        _metaData(metaData) {}
+
+    inline const QString& gameId() { return _gameId; }
+    inline const QVariantMap& metaData() { return _metaData; }
+
+private:
+    QString _gameId;
+    QVariantMap _metaData;
+};
+
+// guest players see only 'free' games and thus they can be combined
+class GameDataCache {
+public:
+    ~GameDataCache() {
+        foreach(auto gameDataForPlayer, cache.values()) {
+            foreach (auto gameData, gameDataForPlayer->values()) {
+                delete gameData;
+            }
+            delete gameDataForPlayer;
+        }
+    }
+
+    void add(int playerId, GameData* data) {
+        int pid = effectivePlayerId(playerId);
+        if (!cache.contains(pid)) {
+            cache[pid] = new QMap<QString, GameData*>;
+        }
+        cache[pid]->insert(data->gameId(), data);
+    }
+
+    QMap<QString, GameData*>& get(int playerId) {
+        int pid = effectivePlayerId(playerId);
+        if (cache.contains(pid)) {
+            return *(cache[pid]);
+        }
+
+        return __emptyMap;
+    }
+
+    bool hasGames(int playerId) const {
+        return cache.contains(effectivePlayerId(playerId));
+    }
+
+private:
+    int effectivePlayerId(int playerId) const {
+        if (playerId < -1)
+            return -1;
+        return playerId;
+    }
+
+    QMap<int, QMap<QString, GameData*>* > cache;
+    static QMap<QString, GameData*> __emptyMap;
+};
+QMap<QString, GameData*> GameDataCache::__emptyMap;
+
+
 
 class DownloadableGamesModelPrivate
 {
 public:
-    DownloadableGamesModelPrivate(IDownloadableGamesModelCommunication* comm_, DownloadableGamesModel* q_) :
+    DownloadableGamesModelPrivate(
+            IDownloadableGamesModelCommunication* comm_,
+            ActivePlayerModel* activePlayerModel_,
+            DownloadableGamesModel* q_) :
         q(q_),
         comm(comm_),
-        gamesReceived(false) {
+        activePlayerModel(activePlayerModel_) {
 
         _signalConnection = QObject::connect(comm, &IDownloadableGamesModelCommunication::messageReceived,
                                              [this] (const QJsonObject& msg) {
@@ -47,13 +113,16 @@ public:
     DownloadableGamesModel* q;
     QMetaObject::Connection _signalConnection;
     IDownloadableGamesModelCommunication* comm;
-    bool gamesReceived;
-    QMap<QString, QVariantMap> games;
+    ActivePlayerModel* activePlayerModel;
+    GameDataCache gamesCache;
 
     void requestGames() {
         // TODO: add to a message factory?
         QJsonObject json;
         json["command"]  = "QueryDownloadableApplications";
+        if (activePlayerModel->hasActivePlayer()) {
+            json["player_id"] = activePlayerModel->activePlayerId();
+        }
         comm->sendMessage(json);
     }
 
@@ -68,7 +137,6 @@ public:
         // message is for us, that is for sure, but is it ok / failure
 
         if (msg["result"].toString() == "failure") {
-            gamesReceived = false;
             emit q->gamesRequestFailed();
         }
         else {
@@ -83,16 +151,22 @@ public:
             json["status"] = app.stateString();
             */
 
+            int playerId = -1; // default guest = free games
+            if (msg.contains("player_id")) {
+                playerId = msg["player_id"].toInt();
+            }
+
             if (msg.contains("applications") && msg["applications"].isArray()) {
                 foreach(auto appJsonValue, msg["applications"].toArray()) {
                     QJsonObject appJson(appJsonValue.toObject());
                     QVariantMap app(appJson.toVariantMap());
-                    games[appJson["id"].toString()] = app;
+                    QString gameId = appJson["id"].toString();
+                    gamesCache.add(playerId, new GameData(gameId, app));
                 }
             }
             // TODO: how to handle different searches (well now first only one global search)
             //       -- will search local (cached data) or do we execute is always against server?
-            gamesReceived = true;
+
             emit q->gamesAvailable();
         }
     }
@@ -100,11 +174,13 @@ public:
 };
 
 
+
 DownloadableGamesModel::DownloadableGamesModel(
         IDownloadableGamesModelCommunication* comm,
+        ActivePlayerModel* activePlayerModel,
         QObject *parent) :
     QObject(parent),
-    _d(new DownloadableGamesModelPrivate(comm, this))
+    _d(new DownloadableGamesModelPrivate(comm, activePlayerModel, this))
 {
     /*
     QVariantMap details;
@@ -128,15 +204,16 @@ DownloadableGamesModel::DownloadableGamesModel(
 
 DownloadableGamesModel::~DownloadableGamesModel()
 {
-
 }
 
 bool DownloadableGamesModel::requestGames()
 {
-    if (_d->gamesReceived) {
+    if (_d->gamesCache.hasGames(_d->activePlayerModel->activePlayerId())) {
+
         // TODO: send query if update is needed (timestamp)
         return true;
     }
+
     // send query for games
     _d->requestGames();
     return false;
@@ -144,14 +221,26 @@ bool DownloadableGamesModel::requestGames()
 
 QStringList DownloadableGamesModel::gameIds() const
 {
-    return _d->games.keys();
+    if (_d->gamesCache.hasGames(_d->activePlayerModel->activePlayerId())) {
+        return _d->gamesCache.get(_d->activePlayerModel->activePlayerId()).keys();
+    }
+    return QStringList();
 }
 
 
 QVariantMap DownloadableGamesModel::game(QString gameId) const
 {
-    if (_d->games.contains(gameId)) {
-        return _d->games[gameId];
+    int activePlayerId = _d->activePlayerModel->activePlayerId();
+
+    if (!_d->gamesCache.hasGames(activePlayerId)) {
+        return QVariantMap();
+    }
+
+    QMap<QString, GameData*> data = _d->gamesCache.get(activePlayerId);
+
+    if (data.contains(gameId)) {
+        return data[gameId]->metaData();
+
     } else {
         // not found, return empty
         QVariantMap empty;

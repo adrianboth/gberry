@@ -44,6 +44,7 @@ public:
     virtual DownloadStreamInvocation* newDownloadStreamInvocation() = 0;
     virtual QString defaultHostName() const = 0;
 
+    static const char* URL_PREFIX_PROP;
 signals:
 
 public slots:

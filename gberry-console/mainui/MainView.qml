@@ -83,7 +83,10 @@ Item {
                 MainMenuItem {
                     text: qsTr("Games on webstore")
                     onSelected: {
+                        console.debug("pid: " + pid)
                         if (Connection.isHeadServerConnected) {
+                            // can be -1 if no specific user is allocated
+                            ActivePlayerModel.activatePlayer(pid)
                             mainarea.push({item: downloadableGamesView, immediate: true})
                         } else {
                             noWebstoreConnectionDialog.visible = true
@@ -132,6 +135,7 @@ Item {
             }
 
             onBackSelected: {
+                ActivePlayerModel.deactivatePlayer()
                 mainarea.pop({immediate: true})
             }
 
@@ -143,6 +147,11 @@ Item {
             onLaunchRequested: {
                 console.debug("LAUNCH: " + gameId)
                 ApplicationManager.launchApplication(gameId)
+            }
+
+            // TODO: now first just for this view, but could be somehow generic
+            onErrorOccurred: {
+                feedbackDialog.show(errorMsg)
             }
 
             onEnabledControlActionsChanged: mainarea.sendControlActions()
@@ -199,6 +208,20 @@ Item {
         anchors.rightMargin: 100
     }
 
+    // this fades after timeout automatically away -> could be common for all views
+    GFeedbackDialog {
+        id: feedbackDialog
+        visible: false
+        //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
+        showingTime: 3000 // ms
+        height: preferredHeight
+        textPixelSize: gdisplay.mediumSize * gdisplay.ppmText
+        initialOpacity: 0.6
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
+
     // --- FUNCTIONS
 
     function initExistingPlayers()
@@ -222,7 +245,15 @@ Item {
 
     function onPlayerOut(pid, pname)
     {
-        // nothing at the moment
+        if (ActivePlayerModel.hasActivePlayer && pid === ActivePlayerModel.activePlayerId) {
+            ActivePlayerModel.deactivatePlayer()
+            msg = qsTr("Active player " + pname + "left")
+            msgToSend = {action: "FeedbackMessage",
+                         message: msg}
+            playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
+            feedbackDialog.show(msg)
+        }
+
     }
 
     function onPlayerMessageReceived(pid, data)
@@ -235,7 +266,7 @@ Item {
         var js  = JSON.parse(data)
         if (js["action"] === "SelectBasicControlAction")
         {
-            mainarea.currentItem.processControlAction(js["id"])
+            mainarea.currentItem.processControlAction(js["id"], pid)
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
             // TODO: case when multiple possible confirmations

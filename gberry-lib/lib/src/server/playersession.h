@@ -16,50 +16,48 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #ifndef PLAYERSESSION_H
+#ifndef PLAYERSESSION_H
 #define PLAYERSESSION_H
 
 #include <QObject>
 #include <QString>
 
-
+// TODO: why qobject needed??
 class PlayerSession : public QObject
 {
     Q_OBJECT
 
 public:
     PlayerSession();
-    explicit PlayerSession(int playerId, QString playerName, QString token);
+    PlayerSession(int playerId,
+                  const QString& playerName,
+                  const QString& sessionToken,
+                  const QString& userToken);
     PlayerSession(const PlayerSession& other);
-    ~PlayerSession();
+    virtual ~PlayerSession();
 
     PlayerSession& operator =(const PlayerSession& other);
 
-    int playerId() { return _id; }
-    QString playerName() { return _name; }
-    QString token() { return _token; }
+    int playerId() const { return _id; }
+    QString playerName() const { return _name; }
+    QString sessionToken() const { return _sessionToken; }
+    QString userToken() const { return _userToken; }
+    bool isGuest() { return _userToken.isEmpty(); }
+    bool isValid() const { return !_sessionToken.isEmpty(); }
 
-    bool isValid() { return _token.length() > 0; }
-
-    // TODO: who generates tokens
-
-    // TODO:guest players
-
-signals:
-
-public slots:
-
-private:
+protected:
     int _id;
     QString _name;
-    QString _token;
+    QString _sessionToken;
+    QString _userToken;
 };
 
 
 class InvalidPlayerSession : public PlayerSession
 {
 public:
-    InvalidPlayerSession() : PlayerSession(-1, "INVALID", "") {}
+    // id=-1 reserved for invalidsessions
+    InvalidPlayerSession() : PlayerSession(-1, "INVALID", "", "") {}
 
 };
 
@@ -67,7 +65,14 @@ public:
 class GuestPlayerSession : public PlayerSession
 {
 public:
-    GuestPlayerSession(QString guestName, QString token);
+    GuestPlayerSession(const QString& guestName, const QString& sessionToken);
+};
+
+
+class SignedInPlayerSession : public PlayerSession
+{
+public:
+    SignedInPlayerSession(const QString& playerNme, const QString& sessionToken, const QString& userToken);
 };
 
 #endif // PLAYERSESSION_H

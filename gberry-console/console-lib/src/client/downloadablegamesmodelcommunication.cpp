@@ -25,7 +25,7 @@
 #define LOG_AREA "DownloadableGamesModelCommunication"
 #include "log/log.h"
 
-namespace GBerry {
+namespace GBerryApplication {
 
 class QueryDownloadableApplicationsReply : public ICommand
 {

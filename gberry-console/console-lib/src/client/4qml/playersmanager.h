@@ -43,6 +43,7 @@ public:
     int numberOfPlayers() const;
     Q_INVOKABLE QList<int> playerIds() const;
     Q_INVOKABLE QString playerName(int playerId) const;
+    Q_INVOKABLE bool isGuest(int playerId) const;
 
     // TODO: for now player id matches to channel id, but later it should be different
     //       as player might disconnect for awhile (in phone, e.g.) but then come

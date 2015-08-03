@@ -31,9 +31,9 @@ ConsoleApplication::ConsoleApplication(QObject *parent) :
     _gameModelCommunication(_setup.controlChannel),
     _gameModel(&_gameModelCommunication),
     _downloadableGamesModelCommunication(_setup.controlChannel),
-    _downloadableGamesModel(&_downloadableGamesModelCommunication),
+    _downloadableGamesModel(&_downloadableGamesModelCommunication, &_activePlayerModel),
     _downloadModelCommunication(_setup.controlChannel),
-    _downloadModel(&_downloadModelCommunication),
+    _downloadModel(&_downloadModelCommunication, &_activePlayerModel),
     _connectionCommunication(_setup.controlChannel),
     _connection(&_connectionCommunication, _setup.controlChannel)
 {
@@ -71,6 +71,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("GameModel", &_gameModel);
     _engine.rootContext()->setContextProperty("DownloadableGamesModel", &_downloadableGamesModel);
     _engine.rootContext()->setContextProperty("DownloadModel", &_downloadModel);
+    _engine.rootContext()->setContextProperty("ActivePlayerModel", &_activePlayerModel);
     _engine.rootContext()->setContextProperty("ApplicationSettings", &_settings);
     _engine.rootContext()->setContextProperty("ApplicationManager", _applicationManager);
 

@@ -59,7 +59,7 @@ TEST(Websockets, OpenConnectionAndTransmitData)
 
     // in real situation we would have REST http server accepting logins
     // but now in this test case we insert session manually
-    PlayerSession session(100, "foobar", "abc123");
+    PlayerSession session(100, "foobar", "abc123", "xyz5678");
     sessionManager.insertSession(session);
 
     server.start();
@@ -114,7 +114,7 @@ TEST(RESTAPI, OpenGuestSession)
     ConsoleRESTServer restServer(mockSessionManager);
 
     InvocationFactoryImpl factory;
-    factory.setProperty("url_prefix", "http://localhost:8050/console/v1");
+    factory.setProperty(InvocationFactory::URL_PREFIX_PROP, "http://localhost:8050/console/v1");
 
     // -- GET
     RESTInvocation* inv = factory.newRESTInvocation();

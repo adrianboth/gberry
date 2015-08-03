@@ -40,6 +40,8 @@ public:
     Invocation* LastInvocation{nullptr};
     Result LastError;
 
+    void fillInErrorDetails(Result& res) override { Q_UNUSED(res); }
+
 protected:
     virtual GBerry::Invocation* processPrepare(InvocationFactory* factory) override { return factory->newRESTInvocation(); }
     virtual void processOkResponse(Invocation* inv) override { LastInvocation = inv; ProcessOkCallCount++; }

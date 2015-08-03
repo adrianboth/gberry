@@ -16,10 +16,11 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "commscommands.h"
+#include "commscommands.h"
 
 #include <server/applicationregistry.h>
 #include <server/serversidecontrolchannel.h>
+#include <server/playersessionmanager.h>
 
 #include "commands/launchapplicationcommand.h"
 #include "commands/exitapplicationcommand.h"
@@ -37,12 +38,14 @@ CommsCommands::CommsCommands(LocalApplicationsStorage* applicationsStorage,
                              ApplicationRegistry* registry,
                              HeadServerConnection* headServerConnection,
                              DownloadableApplicationCache* downloadableApplicationCache,
+                             PlayerSessionManager* playerSessions,
                              QObject *parent) :
     QObject(parent),
     _applicationRegistry(registry),
     _headServerConnection(headServerConnection),
     _downloadableApplicationCache(downloadableApplicationCache),
-    _applicationsStorage(applicationsStorage)
+    _applicationsStorage(applicationsStorage),
+    _playerSessions(playerSessions)
 {
     QSharedPointer<LocalApplications> apps(new LocalApplications(_applicationsStorage));
     _iapps = (qSharedPointerCast<IApplications>(apps));
@@ -83,7 +86,8 @@ ICommand* CommsCommands::createQueryDownloadableApplicationsCommand(
     return new QueryDownloadableApplicationsCommand(
                 _headServerConnection,
                 controlChannel,
-                _downloadableApplicationCache);
+                _downloadableApplicationCache,
+                _playerSessions);
 }
 
 ICommand *CommsCommands::createDownloadApplicationCommand(ServerSideControlChannel *controlChannel)
@@ -92,7 +96,8 @@ ICommand *CommsCommands::createDownloadApplicationCommand(ServerSideControlChann
                 _headServerConnection,
                 controlChannel,
                 _downloadableApplicationCache,
-                _applicationsStorage);
+                _applicationsStorage,
+                _playerSessions);
 }
 
 ICommand *CommsCommands::createHeadServerStatusCommand(ServerSideControlChannel *controlChannel)

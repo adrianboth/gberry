@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "downloadstreaminvocation.h"
+#include "downloadstreaminvocation.h"
 #include "downloadapplicationrequest.h"
 #include "commands/downloadapplicationcommand.h"
 #include "invocationfactory.h"
@@ -41,6 +41,11 @@ DownloadApplicationRequest::~DownloadApplicationRequest()
 {
 }
 
+void DownloadApplicationRequest::setUserToken(const QString &userToken)
+{
+    _userToken = userToken;
+}
+
 QString DownloadApplicationRequest::applicationFullId() const
 {
     // TODO: this is now second impl (first in Application) -> only single place
@@ -52,6 +57,15 @@ QString DownloadApplicationRequest::destinationFilePath() const
     return _destinationFilePath;
 }
 
+void DownloadApplicationRequest::fillInErrorDetails(Result &res)
+{
+    res << Result::Meta("user_token", _userToken.isEmpty() ? "<empty>" : "<defined>")
+        << Result::Meta("application_id", _applicationId)
+        << Result::Meta("application_version", _applicationVersion);
+
+    // output path is added for errors where file operation fails
+}
+
 Invocation* DownloadApplicationRequest::processPrepare(InvocationFactory *factory)
 {
     DownloadStreamInvocation* inv = factory->newDownloadStreamInvocation();
@@ -59,6 +73,11 @@ Invocation* DownloadApplicationRequest::processPrepare(InvocationFactory *factor
     // TODO: cleaner way to construct URLs
     inv->defineGetOperation("/application/download/" + _applicationId + "/" + _applicationVersion);
     inv->setOutputFilePath(_destinationFilePath);
+
+    // without token only free apps can be downloaded
+    if (!_userToken.isEmpty()) {
+        inv->defineParameter("user_token", _userToken);
+    }
 
     connect(inv, &DownloadStreamInvocation::downloadStarted,
             [&] (DownloadStreamInvocation* inv) { Q_UNUSED(inv); _command->downloadStarted(this); });

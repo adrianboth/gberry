@@ -206,11 +206,13 @@ void GBerryClient::LoginModel::login()
 {
     // TODO: temporary testing
     if (_d->userModel->currentUserName() == "fail") {
+        DEBUG("DEBUG functionality: fail");
         _d->loggedIn = false;
         emit isLoggedInChanged();
         emit loginFailed("test failure");
 
     } else if (_d->userModel->currentUserName() == "login") {
+        DEBUG("DEBUG functionality: fake login");
         _d->loggedIn = true;
         emit isLoggedInChanged();
         emit loginOk();
@@ -233,10 +235,9 @@ void GBerryClient::LoginModel::login()
         json["password"] = _d->userModel->currentPassword();
         inv->definePostOperation("/user/login", QJsonDocument(json));
 
+        DEBUG("Executing: Login");
         inv->execute();
     }
-
-    DEBUG("Login");
 }
 
 void GBerryClient::LoginModel::logout()
@@ -281,10 +282,11 @@ bool LoginModel::isLoggedIn() const
     return _d->loggedIn;
 }
 
+/*
 QString LoginModel::headServerHost() const
 {
     // TODO: this in fact return whole url -> but I guess it does hurt at this point as no one is using (just for debugging)
-    QVariant urlPrefix = _d->invocationFactory->property("url_prefix");
+    QVariant urlPrefix = _d->invocationFactory->property(InvocationFactory::URL_PREFIX_PROP);
     if (urlPrefix.isValid()) {
         return urlPrefix.toString();
     } else {
@@ -294,7 +296,8 @@ QString LoginModel::headServerHost() const
 
 void LoginModel::setHeadServerHost(const QString &newHost)
 {
-    _d->invocationFactory->setProperty("url_prefix", "http://" + newHost + "/gberryrest/v1");
+    _d->invocationFactory->setProperty(InvocationFactory::URL_PREFIX_PROP, "http://" + newHost + "/gberryrest/v1");
 }
+*/
 
 } // eon

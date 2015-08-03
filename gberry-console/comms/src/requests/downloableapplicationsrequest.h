@@ -43,7 +43,13 @@ public:
     explicit DownloadableApplicationsRequest(QueryDownloadableApplicationsCommand* command);
     virtual ~DownloadableApplicationsRequest();
 
+    void setUserToken(int playerId, const QString& userToken);
+    bool playerDefined() const;
+    int playerId() const;
+
     QList<QSharedPointer<Application>> receivedApplications() const;
+
+    void fillInErrorDetails(Result& res) override;
 
 protected:
     virtual Invocation* processPrepare(InvocationFactory* factory) override;
@@ -53,6 +59,8 @@ protected:
 private:
     QueryDownloadableApplicationsCommand* _command;
     QList<QSharedPointer<Application>> _receivedApplications;
+    int _playerId{-1};
+    QString _userToken;
 };
 
 } // eon

@@ -32,6 +32,9 @@ public:
     QJsonDocument paramJsonDoc;
     virtual void definePostOperation(const QString& invocationPath, const QJsonDocument& jsondoc) override { definedOperation = "GET"; paramInvocationPath = invocationPath; paramJsonDoc = jsondoc; }
 
+    QMap<QString, QString> parameters;
+    virtual void defineParameter(const QString& paramName, const QString& paramValue) override { parameters[paramName] = paramValue; }
+
     HTTPInvocationDefinition::Status responseHttpStatusCodeToReturn{HTTPInvocationDefinition::UNDEFINED};
     virtual HTTPInvocationDefinition::Status responseHttpStatusCode() const { return responseHttpStatusCodeToReturn; }
 

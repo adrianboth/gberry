@@ -29,6 +29,14 @@ Item {
     property string gameDescription: ""
     property string gameImageUrl: ""
 
+    function readValues(gameMeta) {
+        gameFullId = gameMeta.id
+        gameName = gameMeta.name
+        gameDescription = gameMeta.description
+        freeTypeLabel.text = gameMeta.is_free ? qsTr("Free") : qsTr("Commercial")
+        versionLabel.text = gameMeta.version
+    }
+
     signal gameDownloadRequested()
     signal gameLaunchRequested()
 
@@ -82,6 +90,26 @@ Item {
                 text: gameName
                 font.pixelSize: 55 //gdisplay.mediumSizeText
             }
+
+            Text {
+                id: freeTypeLabel
+                text: "undefined"
+                visible: text != "undefined"
+                font.pixelSize: gdisplay.smallSizeText
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.margins: 10 // TODO: do not hardcode
+            }
+
+            Text {
+                id: versionLabel
+                text: "undefined"
+                visible: text != "undefined"
+                font.pixelSize: gdisplay.smallSizeText
+                anchors.top: freeTypeLabel.bottom
+                anchors.right: parent.right
+                anchors.margins: 10 // TODO: do not hardcode
+            }
         }
 
         Item {
@@ -130,7 +158,7 @@ Item {
                 anchors.centerIn: parent
                 width: buttonWidth
                 height: buttonHeight
-                enabled: false // initial until data comes in
+                enabled: gameFullId != "" // initial until data comes in
 
                 label: qsTr("Download")
 
@@ -159,7 +187,7 @@ Item {
     states: [
             State {
                 name: "DOWNLOADABLE"
-                PropertyChanges { target: downloadButton; visible: true; enabled: true }
+                PropertyChanges { target: downloadButton; visible: true }
                 PropertyChanges { target: launchButton; visible: false }
                 PropertyChanges { target: statusRow; visible: false }
             },
