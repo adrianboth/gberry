@@ -1,0 +1,3 @@
+
+class InvocationError(Exception):
+    pass
