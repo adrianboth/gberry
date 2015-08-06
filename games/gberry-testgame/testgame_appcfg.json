@@ -1,0 +1,10 @@
+{
+"id": "test-game",
+"version": "1.5",
+"offering_version": "5.0",
+"name": "Test Game",
+"description": "This is test game for system tests",
+"application_exe": "testgame",
+"catalog_image": "testgame_catalog.png",
+"version_description": "VERSION_HISTORY.txt"
+}

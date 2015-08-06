@@ -1,0 +1,8 @@
+module GBerryConsole
+MessageBoard 		1.0 MessageBoard.qml
+InfoBar			1.0 InfoBar.qml
+MainMenu                1.0 MainMenu.qml
+MainMenuItem            1.0 MainMenuItem.qml
+AppBoxUI                1.0 AppBoxUI.qml
+Messages                1.0 js/Messages.js
+AppBoxMaster            1.0 js/AppBoxMaster.js
