@@ -44,6 +44,8 @@ private:
 };
 
 // guest players see only 'free' games and thus they can be combined
+// NOTE: now gamedata is not shared between players (they might have same games)
+//       but that is not important at this point
 class GameDataCache {
 public:
     ~GameDataCache() {
@@ -61,6 +63,13 @@ public:
             cache[pid] = new QMap<QString, GameData*>;
         }
         cache[pid]->insert(data->gameId(), data);
+    }
+
+    void clear(int playerId) {
+        foreach (auto gameData, cache[pid]->values()) {
+            delete gameData;
+        }
+        cache[pid]->clear();
     }
 
     QMap<QString, GameData*>& get(int playerId) {
@@ -156,6 +165,10 @@ public:
                 playerId = msg["player_id"].toInt();
             }
 
+            // we assume that we get all apps (i.e. some might have been removed)
+            // TODO: single update separately
+            gamesCache.clear(playerId);
+
             if (msg.contains("applications") && msg["applications"].isArray()) {
                 foreach(auto appJsonValue, msg["applications"].toArray()) {
                     QJsonObject appJson(appJsonValue.toObject());
@@ -211,10 +224,14 @@ bool DownloadableGamesModel::requestGames()
     if (_d->gamesCache.hasGames(_d->activePlayerModel->activePlayerId())) {
 
         // TODO: send query if update is needed (timestamp)
+        // TODO: now sending always
+        DEBUG("Old data returned, requesting update");
+        _d->requestGames();
         return true;
     }
 
     // send query for games
+    DEBUG("No data, requesting it");
     _d->requestGames();
     return false;
 }
