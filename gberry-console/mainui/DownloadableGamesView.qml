@@ -224,6 +224,16 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     color: "lightblue"
                                     //source: "file"
+
+                                    Image {
+                                        anchors.centerIn: parent
+                                        id: smallGameImage
+                                        visible: status === Image.Ready
+                                        source: catalog_image
+                                        fillMode: Image.PreserveAspectCrop
+                                        width: parent.width
+                                        height: parent.height
+                                    }
                                 }
 
                                 Item {

@@ -36,6 +36,8 @@ Item {
         gameApplicationId = gameMeta.application_id
         gameName = gameMeta.name
         gameDescription = gameMeta.description
+        gameImageUrl = gameMeta.catalog_image
+        console.debug("DEBUG: gameImageUrl = " + gameImageUrl)
         freeTypeLabel.text = gameMeta.is_free ? qsTr("Free") : qsTr("Commercial")
         versionLabel.text = gameMeta.version
     }
@@ -85,6 +87,21 @@ Item {
 
             Layout.preferredHeight: nameLabel.implicitHeight + gdisplay.touchCellHeight()
             Layout.fillWidth: true
+
+            Item {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.right: nameLabel.left
+                Image {
+                    id: gameImage
+                    visible: status === Image.Ready
+                    anchors.centerIn: parent
+                    source: gameImageUrl
+                    fillMode: Image.PreserveAspectCrop
+                    width: 100
+                    height: 80
+                }
+            }
 
             Text {
                 anchors.centerIn: parent

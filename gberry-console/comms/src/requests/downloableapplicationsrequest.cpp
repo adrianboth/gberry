@@ -74,6 +74,7 @@ void DownloadableApplicationsRequest::fillInErrorDetails(Result &res)
 Invocation* DownloadableApplicationsRequest::processPrepare(InvocationFactory *factory)
 {
     RESTInvocation* inv = factory->newRESTInvocation();
+    _headServerHost = factory->defaultHostName();
     inv->defineGetOperation("/application/list");
     if (_userToken.isEmpty()) {
         inv->defineParameter("type", "free");
@@ -113,10 +114,12 @@ void DownloadableApplicationsRequest::processOkResponse(Invocation *invocation)
         meta->setName(j["name"].toString());
         meta->setDescription(j["description"].toString());
         meta->setIsFree(j["is_free"].toBool());
+        meta->setCatalogImageFilePath(QString("http://") + _headServerHost + j["image_url"].toString());
         QSharedPointer<Application> app(new Application(QSharedPointer<ApplicationMeta>(meta)));
+        // TODO: sense? first reading these and them putting back to json in command side
         _receivedApplications << app;
 
-        // TODO: how image url ?? do you need token there??
+        // TODO: how image url ?? do you need token there?? nope, via wstore
     }
 
     DEBUG("processRequestOkResponse()");

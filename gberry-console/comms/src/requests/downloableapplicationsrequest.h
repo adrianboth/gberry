@@ -61,6 +61,7 @@ private:
     QList<QSharedPointer<Application>> _receivedApplications;
     int _playerId{-1};
     QString _userToken;
+    QString _headServerHost;
 };
 
 } // eon
