@@ -46,6 +46,7 @@ public:
             ApplicationNotExists,
             ApplicationDirExists,
             ApplicationDeletionFailed,
+            ApplicationRefreshFailed,
             FailedToCreateApplicationDirectory,
             ApplicationConfigurationWritingFailed,
             UpdateErrorApplicationNotExists, // TODO: make diff between update and add errors
@@ -77,6 +78,8 @@ public:
     bool addApplication(Application& application, Result& result);
 
     bool updateApplication(const Application& application, Result& result);
+
+    bool refreshApplication(const QString& applicationFullId, Result& result);
 
     // cleans up possible temp files
     bool pruneApplication(QSharedPointer<IApplication> application);

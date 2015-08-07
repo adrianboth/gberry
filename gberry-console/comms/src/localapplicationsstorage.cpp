@@ -124,6 +124,33 @@ bool LocalApplicationsStorage::updateApplication(const Application &application,
     }
 }
 
+bool LocalApplicationsStorage::refreshApplication(const QString &applicationFullId, LocalApplicationsStorage::Result &result)
+{
+    // look for existing app and directory
+    int i = 0;
+    foreach (QSharedPointer<Application> app, _d->apps) {
+        if (app->id() == applicationFullId) {
+            ApplicationConfigReaderWriter reader(app->meta()->applicationDirPath());
+
+            QSharedPointer<Application> newApp(reader.readApplication());
+            if (newApp.isNull()) {
+                return result.record(Result::ApplicationRefreshFailed, QString("Failed to reread application from %1").arg(app->meta()->applicationDirPath()));
+            }
+            DEBUG("Application" << newApp->id() << "read successfully");
+            _d->apps.replace(i, newApp);
+
+            IApplicationsStorage* ii = this;
+            emit ii->applicationsUpdated();
+            return true;
+        }
+
+        i++;
+    }
+
+    return result.record(Result::ApplicationRefreshFailed, QString("Refresh failed as application not found: id = %1").arg(applicationFullId));
+}
+
+
 bool LocalApplicationsStorage::pruneApplication(QSharedPointer<IApplication> application)
 {
     QDir appDir(application->meta()->applicationDirPath());

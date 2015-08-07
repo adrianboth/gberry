@@ -19,6 +19,9 @@
  #include "localapplicationsstorage.h"
 
 #include <QTemporaryDir>
+#include <QFile>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 #include "testutils/waiter.h"
 #include "testutils/qtgtest.h"
@@ -230,6 +233,52 @@ TEST(LocalApplicationsStorage, DeleteApplication)
 
     // existing LocalApplications should update itself;
     EXPECT_TRUE(apps_xx->application("app3-downloading-1.0.0").isNull());
+}
+
+
+
+TEST(LocalApplicationsStorage, RefreshApplication)
+{
+    QString appsDir = TestUtils::testdataDirPath("simple_case1");
+
+    // as we are going to modify data -> make copy
+    QTemporaryDir temporaryDir;
+    DEBUG("Copy testdata from" << appsDir << "to" << temporaryDir.path());
+    ASSERT_TRUE(GBerryLib::copyRecursively(appsDir, temporaryDir.path())); // verify ok
+
+    LocalApplicationsStorage storage(temporaryDir.path());
+
+    // -- interface test
+    QSharedPointer<LocalApplications> apps_xx = storage.localApplications();
+    QSharedPointer<IApplication> iapp_xx = apps_xx->application("app1-1.0.0");
+    EXPECT_TRUE(iapp_xx->id() == "app1-1.0.0");
+    EXPECT_TRUE(iapp_xx->meta()->description() == "This is a test application 1");
+
+    QFile appcfgFile(GBerryLib::joinpath(iapp_xx->meta()->applicationDirPath(), "app1_appcfg.json"));
+    ASSERT_TRUE(appcfgFile.open(QIODevice::ReadOnly));
+    QByteArray appcfgData = appcfgFile.readAll();
+    appcfgFile.close();
+
+    QJsonObject appcfgJson = QJsonDocument::fromJson(appcfgData).object();
+    appcfgJson["description"] = "new desc";
+
+    appcfgFile.open(QIODevice::WriteOnly);
+    ASSERT_TRUE(appcfgFile.write(QJsonDocument(appcfgJson).toJson()));
+    appcfgFile.close();
+
+    // now do refresh in storage (actual test)
+    LocalApplicationsStorage::Result res;
+    storage.refreshApplication(iapp_xx->id(), res);
+
+    // firts get new list
+    QSharedPointer<LocalApplications> apps_yy = storage.localApplications();
+    QSharedPointer<IApplication> iapp_yy = apps_yy->application("app1-1.0.0");
+    EXPECT_TRUE(iapp_yy->id() == "app1-1.0.0");
+    EXPECT_TRUE(iapp_yy->meta()->description() == "new desc");
+
+    // also existing app lists have updated
+    QSharedPointer<IApplication> iapp_xx2 = apps_xx->application("app1-1.0.0");
+    EXPECT_TRUE(iapp_xx2->meta()->description() == "new desc");
 }
 
 

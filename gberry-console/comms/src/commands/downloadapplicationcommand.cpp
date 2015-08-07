@@ -269,6 +269,34 @@ void DownloadApplicationCommand::onUnzipFinished(UnzipOperation* unzipOp)
     _d->applicationsStorage->pruneApplication(localApps->application(unzipOp->applicationFullId()));
 
     // we need to read from the disk (applications get signal but we are not processing signal at this point)
+    LocalApplicationsStorage::Result refreshResult;
+    _d->applicationsStorage->refreshApplication(unzipOp->applicationFullId(), refreshResult);
+
+    if (refreshResult.hasError()) {
+        // TODO: this duplicate code -> clean up required
+        // something went wrong, because ok has been recorded but no actual zip file
+        ERROR("Failed to refresh application" << unzipOp->applicationFullId());
+        _d->deleteApplicationFromFileSystem(unzipOp->applicationFullId());
+
+        QJsonObject responseJson;
+        responseJson["command"] = "DownloadApplicationReply";
+        responseJson["application_id"] = unzipOp->applicationFullId();
+        responseJson["result"] = "failure";
+
+        Result res(DownloadApplicationCommandErrors::INTERNAL_ERROR);
+        // TODO: because() better keyword?
+        res << Result::reasonFromDesc("Failed to update application")
+            << Result::reasonFromDesc(refreshResult.errorString);
+
+        responseJson["result_details"] = ResultMessageFormatter(res).toJson();
+
+        _d->controlChannel->sendJsonMessageToSouth(responseJson);
+        return;
+
+    }
+
+    // -- next update state
+
     QSharedPointer<IApplication> iapp = _d->applicationsStorage->localApplications()->application(unzipOp->applicationFullId());
     QSharedPointer<Application> app(qSharedPointerCast<Application>(iapp));
     app->markState(IApplication::Valid);
