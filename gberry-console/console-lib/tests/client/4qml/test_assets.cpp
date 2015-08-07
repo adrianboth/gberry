@@ -15,30 +15,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
-#ifndef ASSETS_H
-#define ASSETS_H
 
-#include <QObject>
+#include <testutils/qtgtest.h>
 
-class Assets : public QObject
+#include "client/4qml/assets.h"
+
+
+TEST(Assets, BasicCases)
 {
-    Q_OBJECT
-public:
-    explicit Assets(QObject *parent = 0);
-    ~Assets();
+    Assets assets;
+    assets.setRootPath("/foo/bar");
 
-    void setRootPath(QString rootPath);
+    ASSERT_TRUE(assets.filePath("123") == "file:/foo/bar/123");
 
-    Q_INVOKABLE QString filePath(const QString& fileRelPath) const;
-    Q_INVOKABLE bool isValidFilePath(const QString& filePath) const;
+    ASSERT_TRUE(assets.filePath("file:123") == "file:/foo/bar/123") << assets.filePath("file:123");
 
-signals:
+    ASSERT_TRUE(assets.filePath("/test/123") == "file:/test/123");
 
-public slots:
+    ASSERT_TRUE(assets.filePath("file:/test/123") == "file:/test/123");
+}
 
-private:
-    QString _rootPath;
-};
-
-#endif // ASSETS_H

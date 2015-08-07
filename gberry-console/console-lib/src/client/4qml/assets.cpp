@@ -47,10 +47,27 @@ void Assets::setRootPath(QString rootPath)
     qDebug() << "Assets root path set to" << _rootPath;
 }
 
-QString Assets::filePath(QString fileRelPath) const
+QString Assets::filePath(const QString& fileRelPath) const
 {
-    QString path ("file:");
-    path.append(_rootPath).append("/").append(fileRelPath);
+    QString checkPath(fileRelPath); // not necessarely rel path ...
+    QString newPath("file:");
 
-    return path;
+    if (checkPath.startsWith("file:")) {
+        checkPath.remove(0, 5);
+    }
+
+    if (!QFileInfo(checkPath).isAbsolute()) {
+        newPath.append(_rootPath).append("/").append(checkPath);
+    } else {
+        newPath.append(checkPath);
+    }
+
+    return newPath;
+}
+
+bool Assets::isValidFilePath(const QString& filePath) const
+{
+    QString path = this->filePath(filePath).remove(0, 5); // remove file:
+    QFileInfo f(path);
+    return f.exists() && f.isFile();
 }

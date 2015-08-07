@@ -31,6 +31,14 @@ Item {
         // these values come directly from the model
         gameName = gameMeta.name
         gameDescription = gameMeta.description
+
+        if (typeof(gameMeta.catalog_image) !== "undefined") {
+            console.debug("LocalGame: catalog_image: " + gameMeta.catalog_image)
+            gameImageUrl = gameMeta.catalog_image
+        } else {
+            console.debug("LocalGame: no catalog_image defined")
+        }
+
         freeTypeLabel.text = gameMeta.is_free ? qsTr("Free") : qsTr("Purchased")
         versionLabel.text = gameMeta.version
     }
@@ -55,6 +63,21 @@ Item {
 
             Layout.preferredHeight: nameLabel.implicitHeight + gdisplay.touchCellHeight()
             Layout.fillWidth: true
+
+            Item {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.right: nameLabel.left
+                Image {
+                    id: gameImage
+                    visible: Assets.isValidFilePath(gameImageUrl)
+                    anchors.centerIn: parent
+                    source: Assets.isValidFilePath(gameImageUrl) ? Assets.filePath(gameImageUrl) : ""
+                    fillMode: Image.PreserveAspectCrop
+                    width: 100
+                    height: 80
+                }
+            }
 
             Text {
                 anchors.centerIn: parent

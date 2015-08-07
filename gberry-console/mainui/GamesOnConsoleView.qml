@@ -166,7 +166,16 @@ Item {
                                     height: gdisplay.smallSizeText
                                     anchors.verticalCenter: parent.verticalCenter
                                     color: "lightblue" // TODO: some common place for colors
-                                    //source: "file"
+
+                                    Image {
+                                        anchors.centerIn: parent
+                                        id: smallGameImage
+                                        visible: Assets.isValidFilePath(catalog_image)
+                                        source: Assets.isValidFilePath(catalog_image) ? Assets.filePath(catalog_image) : ""
+                                        fillMode: Image.PreserveAspectCrop
+                                        width: parent.width
+                                        height: parent.height
+                                    }
                                 }
 
                                 Item {

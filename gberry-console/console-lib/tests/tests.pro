@@ -51,7 +51,8 @@ SOURCES += main.cpp \
     server/application/test_baseapplications.cpp \
     server/test_serversideplayerchannel.cpp \
     utils/stubconsoleapplication.cpp \
-    client/test_applicationversionnumber.cpp
+    client/test_applicationversionnumber.cpp \
+    client/4qml/test_assets.cpp
     
 HEADERS += \
     utils/testtcpserver.h \
