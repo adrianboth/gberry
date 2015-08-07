@@ -26,6 +26,9 @@
 
 using namespace GBerryClient;
 
+#define LOG_AREA "RESTAPITests"
+#include "log/log.h"
+
 TEST(RESTAPI, UserLoginMeta)
 {
     UserLoginMeta guest("FooGuest");
@@ -62,14 +65,19 @@ TEST(RESTAPI, ConsoleRESTServerAndConsoleSessionManagerIntegration)
     WAIT_CUSTOM_AND_ASSERT(clientSessionIsOpen, 5000, 50);
 
     ASSERT_TRUE(serverSessionManager.isPlayerNameReserved("BarGuest"));
-    // we just happen to know how ids are generated, first guest is -2
-    PlayerSession session = serverSessionManager.session(-2);
-    ASSERT_TRUE(session.isValid());
+
+    // because playerIds are coming from static counter other tests may affect
+    // to value -> we need to fetch via debug API
+    QMap<QString, PlayerSession> sessionsDebug = serverSessionManager.debug_session();
+    ASSERT_EQ(1, sessionsDebug.size());
+
+    PlayerSession session = sessionsDebug.values().at(0);
+
+    ASSERT_TRUE(session.isValid()) << session.playerId() << session.playerName();
     ASSERT_TRUE(session.isGuest());
     ASSERT_TRUE(session.playerName() == "BarGuest");
 
     ASSERT_TRUE(clientSessionManager.isOpen());
-
 
 }
 

@@ -160,8 +160,7 @@ TEST(HeadServerConnection, PingOK)
     ASSERT_EQ(1, spyDisconnected.count()); // no new disconnects
 }
 
-
-TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
+TEST(HeadServerConnection, RequestSucceeds)
 {
     MockInvocationFactory factoryMock;
 
@@ -210,17 +209,49 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 
     delete invocationMock;
     delete request;
+    return;
+}
 
-// -- failed request (invocation failure)
-    TRACE("Test: Failed request");
+TEST(HeadServerConnection, RequestFailsToInvocationError)
+{
+    MockInvocationFactory factoryMock;
+
+    // We need to create fresh RESTInvocation for each request because
+    // otherwise signal connection would pile up and as HeadServerConnection
+    // attaches to signals it would get extra signals
+    MockRESTInvocation* invocationMock = new MockRESTInvocation;
+
+    TestSystemServices testservices; // for single shot timer faking
+    testservices.registerInstance();
+
+// -- creation and drive object to connected state
+    HeadServerConnection conn(&factoryMock);
+
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
+
+    conn.open(); // should make initial ping
+
+    Mock::VerifyAndClearExpectations(&factoryMock);
+    Mock::VerifyAndClearExpectations(invocationMock); // is "ping" done
+
+    invocationMock->emitFinishedOK(); // ping response
+    WAIT_AND_ASSERT(conn.isConnected());
+
+    delete invocationMock;
+
+// -- test failed request (invocation failure)
 
     invocationMock = new MockRESTInvocation;
-    request = new TestRequest; // always allocate in heap
+    TestRequest* request = new TestRequest; // always allocate in heap
 
     EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
     EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest"))).Times(1);
     EXPECT_CALL(*invocationMock, execute()).Times(1);
     EXPECT_CALL(*invocationMock, statusCode()).Times(1).WillOnce(Return(Invocation::ERROR));
+    Error testError(100);
+    EXPECT_CALL(*invocationMock, result()).Times(1).WillOnce(Return(Result(testError)));
 
     conn.makeRequest(request);
 
@@ -234,19 +265,51 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
 
     delete invocationMock;
     delete request;
+}
 
-// -- failed request to connection error -> ping triggered
-    TRACE("Test: Failed requests triggers ping");
+TEST(HeadServerConnection, RequestFailsToConnectionError)
+{
+    // connection error triggers a ping
 
+    MockInvocationFactory factoryMock;
+
+    // We need to create fresh RESTInvocation for each request because
+    // otherwise signal connection would pile up and as HeadServerConnection
+    // attaches to signals it would get extra signals
+    MockRESTInvocation* invocationMock = new MockRESTInvocation;
+
+    TestSystemServices testservices; // for single shot timer faking
+    testservices.registerInstance();
+
+// -- creation and drive object to connected state
+    HeadServerConnection conn(&factoryMock);
+
+    EXPECT_CALL(factoryMock, newRESTInvocation()).Times(1).WillOnce(Return(invocationMock));
+    EXPECT_CALL(*invocationMock, defineGetOperation(QString("/ping/"))).Times(1);
+    EXPECT_CALL(*invocationMock, execute()).Times(1);
+
+    conn.open(); // should make initial ping
+
+    Mock::VerifyAndClearExpectations(&factoryMock);
+    Mock::VerifyAndClearExpectations(invocationMock); // is "ping" done
+
+    invocationMock->emitFinishedOK(); // ping response
+    WAIT_AND_ASSERT(conn.isConnected());
+
+    delete invocationMock;
+
+    // -- test
     invocationMock = new MockRESTInvocation;
     MockRESTInvocation* pingInvocationMock = new MockRESTInvocation;
 
-    request = new TestRequest; // always allocate in heap
+    TestRequest* request = new TestRequest; // always allocate in heap
 
     InSequence dummy; // following expectations will be in sequences
     EXPECT_CALL(factoryMock, newRESTInvocation()).WillOnce(Return(invocationMock));
     EXPECT_CALL(*invocationMock, defineGetOperation(QString("/testrequest")));
     EXPECT_CALL(*invocationMock, execute()).Times(1);
+    Error testError(100); // just dummy error
+    EXPECT_CALL(*invocationMock, result()).Times(1).WillOnce(Return(Result(testError)));
     EXPECT_CALL(*invocationMock, statusCode()).WillOnce(Return(Invocation::CONNECTION_FAILED));
     EXPECT_CALL(factoryMock, newRESTInvocation()).WillOnce(Return(pingInvocationMock));
     EXPECT_CALL(*pingInvocationMock, defineGetOperation(QString("/ping/")));
@@ -263,6 +326,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionOK)
     Mock::VerifyAndClearExpectations(invocationMock);
     Mock::VerifyAndClearExpectations(pingInvocationMock);
 
+    // we checked just that ping was triggered, not mocking its execution
     delete invocationMock;
     delete pingInvocationMock;
     delete request;
@@ -296,7 +360,7 @@ TEST(HeadServerConnection, MakeRequestWhenConnectionNotOK)
     delete invocationMock;
 
 // -- make request (if no connection tries to run ping first)
-TRACE("Test: Make request that will fail because of no connection");
+    TRACE("Test: Make request that will fail because of no connection");
 
     invocationMock = new MockRESTInvocation;
 

@@ -25,6 +25,9 @@
 #define LOG_AREA "GameModel"
 #include <log/log.h>
 
+#include "client/applicationversionnumber.h"
+using namespace GBerryLib;
+
 class GameModelPrivate
 {
 public:
@@ -149,7 +152,28 @@ bool GameModel::requestLocalGames()
 
 QStringList GameModel::localGameIds() const
 {
-    return _d->games.keys();
+    QMap<QString, QVariantMap> gameById; // not full id
+    foreach(QVariantMap gameMeta, _d->games.values()) {
+        QString appId = gameMeta["application_id"].toString();
+        QString version = gameMeta["version"].toString();
+
+        if (gameById.contains(appId)) {
+            QString otherVersion = gameById[appId]["version"].toString();
+            if (ApplicationVersionNumber::versionIsGreater(version, otherVersion))
+                gameById[appId] = gameMeta;
+
+        } else {
+            gameById[appId] = gameMeta;
+        }
+    }
+
+    // we have applicationIds, not full ids
+    QStringList fullIds;
+    foreach(QVariantMap gameMeta, gameById.values()) {
+        fullIds.append(gameMeta["id"].toString());
+    }
+
+    return fullIds;
 }
 
 
@@ -162,6 +186,29 @@ QVariantMap GameModel::game(QString gameId) const
         QVariantMap empty;
         return empty;
     }
+}
+
+QString GameModel::newestGameByApplicationId(const QString& applicationId) const
+{
+    QMap<QString, QVariantMap> gameById; // not full id
+    foreach(QVariantMap gameMeta, _d->games.values()) {
+        QString appId = gameMeta["application_id"].toString();
+        QString version = gameMeta["version"].toString();
+
+        if (gameById.contains(appId)) {
+            QString otherVersion = gameById[appId]["version"].toString();
+            if (ApplicationVersionNumber::versionIsGreater(version, otherVersion))
+                gameById[appId] = gameMeta;
+
+        } else {
+            gameById[appId] = gameMeta;
+        }
+    }
+
+    if (gameById.contains(applicationId))
+        return gameById[applicationId]["id"].toString();
+
+    return QString();
 }
 
 void GameModel::onGameDownloaded(QString applicationFullId)

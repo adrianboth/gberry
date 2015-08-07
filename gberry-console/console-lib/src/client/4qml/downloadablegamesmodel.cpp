@@ -66,10 +66,13 @@ public:
     }
 
     void clear(int playerId) {
-        foreach (auto gameData, cache[pid]->values()) {
+        if (!cache.contains(playerId))
+            return;
+
+        foreach (auto gameData, cache[playerId]->values()) {
             delete gameData;
         }
-        cache[pid]->clear();
+        cache[playerId]->clear();
     }
 
     QMap<QString, GameData*>& get(int playerId) {

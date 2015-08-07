@@ -56,6 +56,9 @@ public:
 
     Q_INVOKABLE QVariantMap game(QString gameId) const;
 
+    // returns empty string if no apps by specified applicationId
+    Q_INVOKABLE QString newestGameByApplicationId(const QString& applicationId) const;
+
 
 signals:
     void localGamesAvailable();

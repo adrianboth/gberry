@@ -22,15 +22,18 @@ import QtQuick.Layouts 1.1
 import GBerry 1.0
 
 Item {
+    id: self
 
     // TODO: why were not taking just ID and reading everything else from model
     property string gameFullId: ""
+    property string gameApplicationId: ""
     property string gameName: qsTr("No games found")
     property string gameDescription: ""
     property string gameImageUrl: ""
 
     function readValues(gameMeta) {
         gameFullId = gameMeta.id
+        gameApplicationId = gameMeta.application_id
         gameName = gameMeta.name
         gameDescription = gameMeta.description
         freeTypeLabel.text = gameMeta.is_free ? qsTr("Free") : qsTr("Commercial")
@@ -64,7 +67,7 @@ Item {
     function processControlAction(action) {
         if (action === "OK") {
             // TODO: we could check button enabled instead
-            if (state === "DOWNLOADABLE") {
+            if (state === "DOWNLOADABLE" || state === "UPGRADEABLE") {
                 downloadButton.triggerButtonClick()
             } else if (state === "DOWNLOADED" || state === "JUST_DOWNLOADED") {
                 launchButton.triggerButtonClick()
@@ -160,7 +163,7 @@ Item {
                 height: buttonHeight
                 enabled: gameFullId != "" // initial until data comes in
 
-                label: qsTr("Download")
+                label: self.state === "UPGRADEABLE" ? qsTr("Update") : qsTr("Download")
 
                 onButtonClicked: {
                     gameDownloadRequested()
@@ -190,6 +193,13 @@ Item {
                 PropertyChanges { target: downloadButton; visible: true }
                 PropertyChanges { target: launchButton; visible: false }
                 PropertyChanges { target: statusRow; visible: false }
+            },
+            State {
+                name: "UPGRADEABLE"
+                PropertyChanges { target: downloadButton; visible: true }
+                PropertyChanges { target: launchButton; visible: false }
+                PropertyChanges { target: statusRow; visible: true }
+                PropertyChanges { target: statusLabel; text: qsTr("Earlier version is already installed."); }
             },
             State {
                 name: "DOWNLOADED"
@@ -235,10 +245,21 @@ Item {
         var gameDetailsMap = GameModel.game(gameFullId)
         if (typeof(gameDetailsMap.id) !== 'undefined') {
             state = "DOWNLOADED"
-        } else {
-            // no local game
-            state = "DOWNLOADABLE"
+            return
         }
+
+        console.debug("No installed, but is there earlier versions: application_id=" + gameApplicationId)
+        var earlierVersionId = GameModel.newestGameByApplicationId(gameApplicationId)
+
+        // something found but that is not same as what we are checking
+        if (earlierVersionId.length > 0 && earlierVersionId !== gameFullId) {
+            console.debug("Compared: " + earlierVersionId + " vs " + gameFullId)
+            state = "UPGRADEABLE"
+            return
+        }
+
+        // no local game
+        state = "DOWNLOADABLE"
     }
 
     // this is needed to avoid jumping between states with checkItemStatus()

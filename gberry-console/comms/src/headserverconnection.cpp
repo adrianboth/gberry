@@ -66,6 +66,7 @@ public:
     /* */
     void ping()
     {
+        //DEBUG("ping()");
         RESTInvocation* invocation = invocationFactory->newRESTInvocation();
 
         if (!invocation) {
@@ -143,7 +144,7 @@ public:
         }
 
         if (connectionState == CONNECTED && !requestQueue.isEmpty()) {
-            //DEBUG("Execute request");
+            DEBUG("Execute request");
             Request* req = requestQueue.dequeue();
             executeRequest(req);
 
@@ -199,19 +200,22 @@ public:
     void requestFailed(Request* request, Invocation* inv)
     {
         Result res(RequestErrors::INVOCATION_FAILED);
-        if (inv)
+        if (inv) {
             res << inv->result();
-
+        }
         request->finishedError(res, inv);
 
+        //DEBUG("ping condition check");
         switch (inv->statusCode()) {
             case Invocation::CONNECTION_FAILED:
             case Invocation::TIMEOUT_OCCURRED:
                 // something failed -> redo ping
+                TRACE("Connection error -> ping");
                 ping();
                 break;
             default:
                 // nothing to do
+                //DEBUG("Normal error -> no ping");
                 break;
         }
     }

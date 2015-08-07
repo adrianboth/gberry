@@ -39,6 +39,8 @@ public:
     virtual PlayerSession sessionByToken(const QString& sessionToken) const;
     virtual PlayerSession session(int playerId) const;
 
+    QMap<QString, PlayerSession>& debug_session() { return _sessions; }
+
 signals:
 
 public slots:

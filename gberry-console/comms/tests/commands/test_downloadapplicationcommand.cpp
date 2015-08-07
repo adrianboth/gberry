@@ -125,7 +125,8 @@ TEST(DownloadApplicationCommand, DownloadFailsImmediatelyToInvocation)
 
     bool downloadExecuteCalled;
     auto ExecuteCalledFunc = [&] () { downloadExecuteCalled = true; };
-    EXPECT_CALL(*mockInvocation, execute()).Times(1).WillOnce(InvokeWithoutArgs(ExecuteCalledFunc));
+    EXPECT_CALL(*mockInvocation, execute()).WillOnce(InvokeWithoutArgs(ExecuteCalledFunc));
+    EXPECT_CALL(*mockInvocation, result()).WillOnce(Return(Result(Error(100)))); // just dummy error
     EXPECT_CALL(*mockInvocation, statusCode()).WillOnce(Return(Invocation::CONNECTION_FAILED));
 
 // -- test

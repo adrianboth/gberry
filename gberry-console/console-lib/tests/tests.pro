@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     client/test_gamemodelcommunication.cpp \
     server/application/test_baseapplications.cpp \
     server/test_serversideplayerchannel.cpp \
-    utils/stubconsoleapplication.cpp
+    utils/stubconsoleapplication.cpp \
+    client/test_applicationversionnumber.cpp
     
 HEADERS += \
     utils/testtcpserver.h \

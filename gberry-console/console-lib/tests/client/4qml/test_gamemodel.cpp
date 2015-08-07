@@ -103,11 +103,8 @@ TEST(GameModel, RequestLocalApplications)
     QJsonObject responseMsg = MessageFactory::createQueryLocalApplicationsReply(iapps);
 
     comm.emitMessageReceived(responseMsg);
-
     WAIT_AND_ASSERT(localGamesAvailableSignaled == 1);
-    //Waiter([&] () {return localGamesAvailableSignaled > 0;}).wait(true);
-    ASSERT_EQ(localGamesAvailableSignaled, 1);
-    ASSERT_TRUE(model.requestLocalGames());
+
     ASSERT_EQ(model.localGameIds().size(), 1);
     ASSERT_TRUE(model.game("fooId-1.1.1").size() > 0);
 
@@ -115,6 +112,32 @@ TEST(GameModel, RequestLocalApplications)
     ASSERT_TRUE(foo["id"].toString() == "fooId-1.1.1");
     ASSERT_TRUE(foo["name"].toString() == "Foo");
     ASSERT_TRUE(foo["description"].toString() == "foo desc");
+
+// --
+    // case: we have already data, but new request is made
+
+    ASSERT_TRUE(model.requestLocalGames());
+
+    // we return same data
+    comm.emitMessageReceived(responseMsg);
+    WAIT_AND_ASSERT(localGamesAvailableSignaled == 2);
+
+    ASSERT_EQ(model.localGameIds().size(), 1);
+    ASSERT_TRUE(model.game("fooId-1.1.1").size() > 0);
+
+// --
+    // case: update is request but now we return also other ap
+    ASSERT_TRUE(model.requestLocalGames());
+
+    apps->add(createApplication("barId", "2.0", "Bar", "bar desc"));
+    responseMsg = MessageFactory::createQueryLocalApplicationsReply(iapps);
+
+    comm.emitMessageReceived(responseMsg);
+    WAIT_AND_ASSERT(localGamesAvailableSignaled == 3);
+
+    ASSERT_EQ(model.localGameIds().size(), 2);
+    ASSERT_TRUE(model.game("barId-2.0").size() > 0);
+
 }
 
 
@@ -147,4 +170,47 @@ TEST(GameModel, GameModelCommunicationIntegration)
     WAIT_AND_ASSERT(localGamesAvailableSignaled == 1);
 }
 
-// TODO: updated
+
+TEST(GameModel, RequestLocalApplicationsMultipleVersion)
+{
+    TestGameModelCommunication comm;
+    GameModel model(&comm);
+
+    int localGamesAvailableSignaled{0};
+    QObject::connect(&model, &GameModel::localGamesAvailable,
+                     [&] () {
+        localGamesAvailableSignaled++;
+    });
+
+// -- create setup
+    model.requestLocalGames();
+
+    // pass a response
+
+    BaseApplications* apps = new BaseApplications;
+    QSharedPointer<IApplications> iapps(apps);
+    apps->add(createApplication("fooId", "1.1.1", "Foo", "foo desc"));
+    apps->add(createApplication("fooId", "1.1.2", "Foo", "foo2 desc")); // same but newer
+    QJsonObject responseMsg = MessageFactory::createQueryLocalApplicationsReply(iapps);
+
+    comm.emitMessageReceived(responseMsg);
+    WAIT_AND_ASSERT(localGamesAvailableSignaled == 1);
+
+    ASSERT_EQ(model.localGameIds().size(), 1); // older is hidden
+    ASSERT_TRUE(model.localGameIds().at(0) == "fooId-1.1.2") << model.localGameIds().at(0);
+    // both are available if accessing directly
+    ASSERT_TRUE(model.game("fooId-1.1.2").size() > 0);
+    ASSERT_TRUE(model.game("fooId-1.1.1").size() > 0);
+
+    QVariantMap foo = model.game("fooId-1.1.1");
+    ASSERT_TRUE(foo["id"].toString() == "fooId-1.1.1");
+    ASSERT_TRUE(foo["name"].toString() == "Foo");
+    ASSERT_TRUE(foo["description"].toString() == "foo desc");
+
+    QVariantMap foo2 = model.game("fooId-1.1.2");
+    ASSERT_TRUE(foo2["id"].toString() == "fooId-1.1.2");
+    ASSERT_TRUE(foo2["name"].toString() == "Foo");
+    ASSERT_TRUE(foo2["description"].toString() == "foo2 desc");
+
+    ASSERT_TRUE(model.newestGameByApplicationId("fooId") == "fooId-1.1.2");
+}
