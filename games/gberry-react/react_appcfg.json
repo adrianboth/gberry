@@ -3,6 +3,6 @@
 "version": "0.2",
 "name": "React!",
 "description": "Reaction game where player who enters row of number fastest wins.",
-"catalog_image": "",
+"catalog_image": "react_catalog.png",
 "application_exe": "react"
 }

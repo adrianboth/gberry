@@ -43,7 +43,7 @@ assets.files = assets/*
 assets.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += assets
 
-appcfg.files = $${TARGET}_appcfg.json
+appcfg.files = $${TARGET}_appcfg.json tictactoe_catalog.png
 appcfg.path = $$DEPLOY_DIR/apps/$$TARGET/
 INSTALLS += appcfg
 
