@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>ApplicationSettings.qml</file>
+        <file>appbox/AppBox.qml</file>
+        <file>TriviaGameModel.js</file>
+        <file>ApplicationSettingsJS.js</file>
+        <file>CountDown.qml</file>
+        <file>GameTime.qml</file>
+        <file>GameModeSelectionView.qml</file>
+        <file>GameView.qml</file>
+        <file>QuestionsFrame.qml</file>
+        <file>PlayersFrame.qml</file>
+        <file>ExitConfirmationDialog.qml</file>
+        <file>AnswerRow.qml</file>
+        <file>AnswersArea.qml</file>
+        <file>QuestionArea.qml</file>
+        <file>PointsModel.js</file>
+        <file>QuestionsModel.js</file>
+    </qresource>
+</RCC>

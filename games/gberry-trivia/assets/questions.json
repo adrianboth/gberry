@@ -1,0 +1,20 @@
+{ "questions": [
+	{ 
+	"question": "Where comes FIWARE?",
+	"a": "aaa",
+	"b": "bbb",
+	"c": "ccc",
+	"d": "ddd",
+	"answer": "b"
+	},
+	{
+	"question": "What is enabler?",
+	"a": "aaa",
+	"b": "bbb",
+	"c": "ccc",
+	"d": "ddd",
+	"answer": "c"
+	}
+	]
+	
+}

@@ -1,0 +1,8 @@
+{
+"id": "trivia",
+"version": "0.1",
+"name": "Trivia",
+"description": "Multiplayer trivia where each player compete against others.",
+"catalog_image": "trivia_catalog.png",
+"application_exe": "trivia"
+}
