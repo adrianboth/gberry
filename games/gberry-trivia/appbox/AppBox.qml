@@ -29,9 +29,18 @@ Rectangle {
         GradientStop { position: 1.0; color: "slategray" }
     }
 
-    property real buttonOpacity: 0.5
-    property int buttonTextFontPixelSize: gdisplay.touchCellHeight()
+    property real buttonOpacity: 1.0
+    property int buttonTextFontPixelSize: gdisplay.mediumSizeText
+    property int feedbackTextSize: gdisplay.smallSizeText
+    property int pointsTextSize: gdisplay.smallSizeText * 0.75
 
+    property int points: 10 // TODO: test points
+
+    property color boxAreaBorderColor: "gray"
+    property color boxAreaBackgroundColor: "snow"
+    property color answerNormalBackgroundColor: "lightblue"
+    property color answerWrongBackgroundColor: "#FFB6C1" // light pink
+    property color answerCorrectBackgroundColor: "blue"
 
     ColumnLayout {
         anchors.centerIn: parent
@@ -51,9 +60,9 @@ Rectangle {
 
             Text {
                 id: feedbackText
-                text: "" // "undefined"
+                text: "SOME TEXT FEED BACK" // "undefined"
                 anchors.centerIn: parent
-                font.pixelSize: gdisplay.mediumSizeText * 0.75
+                font.pixelSize: self.feedbackTextSize
 
                 function setFeedback(txt) {
                     // onTextChanged() doesn't work as text is not every time really
@@ -122,282 +131,190 @@ Rectangle {
 
         }
 
-        RowLayout {
-            Rectangle {
-                id: button1
-                property int number: 1
-                // TODO: make physically square
-                width: buttonText1.implicitHeight
-                height: buttonText1.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
+        Rectangle {
+            id: answerArea
+            color: "snow"
+            radius: 10
+            //Layout.fillWidth: true
+            //Layout.preferredHeight: feedbackText.implicitHeight * 1.5
+            //Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: answerButtonBox.height + gdisplay.touchCellHeight()
+            Layout.preferredWidth: answerButtonBox.width + gdisplay.touchCellWidth()
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText1
-                    text: button1.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button1.number)
+            ColumnLayout {
+                id: answerButtonBox
+                anchors.centerIn: parent
+
+                Rectangle {
+                    id: button1
+                    property string answerId: "a"
+                    property string answerLabel: answerId.toUpperCase()
+
+                    Layout.preferredWidth: Layout.preferredHeight * 3
+                    Layout.preferredHeight: answerIdLabel.implicitHeight
+
+                    color: self.answerNormalBackgroundColor
+                    radius: 10
+                    antialiasing: true
+                    opacity: buttonOpacity
+
+                    state: "WAIT_SELECTION"
+                    onStateChanged: {
+                        if (state === "WAIT_SELECTION")
+                            color = self.answerNormalBackgroundColor
+                        else if (state === "CORRECT")
+                            color = self.answerCorrectBackgroundColor
+                        else if (state === "NOT_CORRECT")
+                            color = self.answerWrongBackgroundColor
+                        else
+                            console.warn("Unknown state: " + state)
+                    }
+
+                    Text {
+                        id: answerIdLabel
+                        anchors.centerIn: parent
+                        text: parent.answerLabel
+                        font.pixelSize: self.buttonTextFontPixelSize
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            buttonPressed(parent.answerId)
+                        }
                     }
                 }
-            }
-            Rectangle {
-                id: button2
-                property int number: 2
-                // TODO: make physically square
-                width: buttonText2.implicitHeight
-                height: buttonText2.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText2
-                    text: button2.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button2.number)
+                Rectangle {
+                    id: button2
+                    property string answerId: "b"
+                    property string answerLabel: answerId.toUpperCase()
+
+                    Layout.preferredWidth: Layout.preferredHeight * 3
+                    Layout.preferredHeight: answerIdLabel.implicitHeight
+
+                    color: self.answerNormalBackgroundColor
+                    radius: 10
+                    antialiasing: true
+                    opacity: buttonOpacity
+
+                    state: "WAIT_SELECTION"
+                    onStateChanged: {
+                        if (state === "WAIT_SELECTION")
+                            color = self.answerNormalBackgroundColor
+                        else if (state === "CORRECT")
+                            color = self.answerCorrectBackgroundColor
+                        else if (state === "NOT_CORRECT")
+                            color = self.answerWrongBackgroundColor
+                        else
+                            console.warn("Unknown state: " + state)
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.answerLabel
+                        font.pixelSize: self.buttonTextFontPixelSize
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            buttonPressed(parent.answerId)
+                        }
                     }
                 }
-            }
-            Rectangle {
-                id: button3
-                property int number: 3
-                // TODO: make physically square
-                width: buttonText3.implicitHeight
-                height: buttonText3.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText3
-                    text: button3.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button3.number)
+                Rectangle {
+                    id: button3
+                    property string answerId: "c"
+                    property string answerLabel: answerId.toUpperCase()
+
+                    Layout.preferredWidth: Layout.preferredHeight * 3
+                    Layout.preferredHeight: answerIdLabel.implicitHeight
+
+                    color: self.answerNormalBackgroundColor
+                    radius: 10
+                    antialiasing: true
+                    opacity: buttonOpacity
+
+                    state: "WAIT_SELECTION"
+                    onStateChanged: {
+                        if (state === "WAIT_SELECTION")
+                            color = self.answerNormalBackgroundColor
+                        else if (state === "CORRECT")
+                            color = self.answerCorrectBackgroundColor
+                        else if (state === "NOT_CORRECT")
+                            color = self.answerWrongBackgroundColor
+                        else
+                            console.warn("Unknown state: " + state)
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.answerLabel
+                        font.pixelSize: self.buttonTextFontPixelSize
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            buttonPressed(parent.answerId)
+                        }
                     }
                 }
-            }
-        }
 
-        RowLayout {
-            Rectangle {
-                id: button4
-                property int number: 4
-                // TODO: make physically square
-                width: buttonText4.implicitHeight
-                height: buttonText4.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
+                Rectangle {
+                    id: button4
+                    property string answerId: "d"
+                    property string answerLabel: answerId.toUpperCase()
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText4
-                    text: button4.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button4.number)
+                    Layout.preferredWidth: Layout.preferredHeight * 3
+                    Layout.preferredHeight: answerIdLabel.implicitHeight
+
+                    color: self.answerNormalBackgroundColor
+                    radius: 10
+                    antialiasing: true
+                    opacity: buttonOpacity
+
+                    state: "WAIT_SELECTION"
+                    onStateChanged: {
+                        if (state === "WAIT_SELECTION")
+                            color = self.answerNormalBackgroundColor
+                        else if (state === "CORRECT")
+                            color = self.answerCorrectBackgroundColor
+                        else if (state === "NOT_CORRECT")
+                            color = self.answerWrongBackgroundColor
+                        else
+                            console.warn("Unknown state: " + state)
                     }
-                }
-            }
-            Rectangle {
-                id: button5
-                property int number: 5
-                // TODO: make physically square
-                width: buttonText5.implicitHeight
-                height: buttonText5.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText5
-                    text: button5.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button5.number)
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.answerLabel
+                        font.pixelSize: self.buttonTextFontPixelSize
                     }
-                }
-            }
-            Rectangle {
-                id: button6
-                property int number: 6
-                // TODO: make physically square
-                width: buttonText6.implicitHeight
-                height: buttonText6.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
 
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText6
-                    text: button6.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button6.number)
-                    }
-                }
-            }
-        }
-        RowLayout {
-            Rectangle {
-                id: button7
-                property int number: 7
-                // TODO: make physically square
-                width: buttonText7.implicitHeight
-                height: buttonText7.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText7
-                    text: button7.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button7.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button8
-                property int number: 8
-                // TODO: make physically square
-                width: buttonText8.implicitHeight
-                height: buttonText8.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText8
-                    text: button8.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button8.number)
-                    }
-                }
-            }
-            Rectangle {
-                id: button9
-                property int number: 9
-                // TODO: make physically square
-                width: buttonText9.implicitHeight
-                height: buttonText9.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText9
-                    text: button9.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button9.number)
-                    }
-                }
-            }
-        }
-        RowLayout {
-            Item { // to get last button into middle
-                // TODO: make physically square
-                width: buttonText0.implicitHeight
-                height: buttonText0.implicitHeight
-            }
-
-            Rectangle {
-                id: button0
-                property int number: 0
-                // TODO: make physically square
-                width: buttonText0.implicitHeight
-                height: buttonText0.implicitHeight
-                color: "slategray"
-                border.color: "darkgrey"
-                border.width: 1
-                radius: 10
-                antialiasing: true
-                opacity: buttonOpacity
-
-                Text {
-                    anchors.centerIn: parent
-                    id: buttonText0
-                    text: button0.number.toString()
-                    font.pixelSize: self.buttonTextFontPixelSize
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        buttonPressed(button0.number)
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            buttonPressed(parent.answerId)
+                        }
                     }
                 }
             }
         }
 
+        Item {
+            id: pointsArea
+            Layout.fillWidth: true
+            Layout.preferredHeight: pointsLabel.implicitHeight * 1.5
+            Text {
+                id: pointsLabel
+                anchors.centerIn: parent
+                text: qsTr("Points") + " " + self.points
+                font.pointSize: self.pointsTextSize
+            }
+        }
     }
 
     // -- API --
@@ -411,7 +328,7 @@ Rectangle {
     // Incoming AppBoxMessages
     //   js: json object
     function incomingMessage(js) {
-        console.debug("### MAINUI APPBOX MSG: " + js)
+        console.debug("### MAINUI APPBOX MSG: " + js.toString())
 
         //outgoingMessage("got appbox msg")
 
@@ -436,15 +353,20 @@ Rectangle {
             feedbackText.setFeedback("OK!")
         } else if (js["action"] === "InvalidNumberFeedback") {
             feedbackText.setFeedback("Try again!")
+        } else if (js["action"] === "Ping") {
+            console.debug("Ping received: " + js["msg"])
+        } else {
+            console.warn("Unknown command: " + js["action"])
         }
+
     }
 
-    function buttonPressed(number) {
-        console.debug("Button pressed: " + number.toString())
+    function buttonPressed(answerId) {
+        console.debug("Button pressed: " + answerId)
 
         if (self.enabled) {
             // TODO: send
-            var js = {action: "NumberPressed", number: number.toString()}
+            var js = {action: "AnswerSelected", number: answerId}
             console.debug("Sending message out from AppBox")
             outgoingMessage(js)
         }
@@ -452,3 +374,4 @@ Rectangle {
 }
 
 // TODO: try to use components defined in a pkg
+

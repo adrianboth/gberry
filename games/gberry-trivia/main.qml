@@ -268,7 +268,6 @@ Window {
     function onPlayerIn(pid)
     {
         console.log("New player in: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "New player")
 
         var js = {action: "DefineGeneralActions",
                   actions: [{actionId: "GameMenu", actionName: "Abort Game"}]}
@@ -295,14 +294,12 @@ Window {
     function onPlayerOut(pid)
     {
         console.log("Player left: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, "Player left")
 
         if (playersManager.numberOfPlayers === 0) {
             // last player left
 
             // if in game -> return to menu
             if (mainarea.state === "GAME") {
-                messageBoard.insertMessage("Last player left -> back to menu")
                 mainarea.state = "MENU"
             }
         }
@@ -313,8 +310,6 @@ Window {
     function onPlayerMessageReceived(pid, data)
     {
         console.log("Player message: id = " + pid)
-        messageBoard.insertPlayerMessage(pid, data)
-
         var js  = JSON.parse(data)
         if (js["action"] === "SelectBasicControlAction")
         {
@@ -341,7 +336,18 @@ Window {
                 mainarea.state = "MENU"
             }
         } else if (js["action"] === "AppBoxMessage") {
-            ReactGameModel.playerMessageReceived(pid, js["data"])
+            console.debug("### message received: " + js["data"])
+            var responseJs = {"action": "AppBoxMessage",
+                              "data": {"action": "Ping", "msg": "ping " + playersManager.playerName(pid) + "!"}}
+
+            playersManager.sendPlayerMessage(pid, JSON.stringify(responseJs))
+
+            responseJs = {"action": "AppBoxMessage",
+                          "data": {"action": "Ping", "msg": "ping all!"}}
+
+            playersManager.sendAllPlayersMessage(JSON.stringify(responseJs))
+
+            //ReactGameModel.playerMessageReceived(pid, js["data"])
         }
     }
 
@@ -409,6 +415,10 @@ Window {
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
 
         // TODO: for dev
-        //playGameSelected()
+        playGameSelected()
+    }
+
+    AppBoxDebugWindow {
+
     }
 }
