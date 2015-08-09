@@ -65,6 +65,8 @@ Rectangle {
     property real sizeCellFactor8: 0.8
     property real sizeCellFactor9: 0.9
 
+    property bool debug: true
+
     // TODO: do I yet physical dimensions somewhere? to calculate x & y separately
 
     function adjust(w, h) {
@@ -137,7 +139,8 @@ Rectangle {
     Component.onCompleted: {
         Log.initLog("GDisplayProfile", gsettings.logLevel)
 
-        printDebug()
+        if (debug)
+            printDebug()
     }
 }
 
