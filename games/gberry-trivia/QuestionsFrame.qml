@@ -30,23 +30,35 @@ Item {
     }
 
     function start() {
-        countdown.start()
+        if (root.debugSkipCountDown) {
+            waitView.visible = false
+            questionsView.visible = true
+            readyToAcceptAnswers()
+        } else {
+            countdown.start()
+        }
     }
 
     Rectangle {
         id: background
         anchors.fill: parent
         anchors.margins: gdisplay.touchCellHeight()
-        color: "green"
+        color: theme.boxAreaBackgroundColor
+        radius: 10
+        border.color: theme.boxAreaBorderColor
+        border.width: 1
+
 
         Rectangle {
             id: titleRow
 
-            height: nameLabel.implicitHeight
+            height: nameLabel.implicitHeight * 1.1
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            color: "yellow"
+            anchors.margins: 1
+            color: theme.headingColor
+            radius: 10
 
             Text {
                 anchors.centerIn: parent
@@ -59,8 +71,9 @@ Item {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
+                anchors.margins: gdisplay.touchCellWidth()
                 text: currentQuestion.currentQuestionIndex + "/" + currentQuestion.maxQuestionsCount
-                font.pixelSize: gdisplay.smallSizeText
+                font.pixelSize: gdisplay.mediumSizeText
             }
 
         }
@@ -88,6 +101,11 @@ Item {
 
                     onDevAnswerClicked: self.devAnswerClicked(answerId)
                 }
+
+                Item { // spacer
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: gdisplay.touchCellHeight() / 2
+                }
             }
 
             Item {
@@ -98,7 +116,7 @@ Item {
                 CountDown {
                     anchors.centerIn: parent
                     id: countdown
-
+                    //countFrom: root.debugSkipCountDown ? 0 : 3
                     onFinished: fadeAnimation.running = true // countdown will fade itself
                 }
             }

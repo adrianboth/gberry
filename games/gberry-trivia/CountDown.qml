@@ -24,7 +24,15 @@ Rectangle {
     property int countFrom: 3 // seconds, counting downwards
     property int _currentNumber: 0
 
+    gradient: Gradient {
+        GradientStop { position: 0.0; color: "lightgray" }
+        GradientStop { position: 1.0; color: "darkgray" }
+    }
+    border.width: 2
+    border.color: "lightgray"
+
     signal finished()
+
     function start() {
         self.opacity = 0.9
         self.visible = true
@@ -36,8 +44,7 @@ Rectangle {
     width: number.implicitHeight *1.5 // with margin
     height: number.implicitHeight *1.5 // with margin
     radius: 10
-    border.width: 1
-    border.color: Qt.lighter(self.color)
+
     opacity: 0.9
 
     Text {

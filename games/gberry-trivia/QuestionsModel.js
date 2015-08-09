@@ -10,11 +10,14 @@ var signals = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal gameEnde
 
 var properties = Qt.createQmlObject('import QtQuick 2.0; QtObject { property int maxQuestionsCount: 0; property int currentQuestionIndex: 0; }', Qt.application, 'QuestionsModelProperties');
 
-function initialize() {
+function initialize(questionsListJson) {
     // TODO: from disk
+    _allQuestions = questionsListJson
+    /*
     _allQuestions = [{"question": "Foo question", "a": "1aa", "b": "2b", "c": "3c", "d": "4d", "answer": "b"},
                      {"question": "Bar question", "a": "aa", "b": "b", "answer": "a"}
                     ]
+    */
 }
 
 function setupGame(maxQuestionsCount) {

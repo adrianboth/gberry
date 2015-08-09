@@ -1,8 +1,9 @@
 { "questions": [
 	{ 
 	"question": "Where comes FIWARE?",
+	"image": "fiware_logo.jpeg",
 	"a": "aaa",
-	"b": "bbb",
+	"b": "bbb (correct)",
 	"c": "ccc",
 	"d": "ddd",
 	"answer": "b"
@@ -11,7 +12,7 @@
 	"question": "What is enabler?",
 	"a": "aaa",
 	"b": "bbb",
-	"c": "ccc",
+	"c": "ccc (correct)",
 	"d": "ddd",
 	"answer": "c"
 	}

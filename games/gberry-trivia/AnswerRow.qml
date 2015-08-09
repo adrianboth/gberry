@@ -23,17 +23,17 @@ Item {
     property string answerId: "A"
     property string answerText: "This is answer demo"
     property int showAnswer: 0
-    property int preferredHeight: answerIdLabel.implicitHeight
+    property int preferredHeight: answerIdLabel.implicitHeight * 2
 
     visible: answerText != ""
 
     signal answerClicked()
 
-    onAnswerTextChanged: state = "WAIT_SELECTION"
-
     onShowAnswerChanged: {
         if (showAnswer !== 0) {
             answerSelected(showAnswer === 1)
+        } else {
+            state = "WAIT_SELECTION"
         }
     }
 
@@ -47,33 +47,69 @@ Item {
 
     // TODO: how to get information about correct answer
     // TODO: how long to show feed back info
-
-    RowLayout {
+    Rectangle {
+        id: answerTextBackground
         anchors.fill: parent
+        anchors.leftMargin: gdisplay.touchCellWidth()
+        anchors.rightMargin: gdisplay.touchCellWidth()
+        color: theme.answerNormalBackgroundColor
+        radius: 10
 
-        Rectangle {
-            Layout.preferredHeight: answerIdLabel.implicitHeight
-            Layout.preferredWidth: answerIdLabel.implicitWidth
-            color: "blue"
+        RowLayout {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-            Text {
-                id: answerIdLabel
-                text: answerId + ")"
-                font.pixelSize: gdisplay.mediumSizeText
+            Item {
+                // spacer
+                Layout.fillHeight: true
+                Layout.preferredWidth: gdisplay.touchCellWidth() / 5
             }
-        }
 
-        Rectangle {
-            id: answerTextBackground
+            Item {
+                Layout.preferredHeight: answerIdLabel.implicitHeight
+                Layout.preferredWidth: answerIdLabel.implicitWidth
 
-            Layout.preferredHeight: answerTextLabel.implicitHeight
-            Layout.fillWidth: true
-            color: "lightblue"
+                Text {
+                    id: answerIdLabel
+                    text: answerId + ")"
+                    font.pixelSize: gdisplay.mediumSizeText
+                }
+            }
 
-            Text {
-                id: answerTextLabel
-                text: answerText
-                font.pixelSize: gdisplay.mediumSizeText
+            Item {
+                // spacer
+                Layout.fillHeight: true
+                Layout.preferredWidth: gdisplay.touchCellWidth() / 5
+            }
+
+            Item {
+                Layout.preferredHeight: answerTextLabel.implicitHeight
+                Layout.fillWidth: true
+
+                Text {
+                    id: answerTextLabel
+                    text: answerText
+                    font.pixelSize: gdisplay.mediumSizeText
+                }
+            }
+
+            Image {
+                id: correctWrongImage
+
+                //visible: true
+                //source: "images/wrong.svg"
+                visible: self.state !== "WAIT_SELECTION"
+                source: self.state === "CORRECT" ? "images/correct.svg" : "images/wrong.svg"
+
+                sourceSize.height: answerTextLabel.implicitHeight * 1.5
+                fillMode: Image.PreserveAspectFit
+            }
+
+            Item {
+                // spacer
+                Layout.fillHeight: true
+                Layout.preferredWidth: gdisplay.touchCellWidth() / 5
             }
         }
     }
@@ -91,16 +127,15 @@ Item {
     states: [
         State {
             name: "WAIT_SELECTION"
-            PropertyChanges { target: answerTextBackground; color: "lightblue" }
+            PropertyChanges { target: answerTextBackground; color: theme.answerNormalBackgroundColor }
         },
         State {
             name: "CORRECT"
-            PropertyChanges { target: answerTextBackground; color: "blue" }
+            PropertyChanges { target: answerTextBackground; color: theme.answerCorrectBackgroundColor }
         },
         State {
             name: "NOT_CORRECT"
-            PropertyChanges { target: answerTextBackground; color: "red" }
+            PropertyChanges { target: answerTextBackground; color: theme.answerWrongBackgroundColor }
         }
     ]
 }
-

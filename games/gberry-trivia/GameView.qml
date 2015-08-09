@@ -52,10 +52,12 @@ Rectangle {
     }
 
     // TODO: how to define in common place gradient for all views
+    color: "lightsteelblue"
+    /*
     gradient: Gradient {
         GradientStop { position: 0.0; color: "lightsteelblue" }
         GradientStop { position: 1.0; color: "slategray" }
-    }
+    }*/
 
     RowLayout {
         anchors.fill: parent
@@ -78,6 +80,7 @@ Rectangle {
             property string answer4: "dd"
             property int currentQuestionIndex: 0
             property int maxQuestionsCount: 0
+            property string imagePath: ""
 
             property int showAnswer1: 0
             property int showAnswer2: 0
@@ -111,6 +114,13 @@ Rectangle {
 
                 currentQuestionIndex = self.questionsModel.properties.currentQuestionIndex
                 maxQuestionsCount = self.questionsModel.properties.maxQuestionsCount
+
+                var imageRef = get(q["image"])
+                if (imageRef != "") {
+                    imagePath = Assets.filePath(imageRef)
+                } else {
+                    imagePath = ""
+                }
             }
 
             function showAnswer() {

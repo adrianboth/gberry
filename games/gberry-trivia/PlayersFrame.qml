@@ -27,17 +27,17 @@ Item {
         // find out changes
         var oldPointsByName = {}
         for (var i = 0; i < playerPointsModel.count; i++) {
-            print("### object: " + playerPointsModel.get(i).toString())
-            print("### typeof(): " + typeof(playerPointsModel.get(i)))
+            //print("### object: " + playerPointsModel.get(i).toString())
+            //print("### typeof(): " + typeof(playerPointsModel.get(i)))
             oldPointsByName[playerPointsModel.get(i)["name"]] = playerPointsModel.get(i)["points"]
         }
-        console.debug("### oldMap: " + oldPointsByName.toString())
+        //console.debug("### oldMap: " + oldPointsByName.toString())
 
         playerPointsModel.clear()
         for (var j = 0; j < newData.length; j++) {
             var newPoints = newData[j]["points"]
             var oldPoints = oldPointsByName[newData[j]["name"]]
-            console.debug("### new: " + newPoints.toString() + ", old: " + oldPoints)
+            //console.debug("### new: " + newPoints.toString() + ", old: " + oldPoints)
             var change = 0
 
             if (typeof(oldPoints) === "undefined") {
@@ -45,15 +45,16 @@ Item {
             } else if (newPoints > oldPoints) {
                 change = 1
             }
-            console.debug("### change: " + change.toString())
+            //console.debug("### change: " + change.toString())
             newData[j]["change"] = change
-            newData[j]["changeExpressed"] = false
             playerPointsModel.append(newData[j])
         }
     }
 
     Rectangle {
         id: listViewBackground
+        radius: 10
+
         anchors.fill: parent
         /*
         anchors.top: parent.top
@@ -65,27 +66,34 @@ Item {
         anchors.margins: gdisplay.touchCellHeight()
         //property int realWidth: width - anchors.margins
 
-        color: "snow"
+        color: theme.boxAreaBackgroundColor
         border.width: 1
-        border.color: "gray"
+        border.color: theme.boxAreaBorderColor
 
         ColumnLayout {
             anchors.fill: parent
 
-            Rectangle {
-                id: headerBackground
+            Item  {
                 Layout.fillWidth: true
-                Layout.preferredHeight: headerText.implicitHeight
-                color: "lightgray"
-                //x: 1
-                //height: headerText.implicitHeight
-                //width: listViewBackground.realWidth
+                Layout.preferredHeight: headerText.implicitHeight * 1.1
 
-                Text {
-                    anchors.centerIn: parent
-                    id: headerText
-                    text: qsTr("Players")
-                    font.pixelSize: 55 //gdisplay.largeSizeText
+                Rectangle {
+                    id: headerBackground
+                    radius: 10
+                    anchors.fill: parent
+                    anchors.margins: 1
+
+                    color: theme.headingColor
+                    //x: 1
+                    //height: headerText.implicitHeight
+                    //width: listViewBackground.realWidth
+
+                    Text {
+                        anchors.centerIn: parent
+                        id: headerText
+                        text: qsTr("Players")
+                        font.pixelSize: 55 //gdisplay.largeSizeText
+                    }
                 }
             }
 

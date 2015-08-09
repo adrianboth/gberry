@@ -27,6 +27,7 @@ import GBerryConsole 1.0
 import "TriviaGameModel.js" as GameModel
 import "PointsModel.js" as PointsModel
 import "QuestionsModel.js" as QuestionsModel
+import "QuestionsLoader.js" as QuestionsLoader
 
 Window {
     id: root
@@ -34,8 +35,11 @@ Window {
     width: gdisplay.windowWidth
     height: gdisplay.windowHeight
 
+    property bool debugSkipCountDown: false
+
     ApplicationSettings { id: gsettings }
     GDisplayProfile { id: gdisplay; debug: false }
+    Theme { id: theme }
 
     // testing
     //GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
@@ -70,10 +74,13 @@ Window {
             anchors.fill: parent
 
             border.color: "slategray"
+            color: "lightsteelblue"
+            /* Gradient doesn't work well on Raspberry Pi
             gradient: Gradient {
                 GradientStop { position: 0.0; color: "lightsteelblue" }
                 GradientStop { position: 1.0; color: "slategray" }
             }
+            */
 
             Item {
                 anchors.top: parent.top
@@ -84,9 +91,20 @@ Window {
                 //opacity: 0
 
                 Text {
+                    id: triviaTextLabel
                     text: "Trivia"
                     font.pixelSize: Math.min(55, gdisplay.text_mm(25))
                     anchors.centerIn: parent
+                }
+
+                Image {
+                    anchors.right: triviaTextLabel.left
+                    anchors.margins: gdisplay.touchCellWidth()
+                    anchors.verticalCenter: triviaTextLabel.verticalCenter
+                    source: "images/question_mark.svg"
+                    width: 100; height: 100
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
                 }
             }
 
@@ -379,7 +397,11 @@ Window {
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
         PointsModel.initialize()
-        QuestionsModel.initialize()
+
+        QuestionsLoader.loadQuestions()
+        //console.debug("### READ QUESTIONS: " + QuestionsLoader.data())
+        QuestionsModel.initialize(QuestionsLoader.dataJson()["questions"])
+
         GameModel.initialize(PointsModel, QuestionsModel)
 
         gameView.initialize(GameModel, PointsModel, QuestionsModel)
@@ -387,6 +409,6 @@ Window {
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
 
         // TODO: for dev
-        playGameSelected()
+        //playGameSelected()
     }
 }

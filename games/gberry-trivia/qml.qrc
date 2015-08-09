@@ -18,5 +18,10 @@
         <file>PointsModel.js</file>
         <file>QuestionsModel.js</file>
         <file>PlayerWonDialog.qml</file>
+        <file>QuestionsLoader.js</file>
+        <file>images/question_mark.svg</file>
+        <file>images/wrong.svg</file>
+        <file>images/correct.svg</file>
+        <file>Theme.qml</file>
     </qresource>
 </RCC>

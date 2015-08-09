@@ -57,8 +57,3 @@ function highestScores() {
 
     return highest
 }
-
-// TODO score point
-
-// TODO get ui model
-
