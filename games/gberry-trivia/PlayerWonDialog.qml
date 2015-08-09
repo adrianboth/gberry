@@ -37,8 +37,10 @@ GConfirmationDialog {
         for (var i = 0; i < highestScores.length; i++) {
             playersStr += highestScores[i]["name"]
 
-            if (i + 1 < highestScores.length) {
-                playersStr += ", "
+            if (i + 2 < highestScores.length) { // this is second last, or earlier
+                playersStr += ","
+            } else if (i + 1 < highestScores.length) { // this last
+                playersStr += " and "
             }
         }
         var pointsStr = highestScores[0]["points"].toString() + "/" + maxPoints.toString()
