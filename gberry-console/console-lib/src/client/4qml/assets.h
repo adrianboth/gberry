@@ -32,6 +32,7 @@ public:
 
     Q_INVOKABLE QString filePath(const QString& fileRelPath) const;
     Q_INVOKABLE bool isValidFilePath(const QString& filePath) const;
+    Q_INVOKABLE QString readAll(const QString& fileRelPath) const;
 
 signals:
 

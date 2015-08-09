@@ -16,12 +16,15 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "assets.h"
+#include "assets.h"
 
 #include <QProcessEnvironment>
 #include <QDir>
 #include <QDebug>
 #include <QString>
+
+#define LOG_AREA "Assets"
+#include "log/log.h"
 
 Assets::Assets(QObject *parent) : QObject(parent)
 {
@@ -70,4 +73,17 @@ bool Assets::isValidFilePath(const QString& filePath) const
     QString path = this->filePath(filePath).remove(0, 5); // remove file:
     QFileInfo f(path);
     return f.exists() && f.isFile();
+}
+
+QString Assets::readAll(const QString& fileRelPath) const
+{
+    QString path = this->filePath(fileRelPath).remove(0, 5); // remove file:
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly)) {
+        ERROR("Failed to read" << path);
+        return "";
+    }
+    QString data = file.readAll();
+    file.close();
+    return data;
 }
