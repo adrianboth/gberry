@@ -39,7 +39,7 @@ Rectangle {
     Text {
         anchors.centerIn: parent
         text: number.toString()
-        color: black
+        color: "black"
         font.pixelSize: Math.min(55, gdisplay.largeSize * gdisplay.ppmText)
     }
 }
