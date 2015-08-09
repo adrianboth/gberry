@@ -53,12 +53,16 @@ public:
     Q_INVOKABLE void sendPlayerMessage(int playerId, const QByteArray msg);
     Q_INVOKABLE void sendAllPlayersMessage(QByteArray msg);
 
+    Q_INVOKABLE int registerDebugPlayer(const QString& playerName);
+    Q_INVOKABLE void sendDebugPlayerMessage(int playerId, const QByteArray& msg);
 
 signals:
     void playerIn(int playerId, QString playerName);
     void playerOut(int playerId, QString playerName);
     void numberOfPlayersChanged();
     void playerMessageReceived(int playerId, QByteArray msg); // TODO: might need to be string
+
+    void debugPlayerMessageReceived(int playerId, QByteArray msg);
 
 public slots:
     void newPlayer(ClientSidePlayerChannel* channel, PlayerMeta metadata);

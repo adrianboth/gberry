@@ -24,6 +24,9 @@
 #include "client/clientsideplayerchannel.h"
 #include "client/clientsidechannelpartners.h"
 
+#define LOG_AREA "PlayersManager"
+#include "log/log.h"
+
 class PlayersManagerPrivate
 {
 public:
@@ -33,6 +36,7 @@ public:
     QMap<int, PlayerMeta> _meta;
     QMap<int, int> _playerIdsByChannelId;
     QMap<int, int> _channelIdsByPlayerIds;
+    QMap<int, QString> _debugPlayerNamesByPlayerId;
 };
 
 class ClientSidePlayerChannelPartnerImpl : public ClientSidePlayerChannelPartner
@@ -66,11 +70,13 @@ PlayersManager::~PlayersManager()
 
 int PlayersManager::numberOfPlayers() const
 {
-    return _d->_channelIdsByPlayerIds.size();
+    return _d->_channelIdsByPlayerIds.size() + _d->_debugPlayerNamesByPlayerId.size();
 }
 
 QList<int> PlayersManager::playerIds() const
 {
+    QList<int> ids = _d->_meta.keys();
+    ids << _d->_debugPlayerNamesByPlayerId.keys();
     return _d->_meta.keys();
 }
 
@@ -78,6 +84,9 @@ QString PlayersManager::playerName(int playerId) const
 {
     if (_d->_meta.contains(playerId))
          return _d->_meta[playerId].playerName();
+
+    if (_d->_debugPlayerNamesByPlayerId.contains(playerId))
+        return _d->_debugPlayerNamesByPlayerId[playerId];
 
     return QString("UNKNOWN");
 }
@@ -129,18 +138,38 @@ void PlayersManager::playerExit(int channelId)
 
 void PlayersManager::sendPlayerMessage(int playerId, const QByteArray msg)
 {
-    if (_d->_channelsByPlayerId.contains(playerId))
-    {
+    if (_d->_channelsByPlayerId.contains(playerId)) {
         _d->_channelsByPlayerId[playerId]->sendPlayerMessage(msg);
+    } else if (_d->_debugPlayerNamesByPlayerId.contains(playerId)) {
+        debugPlayerMessageReceived(playerId, msg);
     }
 }
 
 void PlayersManager::sendAllPlayersMessage(QByteArray msg)
 {
-    foreach(int pid, _d->_channelIdsByPlayerIds.keys())
-    {
+    foreach(int pid, _d->_channelIdsByPlayerIds.keys()) {
         _d->_channelsByPlayerId[pid]->sendPlayerMessage(msg);
     }
+
+    foreach(int pid, _d->_debugPlayerNamesByPlayerId.keys()) {
+        debugPlayerMessageReceived(pid, msg);
+    }
+}
+
+int PlayersManager::registerDebugPlayer(const QString& playerName)
+{
+    // just picking id base number far enough
+    int newPid = 100000 + _d->_debugPlayerNamesByPlayerId.size();
+    _d->_debugPlayerNamesByPlayerId[newPid] = playerName;
+
+    DEBUG("Registered debug player: name =" << playerName << ", id =" << newPid);
+    return newPid;
+}
+
+void PlayersManager::sendDebugPlayerMessage(int playerId, const QByteArray& msg)
+{
+    // this message is coming from debug client to application
+    emit playerMessageReceived(playerId, msg);
 }
 
 void PlayersManager::playerMessage(int channelId, const QByteArray& msg)

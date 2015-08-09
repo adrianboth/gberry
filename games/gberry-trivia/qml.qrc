@@ -23,5 +23,7 @@
         <file>images/wrong.svg</file>
         <file>images/correct.svg</file>
         <file>Theme.qml</file>
+        <file>AppBoxDebugWindow.qml</file>
+        <file>AppBoxDebug.qml</file>
     </qresource>
 </RCC>
