@@ -23,6 +23,35 @@ import GBerry 1.0
 Item {
     id: self
 
+    function updateScores(newData) {
+        // find out changes
+        var oldPointsByName = {}
+        for (var i = 0; i < playerPointsModel.count; i++) {
+            print("### object: " + playerPointsModel.get(i).toString())
+            print("### typeof(): " + typeof(playerPointsModel.get(i)))
+            oldPointsByName[playerPointsModel.get(i)["name"]] = playerPointsModel.get(i)["points"]
+        }
+        console.debug("### oldMap: " + oldPointsByName.toString())
+
+        playerPointsModel.clear()
+        for (var j = 0; j < newData.length; j++) {
+            var newPoints = newData[j]["points"]
+            var oldPoints = oldPointsByName[newData[j]["name"]]
+            console.debug("### new: " + newPoints.toString() + ", old: " + oldPoints)
+            var change = 0
+
+            if (typeof(oldPoints) === "undefined") {
+                change = 0
+            } else if (newPoints > oldPoints) {
+                change = 1
+            }
+            console.debug("### change: " + change.toString())
+            newData[j]["change"] = change
+            newData[j]["changeExpressed"] = false
+            playerPointsModel.append(newData[j])
+        }
+    }
+
     Rectangle {
         id: listViewBackground
         anchors.fill: parent
@@ -83,7 +112,11 @@ Item {
                         }
 
                         Row {
+                            id: playerRow
                             anchors.verticalCenter: parent.verticalCenter
+
+                            property int baseFontSize: gdisplay.mediumSizeText
+                            property real fontScaling: 1.0
 
                             // spacer
                             Item {
@@ -95,7 +128,7 @@ Item {
                                 id: playerPointsText
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: points
-                                font.pixelSize: gdisplay.mediumSizeText
+                                font.pixelSize: gdisplay.mediumSizeText * playerRow.fontScaling
                             }
 
                             Item {
@@ -105,12 +138,22 @@ Item {
 
                             Text {
                                 id: playerNameText
+
+
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: name
                                 color: wrapper.ListView.isCurrentItem ? "black" : "black" // TODO
-                                font.pixelSize: gdisplay.mediumSizeText
+                                font.pixelSize: gdisplay.mediumSizeText * playerRow.fontScaling
                             }
 
+                            SequentialAnimation {
+                                id: scoredAnimation
+                                property bool runOnce: false
+                                running: change === 1 && !runOnce // model is cleaned up everytime
+                                NumberAnimation { target: playerRow; property: "fontScaling"; to: 1.5; duration: 500 }
+                                NumberAnimation { target: playerRow; property: "fontScaling"; to: 1.0; duration: 500 }
+                                PropertyAction { target: scoredAnimation; property: "runOnce"; value: true }
+                            }
                         }
                     }
                 }
@@ -129,11 +172,13 @@ Item {
         ListElement {
             name: "Tero"
             points: 2
+            change: 0
         }
 
         ListElement {
             name: "Sanna"
             points: 1
+            change: 0
         }
 
         Component.onCompleted: {

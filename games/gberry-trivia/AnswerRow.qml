@@ -22,11 +22,20 @@ Item {
     id: self
     property string answerId: "A"
     property string answerText: "This is answer demo"
+    property int showAnswer: 0
     property int preferredHeight: answerIdLabel.implicitHeight
+
+    visible: answerText != ""
 
     signal answerClicked()
 
     onAnswerTextChanged: state = "WAIT_SELECTION"
+
+    onShowAnswerChanged: {
+        if (showAnswer !== 0) {
+            answerSelected(showAnswer === 1)
+        }
+    }
 
     function answerSelected(isCorrectAnswer) {
         if (isCorrectAnswer) {
@@ -73,6 +82,7 @@ Item {
         anchors.fill: parent
         onClicked: {
             console.debug("Answer " + answerId + " clicked")
+            answerClicked()
         }
     }
 

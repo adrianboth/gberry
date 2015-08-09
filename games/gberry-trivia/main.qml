@@ -35,7 +35,7 @@ Window {
     height: gdisplay.windowHeight
 
     ApplicationSettings { id: gsettings }
-    GDisplayProfile { id: gdisplay }
+    GDisplayProfile { id: gdisplay; debug: false }
 
     // testing
     //GBerry.GButton { label: "Test2"; anchors.centerIn: parent; z: 1000 }
@@ -167,6 +167,9 @@ Window {
             id: gameView
             anchors.fill: parent
 
+            onNewGameRequested: initializeNewGame()
+            onMenuRequested: mainarea.state = "MENU"
+
             // game time (seconds) on top
             /*
             GameTime {
@@ -190,9 +193,9 @@ Window {
             */
         }
 
-        //state: "MENU"
+        state: "MENU"
         // TODO: temporary for testing
-        state: "GAME"
+        //state: "GAME"
 
         states: [
                 State {
@@ -344,9 +347,10 @@ Window {
 
         mainarea.state = "GAME"
 
-        PointsModel.initialize()
+        PointsModel.setupGame()
         QuestionsModel.setupGame(10)
         GameModel.setupGame()
+        gameView.startGame()
 
     }
 
@@ -364,6 +368,10 @@ Window {
         exitConfirmationDialog.show()
     }
 
+    function initializeNewGame() {
+        playGameSelected()
+    }
+
     Component.onCompleted: {
         Log.initLog("main", gsettings.logLevel)
         playersManager.playerIn.connect(onPlayerIn)
@@ -374,6 +382,11 @@ Window {
         QuestionsModel.initialize()
         GameModel.initialize(PointsModel, QuestionsModel)
 
+        gameView.initialize(GameModel, PointsModel, QuestionsModel)
+
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
+
+        // TODO: for dev
+        playGameSelected()
     }
 }

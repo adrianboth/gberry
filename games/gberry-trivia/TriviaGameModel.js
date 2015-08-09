@@ -28,10 +28,10 @@ GBerry.Log.initLog("GameModel", ApplicationSettingsJS.logLevel)
 
 // call back for winning
 //var callbacks = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal playerWon(var pid); signal playerCorrectNumber(var pid); signal playerInvalidNumber(var pid); }', Qt.application, 'ModelCallbacks');
+//var signals = Qt.createQmlObject('import QtQuick 2.0; QtObject { signal moveToNextQuestion(); }', Qt.application, 'GameModelSignals');
 
 var _pointsModel
 var _questionsModel
-var _currentQuestion
 
 function initialize(pointsModel, questionsModel) {
     _pointsModel = pointsModel
@@ -40,11 +40,33 @@ function initialize(pointsModel, questionsModel) {
 
 function setupGame() {
     // TODO: demo question
-    _currentQuestion = {"question": "Foo question", "a": "aa", "b": b}
 }
 
-function currentQuestion() {
+function devAnswerClicked(answerId) {
+    var q = _questionsModel.currentQuestion()
 
+    if (typeof(q[answerId]) !== "undefined" ) {
+        // yes, we have such answer but is it correct
+        if (q["answer"] === answerId) {
+            // correct
+            console.debug("Dev player answered correctly")
+            _pointsModel.scorePoint(0)
+            // TODO: now depends from game mode
+            //    - move to next or wait other players
+            //    - feedback also depends from that
+            //    - NOW just proceeding to next question
+
+            _questionsModel.moveToNextQuestion()
+
+        } else {
+            // not correct
+
+            // TODO: normally feedback for player (appbox)
+            console.debug("Dev player selected wrong answer")
+        }
+    } else {
+        console.warn("Invalid dev answer: " + answerId)
+    }
 }
 
 // TODO: win conditioon

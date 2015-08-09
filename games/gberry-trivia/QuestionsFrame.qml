@@ -21,52 +21,113 @@ import QtQuick.Layouts 1.1
 Item {
     id: self
 
+    signal devAnswerClicked(var answerId)
+    signal readyToAcceptAnswers()
+
+    function showWait() {
+        waitView.visible = true
+        questionsView.visible = false
+    }
+
+    function start() {
+        countdown.start()
+    }
+
     Rectangle {
         id: background
         anchors.fill: parent
         anchors.margins: gdisplay.touchCellHeight()
         color: "green"
 
+        Rectangle {
+            id: titleRow
 
-        ColumnLayout {
-            anchors.fill: parent
+            height: nameLabel.implicitHeight
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            color: "yellow"
 
-            Rectangle {
-                id: titleRow
+            Text {
+                anchors.centerIn: parent
+                id: nameLabel
 
-                Layout.preferredHeight: nameLabel.implicitHeight
-                Layout.fillWidth: true
-                color: "yellow"
+                text: qsTr("Questions")
+                font.pixelSize: 55 //gdisplay.largeSizeText
+            }
 
-                Text {
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                text: currentQuestion.currentQuestionIndex + "/" + currentQuestion.maxQuestionsCount
+                font.pixelSize: gdisplay.smallSizeText
+            }
+
+        }
+
+        Item {
+            id: questionsContentArea
+            anchors.top: titleRow.bottom
+            anchors.left: parent.left; anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            ColumnLayout {
+                id: questionsView
+                anchors.fill: parent
+
+                QuestionArea {
+                    id: questionArea
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                }
+
+                AnswersArea {
+                    id: answersArea
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    onDevAnswerClicked: self.devAnswerClicked(answerId)
+                }
+            }
+
+            Item {
+                id: waitView
+                //color: "yellow"
+                anchors.fill: parent
+
+                CountDown {
                     anchors.centerIn: parent
-                    id: nameLabel
+                    id: countdown
 
-                    text: qsTr("Questions")
-                    font.pixelSize: 55 //gdisplay.largeSizeText
+                    onFinished: fadeAnimation.running = true // countdown will fade itself
                 }
-
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    text: "2/10"
-                    font.pixelSize: gdisplay.smallSizeText
-                }
-
-            }
-
-            QuestionArea {
-                id: questionArea
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            AnswersArea {
-                id: answersArea
-                Layout.fillWidth: true
-                Layout.fillHeight: true
             }
         }
     }
 
+    ParallelAnimation {
+        id: fadeAnimation
+        running: false
+
+        SequentialAnimation {
+            PropertyAction { target: questionsView; property: "opacity"; value: 0 }
+            PropertyAction { target: questionsView; property: "visible"; value: true }
+            NumberAnimation {
+                target: questionsView
+                property: "opacity"
+                from: 0; to: 1; duration: 500
+            }
+            ScriptAction { script: self.readyToAcceptAnswers() }
+
+        }
+        SequentialAnimation{
+            NumberAnimation {
+                target: waitView
+                property: "opacity"
+                from: 1; to: 0; duration: 250
+            }
+            PropertyAction { target: waitView; property: "visible"; value: false }
+            PropertyAction { target: waitView; property: "opacity"; value: 1 }
+        }
+    }
 }

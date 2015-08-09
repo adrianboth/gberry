@@ -3,7 +3,7 @@ import QtQuick 2.4
 Item {
     id: self
 
-    property string questionText: "This a question text"
+    property string questionText: currentQuestion.text
 
     Text {
         id: questionTextField

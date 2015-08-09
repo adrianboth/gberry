@@ -4,6 +4,8 @@ import QtQuick.Layouts 1.1
 Item {
     id: self
 
+    signal devAnswerClicked(var answerId)
+
     function showAnswers(answers) {
         // TODO: put text and hide rows if not needed
     }
@@ -13,46 +15,50 @@ Item {
 
         AnswerRow {
             id: answerRowA
-            answerId: "A"
-            answerText: "Test A"
+            answerId: "a"
+            answerText: currentQuestion.answer1
+            showAnswer: currentQuestion.showAnswer1
 
             Layout.fillWidth: true
             Layout.preferredHeight: preferredHeight
 
-            onAnswerClicked: answerClicked(answerId)
+            onAnswerClicked: self.answerClicked(answerId)
         }
 
         AnswerRow {
             id: answerRowB
-            answerId: "B"
-            answerText: "Test B"
+            answerId: "b"
+            answerText: currentQuestion.answer2
+            showAnswer: currentQuestion.showAnswer2
 
             Layout.fillWidth: true
             Layout.preferredHeight: preferredHeight
 
-            onAnswerClicked: answerClicked(answerId)
+            onAnswerClicked: self.answerClicked(answerId)
         }
 
         AnswerRow {
             id: answerRowC
-            answerId: "C"
-            answerText: "Test C"
+            answerId: "c"
+            answerText: currentQuestion.answer3
+            showAnswer: currentQuestion.showAnswer3
 
             Layout.fillWidth: true
             Layout.preferredHeight: preferredHeight
 
-            onAnswerClicked: answerClicked(answerId)
+            onAnswerClicked: self.answerClicked(answerId)
         }
 
         AnswerRow {
             id: answerRowD
-            answerId: "D"
-            answerText: "Test D"
+            answerId: "d"
+            answerText: currentQuestion.answer4
+            showAnswer: currentQuestion.showAnswer4
 
             Layout.fillWidth: true
             Layout.preferredHeight: preferredHeight
 
-            onAnswerClicked: answerClicked(answerId)
+            onAnswerClicked: self.answerClicked(answerId)
         }
     }
 
@@ -60,5 +66,6 @@ Item {
 
     function answerClicked(answerId) {
         console.debug("Answer " + answerId + " was selected by mouse click")
+        devAnswerClicked(answerId)
     }
 }

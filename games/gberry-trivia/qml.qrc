@@ -17,5 +17,6 @@
         <file>QuestionArea.qml</file>
         <file>PointsModel.js</file>
         <file>QuestionsModel.js</file>
+        <file>PlayerWonDialog.qml</file>
     </qresource>
 </RCC>
