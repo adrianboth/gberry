@@ -42,7 +42,18 @@ Rectangle {
 
     ColumnLayout {
         anchors.centerIn: parent
+        anchors.verticalCenterOffset: -logoImage.height / 2
         spacing: gdisplay.smallSizeText * 0.5
+
+        Image {
+            id: logoImage
+            source: "images/gberry_footstep_green_outline.png"
+            //height: 100
+            //width: 100
+            sourceSize.width: 100
+            sourceSize.height: 100
+            fillMode: Image.PreserveAspectFit
+        }
 
         Item {
             //color: "green"

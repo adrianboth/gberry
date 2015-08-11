@@ -31,8 +31,8 @@ Item {
     property string serverTextStr: "Server (INIT)"
     property string consoleTextStr: "Console (INIT)"
 
-    property string appNameText: "<b>GBerry MobApp</b>"
-    property string appVersionText: "v0.01.1"
+    property string appNameText: "<b>GBerry Mobile</b>"
+    property string appVersionText: "v0.2.0"
     property string genericAboutText: "<html>This is general purpose GBerry
 mobile application that is used together with GBerry console. See
 <a href=\"http://gberry.xyz\">gberry.xyz</a> for more information.
@@ -82,6 +82,17 @@ mobile application that is used together with GBerry console. See
 
             Item {
                 Layout.preferredWidth: view.width - 2 * view.anchors.margins
+
+                Image {
+                    id: logoImage
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: gdisplay.tinySizeText
+                    source: "images/gberry_footstep_green_outline.png"
+                    sourceSize.width: gdisplay.tinySizeText * 1.5 * 2
+                    sourceSize.height: gdisplay.tinySizeText * 1.5 * 2
+                    fillMode: Image.PreserveAspectFit
+                }
 
                 Column {
                     anchors.top: parent.top

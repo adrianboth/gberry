@@ -16,6 +16,13 @@
         <file>ViewTitleBar.qml</file>
         <file>ModalDialogFrame.qml</file>
         <file>login/LoginWait.qml</file>
+        <file>images/menu_bars.svg</file>
+        <file>images/menu_dots.svg</file>
+        <file>IconButton.qml</file>
+        <file>images/user.svg</file>
+        <file>images/user_green.svg</file>
+        <file>images/user_yellow.svg</file>
+        <file>images/gberry_footstep_green_outline.png</file>
     </qresource>
     <qresource prefix="/js">
         <file alias="AppBox.js">js/AppBox.js</file>

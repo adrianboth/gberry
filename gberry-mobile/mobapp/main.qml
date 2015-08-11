@@ -64,7 +64,7 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-
+        color: "#C2E0FF" // LightSkyBlue"
         width: root.width
         height: topbarContainer.height * 1.15
         gradient: gsettings.titleGradient
@@ -72,12 +72,13 @@ Window {
         Item {
             id: topbarContainer
             anchors.centerIn: parent
-            height: toggleLocalGeneralActionsButton.height
-            width: root.width - gdisplay.touchCellWidth() / 2
-
+            height: gdisplay.touchCellHeight() * 0.5
+            width: root.width //- gdisplay.touchCellWidth() / 2
+            /*
             Button {
                 id: toggleLocalGeneralActionsButton
                 text: qsTr("Menu")
+                visible: false
                 anchors.left: parent.left
                 anchors.top: parent.top
 
@@ -92,16 +93,76 @@ Window {
 
                 }
             }
+            */
 
+            IconButton {
+                id: toggleLocalGeneralActionsButton
+                anchors.left: parent.left
+                anchors.leftMargin: topbarContainer.height * 0.25
+                anchors.verticalCenter: parent.verticalCenter
+                //height: gdisplay.touchCellHeight() * 0.4
+                //width: implicitWidth
+
+                //targetHeight: gdisplay.touchCellHeight() * 0.5
+                targetHeight: topbarContainer.height
+                height: preferredHeight
+                width: preferredWidth
+
+                imageSource: "images/menu_bars.svg"
+                //backgroundOpacity: 0.2
+
+                onButtonClicked: {
+                    console.debug("button clicked!")
+                    //basicControls.visible = !basicControls.visible
+                    //ui.visible = !basicControls.visible
+                    //appbox.visible = false
+                    toggleLocalGeneralActions()
+                    toggleGeneralActions(false)
+                }
+            }
+            /*
+            Image {
+                id: toggleLocalGeneralActionsButton
+
+                //id: menuImage
+                anchors.left: parent.left
+                anchors.leftMargin: height / 3
+                anchors.verticalCenter: parent.verticalCenter
+                source: "images/menu_bars.svg"
+                fillMode: Image.PreserveAspectFit
+                sourceSize.height: gdisplay.touchCellHeight() * 0.4
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        console.debug("clicked menu")
+                        menuImage.opacity = 0.5
+                        buttonFade.running = true
+                    }
+
+
+                    Timer {
+                        id: buttonFade
+                        running: false; repeat: false; interval: 200
+                        onTriggered: {
+                            menuImage.opacity = 1
+                        }
+                    }
+                }
+
+            }
+            */
             Item {
                 //color: "green"
                 anchors.left: toggleLocalGeneralActionsButton.right
                 anchors.right: toggleGeneralActionsButton.left
+                //anchors.horizontalCenter: parent.horizontalCenter
                 anchors.leftMargin: gdisplay.touchCellWidth()/2
                 anchors.rightMargin: gdisplay.touchCellWidth()/2
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
 
+                /*
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.right: currentPlayerLabel.left
@@ -119,6 +180,27 @@ Window {
                             return "yellow"
                         }
                     }
+                }
+                */
+
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.right: currentPlayerLabel.left
+                    anchors.rightMargin: sourceSize.width * 0.5
+
+                    source: {
+                        if (UserModel.currentIsGuest) {
+                            return ""
+                        }
+
+                        if (LoginModel.isLoggedIn) {
+                            return "images/user_green.svg"
+                        } else {
+                            return "images/user_yellow.svg"
+                        }
+                    }
+
+                    sourceSize.width: topbarContainer.height * 0.5
                 }
 
                 Text {
@@ -143,8 +225,40 @@ Window {
                 }
             }
 
+            IconButton {
+                id: toggleGeneralActionsButton
+                visible: false
+                enabled: generalActions.hasActions
+                anchors.right: parent.right
+                anchors.rightMargin: topbarContainer.height * 0.25
+                anchors.verticalCenter: parent.verticalCenter
+
+                imageSource: "images/menu_dots.svg"
+                targetHeight: topbarContainer.height
+
+                height: preferredHeight
+                width: toggleLocalGeneralActionsButton.width
+                rotation: 90
+
+                onButtonClicked: {
+                    console.debug("button clicked!")
+                    toggleGeneralActions()
+                    toggleLocalGeneralActions(false)
+                }
+            }
+            /*
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                source: "images/menu_dots.svg"
+                sourceSize.height: parent.height * 0.95
+                fillMode: Image.PreserveAspectFit
+                rotation: 90
+            }*/
+            /*
             Button {
                 id: toggleGeneralActionsButton
+                visible: false
                 anchors.right: parent.right
                 anchors.top: parent.top
                 enabled: generalActions.hasActions
@@ -157,6 +271,7 @@ Window {
                     }
                 }
             }
+            */
         }
     }
 
