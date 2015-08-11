@@ -138,21 +138,25 @@ void PlayersManager::playerExit(int channelId)
 
 void PlayersManager::sendPlayerMessage(int playerId, const QByteArray msg)
 {
+    //DEBUG("Sending for player:" << playerId);
     if (_d->_channelsByPlayerId.contains(playerId)) {
         _d->_channelsByPlayerId[playerId]->sendPlayerMessage(msg);
     } else if (_d->_debugPlayerNamesByPlayerId.contains(playerId)) {
-        debugPlayerMessageReceived(playerId, msg);
+        //DEBUG("Sending for debug player: " << playerId);
+        emit debugPlayerMessageReceived(playerId, msg);
     }
 }
 
 void PlayersManager::sendAllPlayersMessage(QByteArray msg)
 {
+    //DEBUG("Sending for all players");
     foreach(int pid, _d->_channelIdsByPlayerIds.keys()) {
         _d->_channelsByPlayerId[pid]->sendPlayerMessage(msg);
     }
 
     foreach(int pid, _d->_debugPlayerNamesByPlayerId.keys()) {
-        debugPlayerMessageReceived(pid, msg);
+        //DEBUG("Sending for debug player: " << pid);
+        emit debugPlayerMessageReceived(pid, msg);
     }
 }
 
@@ -163,6 +167,7 @@ int PlayersManager::registerDebugPlayer(const QString& playerName)
     _d->_debugPlayerNamesByPlayerId[newPid] = playerName;
 
     DEBUG("Registered debug player: name =" << playerName << ", id =" << newPid);
+    emit numberOfPlayersChanged();
     return newPid;
 }
 
