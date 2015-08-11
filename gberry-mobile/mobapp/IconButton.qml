@@ -27,12 +27,9 @@ Item {
         id: imageBackground
         color: backgroundColor
         opacity: backgroundOpacity
-        //anchors.fill: parent
         height: image.paintedHeight / imageSizeRatio
         width: image.paintedWidth / imageSizeRatio
         anchors.centerIn: parent
-        //height: 20
-        //width: 20
     }
 
     Image {
@@ -43,8 +40,6 @@ Item {
         fillMode: Image.PreserveAspectFit
         rotation: self.rotation
         opacity: self.enabled ? 1 : 0.5
-        //sourceSize.height: self.height * imageSizeRatio
-        //sourceSize.width: self.width * imageSizeRatio
     }
 
     MouseArea {

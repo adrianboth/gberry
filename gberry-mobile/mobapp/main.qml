@@ -74,114 +74,32 @@ Window {
             anchors.centerIn: parent
             height: gdisplay.touchCellHeight() * 0.5
             width: root.width //- gdisplay.touchCellWidth() / 2
-            /*
-            Button {
-                id: toggleLocalGeneralActionsButton
-                text: qsTr("Menu")
-                visible: false
-                anchors.left: parent.left
-                anchors.top: parent.top
-
-                onPressedChanged: {
-                    if (toggleLocalGeneralActionsButton.pressed) {
-                        //basicControls.visible = !basicControls.visible
-                        //ui.visible = !basicControls.visible
-                        //appbox.visible = false
-                        toggleLocalGeneralActions()
-                        toggleGeneralActions(false)
-                    }
-
-                }
-            }
-            */
 
             IconButton {
                 id: toggleLocalGeneralActionsButton
                 anchors.left: parent.left
                 anchors.leftMargin: topbarContainer.height * 0.25
                 anchors.verticalCenter: parent.verticalCenter
-                //height: gdisplay.touchCellHeight() * 0.4
-                //width: implicitWidth
 
-                //targetHeight: gdisplay.touchCellHeight() * 0.5
                 targetHeight: topbarContainer.height
                 height: preferredHeight
                 width: preferredWidth
-
                 imageSource: "images/menu_bars.svg"
-                //backgroundOpacity: 0.2
 
                 onButtonClicked: {
-                    console.debug("button clicked!")
-                    //basicControls.visible = !basicControls.visible
-                    //ui.visible = !basicControls.visible
-                    //appbox.visible = false
                     toggleLocalGeneralActions()
                     toggleGeneralActions(false)
                 }
             }
-            /*
-            Image {
-                id: toggleLocalGeneralActionsButton
 
-                //id: menuImage
-                anchors.left: parent.left
-                anchors.leftMargin: height / 3
-                anchors.verticalCenter: parent.verticalCenter
-                source: "images/menu_bars.svg"
-                fillMode: Image.PreserveAspectFit
-                sourceSize.height: gdisplay.touchCellHeight() * 0.4
-
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        console.debug("clicked menu")
-                        menuImage.opacity = 0.5
-                        buttonFade.running = true
-                    }
-
-
-                    Timer {
-                        id: buttonFade
-                        running: false; repeat: false; interval: 200
-                        onTriggered: {
-                            menuImage.opacity = 1
-                        }
-                    }
-                }
-
-            }
-            */
             Item {
                 //color: "green"
                 anchors.left: toggleLocalGeneralActionsButton.right
                 anchors.right: toggleGeneralActionsButton.left
-                //anchors.horizontalCenter: parent.horizontalCenter
                 anchors.leftMargin: gdisplay.touchCellWidth()/2
                 anchors.rightMargin: gdisplay.touchCellWidth()/2
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-
-                /*
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: currentPlayerLabel.left
-                    anchors.margins: 2
-                    width: 5
-                    height: 5
-                    color: {
-                        if (UserModel.currentIsGuest) {
-                            return topbar.color
-                        }
-
-                        if (LoginModel.isLoggedIn) {
-                            return "green"
-                        } else {
-                            return "yellow"
-                        }
-                    }
-                }
-                */
 
                 Image {
                     anchors.verticalCenter: parent.verticalCenter
@@ -227,7 +145,7 @@ Window {
 
             IconButton {
                 id: toggleGeneralActionsButton
-                visible: false
+                //visible: false
                 enabled: generalActions.hasActions
                 anchors.right: parent.right
                 anchors.rightMargin: topbarContainer.height * 0.25
@@ -246,32 +164,6 @@ Window {
                     toggleLocalGeneralActions(false)
                 }
             }
-            /*
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                source: "images/menu_dots.svg"
-                sourceSize.height: parent.height * 0.95
-                fillMode: Image.PreserveAspectFit
-                rotation: 90
-            }*/
-            /*
-            Button {
-                id: toggleGeneralActionsButton
-                visible: false
-                anchors.right: parent.right
-                anchors.top: parent.top
-                enabled: generalActions.hasActions
-
-                text: "..."
-                onPressedChanged: {
-                    if (toggleGeneralActionsButton.pressed) {
-                        toggleGeneralActions()
-                        toggleLocalGeneralActions(false)
-                    }
-                }
-            }
-            */
         }
     }
 
@@ -318,25 +210,6 @@ Window {
 
         }
 
-
-
-
-        /*
-        Window {
-            id: testWindow
-            visible: true
-            flags: Qt.Dialog | Qt.FramelessWindowHint
-            modality: Qt.WindowModal
-            width: 100
-            height: 100
-
-
-            Rectangle {
-                color: "red"
-                anchors.fill: parent
-            }
-        }
-        */
 
         Rectangle {
             id: appbox
