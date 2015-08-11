@@ -25,6 +25,8 @@ import GBerry 1.0
 import ".."
 // TODO: how to get scaling combo and edit box
 
+import "../settings/SettingsModel.js" as SettingsModel
+
 /*
   This views makes possible for user
    - select user profile
@@ -367,8 +369,45 @@ Item {
                         Layout.preferredHeight: loginButton.height + gdisplay.touchCellHeight() /2
                         Layout.fillWidth: true
 
+
+                        Item {
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.right: loginButton.left
+                            anchors.rightMargin: gdisplay.touchCellWidth() / 3
+
+                            width: signUpLink.implicitWidth * 1.2
+                            height: signUpLink.implicitHeight * 1.2
+
+                            Text {
+                                id: signUpLink
+                                color: "blue"
+                                font.pixelSize: gdisplay.smallSizeText * 0.7
+                                font.underline: true
+                                text: qsTr("Sign up")
+                                anchors.centerIn: parent
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    var url = "http://" + SettingsModel.serverAddress() +"/idm/users/sign_up"
+                                    console.debug("### sign up clicked!")
+                                    Qt.openUrlExternally(url)
+                                }
+                            }
+                        }
+                        /*
+                        Item {
+                            id: middle
+                            anchors.centerIn: parent
+                            width: gdisplay.touchCellWidth() / 4
+                            height: gdisplay.touchCellHeight()
+                        }
+                        */
+
                         GButton {
                             id: loginButton
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.horizontalCenterOffset: +gdisplay.touchCellWidth()/2
                             // login possible when:
                             //   a) current user is not active
 
@@ -386,7 +425,8 @@ Item {
                             enabled: (userNameField.editText.length > 0 && userNameField.validSelection) || (UserModel.currentUserIsActive && userNameField.invalidSelection)
                             height: buttonHeight
                             width: buttonWidth
-                            anchors.centerIn: parent
+                            anchors.verticalCenter: parent.verticalCenter
+                            //anchors.left: middle.right
                             onButtonClicked: {
                                 var userName = profileModel.get(userNameField.currentIndex).text
                                 if (loginModeEnabled) {
