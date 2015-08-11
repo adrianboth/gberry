@@ -16,8 +16,8 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <QGuiApplication>
-
+#include <QGuiApplication>
+#include <client/applicationmain.h>
 #include <client/consoleapplication.h>
 
 
@@ -25,7 +25,11 @@ int main(int argc, char *argv[])
 {
     // TODO: This all should be wrapped into common class
     QGuiApplication app(argc, argv);
+    ApplicationMain main(&app);
+
     ConsoleApplication consoleApp;
+    if (main.hasApplicationCode())
+        consoleApp.setApplicationCode(main.applicationCode());
 
 #ifdef GBERRY_DEBUG_QML_IMPORT_PATH
     consoleApp.setImportPaths(QString(xstr(GBERRY_DEBUG_QML_IMPORT_PATH)));
