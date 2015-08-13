@@ -301,7 +301,11 @@ Item {
 
         onOption1Selected: {
             // Yes
-            Qt.quit()
+
+            // if comms started us we want to quit comms too and that will
+            // indiviually started mainui
+            ApplicationManager.exitConsole()
+            //Qt.quit()
         }
 
         onOption2Selected: {

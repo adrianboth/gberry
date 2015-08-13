@@ -64,14 +64,25 @@ Window {
         id: connectionWaitingDialog
         visible: true
         color: "lightsteelblue"
-        width: 0.75 * parent.width
-        height: 0.75 * parent.height
+        width: parent.width
+        height: parent.height
         anchors.centerIn: parent
 
         Text {
             text: qsTr("Loading menu ...")
             anchors.centerIn: parent
             font.pixelSize: gdisplay.mediumSizeText
+        }
+
+    }
+
+    MouseArea {
+        height: gdisplay.touchCellHeight()
+        width: gdisplay.touchCellWidth()
+        anchors.top: parent.top
+        anchors.right: parent.right
+        onClicked: {
+            Qt.quit()
         }
 
     }

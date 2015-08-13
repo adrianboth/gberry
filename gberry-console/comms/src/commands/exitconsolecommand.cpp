@@ -15,35 +15,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- #ifndef APPLICATIONMANAGER_H
-#define APPLICATIONMANAGER_H
 
-#include <QObject>
+#include "exitconsolecommand.h"
 
-#include "client/clientsidecontrolchannel.h"
+#include <QCoreApplication>
 
+namespace GBerryComms {
 
-class ApplicationManager : public QObject
+ExitConsoleCommand::ExitConsoleCommand():
+    ICommand("ExitConsole")
 {
-    Q_OBJECT
-public:
-    explicit ApplicationManager(ClientSideControlChannel* controlChannel, QObject *parent = 0);
-    ~ApplicationManager();
+}
 
-    Q_INVOKABLE void launchApplication(QString appID);
-    Q_INVOKABLE void exitApplication();
+ExitConsoleCommand::~ExitConsoleCommand()
+{
+}
 
-    // sends message to comms to shutdown platform
-    // NOTE: does nothing if application has no rights to do such exit
-    Q_INVOKABLE void exitConsole();
+bool ExitConsoleCommand::process(const QJsonObject &json, ICommandResponse& response)
+{
+    // no response message
+    Q_UNUSED(response);
+    Q_UNUSED(json);
 
-signals:
+    emit exitConsoleRequested();
 
-public slots:
+    QCoreApplication::quit(); // quits event loop and main() will exit
 
-private:
-    ClientSideControlChannel* _controlChannel;
-};
+    return true;
+}
 
-#endif // APPLICATIONMANAGER_H
+} // eon

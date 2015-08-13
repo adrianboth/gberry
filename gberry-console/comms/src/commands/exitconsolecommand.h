@@ -1,3 +1,6 @@
+#ifndef EXITCONSOLECOMMAND_H
+#define EXITCONSOLECOMMAND_H
+
 /* This file is part of GBerry.
  *
  * Copyright 2015 Tero Vuorela
@@ -15,35 +18,38 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- #ifndef APPLICATIONMANAGER_H
-#define APPLICATIONMANAGER_H
 
 #include <QObject>
+#include <QJsonObject>
 
-#include "client/clientsidecontrolchannel.h"
+#include "server/icommand.h"
+#include "server/application/iapplications.h"
 
 
-class ApplicationManager : public QObject
+namespace GBerry {
+namespace Console {
+namespace Server {
+    class ApplicationRegistry;
+}}}
+
+namespace GBerryComms {
+
+// this command exists the whole platform
+class ExitConsoleCommand : public QObject, public ICommand
 {
     Q_OBJECT
+
 public:
-    explicit ApplicationManager(ClientSideControlChannel* controlChannel, QObject *parent = 0);
-    ~ApplicationManager();
+    ExitConsoleCommand();
+    ~ExitConsoleCommand();
 
-    Q_INVOKABLE void launchApplication(QString appID);
-    Q_INVOKABLE void exitApplication();
-
-    // sends message to comms to shutdown platform
-    // NOTE: does nothing if application has no rights to do such exit
-    Q_INVOKABLE void exitConsole();
+    virtual bool process(const QJsonObject& json, ICommandResponse& response) override;
 
 signals:
+    void exitConsoleRequested();
 
-public slots:
-
-private:
-    ClientSideControlChannel* _controlChannel;
 };
 
-#endif // APPLICATIONMANAGER_H
+} // eon
+
+#endif // EXITCONSOLECOMMAND_H

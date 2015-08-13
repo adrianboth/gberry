@@ -16,7 +16,10 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "applicationmanager.h"
+#include "applicationmanager.h"
+
+#include <QJsonObject>
+#include <QJsonDocument>
 
 ApplicationManager::ApplicationManager(ClientSideControlChannel* controlChannel, QObject *parent) :
     QObject(parent),
@@ -38,4 +41,12 @@ void ApplicationManager::launchApplication(QString appID)
 void ApplicationManager::exitApplication()
 {
     _controlChannel->requestApplicationExit();
+}
+
+void ApplicationManager::exitConsole()
+{
+    QJsonObject json;
+    json["command"] = "ExitConsole";
+    QJsonDocument jsonDoc(json);
+    _controlChannel->sendMessage(jsonDoc.toJson());
 }

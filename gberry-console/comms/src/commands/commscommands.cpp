@@ -24,6 +24,7 @@
 
 #include "commands/launchapplicationcommand.h"
 #include "commands/exitapplicationcommand.h"
+#include "commands/exitconsolecommand.h"
 #include "commands/querylocalapplicationscommand.h"
 #include "commands/querydownloadableapplicationscommand.h"
 #include "commands/downloadapplicationcommand.h"
@@ -71,6 +72,14 @@ ICommand *CommsCommands::createExitApplicationCommand(int connectionId)
     ExitApplicationCommand* cmd = new ExitApplicationCommand(applicationId);
     connect(cmd, &ExitApplicationCommand::exitApplicationRequested,
             [&] (QString appId) { emit this->exitApplicationRequested(appId); });
+
+    return cmd;
+}
+
+ICommand *CommsCommands::createExitConsoleCommand()
+{
+    ExitConsoleCommand* cmd = new ExitConsoleCommand();
+    // TODO: connect to correct places
 
     return cmd;
 }

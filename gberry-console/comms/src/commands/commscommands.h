@@ -52,6 +52,7 @@ public:
 
     ICommand* createLaunchApplicationCommand();
     ICommand* createExitApplicationCommand(int connectionId);
+    ICommand* createExitConsoleCommand();
     ICommand* createQueryLocalApplicationsCommand();
     ICommand* createQueryDownloadableApplicationsCommand(ServerSideControlChannel* controlChannel);
     ICommand* createDownloadApplicationCommand(ServerSideControlChannel* controlChannel);

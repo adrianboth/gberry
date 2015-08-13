@@ -63,7 +63,8 @@ SOURCES += \
     commands/headserverstatuscommand.cpp \
     commsconfig.cpp \
     qtlibrariesmanager.cpp \
-    applicationexecutionsetup.cpp
+    applicationexecutionsetup.cpp \
+    commands/exitconsolecommand.cpp
 
 HEADERS += \
     uiappstatemachine.h \
@@ -100,7 +101,8 @@ HEADERS += \
     commsconfig.h \
     qtlibrariesmanager.h \
     applicationexecutionsetup.h \
-    iapplicationexecutionsetup.h
+    iapplicationexecutionsetup.h \
+    commands/exitconsolecommand.h
 
 DEPENDPATH += .
 

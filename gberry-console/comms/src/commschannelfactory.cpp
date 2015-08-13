@@ -56,6 +56,8 @@ ServerSideControlChannel* CommsChannelFactory::createControlChannel(int connecti
 
         channel->registerCommand(_commands->createLaunchApplicationCommand());
 
+        channel->registerCommand(_commands->createExitConsoleCommand());
+
     } else {    
         channel->registerCommand(_commands->createExitApplicationCommand(connectionId));
     }
