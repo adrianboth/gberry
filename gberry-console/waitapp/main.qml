@@ -37,15 +37,54 @@ Window {
 
     Rectangle {
         id: mainarea
-        color: "red"
+        color: "lightsteelblue"
         anchors.fill: parent
 
         border.color: "slategray"
+        /*
         gradient: Gradient {
             GradientStop { position: 0.0; color: "lightsteelblue" }
             GradientStop { position: 1.0; color: "slategray" }
         }
+        */
+        Image {
+            id: gblogo
+            source: "images/gberry_logol_with_text.svg"
+            sourceSize.width: 200
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.margins: gdisplay.touchCellHeight()/2
+            fillMode: Image.PreserveAspectFit
+        }
 
+        Image {
+            id: hourglass
+            source: "images/hourglass.svg"
+            sourceSize.width: 100
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenterOffset: -textImage.basicWidth*1.2 / 2 - width
+            fillMode: Image.PreserveAspectFit
+        }
+
+        Image {
+            id: textImage
+            property int basicWidth: 500
+            source: "images/wait_text.svg"
+            anchors.centerIn: parent
+            fillMode: Image.PreserveAspectFit
+            sourceSize.width: basicWidth
+            //sourceSize.height: 250
+
+
+            SequentialAnimation on sourceSize.width {
+                loops: Animation.Infinite
+
+                PropertyAnimation { duration: 2500; to: textImage.basicWidth * 1.2 }
+                PropertyAnimation { duration: 2500; to: textImage.basicWidth * 0.8}
+            }
+        }
+        /*
         Text {
             anchors.centerIn: parent
             text: qsTr("Starting ... please wait ...")
@@ -58,7 +97,7 @@ Window {
                 PropertyAnimation { duration: 2000; to: gdisplay.mediumSizeText * 1.2 }
                 PropertyAnimation { duration: 2000; to: gdisplay.mediumSizeText * 0.8}
             }
-        }
+        }*/
 
 
     }
@@ -92,6 +131,7 @@ Window {
         // nothing to do
     }
 
+    /*
     MessageBoard {
         id: messageBoard
         opacity: 0.5
@@ -103,6 +143,7 @@ Window {
         anchors.leftMargin: 25
         anchors.rightMargin: 25
     }
+    */
 
     Component.onCompleted: {
         playersManager.playerIn.connect(onPlayerIn)

@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>appbox/AppBox.qml</file>
+        <file>images/wait_text.svg</file>
+        <file>images/gberry_logol_with_text.svg</file>
+        <file>images/hourglass.svg</file>
     </qresource>
 </RCC>
