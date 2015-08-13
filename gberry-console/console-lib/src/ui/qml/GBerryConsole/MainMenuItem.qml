@@ -24,6 +24,7 @@ Rectangle {
 
     // public
     property string text: "<undefined>"
+    property url imageUrl: ""
 
     // 'pid' of player who initiated action
     signal selected(var pid)
@@ -47,12 +48,25 @@ Rectangle {
     border.color: "black"
 
     // width is accessed outside to calculate max width from entries
-    implicitWidth: itemText.implicitWidth
+    implicitWidth: itemText.implicitWidth + itemImage.implicitWidth + gdisplay.touchCellWidth() * 4
+
+    Image {
+        id: itemImage
+        visible: item.imageUrl != ""
+        source: item.imageUrl
+        sourceSize.height: itemHeight * 0.6
+        fillMode: Image.PreserveAspectFit
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: gdisplay.touchCellWidth()
+    }
 
     Text {
         id: itemText
         text: item.text
-        anchors.centerIn: parent
+        anchors.verticalCenter: parent.verticalCenter
+        //anchors.left: itemImage.right
+        anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: textPixelHeight
         smooth: true
     }
