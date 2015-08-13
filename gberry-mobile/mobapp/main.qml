@@ -192,6 +192,8 @@ Window {
         GConfirmationDialog {
             id: msgDiag
             visible: false
+            border.width: 1
+            border.color: "gray"
             textPixelSize: gdisplay.smallSizeText
             onOption1Selected: {
                 msgDiag.visible = false
