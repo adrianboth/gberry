@@ -24,6 +24,7 @@ Item {
     id: self
 
     function updateScores(newData) {
+        console.debug("### Reading scores: newData = " + newData.toString())
         // find out changes
         var oldPointsByName = {}
         for (var i = 0; i < playerPointsModel.count; i++) {
@@ -45,7 +46,7 @@ Item {
             } else if (newPoints > oldPoints) {
                 change = 1
             }
-            //console.debug("### change: " + change.toString())
+            console.debug("### change: " + change.toString())
             newData[j]["change"] = change
             playerPointsModel.append(newData[j])
         }
@@ -178,13 +179,13 @@ Item {
 
         // TODO: test data
         ListElement {
-            name: "Tero"
+            name: "Demo1PlayersFrame"
             points: 2
             change: 0
         }
 
         ListElement {
-            name: "Sanna"
+            name: "Demo2PlayersFrame"
             points: 1
             change: 0
         }

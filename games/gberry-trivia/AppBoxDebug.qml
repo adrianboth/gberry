@@ -47,7 +47,10 @@ Item {
                 }
 
                 function onDebugPlayerMessageReceived(playerId_, data) {
+                    //console.debug("### debug player message2: id = " + playerId + ", data = " + data)
                     if (playerId_ === playerId) {
+                        console.debug("### debug player message: id = " + playerId + ", data = " + data)
+
                         // this is message from application to appbox
                         var js = JSON.parse(data)
 

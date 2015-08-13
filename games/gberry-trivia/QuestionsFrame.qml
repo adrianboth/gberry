@@ -104,7 +104,7 @@ Item {
 
                 Item { // spacer
                     Layout.fillWidth: true
-                    Layout.preferredHeight: gdisplay.touchCellHeight() / 2
+                    Layout.preferredHeight: gdisplay.touchCellHeight() * 2
                 }
             }
 

@@ -44,6 +44,7 @@ Rectangle {
     }
 
     function startGame() {
+        state = "START"
         self.visible = true
         questionsFrame.showWait()
         currentQuestion.readQuestion()
@@ -81,6 +82,7 @@ Rectangle {
             property int currentQuestionIndex: 0
             property int maxQuestionsCount: 0
             property string imagePath: ""
+            property int questionId: 0
 
             property int showAnswer1: 0
             property int showAnswer2: 0
@@ -89,10 +91,29 @@ Rectangle {
 
             property string correntAnswerId: ""
 
+            function getEnableList() {
+                var ll = []
+                if (answer1 !== "")
+                    ll.push("a")
+                if (answer2 !== "")
+                    ll.push("b")
+                if (answer3 !== "")
+                    ll.push("c")
+                if (answer4 !== "")
+                    ll.push("d")
+
+                return ll
+            }
+
+            function getCorrectAnswer() {
+                return correntAnswerId
+            }
+
             function readQuestion() {
                 console.debug("Reading question")
                 var q = self.questionsModel.currentQuestion()
                 text = q["question"]
+                questionId = q["question_id"]
 
                 function get(value) {
                     if (typeof(value) !== "undefined") {
@@ -187,7 +208,41 @@ Rectangle {
         }
     }
 
+    // states: START, WAIT_ANSWERS, SHOW_ANSWERS, GAME_END
+    state: "START"
     // -------------------------------------------------------------------------
+
+    function playerJoined(pid) {
+        var js
+        switch (state) {
+            case "START":
+                js = {action: "WaitGameToStart"}
+                sendAppBoxPlayerMessage(pid, js)
+                break
+
+            case "WAIT_ANSWERS":
+                js = {action: "AcceptAnswers",
+                      enable: currentQuestion.getEnableList(),
+                      question_id: currentQuestion.questionId}
+
+                sendAppBoxPlayerMessage(pid, js)
+                break
+
+            case "SHOW_ANSWERS":
+                js = {action: "ShowAnswers",
+                      correct_answer: currentQuestion.getCorrectAnswer()}
+                sendAppBoxPlayerMessage(pid, js)
+                break
+
+            case "GAME_END":
+                js = {action: "WaitGameToStart"}
+                sendAppBoxPlayerMessage(pid, js)
+                break
+
+            default:
+                console.warn("Unknow state when player joining: " + state)
+        }
+    }
 
     // ANIMATIONS
     //  - first correct answer is show + player scoring emphasized
@@ -195,8 +250,16 @@ Rectangle {
     //  - finally show new question (ready to accept answers)
 
     function onMoveToNextQuestion() {
+        state = "SHOW_ANSWERS"
         currentQuestion.showAnswer()
         changeQuestionsTimer.running = true
+
+        var appboxMsg = {"action": "AppBoxMessage",
+                         "data":   {"action": "ShowAnswers",
+                                    "status": "GameOnGoing",
+                                    "correct_answer": currentQuestion.getCorrectAnswer()}}
+        playersManager.sendAllPlayersMessage(JSON.stringify(appboxMsg))
+
         //currentQuestion.readQuestion()
     }
 
@@ -211,10 +274,18 @@ Rectangle {
 
     function onNewQuestionAnimationFinished() {
         // ok to start accepting answers
+        onReadyToAcceptAnswers()
     }
 
     function onReadyToAcceptAnswers() {
         console.debug("### ready to accept answers")
+        state = "WAIT_ANSWERS"
+
+        var appboxMsg = {"action": "AppBoxMessage",
+                         "data":   {"action": "AcceptAnswers",
+                                    "enable": currentQuestion.getEnableList(),
+                                    "question_id": currentQuestion.questionId}}
+        playersManager.sendAllPlayersMessage(JSON.stringify(appboxMsg))
     }
 
     function onScoresChanged() {
@@ -222,7 +293,14 @@ Rectangle {
     }
 
     function onGameEnded() {
+        state = "GAME_END"
         currentQuestion.showAnswer()
+        var appboxMsg = {"action": "AppBoxMessage",
+                         "data":   {"action": "ShowAnswers",
+                                    "status": "GameOver",
+                                    "correct_answer": currentQuestion.getCorrectAnswer()}}
+        playersManager.sendAllPlayersMessage(JSON.stringify(appboxMsg))
+
         gameEndedTimer.running = true
     }
 

@@ -23,7 +23,7 @@ GConfirmationDialog {
         var name = highestScore["name"]
         var pointsStr = highestScore["points"].toString() + "/" + maxPoints.toString()
         // TODO: localization of this is screwed!!!FIX
-        self.questionText = qsTr("Player " + name + " won!\nPoints " + pointsStr + "\n\nPlay another?")
+        self.questionText = qsTr("Player " + name + " won!\n\nPoints " + pointsStr + "\n\nPlay another?")
         self.visible = true
 
         // note that we are not showing exactly same info in question that

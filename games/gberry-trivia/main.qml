@@ -259,6 +259,19 @@ Window {
             ]
     }
 
+    GFeedbackDialog {
+        id: feedbackDialog
+        visible: false
+        //feedbackMessage: "This is a test message, quite long This is a test message, quite long This is a test message, quite long"
+        showingTime: 3000 // ms
+        height: preferredHeight
+        textPixelSize: gdisplay.mediumSizeText
+        initialOpacity: 0.6
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
+
     ExitConfirmationDialog {
         id: exitConfirmationDialog
     }
@@ -267,44 +280,53 @@ Window {
 
     function onPlayerIn(pid)
     {
-        console.log("New player in: id = " + pid)
+        console.debug("New player in: id = " + pid)
+        PointsModel.playerJoined(pid, playersManager.playerName(pid))
 
         var js = {action: "DefineGeneralActions",
                   actions: [{actionId: "GameMenu", actionName: "Abort Game"}]}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
+        js = {action: "DefineAppBox", data: AppBoxMaster.dataStr()}
+        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
         if (mainarea.state === "MENU") {
+            console.debug("--- New player into menu state")
             // TODO: we should ask from view what basic controls should be enabled
             js = {action: "ShowBasicControls",
                   enable: ["Up", "Down", "OK"]}
             playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
         } else if (mainarea.state === "GAME") {
-            js = {action: "DefineAppBox",
-                      data: AppBoxMaster.dataStr()}
-
-            playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
+            console.debug("--- New player into game state")
             js = {action: "ShowAppBox"}
-            playersManager.sendAllPlayersMessage(JSON.stringify(js))
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
+            // game specific state
+            gameView.playerJoined(pid)
         }
 
-        // TODO: add to points model
     }
 
     function onPlayerOut(pid)
     {
-        console.log("Player left: id = " + pid)
+        console.debug("Player left: id = " + pid)
+        var pname = playersManager.playerName(pid)
+        PointsModel.playerLeft(pid, pname)
 
         if (playersManager.numberOfPlayers === 0) {
             // last player left
+            feedbackDialog.show(qsTr("Aborting as last player left"))
 
             // if in game -> return to menu
             if (mainarea.state === "GAME") {
                 mainarea.state = "MENU"
             }
+        } else {
+            // game continues ...
+            var msg = qsTr("Player %1 left").replace("%1", pname)
+            feedbackDialog.show(msg)
         }
-
-        // TODO: remove from PointsModel
     }
 
     function onPlayerMessageReceived(pid, data)
@@ -327,7 +349,7 @@ Window {
                 exitConfirmationDialog.processResponse(js["ref"])
 
             } else if (js["questionId"] === "playanother") {
-                playedwonDialog.selectOption(js["ref"])
+                PlayerWonDialog.selectOption(js["ref"])
             }
 
         } else if (js["action"] === "GeneralAction") {
@@ -337,6 +359,8 @@ Window {
             }
         } else if (js["action"] === "AppBoxMessage") {
             console.debug("### message received: " + js["data"])
+            var appboxMsg = js["data"]
+            /*
             var responseJs = {"action": "AppBoxMessage",
                               "data": {"action": "Ping", "msg": "ping " + playersManager.playerName(pid) + "!"}}
 
@@ -346,30 +370,53 @@ Window {
                           "data": {"action": "Ping", "msg": "ping all!"}}
 
             playersManager.sendAllPlayersMessage(JSON.stringify(responseJs))
+            */
 
-            //ReactGameModel.playerMessageReceived(pid, js["data"])
+            if (appboxMsg["action"] === "AnswerSelected") {
+                var answerId = appboxMsg["answer"]
+                var questionId = appboxMsg["question_id"]
+                console.debug("### got answer " + answerId)
+
+                // questionId is used to check that answer really belongs to
+                // right answer
+                var correctAnswer = GameModel.answerSelected(pid, answerId, questionId)
+
+                if (correctAnswer) {
+                    sendAppBoxPlayerMessage(pid,
+                                            {"action": "CorrectAnswerFeedback",
+                                             "answer_id": answerId,
+                                             "points": PointsModel.currentScore(pid)})
+                } else {
+                    // wrong answer
+                    sendAppBoxPlayerMessage(pid,
+                                           {"action": "WrongAnswerFeedback",
+                                            "answer_id": answerId})
+                }
+
+            } else {
+                console.warn("Unknown AppBoxMessage: " + appboxMsg)
+            }
         }
+    }
+
+    function sendAppBoxPlayerMessage(pid, js) {
+        var msg = {"action": "AppBoxMessage", "data": js}
+        playersManager.sendPlayerMessage(pid, JSON.stringify(msg))
     }
 
     function playGameSelected() {
         console.debug("Play selected")
-        // TODO: appbox version handshaking at some point
-
-        var js = {action: "DefineAppBox",
-                  data: AppBoxMaster.dataStr()}
-
-        playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
-        js = {action: "ShowAppBox"}
-        playersManager.sendAllPlayersMessage(JSON.stringify(js))
-
-        // TODO: waiting response from player (every one ready)
-
-        // TODO: create timer to enable buttons
-        // TODO: wait button presses -> !inform whose came first
-        // TODO:   - ?? how to move to next
 
         mainarea.state = "GAME"
+
+        var js = {action: "ShowAppBox"}
+        playersManager.sendAllPlayersMessage(JSON.stringify(js))
+
+        // TODO: appbox version handshaking at some point
+        var appboxMsg = {"action": "AppBoxMessage",
+                         "data": {"action": "WaitGameToStart"} }
+        playersManager.sendAllPlayersMessage(JSON.stringify(appboxMsg))
+
 
         PointsModel.setupGame()
         QuestionsModel.setupGame(10)
@@ -393,6 +440,7 @@ Window {
     }
 
     function initializeNewGame() {
+        console.debug("--- Initializing new game")
         playGameSelected()
     }
 
@@ -402,7 +450,7 @@ Window {
         playersManager.playerOut.connect(onPlayerOut)
         playersManager.playerMessageReceived.connect(onPlayerMessageReceived)
 
-        PointsModel.initialize()
+        PointsModel.initialize(playersManager)
 
         QuestionsLoader.loadQuestions()
         //console.debug("### READ QUESTIONS: " + QuestionsLoader.data())
@@ -415,10 +463,12 @@ Window {
         AppBoxMaster.loadAppBoxResources("qrc:/appbox/AppBox.qml")
 
         // TODO: for dev
-        playGameSelected()
+        //playGameSelected()
     }
 
+    /*
     AppBoxDebugWindow {
 
     }
+    */
 }
