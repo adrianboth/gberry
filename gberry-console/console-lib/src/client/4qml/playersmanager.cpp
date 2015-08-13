@@ -168,6 +168,7 @@ int PlayersManager::registerDebugPlayer(const QString& playerName)
 
     DEBUG("Registered debug player: name =" << playerName << ", id =" << newPid);
     emit numberOfPlayersChanged();
+    emit playerIn(newPid, playerName);
     return newPid;
 }
 
