@@ -42,7 +42,9 @@ fi
 
 ./build_console.sh $TARGET $TYPE || die "Building gberry-console failed!"
 ./build_mobapp.sh both all || die "Building gberry-mobile failed!"
-./build_game.sh $TARGET $TYPE react || die "Building gberry-react-game failed!"
-./build_game.sh $TARGET $TYPE tictactoe|| die "Building gberry-tictactoe-game failed!"
+./build_game.sh $TARGET $TYPE testgame|| die "Building gberry-testgame failed!"
+./build_game.sh $TARGET $TYPE react || die "Building gberry-react failed!"
+./build_game.sh $TARGET $TYPE tictactoe|| die "Building gberry-tictactoe failed!"
+./build_game.sh $TARGET $TYPE trivia|| die "Building gberry-trivia failed!"
 
 echo "[DONE]"
