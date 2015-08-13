@@ -62,7 +62,16 @@ Item {
 
     Text {
         id: playersJoinedLabel
-        text: playersManager.numberOfPlayers.toString() + qsTr(" players connected")
+        text: {
+            var msg
+            if (playersManager.numberOfPlayers === 1)
+                msg = qsTr(" player connected")
+            else
+                msg = qsTr(" players connected")
+
+            return playersManager.numberOfPlayers.toString() + msg
+        }
+
         font.pixelSize: gdisplay.mediumSizeText
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: mainMenu.bottom

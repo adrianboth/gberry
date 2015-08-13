@@ -142,7 +142,8 @@ Window {
             // TODO: just skeleton
             Text {
                 id: currentgamemode
-                text: qsTr("Game mode: 4 boxes")
+                // TODO: enable when something meaningfull
+                //text: qsTr("Game mode: 4 boxes")
                 font.pixelSize: gdisplay.smallSize * gdisplay.ppmText
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: mainmenu.bottom
@@ -150,7 +151,16 @@ Window {
 
             Text {
                 id: playersJoinedLabel
-                text: playersManager.numberOfPlayers.toString() + qsTr(" players connected to play")
+                text: {
+                    var msg
+                    if (playersManager.numberOfPlayers === 1)
+                        msg = qsTr(" player connected to play")
+                    else
+                        msg = qsTr(" players connected to play")
+
+                    return playersManager.numberOfPlayers.toString() + msg
+                }
+
                 font.pixelSize: gdisplay.mediumSizeText
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: currentgamemode.bottom
