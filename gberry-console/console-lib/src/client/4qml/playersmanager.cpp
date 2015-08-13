@@ -77,7 +77,7 @@ QList<int> PlayersManager::playerIds() const
 {
     QList<int> ids = _d->_meta.keys();
     ids << _d->_debugPlayerNamesByPlayerId.keys();
-    return _d->_meta.keys();
+    return ids;
 }
 
 QString PlayersManager::playerName(int playerId) const
