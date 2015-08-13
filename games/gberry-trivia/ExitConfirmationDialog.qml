@@ -46,7 +46,7 @@ GConfirmationDialog {
 
     function processResponse(ref) {
         if (self.visible) {
-            selectOption(js["ref"])
+            selectOption(ref)
 
             // just to make sure everyones dialogs are closed
             playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
