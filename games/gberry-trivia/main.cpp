@@ -39,6 +39,10 @@ int main(int argc, char *argv[])
     consoleApp.assets().setRootPath(QString(xstr(GBERRY_ASSETS_FIXED_ROOT_PATH)));
 #endif
 
+#ifdef GBERRY_FIXED_ROOT_PATH
+    consoleApp.currentApplication().setRootPath(QString(xstr(GBERRY_FIXED_ROOT_PATH)));
+#endif
+
     consoleApp.run("qrc:/main.qml");
 
     return app.exec();

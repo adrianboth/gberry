@@ -74,6 +74,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("ActivePlayerModel", &_activePlayerModel);
     _engine.rootContext()->setContextProperty("ApplicationSettings", &_settings);
     _engine.rootContext()->setContextProperty("ApplicationManager", _applicationManager);
+    _engine.rootContext()->setContextProperty("CurrentApplication", &_currentApplication);
 
     _engine.load(QUrl(mainQmlUrl));
 

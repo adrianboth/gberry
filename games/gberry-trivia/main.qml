@@ -92,9 +92,17 @@ Window {
 
                 Text {
                     id: triviaTextLabel
-                    text: "Trivia"
+                    text: CurrentApplication.applicationName()
                     font.pixelSize: Math.min(55, gdisplay.text_mm(25))
                     anchors.centerIn: parent
+                }
+
+                Text {
+                    id: versionTextLabel
+                    text: CurrentApplication.applicationVersionString()
+                    font.pixelSize: gdisplay.mediumSizeText * 0.75
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: triviaTextLabel.bottom
                 }
 
                 Image {

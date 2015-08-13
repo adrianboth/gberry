@@ -34,6 +34,7 @@
 #include "client/4qml/connection.h"
 #include "client/4qml/downloadmodel.h"
 #include "client/4qml/activeplayermodel.h"
+#include "client/4qml/currentapplication.h"
 #include "client/gamemodelcommunication.h"
 #include "client/downloadablegamesmodelcommunication.h"
 #include "client/downloadmodelcommunication.h"
@@ -69,6 +70,7 @@ public:
     }
 
     Assets& assets() { return _assets; }
+    CurrentApplication& currentApplication() { return _currentApplication; }
 
     void setApplicationCode(const QString& applicationCode);
 
@@ -90,6 +92,7 @@ private:
     DownloadModelCommunication _downloadModelCommunication;
     DownloadModel _downloadModel;
     ActivePlayerModel _activePlayerModel;
+    CurrentApplication _currentApplication;
 
     ApplicationManager* _applicationManager;
     ConnectionCommunication _connectionCommunication;

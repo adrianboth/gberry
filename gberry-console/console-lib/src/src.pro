@@ -79,7 +79,8 @@ SOURCES += \
     client/connectioncommunication.cpp \
     client/4qml/activeplayermodel.cpp \
     client/applicationversionnumber.cpp \
-    server/filehttpserver.cpp
+    server/filehttpserver.cpp \
+    client/4qml/currentapplication.cpp
 
 HEADERS +=\
         lib_global.h \
@@ -133,7 +134,8 @@ HEADERS +=\
     testobjects/stub_channelsouthpartner.h \
     client/4qml/activeplayermodel.h \
     client/applicationversionnumber.h \
-    server/filehttpserver.h
+    server/filehttpserver.h \
+    client/4qml/currentapplication.h
 
 qml.files = ui/qml/*
 qml.path = $$DEPLOY_DIR/lib/qml/
