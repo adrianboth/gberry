@@ -79,4 +79,22 @@ QString CommsConfig::value(const QString &key, const QString &defaultValue) cons
         return defaultValue;
 }
 
+int CommsConfig::intValue(const QString &key, int defaultValue) const
+{
+    if (hasKey(key)) {
+        QString str = value(key);
+        bool ok;
+        int conv = str.toInt(&ok, 10);
+        if (ok) {
+            return conv;
+
+        } else {
+            ERROR("Failed to convert to integer:" << str);
+            return defaultValue;
+        }
+    } else {
+        return defaultValue;
+    }
+}
+
 } // eon

@@ -53,8 +53,14 @@ config.files = comms.ini
 config.path = $$DEPLOY_DIR/bin/
 INSTALLS += config
 
+# www/
+www.files = www/index.html
+www.path = $$DEPLOY_DIR/www/
+INSTALLS += www
+
 DISTFILES += \
     scripts/start_app.sh \
     scripts/start.sh \
-    comms.ini
+    comms.ini \
+    www/index.html
 

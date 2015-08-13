@@ -39,6 +39,7 @@
 #include "commands/commscommands.h"
 #include "commsconfig.h"
 #include "applicationexecutionsetup.h"
+#include "server/filehttpserver.h"
 
 #include <invocationfactoryimpl.h>
 #include <serverconnectionimpl.h>
@@ -95,6 +96,11 @@ int Comms::run(int argc, char *argv[])
 
     QString rootPath(params.value(CommsParameters::ROOT_PATH));
     DEBUG("Root path:" << rootPath);
+
+    // invalid path prevents fileserver starting
+    QString wwwRoot = GBerryLib::joinpath(rootPath, commscfg.value("fileserver_rootdir", "invalid"));
+
+    FileHttpServer fileHttpServer(commscfg.intValue("fileserver_port", 8100), wwwRoot);
 
     LocalApplicationsStorage appStorage(joinpath(rootPath, "apps"));
     QSharedPointer<LocalApplications> apps(new LocalApplications(&appStorage));

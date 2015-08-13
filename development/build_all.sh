@@ -47,4 +47,6 @@ fi
 ./build_game.sh $TARGET $TYPE tictactoe|| die "Building gberry-tictactoe failed!"
 ./build_game.sh $TARGET $TYPE trivia|| die "Building gberry-trivia failed!"
 
+./copy_mobapp_to_deploy.sh
+
 echo "[DONE]"

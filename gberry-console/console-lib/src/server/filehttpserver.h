@@ -15,38 +15,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
- 
- #ifndef COMMSCONFIG_H
-#define COMMSCONFIG_H
 
-class QSettings;
+#ifndef FILEHTTPSERVER_H
+#define FILEHTTPSERVER_H
 
-#include "commsparameters.h"
-using namespace Comms;
+#include "qhttpserverfwd.h"
 
-namespace GBerryComms {
+#include <QObject>
+#include <QString>
 
-/**
- * CommsConfig is a configuration class and its values are read form a
- * *.ini file.
- */
-class CommsConfig
+
+namespace GBerryComms
 {
+
+class FileHttpServer : public QObject
+{
+    Q_OBJECT
+
 public:
-    // parameters used to find config file
-    CommsConfig(CommsParameters* parameters);
-    ~CommsConfig();
+    FileHttpServer(int port, const QString& path);
 
-    bool hasKey(const QString& key) const;
-    QString value(const QString& key) const;
-    QString value(const QString& key, const QString& defaultValue) const;
-
-    int intValue(const QString& key, int defaultValue) const;
+private slots:
+    void handleRequest(QHttpRequest *req, QHttpResponse *resp);
 
 private:
-    QSettings* _settings;
+    QString _rootDir;
 };
 
 } // eon
 
-#endif // COMMSCONFIG_H
+#endif // FILEHTTPSERVER_H
