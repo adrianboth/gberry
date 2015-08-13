@@ -73,6 +73,21 @@ Item {
                 onButtonClicked: backSelected()
 
             }
+
+            /*
+            Text {
+                anchors.centerIn: parent
+                text: qsTr("Console")
+                font.pixelSize: gdisplay.mediumSizeText
+            }
+            */
+
+            Image {
+                source: "images/video-game5.svg"
+                fillMode: Image.PreserveAspectFit
+                sourceSize.width: parent.height * 0.7
+                anchors.centerIn: parent
+            }
         }
 
         Item {
@@ -86,7 +101,6 @@ Item {
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
-                anchors.margins: 1
                 width: parent.width * 0.33
 
                 property int realWidth: width - anchors.margins
@@ -99,12 +113,13 @@ Item {
                     id: gameList
 
                     anchors.fill: parent
+                    anchors.topMargin: 1
 
                     header:  Rectangle {
-                        color: "lightgray"
+                        color: "#6495ED" //"lightgray"
                         x: 1
                         height: headerText.implicitHeight
-                        width: listViewBackground.realWidth
+                        width: listViewBackground.realWidth -1
 
                         Text {
                             anchors.centerIn: parent
@@ -161,15 +176,20 @@ Item {
                                     height: gdisplay.mediumSizeText
                                 }
 
-                                Rectangle  { // fake image
+                                Item {
                                     width: gdisplay.smallSizeText
                                     height: gdisplay.smallSizeText
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: "lightblue" // TODO: some common place for colors
+
+                                    Rectangle  { // fake image
+                                        anchors.fill: parent
+                                        color: "lightblue" // TODO: some common place for colors
+                                        visible: !smallGameImage.visible
+                                    }
 
                                     Image {
-                                        anchors.centerIn: parent
                                         id: smallGameImage
+                                        anchors.centerIn: parent
                                         visible: Assets.isValidFilePath(catalog_image)
                                         source: Assets.isValidFilePath(catalog_image) ? Assets.filePath(catalog_image) : ""
                                         fillMode: Image.PreserveAspectCrop

@@ -76,6 +76,13 @@ Item {
 
             }
 
+            Image {
+                source: "images/online-store.svg"
+                fillMode: Image.PreserveAspectFit
+                sourceSize.width: parent.height * 0.7
+                anchors.centerIn: parent
+            }
+
             Text {
                 id: guestLoginShowingOnlyFreeAppsText
                 text: ActivePlayerModel.activePlayerIsGuest ? qsTr("For guests only free games are shown") : qsTr("Player") + " " + playersManager.playerName(ActivePlayerModel.activePlayerId)
@@ -155,9 +162,10 @@ Item {
                     id: gameList
 
                     anchors.fill: parent
+                    anchors.topMargin: 1
 
                     header:  Rectangle {
-                        color: "lightgray"
+                        color: "#6495ED" //"lightgray"
                         x: 1
                         height: headerText.implicitHeight
                         width: listViewBackground.realWidth
@@ -218,18 +226,22 @@ Item {
                                     height: gdisplay.mediumSizeText
                                 }
 
-                                Rectangle  { // fake image
+                                Item {
                                     width: gdisplay.smallSizeText
                                     height: gdisplay.smallSizeText
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: "lightblue"
-                                    //source: "file"
+
+                                    Rectangle  { // fake image
+                                        anchors.fill: parent
+                                        color: "lightblue" // TODO: some common place for colors
+                                        visible: !smallGameImage.visible
+                                    }
 
                                     Image {
-                                        anchors.centerIn: parent
                                         id: smallGameImage
-                                        visible: status === Image.Ready
-                                        source: catalog_image
+                                        anchors.centerIn: parent
+                                        visible: Assets.isValidFilePath(catalog_image)
+                                        source: Assets.isValidFilePath(catalog_image) ? Assets.filePath(catalog_image) : ""
                                         fillMode: Image.PreserveAspectCrop
                                         width: parent.width
                                         height: parent.height

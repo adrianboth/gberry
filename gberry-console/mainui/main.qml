@@ -63,13 +63,13 @@ Window {
     Rectangle {
         id: connectionWaitingDialog
         visible: true
-        color: "lightgreen"
+        color: "lightsteelblue"
         width: 0.75 * parent.width
         height: 0.75 * parent.height
         anchors.centerIn: parent
 
         Text {
-            text: qsTr("Please wait ...")
+            text: qsTr("Loading menu ...")
             anchors.centerIn: parent
             font.pixelSize: gdisplay.mediumSizeText
         }

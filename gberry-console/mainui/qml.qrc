@@ -10,5 +10,10 @@
         <file>DownloadableGamesView.qml</file>
         <file>DownloadableGameDetails.qml</file>
         <file>DownloadFeedbackBar.qml</file>
+        <file>images/gberry_logo_with_text.svg</file>
+        <file>images/direction133.svg</file>
+        <file>images/online-store.svg</file>
+        <file>images/settings48.svg</file>
+        <file>images/video-game5.svg</file>
     </qresource>
 </RCC>

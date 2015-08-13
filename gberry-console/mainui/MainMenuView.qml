@@ -38,12 +38,70 @@ Item {
             mainMenu.selectCurrent(pid)
     }
 
-
     property alias menuItems: mainMenu.items
+
+    Image {
+        id: gblogo
+        source: "images/gberry_logo_with_text.svg"
+        sourceSize.width: 500
+        anchors.top: parent.top
+        //anchors.left: parent.left
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        anchors.margins: gdisplay.touchCellHeight() *2
+        fillMode: Image.PreserveAspectFit
+    }
+
     MainMenu {
         id: mainMenu
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: gblogo.bottom
+        anchors.margins: gdisplay.touchCellHeight()
 
+    }
+
+    Text {
+        id: playersJoinedLabel
+        text: playersManager.numberOfPlayers.toString() + qsTr(" players connected")
+        font.pixelSize: gdisplay.mediumSizeText
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: mainMenu.bottom
+        anchors.topMargin: gdisplay.touchCellHeight()
+    }
+
+    Item {
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        property string numberOfPlayers: playersManager.numberOfPlayers
+        property string playersText: "Players: " + playersManager.numberOfPlayers
+        property string commsStatusText: Connection.isActivated ? qsTr("Connected") : "--"
+        property string headServerStatusText: Connection.isActivated ? qsTr("Connected") : "--"
+        property string timeText: "-"
+
+        height: commsStatus.implicitHeight
+
+        Text {
+            id: commsStatus
+            visible: !Connection.isActivated
+            text: qsTr("No connection to comms")
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: gdisplay.touchCellWidth()
+            font.pixelSize: gdisplay.mediumSizeText
+        }
+
+
+        Text {
+            id: headServerStatus
+            visible: !Connection.isHeadServerConnected
+            text: qsTr("No connection to GBerry server")
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: gdisplay.touchCellWidth()
+            font.pixelSize: gdisplay.mediumSizeText
+        }
     }
 }
 

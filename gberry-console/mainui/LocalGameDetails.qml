@@ -73,7 +73,7 @@ Item {
                     visible: Assets.isValidFilePath(gameImageUrl)
                     anchors.centerIn: parent
                     source: Assets.isValidFilePath(gameImageUrl) ? Assets.filePath(gameImageUrl) : ""
-                    fillMode: Image.PreserveAspectCrop
+                    fillMode: Image.PreserveAspectFit
                     width: 100
                     height: 80
                 }

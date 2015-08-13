@@ -28,6 +28,7 @@ import GBerryConsole 1.0
 Item {
     id: self
 
+    /*
     InfoBar {
         id: infobar
         anchors.left: parent.left
@@ -40,21 +41,24 @@ Item {
             GradientStop { position: 1.0; color: "gray" }
         }
     }
+    */
 
     Rectangle {
         anchors.fill: parent
         border.color: "slategray"
+        color: "lightsteelblue"
+        /*
         gradient: Gradient {
             GradientStop { position: 0.0; color: "lightsteelblue" }
             GradientStop { position: 1.0; color: "slategray" }
-        }
+        }*/
     }
 
     StackView {
         id: mainarea
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.top: infobar.bottom
+        anchors.top: parent.top
         anchors.bottom: parent.bottom
         initialItem: mainMenuView
 
@@ -75,6 +79,7 @@ Item {
             menuItems: [
                 MainMenuItem {
                     text: qsTr("Games on console")
+                    imageUrl: "images/video-game5.svg"
                     onSelected: {
                         mainarea.push({item: gamesOnConsoleView, immediate: true})
                         //onGamesOnConsoleSelected()
@@ -82,6 +87,8 @@ Item {
                 },
                 MainMenuItem {
                     text: qsTr("Games on webstore")
+                    imageUrl: "images/online-store.svg"
+
                     onSelected: {
                         console.debug("pid: " + pid)
                         if (Connection.isHeadServerConnected) {
@@ -95,10 +102,12 @@ Item {
                 },
                 MainMenuItem {
                     text: qsTr("Settings")
+                    imageUrl: "images/settings48.svg"
                     onSelected: notImplementedDialog.visible = true
                 },
                 MainMenuItem {
                     text: qsTr("Exit")
+                    imageUrl: "images/direction133.svg"
                     onSelected: exitGameSelected()
                 }
             ]
@@ -287,6 +296,8 @@ Item {
         questionText: qsTr("Exit and stop using console? ")
         option1Text: qsTr("Yes")
         option2Text: qsTr("No")
+        border.color: "gray"
+        border.width: 1
 
         onOption1Selected: {
             // Yes
@@ -303,6 +314,9 @@ Item {
         visible: false // initial state
         errorMessage: qsTr("This feature haven't been implemented yet.")
 
+        border.color: "gray"
+        border.width: 1
+
         onAcknowledged: {
             visible = false
         }
@@ -313,6 +327,9 @@ Item {
         id: noWebstoreConnectionDialog
         visible: false // initial state
         errorMessage: qsTr("Webstore can't be accessed as there is no working network connection to the store.")
+
+        border.color: "gray"
+        border.width: 1
 
         onAcknowledged: {
             visible = false

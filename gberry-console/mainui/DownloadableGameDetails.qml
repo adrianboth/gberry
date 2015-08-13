@@ -97,7 +97,7 @@ Item {
                     visible: status === Image.Ready
                     anchors.centerIn: parent
                     source: gameImageUrl
-                    fillMode: Image.PreserveAspectCrop
+                    fillMode: Image.PreserveAspectFit
                     width: 100
                     height: 80
                 }
