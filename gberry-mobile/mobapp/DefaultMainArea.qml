@@ -48,11 +48,10 @@ Rectangle {
         Image {
             id: logoImage
             source: "images/gberry_footstep_green_outline.png"
-            //height: 100
-            //width: 100
-            sourceSize.width: 100
-            sourceSize.height: 100
+            sourceSize.width: gdisplay.touchCellWidth() *1.5
+            sourceSize.height: gdisplay.touchCellHeight() *1.5
             fillMode: Image.PreserveAspectFit
+            Layout.alignment: Qt.AlignHCenter
         }
 
         Item {
