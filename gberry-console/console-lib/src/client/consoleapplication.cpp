@@ -63,6 +63,7 @@ void ConsoleApplication::run(QString mainQmlUrl)
     qDebug()<< "Import paths:" << _engine.importPathList();
 
     _engine.rootContext()->setContextProperty("playersManager", &(_setup.playersManager));
+    _engine.rootContext()->setContextProperty("PlayersManager", &(_setup.playersManager)); // new name
     // TODO: interface for communication status (OK, pinging, etc)
     //_engine.rootContext()->setContextProperty("comms", &(_setup.controlChannel));
     _engine.rootContext()->setContextProperty("Connection", &_connection);
