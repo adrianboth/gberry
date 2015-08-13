@@ -33,6 +33,7 @@ QML_IMPORT_PATH = $$PWD/ui/gberry-lib $$PWD/ui/console-lib
 
 CONFIG(debug, debug|release) {
     DEFINES += GBERRY_DEBUG_QML_IMPORT_PATH=$$PWD/ui/gberry-lib:$$PWD/ui/console-lib
+    DEFINES += GBERRY_FIXED_ROOT_PATH=$$PWD
 }
 
 # mainui is considered to be standard app
