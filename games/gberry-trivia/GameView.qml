@@ -183,6 +183,11 @@ Rectangle {
 
     }
 
+    // TODO: better solution
+    function playAnotherResponse(qid) {
+        playerWonDialog.selectOption(qid)
+    }
+
     PlayerWonDialog {
         id: playerWonDialog
 

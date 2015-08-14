@@ -12,6 +12,8 @@ GConfirmationDialog {
     option1Text: qsTr("Yes")
     option2Text: qsTr("No")
 
+    signal cancelSelected()
+
     onOption1Selected: {
         // Yes
         Qt.quit()
@@ -20,6 +22,7 @@ GConfirmationDialog {
     onOption2Selected: {
         // No
         self.visible = false
+        cancelSelected()
     }
 
     function show() {
@@ -42,6 +45,8 @@ GConfirmationDialog {
 
         // show also on big screen the question
         self.visible = true
+        self.focus = true
+
     }
 
     function processResponse(ref) {
@@ -51,5 +56,13 @@ GConfirmationDialog {
             // just to make sure everyones dialogs are closed
             playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
         }
+    }
+
+    Keys.onPressed: {
+        console.debug("######## KEY PRESSED (ExitConfirmationDialog)")
+        if (event.key === Qt.Key_Return)
+            selectOption(option1Id)
+        if (event.key === Qt.Key_Escape)
+            selectOption(option2Id)
     }
 }

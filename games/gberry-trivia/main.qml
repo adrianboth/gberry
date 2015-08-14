@@ -292,6 +292,10 @@ Window {
 
     ExitConfirmationDialog {
         id: exitConfirmationDialog
+
+        onCancelSelected: {
+            mainmenu.focus = true
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -367,7 +371,8 @@ Window {
                 exitConfirmationDialog.processResponse(js["ref"])
 
             } else if (js["questionId"] === "playanother") {
-                PlayerWonDialog.selectOption(js["ref"])
+                // TODO: more object oriented way would be better
+                gameView.playAnotherResponse(js["ref"])
             }
 
         } else if (js["action"] === "GeneralAction") {
@@ -489,4 +494,6 @@ Window {
 
     }
     */
+
+
 }
