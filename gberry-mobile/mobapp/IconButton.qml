@@ -23,6 +23,15 @@ Item {
 
     signal buttonClicked()
 
+    function clickButton() {
+        if (self.enabled) {
+            image.opacity = 0.5
+            imageBackground.opacity = backgroundOpacity + 0.1
+            buttonFeedbackTimer.running = true
+            buttonClicked()
+        }
+    }
+
     Rectangle {
         id: imageBackground
         color: backgroundColor
@@ -44,15 +53,9 @@ Item {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: {
-            if (self.enabled) {
-                image.opacity = 0.5
-                imageBackground.opacity = backgroundOpacity + 0.1
-                buttonFeedbackTimer.running = true
-                buttonClicked()
-            }
-        }
+        onClicked: clickButton()
     }
+
     Timer {
         id: buttonFeedbackTimer
         running: false; repeat: false; interval: 200

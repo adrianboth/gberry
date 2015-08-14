@@ -75,30 +75,50 @@ Window {
             height: gdisplay.touchCellHeight() * 0.5
             width: root.width //- gdisplay.touchCellWidth() / 2
 
-            IconButton {
-                id: toggleLocalGeneralActionsButton
+            Item {
+                //color: "yellow"
+                id: toggleLocalGeneralActionsButtonFrame
                 anchors.left: parent.left
-                anchors.leftMargin: topbarContainer.height * 0.25
                 anchors.verticalCenter: parent.verticalCenter
 
-                targetHeight: topbarContainer.height
-                height: preferredHeight
-                width: preferredWidth
-                imageSource: "images/menu_bars.svg"
+                height: topbarContainer.height
+                width: toggleLocalGeneralActionsButton.width + topbarContainer.height
 
-                onButtonClicked: {
-                    toggleLocalGeneralActions()
-                    toggleGeneralActions(false)
+                IconButton {
+                    id: toggleLocalGeneralActionsButton
+                    anchors.left: parent.left
+                    anchors.leftMargin: topbarContainer.height * 0.25
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    targetHeight: topbarContainer.height
+                    height: preferredHeight
+                    width: preferredWidth
+                    imageSource: "images/menu_bars.svg"
+
+                    onButtonClicked: {
+                        toggleLocalGeneralActions()
+                        toggleGeneralActions(false)
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        toggleLocalGeneralActionsButton.clickButton()
+                    }
                 }
             }
 
+
             Item {
                 //color: "green"
-                anchors.left: toggleLocalGeneralActionsButton.right
-                anchors.right: toggleGeneralActionsButton.left
-                anchors.leftMargin: gdisplay.touchCellWidth()/2
-                anchors.rightMargin: gdisplay.touchCellWidth()/2
+                anchors.left: toggleLocalGeneralActionsButtonFrame.right
+                anchors.right: toggleGeneralActionsButtonFrame.left
+                anchors.leftMargin: gdisplay.touchCellWidth()/4
+                anchors.rightMargin: gdisplay.touchCellWidth()/4
                 anchors.top: parent.top
+                anchors.topMargin: -2
+                anchors.bottomMargin: -1
                 anchors.bottom: parent.bottom
 
                 Image {
@@ -143,25 +163,39 @@ Window {
                 }
             }
 
-            IconButton {
-                id: toggleGeneralActionsButton
-                //visible: false
-                enabled: generalActions.hasActions
+            Item {
+                //color: "yellow"
+                id: toggleGeneralActionsButtonFrame
                 anchors.right: parent.right
-                anchors.rightMargin: topbarContainer.height * 0.25
                 anchors.verticalCenter: parent.verticalCenter
+                height: toggleLocalGeneralActionsButtonFrame.height
+                width: toggleLocalGeneralActionsButtonFrame.width
 
-                imageSource: "images/menu_dots.svg"
-                targetHeight: topbarContainer.height
+                IconButton {
+                    id: toggleGeneralActionsButton
+                    //visible: false
+                    enabled: generalActions.hasActions
+                    anchors.right: parent.right
+                    anchors.rightMargin: topbarContainer.height * 0.25
+                    anchors.verticalCenter: parent.verticalCenter
 
-                height: preferredHeight
-                width: toggleLocalGeneralActionsButton.width
-                rotation: 90
+                    imageSource: "images/menu_dots.svg"
+                    targetHeight: topbarContainer.height
 
-                onButtonClicked: {
-                    console.debug("button clicked!")
-                    toggleGeneralActions()
-                    toggleLocalGeneralActions(false)
+                    height: preferredHeight
+                    width: toggleLocalGeneralActionsButton.width
+                    rotation: 90
+
+                    onButtonClicked: {
+                        console.debug("button clicked!")
+                        toggleGeneralActions()
+                        toggleLocalGeneralActions(false)
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: toggleGeneralActionsButton.clickButton()
                 }
             }
         }
