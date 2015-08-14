@@ -27,6 +27,11 @@ Item {
             mainMenu.forceActiveFocus()
     }
 
+    onFocusChanged: {
+        if (focus)
+            mainMenu.focus = true
+    }
+
     property var enabledControlActions: ["Up", "Down", "OK"] // defaults
 
     function processControlAction(action, pid) {

@@ -301,15 +301,29 @@ Item {
 
         onOption1Selected: {
             // Yes
+            console.debug("Exit selected")
 
             // if comms started us we want to quit comms too and that will
-            // indiviually started mainui
-            ApplicationManager.exitConsole()
+            // individually started mainui
+            if (Connection.isActivated)
+                ApplicationManager.exitConsole()
+            else
+                Qt.quit()
+
             //Qt.quit()
         }
 
         onOption2Selected: {
             exitConfirmationDialog.visible = false
+            mainMenuView.focus = true
+        }
+
+        Keys.onPressed: {
+            console.debug("######## KEY PRESSED (exitConfirmationDialog)")
+            if (event.key === Qt.Key_Return)
+                selectOption(option1Id)
+            if (event.key === Qt.Key_Escape)
+                selectOption(option2Id)
         }
     }
 
@@ -393,6 +407,7 @@ Item {
 
         // show also on big screen the question
         exitConfirmationDialog.visible = true
+        exitConfirmationDialog.focus = true
 
         // TODO: disable everything else -> record state
     }
