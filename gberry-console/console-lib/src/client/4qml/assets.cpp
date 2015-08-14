@@ -34,6 +34,7 @@ Assets::Assets(QObject *parent) : QObject(parent)
     }
     else
     {
+        // we assume that application directory is the current dir
         _rootPath = QDir::current().absolutePath();
     }
     qDebug() << "Assets root path:" << _rootPath;

@@ -129,6 +129,7 @@ bool ApplicationExecutionSetup::prepare(QProcess &process, const IApplication &a
     }
 
     process.setProgram(runSh.fileName());
+    process.setWorkingDirectory(app.meta()->applicationDirPath());
 
     // -----
     Result subresult2;
