@@ -51,7 +51,7 @@ Rectangle {
         } else if (optionId === option2Id) {
             option2Selected()
         } else {
-            Log.error("Unknow option: " + optionId)
+            Log.error("Unknown option: " + optionId)
         }
     }
 
