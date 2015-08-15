@@ -1,0 +1,91 @@
+{ "questions": [
+    {
+    "question": "Mikä on Joelin toinen nimi?",
+    "image": "fiware_logo.jpeg",
+    "a": "Jalmari",
+    "b": "Jussi",
+    "c": "Juhani",
+    "d": "Jaakko",
+    "answer": "a"
+    },
+    {
+    "question": "Mikä on Joelin lempikirja",
+    "a": "Tatu & Patu Suomessa",
+    "b": "Tatun & Patun outo unikirja",
+    "c": "Merirosvo ei pelkää pimeää",
+    "d": "Lucky Luke - Aavekaupunki",
+    "answer": "b"
+    },
+    {
+    "question": "Monta maitohammasta on Siniltä lähtenyt?",
+    "a": "3",
+    "b": "1",
+    "c": "2",
+    "d": "4",
+    "answer": "a"
+    },
+    {
+    "question": "Mikä on Sinin toinen nimi?",
+    "a": "Vilhelmiina",
+    "b": "Anniina",
+    "c": "Maria",
+    "d": "Vieno",
+    "answer": "a"
+    },
+    {
+    "question": "Mikä on Sinin pelipaidan numero?",
+    "a": "7",
+    "b": "13",
+    "c": "9",
+    "d": "3",
+    "answer": "a"
+    },
+    {
+    "question": "Millä kirjaimella alkaa Sinin toinen nimi?",
+    "a": "W",
+    "b": "V",
+    "c": "S",
+    "d": "T",
+    "answer": "b"
+    },
+    {
+    "question": "Mikä tämä on?",
+    "a": "Woodoo-nukke",
+    "b": "Lalaloopsy",
+    "c": "räsyliisa",
+    "answer": "b"
+    },
+    {
+    "question": "Kuinka kauan Roosa on soittanut huilua?",
+    "a": "2",
+    "b": "4",
+    "c": "3",
+    "d": "5",
+    "answer": "c"
+    },
+    {
+    "question": "Mikä Roosa haluaisi olla isona",
+    "a": "Eläinlääkäri",
+    "b": "Huilunsoitonopettaja",
+    "c": "Terveydenhoitaja",
+    "d": "Kirjailija",
+    "answer": "c"
+    },
+    {
+    "question": "Mikä on Roosan lempilimu?",
+    "a": "Jaffa",
+    "b": "Sprite",
+    "c": "CocaCola",
+    "d": "Lidl-limu",
+    "answer": "b"
+    },
+    {
+    "question": "Kuka on Roosan ope?",
+    "a": "Jasmin Myllyharju",
+    "b": "Jaakko Ylitalo",
+    "c": "Aki Harju",
+    "d": "Jukka-Matti Hiltunen",
+    "answer": "b"
+    }
+    ]
+}

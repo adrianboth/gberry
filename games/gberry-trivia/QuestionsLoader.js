@@ -30,5 +30,10 @@ function data() {
 }
 
 function dataJson() {
-    return JSON.parse(_questionData)
+    try{
+        return JSON.parse(_questionData)
+    } catch(e) {
+        console.error(e.toString()); //error in the above string(in this case,yes)!
+        return {}
+    }
 }
