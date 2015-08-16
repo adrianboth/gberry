@@ -1,7 +1,6 @@
 { "questions": [
     {
     "question": "Mikä on Joelin toinen nimi?",
-    "image": "fiware_logo.jpeg",
     "a": "Jalmari",
     "b": "Jussi",
     "c": "Juhani",
@@ -9,12 +8,29 @@
     "answer": "a"
     },
     {
-    "question": "Mikä on Joelin lempikirja",
+    "question": "Mikä on Joelin lempikirja?",
     "a": "Tatu & Patu Suomessa",
     "b": "Tatun & Patun outo unikirja",
     "c": "Merirosvo ei pelkää pimeää",
     "d": "Lucky Luke - Aavekaupunki",
     "answer": "b"
+    },
+    {
+    "question": "Mikä näistä on Joelin lempiunilelu?",
+    "image": "joelin_unilelut.jpg",
+    "a": "Unipupu",
+    "b": "Huolisyöppö",
+    "c": "Lenni Lokinpoikainen",
+    "d": "Unto Unilelu",
+    "answer": "a"
+    },
+    {
+    "question": "Missä päiväkodissä Joel on hoidossa?",
+    "a": "Kyöstin",
+    "b": "Huovin",
+    "c": "Killon",
+    "d": "Naistenmatkan",
+    "answer": "a"
     },
     {
     "question": "Monta maitohammasta on Siniltä lähtenyt?",
@@ -34,11 +50,21 @@
     },
     {
     "question": "Mikä on Sinin pelipaidan numero?",
+    "image": "sinin_paita.jpg",
     "a": "7",
     "b": "13",
     "c": "9",
     "d": "3",
     "answer": "a"
+    },
+    {
+    "question": "Mikä näistä on Kia?",
+    "image": "nuket.jpg",
+    "a": "Ensimmäinen vasemmalta",
+    "b": "Toinen vasemmalta",
+    "c": "Ensimmäinen oikealta",
+    "d": "Toinen oikealta",
+    "answer": "c"
     },
     {
     "question": "Millä kirjaimella alkaa Sinin toinen nimi?",
@@ -50,9 +76,10 @@
     },
     {
     "question": "Mikä tämä on?",
+    "image": "lalaloops.jpg",
     "a": "Woodoo-nukke",
     "b": "Lalaloopsy",
-    "c": "räsyliisa",
+    "c": "Räsyliisa",
     "answer": "b"
     },
     {
