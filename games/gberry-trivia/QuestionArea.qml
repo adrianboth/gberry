@@ -28,13 +28,14 @@ Item {
         }
 
         Image {
+            Layout.maximumWidth: 400
+            Layout.maximumHeight: 200
             Layout.preferredWidth: sourceSize.width
             Layout.preferredHeight: sourceSize.height
             Layout.alignment: Qt.AlignHCenter
-
+            fillMode: Image.PreserveAspectFit
             visible: imagePath != ""
             source: imagePath
         }
     }
 }
-
