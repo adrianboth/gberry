@@ -81,7 +81,7 @@ function setupGame(maxQuestionsCount) {
         questionOld = tempQ[i]
         questionNew = {}
         questionNew.question = questionOld.question
-        if (_defined(questionOld.name))
+        if (_defined(questionOld.image))
             questionNew.image = questionOld.image
 
         if (_defined(answerShuffleList.length > 0))
