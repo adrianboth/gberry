@@ -55,3 +55,13 @@ includeSharedLibrary("consolelib", $${CONSOLELIB_SRC_DIR}, $${CONSOLELIB_BUILD_D
 DISTFILES += \
     $${TARGET}_appcfg.json \
     TODO.txt
+
+srcdir = $${DEPLOY_DIR}/apps/$$TARGET/
+## TODO: version
+zipfile = $$OUT_PWD/$${TARGET}.zip
+scriptCmd = $$PWD/makepkg.sh \"$$srcdir\" \"$$zipfile\"
+
+# this 'path' is mandatory but doesn't have meaning
+makepkg.path = .
+makepkg.extra = $$scriptCmd
+INSTALLS += makepkg
