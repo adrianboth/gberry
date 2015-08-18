@@ -1,0 +1,8 @@
+{
+"id": "fiware-trivia",
+"version": "1.0",
+"name": "FIWARE Trivia",
+"description": "Trivia about FIWARE and CreatiFI",
+"catalog_image": "trivia_catalog.png",
+"application_exe": "trivia"
+}

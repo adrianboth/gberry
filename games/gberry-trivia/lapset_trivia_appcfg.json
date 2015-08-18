@@ -1,0 +1,8 @@
+{
+"id": "lapset-visa",
+"version": "1.0",
+"name": "Lapset-Visa",
+"description": "Synttärivisailu synttärisankareista",
+"catalog_image": "trivia_catalog.png",
+"application_exe": "trivia"
+}
