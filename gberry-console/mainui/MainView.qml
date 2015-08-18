@@ -76,6 +76,11 @@ Item {
             id: mainMenuView
             enabled: visible
 
+            // switching between connection info and menu
+            onEnabledControlActionsChanged: {
+                mainarea.sendControlActions()
+            }
+
             menuItems: [
                 MainMenuItem {
                     text: qsTr("Games on console")
@@ -103,7 +108,11 @@ Item {
                 MainMenuItem {
                     text: qsTr("Settings")
                     imageUrl: "images/settings48.svg"
-                    onSelected: notImplementedDialog.visible = true
+                    //onSelected: notImplementedDialog.visible = true
+                    onSelected: {
+                        // TODO: better to have connection info outside
+                        mainMenuView.showConnectionInfo()
+                    }
                 },
                 MainMenuItem {
                     text: qsTr("Exit")

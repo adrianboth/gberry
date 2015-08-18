@@ -22,6 +22,7 @@ import GBerryConsole 1.0
 
 Item {
     id: self
+
     onVisibleChanged: {
         if (visible)
             mainMenu.forceActiveFocus()
@@ -32,7 +33,10 @@ Item {
             mainMenu.focus = true
     }
 
-    property var enabledControlActions: ["Up", "Down", "OK"] // defaults
+    property var menuEnabledControlActions: ["Up", "Down", "OK"]
+    property var connectionInfoEnabledControlActions: ["OK"]
+
+    property var enabledControlActions: connectionInfoEnabledControlActions // defaults
 
     function processControlAction(action, pid) {
         if (action === "Up")
@@ -40,7 +44,16 @@ Item {
         else if (action === "Down")
             mainMenu.moveFocusToNext()
         else if (action === "OK")
-            mainMenu.selectCurrent(pid)
+            if (connectionInfoDialog.visible) {
+                connectionInfoDialog.triggerCloseFade()
+            } else {
+                mainMenu.selectCurrent(pid)
+            }
+    }
+
+    function showConnectionInfo() {
+        connectionInfoDialog.visible = true
+        enabledControlActions = connectionInfoEnabledControlActions
     }
 
     property alias menuItems: mainMenu.items
@@ -83,6 +96,22 @@ Item {
         anchors.topMargin: gdisplay.touchCellHeight()
     }
 
+    // will hide menu until closed
+    ConnectionInfoDialog {
+        id: connectionInfoDialog
+        visible: false
+        height: preferredHeight
+        width: preferredWidth
+        textPixelSize: gdisplay.mediumSizeText
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: gblogo.bottom
+        anchors.margins: gdisplay.touchCellHeight()
+
+        onClosed: {
+            enabledControlActions = menuEnabledControlActions
+        }
+    }
+
     Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
@@ -106,7 +135,6 @@ Item {
             font.pixelSize: gdisplay.mediumSizeText
         }
 
-
         Text {
             id: headServerStatus
             visible: !Connection.isHeadServerConnected
@@ -116,6 +144,10 @@ Item {
             anchors.rightMargin: gdisplay.touchCellWidth()
             font.pixelSize: gdisplay.mediumSizeText
         }
+    }
+
+    Component.onCompleted: {
+        connectionInfoDialog.visible = true
     }
 }
 

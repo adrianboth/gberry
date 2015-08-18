@@ -87,6 +87,8 @@ Window {
 
     }
 
+    // =========================================================================
+
     function onConnectionChanged() {
         // TODO: how to wait until connection ok
         console.debug("### onConnectionChanged()")
