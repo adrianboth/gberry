@@ -97,7 +97,7 @@ function playerJoined(pid, playerName) {
 
 function playerLeft(pid, playerName) {
     for (var i = 0; i < _playerPoints.length; i++) {
-        if (_playerPoints["id"] === pid) {
+        if (_playerPoints[i].id === pid) {
             _playerPoints.splice(i, 1)
             signals.scoresChanged()
             return
