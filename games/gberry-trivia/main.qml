@@ -330,10 +330,9 @@ Window {
 
     }
 
-    function onPlayerOut(pid)
+    function onPlayerOut(pid, pname)
     {
         console.debug("Player left: id = " + pid)
-        var pname = playersManager.playerName(pid)
         PointsModel.playerLeft(pid, pname)
 
         if (playersManager.numberOfPlayers === 0) {
