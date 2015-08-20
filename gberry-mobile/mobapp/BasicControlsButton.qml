@@ -29,12 +29,25 @@ Button {
     property string buttonGradientStartColor: "#eee"
     property string buttonGradientStopColor: "#ccc"
     property string buttonText: "-" // default
-    // TODO: these could be scaled based on screen size
-    property int buttonFontPixelSize: gdisplay.smallSizeText
-    property int buttonHorizontalMargin: gdisplay.touchCellWidth()
-    property int buttonVerticalMargin: gdisplay.touchCellHeight()
-    property int buttonWidth: buttonFontPixelSize + buttonHorizontalMargin
-    property int buttonHeight: buttonFontPixelSize + buttonVerticalMargin
+
+    // size could be scaled based on screen size
+    property real scalingFactor: 1.0
+
+    property int defaultButtonFontPixelSize: gdisplay.smallSizeText
+    property int buttonFontPixelSize: defaultButtonFontPixelSize * scalingFactor
+
+    property int defaultButtonHorizontalMargin: gdisplay.touchCellWidth()
+    property int buttonHorizontalMargin: defaultButtonHorizontalMargin * scalingFactor
+
+    property int defaultButtonVerticalMargin: gdisplay.touchCellHeight()
+    property int buttonVerticalMargin: defaultButtonVerticalMargin * scalingFactor
+
+    property int defaultButtonWidth: defaultButtonFontPixelSize + defaultButtonHorizontalMargin
+    property int buttonWidth: defaultButtonWidth * scalingFactor
+
+    property int defaultButtonHeight: defaultButtonFontPixelSize + defaultButtonVerticalMargin
+    property int buttonHeight: defaultButtonHeight * scalingFactor
+
     property alias buttonTextImplicitWidth: buttonLabel.implicitWidth
 
 

@@ -28,6 +28,8 @@ import GBerry 1.0
 Rectangle {
     id: basicControls
 
+    property int maxHeight: 0 // not defined
+    property int maxWidth: 0 // not defined
 
     gradient: Gradient {
         GradientStop { position: 0.0; color: "lightsteelblue" }
@@ -66,31 +68,83 @@ Rectangle {
         }
     }
 
-    property int buttonWidthMargin: gdisplay.touchCellWidth() / 2
-    property int buttonHeightMargin: gdisplay.touchCellHeight() / 2
+    property int defaultButtonWidthMargin: gdisplay.touchCellWidth() / 2
+    property int buttonWidthMargin: defaultButtonWidthMargin * buttonScaler
+
+    property int defaultButtonHeightMargin: gdisplay.touchCellHeight() / 2
+    property int buttonHeightMargin: defaultButtonHeightMargin * buttonScaler
+
     property var buttons: [back, ok, up, down, left, right]
+
+    // private
+    property real buttonScaler: 1.0
+
+    onVisibleChanged: {
+        if (visible)
+            calcScaling()
+    }
+
+    onMaxHeightChanged: { calcScaling() }
+    onMaxWidthChanged: { calcScaling() }
+
+    function calcScaling() {
+        if (visible) {
+            //console.log("############### CALC BasicControls height")
+            // how to make items smaller?
+            //  -> decrease margin and buttons proportionally until ok
+            //     -> use scaler
+
+            // only if max have been defined
+            var buttonScalerCandinate = 1.0
+            if (maxHeight !== 0) {
+                var heightCandinate = topButtonRow.defaultHeight + biggerButtonArea.defaultHeight * buttonScalerCandinate
+                //console.debug("### maxHeight: " + maxHeight + ", heightCandinate: " + heightCandinate)
+                if (heightCandinate > maxHeight) {
+                    buttonScalerCandinate = maxHeight / heightCandinate
+                    console.debug("### buttonScalerCandinate after height calc: " + buttonScaler)
+                }
+
+            }
+
+            if (maxWidth !== 0) {
+                var widthCandinate = biggerButtonArea.defaultWidth
+                if (widthCandinate > maxWidth) {
+                    var widthScalerCandinate = maxWidth / widthCandinate
+                    if (widthScalerCandinate < buttonScalerCandinate) {
+                        buttonScalerCandinate = widthScalerCandinate
+                        //console.debug("### buttonScalerCandinate after width calc: " + buttonScaler)
+                    }
+                }
+            }
+
+            buttonScaler = buttonScalerCandinate
+        }
+    }
 
     Column {
         anchors.centerIn: parent
 
 
         Item {
+            id: topButtonRow
             //color: "green"
             //anchors.horizontalCenter: parent.horizontalCenter
             //anchors.bottom: biggerButtonArea.top
             width: biggerButtonArea.width
-            height: back.height
+            height: back.buttonHeight
+            property int defaultHeight: back.defaultButtonHeight
 
 
             BasicControlsButton {
                 id: back
-                width: buttonTextImplicitWidth + buttonHorizontalMargin
+                width: (buttonTextImplicitWidth + buttonHorizontalMargin) * buttonScaler
                 objectName: "back"
                 buttonText: "Back"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
-                anchors.leftMargin: gdisplay.touchCellWidth() / 2
+                anchors.leftMargin: (gdisplay.touchCellWidth() / 2) * buttonScaler
                 onButtonPressed: basicControls.buttonPressed("Back")
+                scalingFactor: buttonScaler
             }
         }
 
@@ -100,6 +154,8 @@ Rectangle {
             //anchors.centerIn: parent
             width: 3 * ok.buttonWidth + 4 * buttonWidthMargin
             height: 3 * ok.buttonHeight + 4 * buttonHeightMargin
+            property int defaultHeight: 3 * ok.defaultButtonHeight + 4 * defaultButtonHeightMargin
+            property int defaultWidth: 3 * ok.defaultButtonWidth + 4 * defaultButtonWidthMargin
 
             BasicControlsButton {
                 id: ok
@@ -108,6 +164,7 @@ Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 onButtonPressed: basicControls.buttonPressed("OK")
+                scalingFactor: buttonScaler
             }
 
             BasicControlsButton {
@@ -118,6 +175,7 @@ Rectangle {
                 anchors.horizontalCenter: ok.horizontalCenter
                 anchors.bottomMargin: buttonHeightMargin
                 onButtonPressed: basicControls.buttonPressed("Up")
+                scalingFactor: buttonScaler
             }
 
             BasicControlsButton {
@@ -128,6 +186,7 @@ Rectangle {
                 anchors.verticalCenter: ok.verticalCenter
                 anchors.leftMargin: buttonWidthMargin
                 onButtonPressed: basicControls.buttonPressed("Right")
+                scalingFactor: buttonScaler
             }
 
             BasicControlsButton {
@@ -138,6 +197,7 @@ Rectangle {
                 anchors.verticalCenter: ok.verticalCenter
                 anchors.rightMargin: buttonWidthMargin
                 onButtonPressed: basicControls.buttonPressed("Left")
+                scalingFactor: buttonScaler
             }
 
             BasicControlsButton {
@@ -148,6 +208,7 @@ Rectangle {
                 anchors.topMargin: buttonHeightMargin
                 buttonText: "D"
                 onButtonPressed: basicControls.buttonPressed("Down")
+                scalingFactor: buttonScaler
             }
         }
     }

@@ -1,6 +1,7 @@
 {"questions": [
     {
     "question": "How many business ideas will be selected in CreatiFI Open Call 2?",
+    "image": "creatifi_logo.png",
     "a": "18",
     "b": "15",
     "c": "20",
@@ -26,7 +27,7 @@
     },
     {
     "question": "What is FIWARE Association?",
-	"image": "fiware_association.png",
+    "image": "fiware_association.png",
     "a": "Founder of FIWARE program",
     "b": "Organization funding FIWARE platform",
     "c": "Movement for future of the FIWARE ecosystem",
@@ -35,7 +36,7 @@
     },
     {
     "question": "What is FIWARE Lab?",
-	"image": "fiware_lab.png",
+    "image": "fiware_lab.png",
     "a": "Non-commercial sandbox environment",
     "b": "OpenStack reference implementation",
     "c": "Internet hosting solution for SMEs",
@@ -81,5 +82,5 @@
     "d": "Future Internet - Peaceful Partnership Program",
     "answer": "a"
     }
- ]   
- }
+ ]
+}

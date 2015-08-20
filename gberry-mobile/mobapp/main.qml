@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.4
+import QtQuick 2.4
 import QtQuick.Window 2.2
 import QtQuick.Dialogs 1.2
 import QtQuick.Controls 1.2
@@ -217,6 +217,10 @@ Window {
             id: basicControls
             visible: false
             anchors.fill: parent
+            maxWidth: root.width
+            maxHeight: root.height - topbar.height
+
+            //onMaxHeightChanged: { console.debug("### BC macHeight: " + maxHeight) }
 
             Component.onCompleted: {
                 basicControls.buttonPressed.connect(function (buttonID) {basicControlButtonPressed(buttonID)})
@@ -280,6 +284,8 @@ Window {
         visible: false
         anchors.top: topbar.bottom
         anchors.right: parent.right
+        maxWidth: root.width
+        maxHeight: root.height - topbar.height
     }
 
     GeneralActions {
@@ -287,6 +293,8 @@ Window {
         visible: false
         anchors.top: topbar.bottom
         anchors.left: parent.left
+        maxWidth: root.width
+        maxHeight: root.height - topbar.height
     }
 
     ModalDialogFrame {

@@ -22,9 +22,75 @@ Item {
     id: self
     width: actionMenu.width; height: actionMenu.height
 
+    property int maxHeight: 0 // not defined
+    property int maxWidth: 0 // not defined
+
     property bool hasActions: listModel.count > 0
 
     signal actionSelected(var actionId)
+
+    // private
+    property real buttonScaler: 1.0
+
+    onVisibleChanged: {
+        if (visible)
+            calcScaling()
+    }
+
+    onMaxHeightChanged: { calcScaling() }
+    onMaxWidthChanged: { calcScaling() }
+
+    function calcScaling() {
+
+        if (visible) {
+            console.log("############### CALC GeneralActions height")
+            // how to make items smaller?
+            //  -> decrease margin and buttons proportionally until ok
+            //     -> use scaler
+
+            // only if max have been defined
+            var buttonScalerCandinate = 0
+            if (maxHeight !== 0) {
+                var heightCandinate = actionMenu.defaultHeight
+                console.debug("### maxHeight: " + maxHeight + ", heightCandinate: " + heightCandinate)
+                if (heightCandinate > maxHeight) {
+                    buttonScalerCandinate = maxHeight / heightCandinate
+
+                } else if (maxHeight / heightCandinate > buttonScaler) {
+
+                    buttonScalerCandinate = maxHeight / heightCandinate
+                }
+
+                console.debug("### buttonScalerCandinate after height calc: " + buttonScalerCandinate)
+
+            }
+
+            if (maxWidth !== 0) {
+                console.debug("maxWidht: " + maxWidth + ", actionMenu.defaultWidth: " + actionMenu.defaultWidth)
+                var widthCandinate = actionMenu.defaultWidth // contains already effect of current scaler
+                if (widthCandinate > maxWidth) {
+
+                    var widthScalerCandinate = maxWidth / widthCandinate //* buttonScaler
+                    if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
+                        buttonScalerCandinate = widthScalerCandinate
+                    } else if (widthScalerCandinate > buttonScaler) {
+                        buttonScalerCandinate = widthScalerCandinate
+                    }
+                    console.debug("### buttonScalerCandinate after height calc: " + buttonScalerCandinate)
+                } else {
+                    var widthScalerCandinate = maxWidth / widthCandinate //* buttonScaler
+                    if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
+                        buttonScalerCandinate = widthScalerCandinate
+                    } else if (widthScalerCandinate > buttonScaler) {
+                        buttonScalerCandinate = widthScalerCandinate
+                    }
+                }
+            }
+
+            if (buttonScalerCandinate > 0 && buttonScalerCandinate <= 1.0)
+                buttonScaler = buttonScalerCandinate
+        }
+    }
 
     function clearActions() {
         listModel.clear()
@@ -51,11 +117,14 @@ Item {
 
     Rectangle {
         id: actionMenu
-        property int marginX: gdisplay.touchCellWidth() / 2
+        property int marginX: gdisplay.touchCellWidth() / 2 * buttonScaler
         //property int marginY: gdisplay.touchCellHeight() / 2
         property int marginY: border.width // to prevent drawing on top of border
         width: list.contentWidth + marginX * 2
         height: list.contentHeight + marginY * 2
+        property int defaultHeight: listFrame.defaultHeight + marginY * 2
+        property int defaultWidth: listFrame.defaultWidth + marginX * 2
+
         color: "snow"
         border.width: 1
         border.color: "lightgrey"
@@ -90,33 +159,45 @@ Item {
 
         // additional item needed as centerIn for ListView doesn't work properly ...
         Item {
+            id: listFrame
             width: list.contentWidth
             height: list.contentHeight
+            property int defaultHeight: defaultDelegateHeight * listModel.count
+            property int defaultWidth: list.contentWidth
             anchors.centerIn: parent
 
             ListView {
                 id: list
                 anchors.fill: parent
                 interactive: false
-                contentWidth: contentItem.childrenRect.width; contentHeight: contentItem.childrenRect.height
+                contentWidth: contentItem.childrenRect.width;
+                contentHeight: contentItem.childrenRect.height
 
                 model: listModel
                 delegate: actionDelegate
             }
 
+            //property int defaultDelegateHeight: text.defaultHeight * 2 + upperEmptySpace.defaultHeight + divider.height + bottomEmptySpace.defaultHeight
+            property int defaultDelegateHeight: gdisplay.smallSizeText * 2 + gdisplay.smallSizeText/2 + 2 + gdisplay.smallSizeText/2
+
+
+
             Component {
                 id: actionDelegate
 
                 Rectangle {
-                    width: text.implicitWidth
-                    height: text.implicitHeight + divider.height + gdisplay.smallSizeText
+                    width: text.implicitWidth * buttonScaler
+                    height: (text.implicitHeight + divider.height + gdisplay.smallSizeText) * buttonScaler
+                    //height: defaultHeight * buttonScaler
+                    //property int defaultHeight: text.defaultHeight * 2 + upperEmptySpace.defaultHeight + divider.height + bottomEmptySpace.defaultHeight
                     color: "snow"
                     //color: "red"
                     property string id: actionId
 
                     Item {
                         id: upperEmptySpace
-                        height: gdisplay.smallSizeText/2
+                        property int defaultHeight: gdisplay.smallSizeText/2
+                        height: defaultHeight * buttonScaler
                         width: 1
                         //color: "green"
                     }
@@ -125,14 +206,16 @@ Item {
                         id: text
                         color: "black"
                         text: actionName
-                        font.pointSize: gdisplay.smallSizeText
+                        font.pointSize: gdisplay.smallSizeText * buttonScaler
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: upperEmptySpace.bottom
+                        property int defaultHeight: gdisplay.smallSizeText
                     }
 
                     Item {
                         id: bottomEmptySpace
-                        height: gdisplay.smallSizeText/2
+                        height: defaultHeight *buttonScaler
+                        property int defaultHeight: gdisplay.smallSizeText/2
                         width: 1
                         //color: "green"
                         anchors.top: text.bottom
@@ -143,7 +226,7 @@ Item {
                         // last item should not have divider
                         visible: index != listModel.count -1
                         height: 2
-                        width: 0.7 * actionMenu.width // 0.15+0.15 for left/right margins
+                        width: 0.7 * actionMenu.width * buttonScaler// 0.15+0.15 for left/right margins
                         color: "lightgray"
                         anchors.top: bottomEmptySpace.bottom
                         anchors.left: parent.left
