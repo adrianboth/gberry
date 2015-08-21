@@ -116,7 +116,7 @@ Rectangle {
     }
 
     function onDownloadProgress(applicationFullId, progressPercentage) {
-        message = qsTr("Downloading ") + applicationFullId + " ..." + progressPercentage
+        message = qsTr("Downloading ") + applicationFullId + " ..." + progressPercentage + "%"
     }
 
     Component.onCompleted: {
