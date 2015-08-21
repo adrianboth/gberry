@@ -102,7 +102,18 @@ Item {
                             mainarea.push({item: downloadableGamesView, immediate: true})
                         } else {
                             noWebstoreConnectionDialog.visible = true
+
+                            var js = {action: "ConfirmationQuestion",
+                                      questionId: "noWebstoreConnectionDialog",
+                                      title: qsTr("Error"),
+                                      text: qsTr("No connection"),
+                                      options: [{id:   "ok",
+                                                 text: qsTr("OK")} ]
+                                     }
+
+                            playersManager.sendAllPlayersMessage(JSON.stringify(js))
                         }
+
                     }
                 },
                 MainMenuItem {
@@ -258,14 +269,39 @@ Item {
               enable: mainarea.currentItem.enabledControlActions}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
-        // TODO: clear up box command ?
+        if (noWebstoreConnectionDialog.visible) {
+            // TODO: to single place
+            js = {action: "ConfirmationQuestion",
+                      questionId: "noWebstoreConnectionDialog",
+                      title: qsTr("Error"),
+                      text: qsTr("No connection"),
+                      options: [{id:   "ok",
+                                 text: qsTr("OK")} ]
+                     }
+
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+        }
+
+        else if (exitConfirmationDialog.visible) {
+            // TODO: defining this message should be in one place
+            js = {action: "ConfirmationQuestion",
+                      questionId: exitConfirmationDialog.questionId,
+                      text: exitConfirmationDialog.questionText,
+                      options: [{id:   exitConfirmationDialog.option1Id,
+                                 text: exitConfirmationDialog.option1Text},
+                                {id:   exitConfirmationDialog.option2Id,
+                                 text: exitConfirmationDialog.option2Text}]
+                     }
+
+            playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+        }
     }
 
     function onPlayerOut(pid, pname)
     {
         if (ActivePlayerModel.hasActivePlayer && pid === ActivePlayerModel.activePlayerId) {
             ActivePlayerModel.deactivatePlayer()
-            msg = qsTr("Active player " + pname + "left")
+            var msg = qsTr("Active player " + pname + "left")
             msgToSend = {action: "FeedbackMessage",
                          message: msg}
             playersManager.sendAllPlayersMessage(JSON.stringify(msgToSend))
@@ -287,8 +323,16 @@ Item {
             mainarea.currentItem.processControlAction(js["id"], pid)
 
         } else if (js["action"] === "ConfirmationQuestionResponse") {
-            // TODO: case when multiple possible confirmations
-            if (exitConfirmationDialog.visible) {
+            // TODO: case when multiple possible confirmations -> should use id
+            if (js["questionId"] === "noWebstoreConnectionDialog") {
+                if (noWebstoreConnectionDialog.visible) {
+                    noWebstoreConnectionDialog.visible = false
+                    // just to make sure everyones dialogs are closed
+                    playersManager.sendAllPlayersMessage(MessagesJS.CLOSE_QUESTION_MSG)
+                }
+            }
+
+            else if (exitConfirmationDialog.visible) {
                 exitConfirmationDialog.selectOption(js["ref"])
 
                 // just to make sure everyones dialogs are closed
@@ -302,6 +346,7 @@ Item {
     GConfirmationDialog {
         id: exitConfirmationDialog
         visible: false // initial state
+        questionId: "exitconfirmation"
         questionText: qsTr("Exit and stop using console? ")
         option1Text: qsTr("Yes")
         option2Text: qsTr("No")
@@ -391,6 +436,7 @@ Item {
         */
 
     }
+
     function exitGameSelected() {
         console.debug("Exit selected")
 
@@ -399,7 +445,7 @@ Item {
         // TODO: how localization of these texts would go?
 
         var js = {action: "ConfirmationQuestion",
-                  title: exitConfirmationDialog.titleText,
+                  questionId: exitConfirmationDialog.questionId,
                   text: exitConfirmationDialog.questionText,
                   options: [{id:   exitConfirmationDialog.option1Id,
                              text: exitConfirmationDialog.option1Text},

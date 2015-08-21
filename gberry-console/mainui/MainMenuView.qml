@@ -24,8 +24,14 @@ Item {
     id: self
 
     onVisibleChanged: {
-        if (visible)
+        if (visible) {
             mainMenu.forceActiveFocus()
+
+            if (visible) {
+                if (FirstTimeStartup && !connectionInfoDialog.onceShown)
+                    connectionInfoDialog.visible = true
+            }
+        }
     }
 
     onFocusChanged: {
@@ -99,7 +105,14 @@ Item {
     // will hide menu until closed
     ConnectionInfoDialog {
         id: connectionInfoDialog
+        property bool onceShown: false
         visible: false
+
+        onVisibleChanged: {
+            if (visible)
+                onceShown = true
+        }
+
         height: preferredHeight
         width: preferredWidth
         textPixelSize: gdisplay.mediumSizeText
@@ -147,7 +160,7 @@ Item {
     }
 
     Component.onCompleted: {
-        connectionInfoDialog.visible = true
+
     }
 }
 
