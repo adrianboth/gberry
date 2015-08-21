@@ -77,6 +77,10 @@ void ConsoleApplication::run(QString mainQmlUrl)
     _engine.rootContext()->setContextProperty("ApplicationManager", _applicationManager);
     _engine.rootContext()->setContextProperty("CurrentApplication", &_currentApplication);
 
+    foreach(QString key, _additionalQmlContextProperties.keys()) {
+        _engine.rootContext()->setContextProperty(key, _additionalQmlContextProperties[key]);
+    }
+
     _engine.load(QUrl(mainQmlUrl));
 
     QObject::connect(&_engine, &QQmlEngine::quit, QGuiApplication::instance(), QGuiApplication::quit);
@@ -85,4 +89,9 @@ void ConsoleApplication::run(QString mainQmlUrl)
 void ConsoleApplication::setApplicationCode(const QString& applicationCode)
 {
     _setup.controlChannel->setApplicationCode(applicationCode);
+}
+
+void ConsoleApplication::setQmlContextProperty(const QString& key, const QVariant& value)
+{
+    _additionalQmlContextProperties[key] = value;
 }

@@ -21,6 +21,7 @@
 
 #include <QScopedPointer>
 #include <QProcess>
+#include <QStringList>
 
 #include "server/application/iapplication.h"
 using namespace GBerry::Console::Server;
@@ -46,6 +47,9 @@ public:
     ~ApplicationExecutionSetup();
 
     bool prepare(QProcess& process, const IApplication& app, Result& res) override;
+
+    void setAdditionalArguments(const QStringList& args) override;
+    void setEnvironmentVariable(const QString& varName, const QString& varValue) override;
 
 private:
     class Private;

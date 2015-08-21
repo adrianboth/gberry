@@ -19,12 +19,22 @@
 #ifndef SIMPLEAPPLICATIONEXECUTIONSETUP_H
 #define SIMPLEAPPLICATIONEXECUTIONSETUP_H
 
+#include "iapplicationexecutionsetup.h"
+using namespace GBerryComms;
+
 class SimpleApplicationExecutionSetup : public IApplicationExecutionSetup {
 public:
     virtual bool prepare(QProcess& process, const IApplication& app, Result& res) override {
         Q_UNUSED(res);
         process.setProgram(app.meta()->applicationExecutablePath());
         return true;
+    }
+
+
+    virtual void setAdditionalArguments(const QStringList& args) override { Q_UNUSED(args) }
+    virtual void setEnvironmentVariable(const QString& varName, const QString& varValue) {
+        Q_UNUSED(varName);
+        Q_UNUSED(varValue);
     }
 };
 

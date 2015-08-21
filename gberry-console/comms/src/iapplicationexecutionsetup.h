@@ -37,6 +37,9 @@ public:
     virtual ~IApplicationExecutionSetup() {}
 
     virtual bool prepare(QProcess& process, const IApplication& app, Result& res) = 0;
+
+    virtual void setAdditionalArguments(const QStringList& args) = 0;
+    virtual void setEnvironmentVariable(const QString& varName, const QString& varValue) = 0;
 };
 
 } // eon

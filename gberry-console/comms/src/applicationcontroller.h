@@ -57,6 +57,9 @@ public:
     virtual QSharedPointer<IApplication> application();
     virtual void enableSimulatedMode(bool enabled);
 
+    virtual void setAdditionalArguments(const QStringList& args);
+    virtual void setEnvironmentVariable(const QString& key, const QString& value);
+
     // -- dynamic properties
     static const char* PROCESS_KILL_WAIT_MS_PROP;
 

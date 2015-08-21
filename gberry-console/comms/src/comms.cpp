@@ -173,6 +173,16 @@ int Comms::run(int argc, char *argv[])
     });
 
     ApplicationController mainuiController(getapp("mainui"), &executionSetup);
+    mainuiController.setEnvironmentVariable("FIRST_STARTUP", "1");
+
+    int mainuiLaunchCounter = 0;
+    ApplicationController* pMainuiController = &mainuiController;
+    QObject::connect(pMainuiController, &ApplicationController::launched, [&] () {
+        if (mainuiLaunchCounter == 0) {
+            mainuiLaunchCounter++;
+            pMainuiController->setEnvironmentVariable("FIRST_STARTUP" ,"0");
+        }
+    });
 
     // TODO: using safe pointer goes too far ...
     LaunchController currentAppController(apps.data(), &executionSetup);

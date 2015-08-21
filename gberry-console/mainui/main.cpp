@@ -16,7 +16,9 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include <QGuiApplication>
+#include <QGuiApplication>
+#include <QProcessEnvironment>
+
 #include <client/applicationmain.h>
 #include <client/consoleapplication.h>
 
@@ -30,6 +32,13 @@ int main(int argc, char *argv[])
     ConsoleApplication consoleApp;
     if (main.hasApplicationCode())
         consoleApp.setApplicationCode(main.applicationCode());
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    if (env.contains("FIRST_STARTUP") && env.value("FIRST_STARTUP") == "1") {
+        consoleApp.setQmlContextProperty("FirstTimeStartup", QVariant(true));
+    } else {
+        consoleApp.setQmlContextProperty("FirstTimeStartup", QVariant(false));
+    }
 
 #ifdef GBERRY_DEBUG_QML_IMPORT_PATH
     consoleApp.setImportPaths(QString(xstr(GBERRY_DEBUG_QML_IMPORT_PATH)));

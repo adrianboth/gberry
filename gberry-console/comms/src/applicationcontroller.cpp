@@ -243,3 +243,13 @@ void ApplicationController::enableSimulatedMode(bool enabled)
 {
     _d->simulated = enabled;
 }
+
+void ApplicationController::setAdditionalArguments(const QStringList &args)
+{
+    _d->executionSetup->setAdditionalArguments(args);
+}
+
+void ApplicationController::setEnvironmentVariable(const QString &key, const QString &value)
+{
+    _d->executionSetup->setEnvironmentVariable(key, value);
+}

@@ -19,6 +19,7 @@
 #include "applicationexecutionsetup.h"
 
 #include <utils/fileutils.h>
+#include <QStringList>
 
 namespace GBerryComms {
 
@@ -32,6 +33,8 @@ public:
     QtLibrariesManager* qtlibsManager{nullptr};
     bool enableOutputLogging{false};
     ApplicationRegistry* registry{nullptr};
+    QStringList additionalArgs;
+    QMap<QString, QString> envVars;
 
     bool setupLogging(QProcess& process, const IApplication& app, Result& result) {
         if (enableOutputLogging) {
@@ -142,14 +145,30 @@ bool ApplicationExecutionSetup::prepare(QProcess &process, const IApplication &a
     }
 
     // -----
+    QStringList args(_d->additionalArgs);
+
     if (_d->registry) {
         // registry is used to identify who is making TCP connections
-        QStringList args;
-        args << "--application-code=" + _d->registry->createIdentificationCode(app.meta()->applicationId());
-        process.setArguments(args);
+        args << "--application-code=" + _d->registry->createIdentificationCode(app.meta()->applicationId());  
     }
+    process.setArguments(args);
 
+    QStringList envs(QProcess::systemEnvironment());
+    foreach(QString key, _d->envVars.keys()) {
+        envs << QString(key + "=" + _d->envVars[key]);
+    }
+    process.setEnvironment(envs);
     return true;
+}
+
+void ApplicationExecutionSetup::setAdditionalArguments(const QStringList &args)
+{
+    _d->additionalArgs = args;
+}
+
+void ApplicationExecutionSetup::setEnvironmentVariable(const QString &varName, const QString &varValue)
+{
+    _d->envVars[varName] = varValue;
 }
 
 } // eon

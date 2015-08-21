@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QMap>
 #include <QQmlApplicationEngine>
 
 #include <applicationsettings.h>
@@ -74,6 +75,9 @@ public:
 
     void setApplicationCode(const QString& applicationCode);
 
+    void setQmlContextProperty(const QString& key, const QVariant& value);
+
+
 signals:
 
 public slots:
@@ -97,6 +101,8 @@ private:
     ApplicationManager* _applicationManager;
     ConnectionCommunication _connectionCommunication;
     Connection _connection;
+
+    QMap<QString, QVariant> _additionalQmlContextProperties;
 
 };
 
