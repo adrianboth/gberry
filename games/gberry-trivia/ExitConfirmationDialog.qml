@@ -1,6 +1,7 @@
 import QtQuick 2.4
 
 import GBerry 1.0
+import GBerryConsole 1.0
 
 GConfirmationDialog {
     id: self
