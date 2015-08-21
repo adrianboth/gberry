@@ -48,7 +48,7 @@ Item {
         source: imageSource
         fillMode: Image.PreserveAspectFit
         rotation: self.rotation
-        opacity: self.enabled ? 1 : 0.5
+        opacity: self.enabled ? 1 : 0.4
     }
 
     MouseArea {
