@@ -112,9 +112,14 @@ Window {
 
     function onPlayerIn(pid, pname)
     {
+        // clear potential previous actions
+        var js = {action: "DefineGeneralActions",actions: []} // no actions
+        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
         console.log("New player in: id = " + pid + ", name = " + pname)
         if (mainViewLoader.status == Loader.Ready)
             mainViewLoader.item.onPlayerIn(pid, pname)
+
     }
 
     function onPlayerOut(pid, pname)
