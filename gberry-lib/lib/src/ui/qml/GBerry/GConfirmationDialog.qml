@@ -136,6 +136,7 @@ Rectangle {
 
                 GButton {
                     id: option2Button
+                    visible: option2Text !== "<answer2>" // something else than default
                     label: option2Text
                     labelTextPixelSize: textPixelSize
                     Layout.preferredWidth: parent.maxButtonWidth
