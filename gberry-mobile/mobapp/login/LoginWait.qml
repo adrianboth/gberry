@@ -28,6 +28,8 @@ Item {
     anchors.fill: parent
 
     signal viewClosed()
+    signal loginOk()
+    signal loginFailed()
     //signal login(string userName)
     //signal logout(string userName)
 
@@ -107,10 +109,13 @@ Item {
 
     function onLoginOk() {
         viewClosed()
+        loginOk();
+
     }
 
     function onLoginFailed(errorMessage) {
         errorDialog.show("Login failed: " + errorMessage)
+        loginFailed()
     }
 
     Component.onCompleted: {
