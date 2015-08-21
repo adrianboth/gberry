@@ -44,6 +44,10 @@ int main(int argc, char *argv[])
     consoleApp.setImportPaths(QString(xstr(GBERRY_DEBUG_QML_IMPORT_PATH)));
 #endif
 
+#ifdef GBERRY_FIXED_ROOT_PATH
+    consoleApp.currentApplication().setRootPath(QString(xstr(GBERRY_FIXED_ROOT_PATH)));
+#endif
+
     consoleApp.run("qrc:/main.qml");
 
     return main.exec();

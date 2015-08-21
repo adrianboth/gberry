@@ -223,6 +223,15 @@ Item {
         }
     }
 
+    Text {
+        id: versionTextLabel
+        // TODO: This is just version of mainui, we should show also comms (waitapp?)
+        text: "Version " + CurrentApplication.applicationVersionString()
+        font.pixelSize: gdisplay.mediumSizeText * 0.75
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+    }
+
     DownloadFeedbackBar {
         id: downloadFeedbackBar
         //visible: true // TODO: dev
@@ -250,6 +259,8 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
     }
+
+
 
     // --- FUNCTIONS
 
