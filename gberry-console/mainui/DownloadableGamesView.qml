@@ -240,8 +240,11 @@ Item {
                                     Image {
                                         id: smallGameImage
                                         anchors.centerIn: parent
-                                        visible: Assets.isValidFilePath(catalog_image)
-                                        source: Assets.isValidFilePath(catalog_image) ? Assets.filePath(catalog_image) : ""
+                                        // TODO: in principle some of images are on local disk
+                                        // visible: Assets.isValidFilePath(catalog_image)
+                                        // source: Assets.isValidFilePath(catalog_image) ? Assets.filePath(catalog_image) : ""
+                                        visible: status === Image.Ready
+                                        source: catalog_image
                                         fillMode: Image.PreserveAspectCrop
                                         width: parent.width
                                         height: parent.height
@@ -325,6 +328,8 @@ Item {
     }
 
     onVisibleChanged: {
+        console.debug("### ActivePlayerModel.activePlayerIsGuest: " + ActivePlayerModel.activePlayerIsGuest.toString())
+
         if (visible) {
             // TODO: we good have some kind of waiting dialog
 
