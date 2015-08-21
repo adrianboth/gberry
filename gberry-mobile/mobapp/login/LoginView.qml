@@ -16,9 +16,10 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.0
+import QtQuick 2.4
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Controls.Styles 1.2
 
 import GBerry 1.0
 //import "ViewTitleBar.qml" as ViewTitleBar
@@ -186,6 +187,15 @@ Item {
                                 // currentIndex still contains old index
                                 saveCurrent(currentIndex)
                             }
+                            /*
+                            style: ComboBoxStyle {
+                                    background: Rectangle {
+                                        radius: 2
+                                        border.color: "gray"
+                                        border.width: 1
+                                    }
+                                }
+                            */
 
                             // on new selection update all fields on dialog
                             onCurrentIndexChanged: {
@@ -298,6 +308,13 @@ Item {
                                 if (UserModel.currentUserName == userNameField.currentText)
                                     self.currentUserDirty = true
                             }
+                            style: TextFieldStyle {
+                                    background: Rectangle {
+                                        radius: 2
+                                        border.color: "gray"
+                                        border.width: 1
+                                    }
+                                }
                         }
                     }
 
@@ -331,6 +348,14 @@ Item {
                                 if (UserModel.currentUserName == userNameField.currentText)
                                     self.currentUserDirty = true
                             }
+
+                            style: TextFieldStyle {
+                                    background: Rectangle {
+                                        radius: 2
+                                        border.color: "gray"
+                                        border.width: 1
+                                    }
+                                }
                         }
                     }
 

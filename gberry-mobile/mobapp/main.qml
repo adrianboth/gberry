@@ -309,11 +309,19 @@ Window {
     ModalDialogFrame {
         content: LoginWait {
             id: loginWait
+            property bool reconnectRequired: false
 
             function show(msg) { parent.show() }
             function hide() { parent.hide() }
 
             onViewClosed: { parent.hide() }
+
+            onLoginOk: {
+                // if valid user -> reconnect
+                if (reconnectRequired && UserModel.currentUserIsActive) {
+                    onConnectRequested()
+                }
+            }
         }
     }
 
@@ -489,7 +497,9 @@ Window {
 
         var js = JSON.parse(data)
         if (js["action"] === "ConfirmationQuestion") {
-            msgDiag.titleText = js["title"]
+            if (typeof(js["title"]) !== "undefined") {
+                msgDiag.titleText = js["title"]
+            }
             msgDiag.questionText = js["text"]
             msgDiag.questionId = js["questionId"]
 
@@ -497,9 +507,12 @@ Window {
             msgDiag.option1Id = js["options"][0]["id"]
             msgDiag.option1Text = js["options"][0]["text"]
 
-            msgDiag.option2Id = js["options"][1]["id"]
-            msgDiag.option2Text = js["options"][1]["text"]
+            if (js["options"].length > 1) {
+                msgDiag.option2Id = js["options"][1]["id"]
+                msgDiag.option2Text = js["options"][1]["text"]
+            }
 
+            // TODO: we should be modal and disable controls on background
             msgDiag.visible = true
 
         } else if (js["action"] === "CloseQuestion") {
@@ -554,24 +567,33 @@ Window {
         var wasConnectedToConsole = mobapp.loggedIn
 
         if (mobapp.loggedIn) {
+            console.debug("Disconnecting previous connection")
             onDisconnectRequested()
         }
 
+        console.debug("Selecting new user")
         UserModel.selectCurrentUser(userName)
 
         // login is async operation -> reconnection to console can occur on background
 
         if (!UserModel.currentIsGuest) {
+            loginWait.reconnectRequired = wasConnectedToConsole
             loginWait.show()
+            console.debug("Initiating login")
             LoginModel.login()
+
+            // once login is ready we need to do connect:
+            //   - happens in LoginWait::onLoginOk()
+
         } else {
             console.debug("Guest login")
+
+            // if valid user -> reconnect
+            if (wasConnectedToConsole && UserModel.currentUserIsActive) {
+                onConnectRequested()
+            }
         }
 
-        // if valid user -> reconnect
-        if (wasConnectedToConsole && UserModel.currentUserIsActive) {
-            onConnectRequested()
-        }
 
         // no really actions
         //   - name on title bar should update automatically
