@@ -42,7 +42,7 @@ Item {
     property var menuEnabledControlActions: ["Up", "Down", "OK"]
     property var connectionInfoEnabledControlActions: ["OK"]
 
-    property var enabledControlActions: connectionInfoEnabledControlActions // defaults
+    property var enabledControlActions: FirstTimeStartup ? connectionInfoEnabledControlActions : menuEnabledControlActions // defaults
 
     function processControlAction(action, pid) {
         if (action === "Up")
