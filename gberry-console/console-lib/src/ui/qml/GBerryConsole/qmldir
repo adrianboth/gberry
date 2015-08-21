@@ -5,4 +5,5 @@ MainMenu                1.0 MainMenu.qml
 MainMenuItem            1.0 MainMenuItem.qml
 AppBoxUI                1.0 AppBoxUI.qml
 Messages                1.0 js/Messages.js
+MessagesJS              1.0 js/Messages.js
 AppBoxMaster            1.0 js/AppBoxMaster.js
