@@ -125,7 +125,11 @@ Window {
         console.log("Player in: id = " + pid)
         messageBoard.insertPlayerMessage(pid, "New player")
 
-        var js = {action: "DefineAppBox", data: AppBoxMaster.dataStr()}
+        var js = {action: "DefineGeneralActions",
+                  actions: [{actionId: "ExitGame", actionName: "Exit Game"}]}
+        playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
+        js = {action: "DefineAppBox", data: AppBoxMaster.dataStr()}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
 
         // in our case all actions happen in appbox -> we can show it all the time
@@ -152,7 +156,9 @@ Window {
         var msgToSend, msg
 
         if (js["action"] === "GeneralAction") {
-            // TODO
+            if (js["id"] === "ExitGame") {
+                Qt.quit()
+            }
 
         } else if (js["action"] === "AppBoxMessage") {
             console.debug("AppBoxMessage")
