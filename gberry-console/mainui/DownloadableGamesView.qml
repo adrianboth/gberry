@@ -327,6 +327,11 @@ Item {
 
     }
 
+    DownloadableGamesWaitingInfo {
+        id: waitingInfo
+        visible: gamesUiModel.count === 0
+    }
+
     onVisibleChanged: {
         console.debug("### ActivePlayerModel.activePlayerIsGuest: " + ActivePlayerModel.activePlayerIsGuest.toString())
 
@@ -340,6 +345,8 @@ Item {
             if (DownloadableGamesModel.requestGames()) {
                 gamesUiModel.onGamesAvailable()
             }
+
+            //waitingInfo.visible = true
         }
     }
 
@@ -354,6 +361,8 @@ Item {
         if (event.key === Qt.Key_Escape)
             processControlAction("Back")
     }
+
+    // =========================================================================
 
     function onActivePlayerIdChanged() {
         // we have opened this view by activating certain player, if he leaves

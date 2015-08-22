@@ -27,7 +27,7 @@ Item {
     // TODO: why were not taking just ID and reading everything else from model
     property string gameFullId: ""
     property string gameApplicationId: ""
-    property string gameName: qsTr("No games found")
+    property string gameName: "---" //qsTr("No games found")
     property string gameDescription: ""
     property string gameImageUrl: ""
 
@@ -178,8 +178,8 @@ Item {
                 anchors.centerIn: parent
                 width: buttonWidth
                 height: buttonHeight
-                enabled: gameFullId != "" // initial until data comes in
-
+                enabled: gameFullId !== "" // initial until data comes in
+                visible: enabled
                 label: self.state === "UPGRADEABLE" ? qsTr("Update") : qsTr("Download")
 
                 onButtonClicked: {
@@ -206,35 +206,41 @@ Item {
 
     states: [
             State {
+                name: "BLANK"
+                PropertyChanges { target: downloadButton; enabled: false }
+                PropertyChanges { target: launchButton; visible: false }
+                PropertyChanges { target: statusRow; visible: false }
+            },
+            State {
                 name: "DOWNLOADABLE"
-                PropertyChanges { target: downloadButton; visible: true }
+                PropertyChanges { target: downloadButton; enabled: true }
                 PropertyChanges { target: launchButton; visible: false }
                 PropertyChanges { target: statusRow; visible: false }
             },
             State {
                 name: "UPGRADEABLE"
-                PropertyChanges { target: downloadButton; visible: true }
+                PropertyChanges { target: downloadButton; enabled: true }
                 PropertyChanges { target: launchButton; visible: false }
                 PropertyChanges { target: statusRow; visible: true }
                 PropertyChanges { target: statusLabel; text: qsTr("Earlier version is already installed."); }
             },
             State {
                 name: "DOWNLOADED"
-                PropertyChanges { target: downloadButton; visible: false }
+                PropertyChanges { target: downloadButton; enabled: false }
                 PropertyChanges { target: launchButton; visible: true }
                 PropertyChanges { target: statusRow; visible: true; }
                 PropertyChanges { target: statusLabel; text: qsTr("This game is already installed."); }
             },
             State {
                 name: "JUST_DOWNLOADED"
-                PropertyChanges { target: downloadButton; visible: false }
+                PropertyChanges { target: downloadButton; enabled: false }
                 PropertyChanges { target: launchButton; visible: true }
                 PropertyChanges { target: statusRow; visible: true; }
                 PropertyChanges { target: statusLabel; text: qsTr("Download finished."); }
             },
             State {
                 name: "DOWNLOADING"
-                PropertyChanges { target: downloadButton; visible: false }
+                PropertyChanges { target: downloadButton; enabled: false }
                 PropertyChanges { target: launchButton; visible: false }
                 PropertyChanges { target: statusRow; visible: true; }
                 PropertyChanges { target: statusLabel; text: qsTr("Downloading ..."); }
@@ -243,7 +249,7 @@ Item {
         ]
 
     // just some (not so good state for initial setup, case if no games at all)
-    state: "DOWNLOADABLE"
+    state: "BLANK"
 
     function checkItemStatus() {
         console.debug("### checking ongoing downloads")
