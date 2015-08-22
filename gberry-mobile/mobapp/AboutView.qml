@@ -16,7 +16,7 @@
  * along with GBerry. If not, see <http://www.gnu.org/licenses/>.
  */
  
- import QtQuick 2.3
+import QtQuick 2.3
 import QtQuick.Layouts 1.1
 
 Item {
@@ -32,7 +32,7 @@ Item {
     property string consoleTextStr: "Console (INIT)"
 
     property string appNameText: "<b>GBerry Mobile</b>"
-    property string appVersionText: "v0.2.0"
+    property string appVersionText: "v0.9.0"
     property string genericAboutText: "<html>This is general purpose GBerry
 mobile application that is used together with GBerry console. See
 <a href=\"http://gberry.xyz\">gberry.xyz</a> for more information.
