@@ -75,6 +75,7 @@ Rectangle {
             Layout.preferredHeight: errorText.contentHeight + 2 * textMargin // margin is based on line height
             Layout.preferredWidth: errorText.width + 2 * textMargin
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
 
             Text {
                 id: errorText
