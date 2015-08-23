@@ -16,5 +16,6 @@
         <file>images/settings48.svg</file>
         <file>images/video-game5.svg</file>
         <file>ConnectionInfoDialog.qml</file>
+        <file>DownloadableGamesWaitingInfo.qml</file>
     </qresource>
 </RCC>
