@@ -83,17 +83,6 @@ mobile application that is used together with GBerry console. See
             Item {
                 Layout.preferredWidth: view.width - 2 * view.anchors.margins
 
-                Image {
-                    id: logoImage
-                    anchors.top: parent.top
-                    anchors.right: parent.right
-                    anchors.margins: gdisplay.tinySizeText
-                    source: "images/gberry_footstep_green_outline.png"
-                    sourceSize.width: gdisplay.tinySizeText * 1.5 * 2
-                    sourceSize.height: gdisplay.tinySizeText * 1.5 * 2
-                    fillMode: Image.PreserveAspectFit
-                }
-
                 Column {
                     anchors.top: parent.top
                     anchors.topMargin: gdisplay.tinySizeText
@@ -101,23 +90,56 @@ mobile application that is used together with GBerry console. See
                     anchors.left: parent.left
                     anchors.leftMargin: gdisplay.tinySizeText
 
-                    Text {
-                        text: appNameText
-                        height: implicitHeight
-                        font.pixelSize: gdisplay.tinySizeText * 1.5
-                    }
+                    Item {
+                        //color: "yellow"
+                        width: view.width - 2 * view.anchors.margins - gdisplay.touchCellHeight() / 2
+                        //height: Math.max(logoImage.height, appNameText.height + appVersionText.height)
+                        //height: gdisplay.tinySizeText * 1.5 * 2
+                        height: logoImage.height + gdisplay.tinySizeText * 2
 
-                    Text {
-                        text: appVersionText
-                        height: implicitHeight
-                        font.pixelSize: gdisplay.tinySizeText
-                    }
+                        Image {
+                            id: logoImage
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.topMargin: gdisplay.tinySizeText
+                            source: "images/gberry_footstep_green_outline.png"
+                            sourceSize.width: gdisplay.tinySizeText * 1.5 * 2
+                            sourceSize.height: gdisplay.tinySizeText * 1.5 * 2
+                            fillMode: Image.PreserveAspectFit
+                            height: gdisplay.tinySizeText * 1.5 * 2
+                        }
 
+                        Item {
+                            id: aboutHeader
+                            anchors.left: logoImage.right
+                            anchors.margins: gdisplay.tinySizeText
+                            anchors.top: parent.top
+                            height: appNameText.height + appVersionText.height
+                            width:Math.max(appNameText.width + appVersionText.width)
+
+                            Column {
+                                anchors.fill: parent
+                                Text {
+                                    text: appNameText
+                                    height: implicitHeight
+                                    font.pixelSize: gdisplay.tinySizeText * 1.5
+                                }
+
+                                Text {
+                                    text: appVersionText
+                                    height: implicitHeight
+                                    font.pixelSize: gdisplay.tinySizeText
+                                }
+                            }
+                        }
+
+                    }
+/*
                     Item {
                         height: gdisplay.tinySizeText
                         width: 1 // without width is unvisible
                     }
-
+*/
                     Text {
                         // for text wrapping to work
                         width: view.width - 2 * view.anchors.margins - gdisplay.touchCellHeight() / 2
