@@ -10,8 +10,8 @@ Window {
 
     // TV screen for console app is scaled down to fit to screen
     //   -> there is no that problem with mobile -> take it off
-    width: singleAppboxWidth * 2// / DisplayProfile.sizeScaleFactor // dimension mode
-    height: singleAppboxHeight // / DisplayProfile.sizeScaleFactor
+    width: originalSingleAppboxWidth * 2// / DisplayProfile.sizeScaleFactor // dimension mode
+    height: originalSingleAppboxHeight // / DisplayProfile.sizeScaleFactor
 
     property int singleAppboxWidth: calcX(realWidth)
     property int singleAppboxHeight: calcY(realHeigth) - calcY(platformTopBarPixelSize)
@@ -24,11 +24,19 @@ Window {
         return pixels / realYdpi * DisplayProfile.ydpi
     }
 
+    property int originalWidth: singleAppboxWidth *2
+    property int originalHeight: singleAppboxHeight
+    property int originalSingleAppboxWidth: calcX(realWidth)
+    property int originalSingleAppboxHeight: calcY(realHeigth) - calcY(platformTopBarPixelSize)
+
     property real realWidth: 480.0
     property real realHeigth: 800.0
     property real realXdpi: 223.0
     property real realYdpi: 223.0
     property int platformTopBarPixelSize: 12
+
+    onHeightChanged: singleAppboxHeight = originalSingleAppboxHeight + (height - originalHeight)
+    onWidthChanged: singleAppboxWidth = originalSingleAppboxWidth + (width - originalWidth) / 2
 
     // TODO: DisplayProfile also for debug window
 
