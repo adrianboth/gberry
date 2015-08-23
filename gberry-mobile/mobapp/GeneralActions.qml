@@ -32,64 +32,100 @@ Item {
     // private
     property real buttonScaler: 1.0
 
+    function show(bVisible) {
+        if (bVisible)
+            calcScaling()
+
+        visible = bVisible
+    }
+
+    /*
     onVisibleChanged: {
         if (visible)
-            calcScaling()
+
     }
+    */
 
     onMaxHeightChanged: { calcScaling() }
     onMaxWidthChanged: { calcScaling() }
 
-    function calcScaling() {
+    function calcScaling(useDefaults) {
+        if (typeof(useDefaults) === "undefined")
+            useDefaults = false
 
-        if (visible) {
-            console.log("############### CALC GeneralActions height")
-            // how to make items smaller?
-            //  -> decrease margin and buttons proportionally until ok
-            //     -> use scaler
+        console.log("############### CALC GeneralActions height")
+        // how to make items smaller?
+        //  -> decrease margin and buttons proportionally until ok
+        //     -> use scaler
 
-            // only if max have been defined
-            var buttonScalerCandinate = 0
-            if (maxHeight !== 0) {
-                var heightCandinate = actionMenu.defaultHeight
-                console.debug("### maxHeight: " + maxHeight + ", heightCandinate: " + heightCandinate)
-                if (heightCandinate > maxHeight) {
-                    buttonScalerCandinate = maxHeight / heightCandinate
+        // only if max have been defined
+        var buttonScalerCandinate = 0
+        if (maxHeight !== 0) {
+            var heightCandinate = actionMenu.defaultHeight
+            console.debug("### maxHeight: " + maxHeight + ", heightCandinate: " + heightCandinate)
+            if (height > maxHeight) {
+                buttonScalerCandinate = maxHeight / height
 
-                } else if (maxHeight / heightCandinate > buttonScaler) {
+            } else if (heightCandinate > maxHeight) {
+                buttonScalerCandinate = maxHeight / heightCandinate
 
-                    buttonScalerCandinate = maxHeight / heightCandinate
-                }
-
-                console.debug("### buttonScalerCandinate after height calc: " + buttonScalerCandinate)
+            // dev time resizing back
+            } else if (maxHeight / heightCandinate > buttonScaler) {
+                buttonScalerCandinate = maxHeight / heightCandinate
 
             }
 
-            if (maxWidth !== 0) {
-                console.debug("maxWidht: " + maxWidth + ", actionMenu.defaultWidth: " + actionMenu.defaultWidth)
-                var widthCandinate = actionMenu.defaultWidth // contains already effect of current scaler
-                if (widthCandinate > maxWidth) {
-
-                    var widthScalerCandinate = maxWidth / widthCandinate //* buttonScaler
-                    if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
-                        buttonScalerCandinate = widthScalerCandinate
-                    } else if (widthScalerCandinate > buttonScaler) {
-                        buttonScalerCandinate = widthScalerCandinate
-                    }
-                    console.debug("### buttonScalerCandinate after height calc: " + buttonScalerCandinate)
-                } else {
-                    var widthScalerCandinate = maxWidth / widthCandinate //* buttonScaler
-                    if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
-                        buttonScalerCandinate = widthScalerCandinate
-                    } else if (widthScalerCandinate > buttonScaler) {
-                        buttonScalerCandinate = widthScalerCandinate
-                    }
-                }
-            }
-
-            if (buttonScalerCandinate > 0 && buttonScalerCandinate <= 1.0)
-                buttonScaler = buttonScalerCandinate
+            console.debug("### buttonScalerCandinate after height calc: " + buttonScalerCandinate)
         }
+
+        if (maxWidth !== 0) {
+            console.debug("maxWidth: " + maxWidth + ", actionMenu.defaultWidth: " + actionMenu.defaultWidth)
+            var widthCandinate = actionMenu.defaultWidth // contains already effect of current scaler
+            console.debug("width: " + self.width + ", widthCandinate: " +  widthCandinate)
+
+            var widthScalerCandinate
+
+            if (!useDefaults && width > maxWidth) {
+
+                widthScalerCandinate = maxWidth / width //* buttonScaler
+                if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
+                    buttonScalerCandinate = widthScalerCandinate
+                } else if (widthScalerCandinate > buttonScaler) {
+                    buttonScalerCandinate = widthScalerCandinate
+                }
+
+            } else if (useDefaults && widthCandinate > maxWidth) {
+                widthScalerCandinate = maxWidth / maxWidth //* buttonScaler
+                if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
+                    buttonScalerCandinate = widthScalerCandinate
+                } else if (widthScalerCandinate > buttonScaler) {
+                    buttonScalerCandinate = widthScalerCandinate
+                }
+            }
+
+            /*
+            else {
+                widthScalerCandinate = maxWidth / widthCandinate //* buttonScaler
+                if (buttonScalerCandinate === 0 || widthScalerCandinate < buttonScalerCandinate) {
+                    buttonScalerCandinate = widthScalerCandinate
+                } else if (widthScalerCandinate < buttonScalerCandinate) {
+                    buttonScalerCandinate = widthScalerCandinate
+                }
+            }
+            */
+
+            console.debug("### buttonScalerCandinate after width calc: " + buttonScalerCandinate)
+        }
+
+        if (buttonScalerCandinate > 0 && buttonScalerCandinate <= 1.0)
+            buttonScaler = buttonScalerCandinate
+
+        console.debug("### height: " + height)
+        console.debug("### scaler: " + buttonScaler)
+        console.debug("### maxHeight: " + maxHeight)
+        console.debug("### default height: " + actionMenu.defaultHeight)
+
+
     }
 
     function clearActions() {
@@ -117,13 +153,14 @@ Item {
 
     Rectangle {
         id: actionMenu
-        property int marginX: gdisplay.touchCellWidth() / 2 * buttonScaler
+        property int defaultMarginX: gdisplay.touchCellWidth() / 2
+        property int marginX: defaultMarginX * buttonScaler
         //property int marginY: gdisplay.touchCellHeight() / 2
         property int marginY: border.width // to prevent drawing on top of border
         width: list.contentWidth + marginX * 2
         height: list.contentHeight + marginY * 2
         property int defaultHeight: listFrame.defaultHeight + marginY * 2
-        property int defaultWidth: listFrame.defaultWidth + marginX * 2
+        property int defaultWidth: listFrame.defaultWidth + defaultMarginX * 2
 
         color: "snow"
         border.width: 1
@@ -178,7 +215,7 @@ Item {
             }
 
             //property int defaultDelegateHeight: text.defaultHeight * 2 + upperEmptySpace.defaultHeight + divider.height + bottomEmptySpace.defaultHeight
-            property int defaultDelegateHeight: gdisplay.smallSizeText * 2 + gdisplay.smallSizeText/2 + 2 + gdisplay.smallSizeText/2
+            property int defaultDelegateHeight: gdisplay.smallSizeText * 2.1  + 4 + gdisplay.smallSizeText/2 + gdisplay.smallSizeText/2
 
 
 
@@ -186,56 +223,73 @@ Item {
                 id: actionDelegate
 
                 Rectangle {
-                    width: text.implicitWidth * buttonScaler
-                    height: (text.implicitHeight + divider.height + gdisplay.smallSizeText) * buttonScaler
+                    width: text.implicitWidth
+                    height: (text.implicitHeight + divider.height + 2 + bottomEmptySpace.height + upperEmptySpace.height)
+                    //width: cc.implicitWidth
+                    //height: cc.implicitHeight
                     //height: defaultHeight * buttonScaler
                     //property int defaultHeight: text.defaultHeight * 2 + upperEmptySpace.defaultHeight + divider.height + bottomEmptySpace.defaultHeight
                     color: "snow"
                     //color: "red"
                     property string id: actionId
 
-                    Item {
-                        id: upperEmptySpace
-                        property int defaultHeight: gdisplay.smallSizeText/2
-                        height: defaultHeight * buttonScaler
-                        width: 1
-                        //color: "green"
-                    }
+                    Column {
+                        id: cc
+                        Item {
+                            id: upperEmptySpace
+                            property int defaultHeight: gdisplay.smallSizeText/2
+                            height: defaultHeight * buttonScaler
+                            width: actionMenu.width - actionMenu.marginX
+                            //anchors.top: parent.top
+                            //anchors.left: parent.left
+                            //color: "green"
+                        }
 
-                    Text {
-                        id: text
-                        color: "black"
-                        text: actionName
-                        font.pointSize: gdisplay.smallSizeText * buttonScaler
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: upperEmptySpace.bottom
-                        property int defaultHeight: gdisplay.smallSizeText
-                    }
+                        Text {
+                            id: text
+                            color: "black"
+                            text: actionName
+                            font.pointSize: gdisplay.smallSizeText * buttonScaler
+                            //anchors.horizontalCenter: parent.horizontalCenter
+                            //anchors.top: upperEmptySpace.bottom
+                            property int defaultHeight: gdisplay.smallSizeText
+                        }
 
-                    Item {
-                        id: bottomEmptySpace
-                        height: defaultHeight *buttonScaler
-                        property int defaultHeight: gdisplay.smallSizeText/2
-                        width: 1
-                        //color: "green"
-                        anchors.top: text.bottom
-                    }
+                        Item {
+                            id: bottomEmptySpace
+                            height: defaultHeight *buttonScaler
+                            property int defaultHeight: gdisplay.smallSizeText/2
+                            width: actionMenu.width - actionMenu.marginX
+                            //color: "green"
+                            //anchors.top: text.bottom
+                            //anchors.left: parent.left
+                        }
 
-                    Rectangle {
-                        id: divider
-                        // last item should not have divider
-                        visible: index != listModel.count -1
-                        height: 2
-                        width: 0.7 * actionMenu.width * buttonScaler// 0.15+0.15 for left/right margins
-                        color: "lightgray"
-                        anchors.top: bottomEmptySpace.bottom
-                        anchors.left: parent.left
-                        anchors.leftMargin: 0.15 * actionMenu.width - actionMenu.marginX
+                        Rectangle {
+                            id: divider
+                            // last item should not have divider
+                            visible: index != listModel.count -1
+                            height: 2
+                            //width: actionMenu.width
+                            width: 0.7 * actionMenu.width // 0.15+0.15 for left/right margins
+                            color: "lightgray"
+                            //anchors.top: bottomEmptySpace.bottom
+                            //anchors.left: parent.left
+                            //anchors.leftMargin: 0.15 * actionMenu.width - actionMenu.marginX
+                            x: 0.15 * actionMenu.width - actionMenu.marginX
+                        }
                     }
                 }
             }
         }
     }
+    /*
+    Rectangle {
+        x: 0; width: 50;
+        color: "red"
+        y: parent.height; height: 50
+    }
+    */
 
     Component.onCompleted: {
         // test data
