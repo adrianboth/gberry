@@ -24,15 +24,17 @@ import QtQuick.Layouts 1.1
 Rectangle {
     id: self
     anchors.fill: parent
+
     gradient: Gradient {
         GradientStop { position: 0.0; color: "lightsteelblue" }
         GradientStop { position: 1.0; color: "slategray" }
     }
 
     property real buttonOpacity: 1.0
-    property int buttonTextFontPixelSize: gdisplay.mediumSizeText
-    property int feedbackTextSize: gdisplay.smallSizeText
-    property int pointsTextSize: gdisplay.smallSizeText * 0.75
+    property int buttonTextFontPixelSize: gdisplay.mediumSizeText * scaler
+    property int feedbackTextSize: gdisplay.smallSizeText * scaler
+    property int pointsTextSize: gdisplay.smallSizeText * 0.75 * scaler
+    property real scaler: 1.0
 
     property int points: 0
 
@@ -43,15 +45,72 @@ Rectangle {
     property color answerCorrectBackgroundColor: "blue"
     property color answerMyCorrectBackgroundColor: "green"
 
+    onHeightChanged: {
+        console.debug("appbox height: " + mainLayout.height)
+        console.debug("appbox default height: " + mainLayout.defaultHeight)
+    }
+
+    onVisibleChanged: {
+        if (visible)
+            calcScaling()
+    }
+
+    property int maxHeight: self.height
+    property int maxWidth: self.width
+
+    onMaxHeightChanged: { calcScaling() }
+    onMaxWidthChanged: { calcScaling() }
+
+    function calcScaling() {
+        if (visible) {
+            //console.log("############### CALC height")
+            // how to make items smaller?
+            //  -> decrease margin and buttons proportionally until ok
+            //     -> use scaler
+
+            // only if max have been defined
+            var scalerCandinate = 1.0
+            if (maxHeight !== 0) {
+                var heightCandinate = mainLayout.defaultHeight
+                //console.debug("### maxHeight: " + maxHeight + ", heightCandinate: " + heightCandinate)
+                if (heightCandinate > maxHeight) {
+                    scalerCandinate = maxHeight / heightCandinate
+                    console.debug("### buttonScalerCandinate after height calc: " + scalerCandinate)
+                }
+
+            }
+
+            if (maxWidth !== 0) {
+                var widthCandinate = mainLayout.defaultWidth
+                if (widthCandinate > maxWidth) {
+                    var widthScalerCandinate = maxWidth / widthCandinate
+                    if (widthScalerCandinate < scalerCandinate) {
+                        scalerCandinate = widthScalerCandinate
+                        //console.debug("### buttonScalerCandinate after width calc: " + scalerCandinate)
+                    }
+                }
+            }
+
+            scaler = scalerCandinate
+        }
+    }
+
     ColumnLayout {
+        id: mainLayout
         anchors.centerIn: parent
+        property int defaultHeight: feedback.defaultHeight + answerArea.defaultHeight + pointsArea.defaultHeight + 2*spacing
+        property int defaultWidth: answerArea.defaultWidth
 
         Item {
+            //color: "orange"
             id: feedback
             //Layout.preferredWidth: feedbackText.implicitWidth * 1.5
-            Layout.fillWidth: true
+            //Layout.fillWidth: true
+            Layout.preferredWidth: answerButtonBox.width + gdisplay.touchCellWidth() * scaler
             Layout.preferredHeight: feedbackText.implicitHeight * 1.5
             Layout.alignment: Qt.AlignHCenter
+
+            property int defaultHeight:feedbackText.implicitHeight * 1.5
 
             Rectangle {
                 id: feedbackBox
@@ -127,7 +186,7 @@ Rectangle {
 
             Timer {
                 id: nowFadeTimer
-                interval: 100; repeat: true
+                interval: 200; repeat: true
                 onTriggered: {
                     if (feedbackBox.opacity == 0) {
                         nowFadeTimer.running = false
@@ -147,28 +206,38 @@ Rectangle {
             radius: 10
             //Layout.fillWidth: true
             //Layout.preferredHeight: feedbackText.implicitHeight * 1.5
-            //Layout.alignment: Qt.AlignHCenter
-            Layout.preferredHeight: answerButtonBox.height + gdisplay.touchCellHeight()
-            Layout.preferredWidth: answerButtonBox.width + gdisplay.touchCellWidth()
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: (answerButtonBox.height + gdisplay.touchCellHeight()) * scaler
+            Layout.preferredWidth: (answerButtonBox.width + gdisplay.touchCellWidth()) * scaler
+
+            property int defaultHeight: 4*self.buttonTextFontPixelSize * 1.5 + gdisplay.touchCellHeight()
+            property int defaultWidth : self.buttonTextFontPixelSize * 3 * 1.5
+
+            property int buttonPressFeedbackTime: 250
 
             ColumnLayout {
                 id: answerButtonBox
                 anchors.centerIn: parent
                 property bool notSelectedDisabled: false
 
-                function pickAnswerColor(answerState) {
+                function pickAnswerColor(answerState, buttonPressedDown) {
                     console.debug("### button state: " + answerState)
+                    var buttonColor
                     if (answerState === "WAIT_SELECTION")
-                        return self.answerNormalBackgroundColor
+                        buttonColor = self.answerNormalBackgroundColor
                     else if (answerState === "CORRECT")
-                        return self.answerCorrectBackgroundColor
+                        buttonColor = self.answerCorrectBackgroundColor
                     else if (answerState === "NOT_CORRECT")
-                        return self.answerWrongBackgroundColor
+                        buttonColor = self.answerWrongBackgroundColor
                     else if (answerState === "MY_CORRECT")
-                        return self.answerMyCorrectBackgroundColor
-                    else
+                        buttonColor = self.answerMyCorrectBackgroundColor
+                    else {
                         console.warn("Unknown state: " + answerState)
-                        return "white"
+                        buttonColor = "white"
+                    }
+
+                    //return buttonColor
+                    return buttonPressedDown ? Qt.darker(buttonColor) : buttonColor
                 }
 
                 Rectangle {
@@ -183,12 +252,12 @@ Rectangle {
                     radius: 10
                     antialiasing: true
                     opacity: buttonOpacity
-
-                    enabled: state === "WAIT_SELECTION" && answerButtonBox.notSelectedDisabled
+                    property bool buttonPressedDown: false
+                    enabled: state === "WAIT_SELECTION" && !answerButtonBox.notSelectedDisabled
 
                     state: "WAIT_SELECTION"
                     onStateChanged: pickColor()
-                    function pickColor() { color = answerButtonBox.pickAnswerColor(state) }
+                    function pickColor() { color = answerButtonBox.pickAnswerColor(state, buttonPressedDown) }
 
                     Text {
                         id: answerIdLabel
@@ -200,6 +269,7 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            parent.buttonPressedDown = true
                             parent.color = Qt.darker(parent.color)
                             button1PressFeedbackTimer.running = true
                             buttonPressed(parent.answerId)
@@ -208,8 +278,9 @@ Rectangle {
 
                     Timer {
                         id: button1PressFeedbackTimer
-                        interval: 100; running: false; repeat: false
+                        interval: answerArea.buttonPressFeedbackTime; running: false; repeat: false
                         onTriggered: {
+                            parent.buttonPressedDown = false
                             parent.pickColor()
                         }
                     }
@@ -228,11 +299,11 @@ Rectangle {
                     antialiasing: true
                     opacity: buttonOpacity
 
-                    enabled: state === "WAIT_SELECTION" && answerButtonBox.notSelectedDisabled
-
+                    enabled: state === "WAIT_SELECTION" && !answerButtonBox.notSelectedDisabled
+                    property bool buttonPressedDown: false
                     state: "WAIT_SELECTION"
                     onStateChanged: pickColor()
-                    function pickColor() { color = answerButtonBox.pickAnswerColor(state) }
+                    function pickColor() { color = answerButtonBox.pickAnswerColor(state, buttonPressedDown) }
 
                     Text {
                         anchors.centerIn: parent
@@ -243,6 +314,7 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            parent.buttonPressedDown = true
                             parent.color = Qt.darker(parent.color)
                             button2PressFeedbackTimer.running = true
                             buttonPressed(parent.answerId)
@@ -251,8 +323,9 @@ Rectangle {
 
                     Timer {
                         id: button2PressFeedbackTimer
-                        interval: 100; running: false; repeat: false
+                        interval: answerArea.buttonPressFeedbackTime; running: false; repeat: false
                         onTriggered: {
+                            parent.buttonPressedDown = false
                             parent.pickColor()
                         }
                     }
@@ -271,11 +344,11 @@ Rectangle {
                     antialiasing: true
                     opacity: buttonOpacity
 
-                    enabled: state === "WAIT_SELECTION" && answerButtonBox.notSelectedDisabled
-
+                    enabled: state === "WAIT_SELECTION" && !answerButtonBox.notSelectedDisabled
+                    property bool buttonPressedDown: false
                     state: "WAIT_SELECTION"
                     onStateChanged: pickColor()
-                    function pickColor() { color = answerButtonBox.pickAnswerColor(state) }
+                    function pickColor() { color = answerButtonBox.pickAnswerColor(state, buttonPressedDown) }
 
                     Text {
                         anchors.centerIn: parent
@@ -286,6 +359,7 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            parent.buttonPressedDown = true
                             parent.color = Qt.darker(parent.color)
                             button3PressFeedbackTimer.running = true
                             buttonPressed(parent.answerId)
@@ -294,8 +368,9 @@ Rectangle {
 
                     Timer {
                         id: button3PressFeedbackTimer
-                        interval: 100; running: false; repeat: false
+                        interval: answerArea.buttonPressFeedbackTime; running: false; repeat: false
                         onTriggered: {
+                            parent.buttonPressedDown = false
                             parent.pickColor()
                         }
                     }
@@ -314,11 +389,11 @@ Rectangle {
                     antialiasing: true
                     opacity: buttonOpacity
 
-                    enabled: state === "WAIT_SELECTION" && answerButtonBox.notSelectedDisabled
-
+                    enabled: state === "WAIT_SELECTION" && !answerButtonBox.notSelectedDisabled
+                    property bool buttonPressedDown: false
                     state: "WAIT_SELECTION"
                     onStateChanged: pickColor()
-                    function pickColor() { color = answerButtonBox.pickAnswerColor(state) }
+                    function pickColor() { color = answerButtonBox.pickAnswerColor(state, buttonPressedDown) }
 
                     Text {
                         anchors.centerIn: parent
@@ -329,6 +404,7 @@ Rectangle {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
+                            parent.buttonPressedDown = true
                             parent.color = Qt.darker(parent.color)
                             button4PressFeedbackTimer.running = true
                             buttonPressed(parent.answerId)
@@ -337,8 +413,9 @@ Rectangle {
 
                     Timer {
                         id: button4PressFeedbackTimer
-                        interval: 100; running: false; repeat: false
+                        interval: answerArea.buttonPressFeedbackTime; running: false; repeat: false
                         onTriggered: {
+                            parent.buttonPressedDown = false
                             parent.pickColor()
                         }
                     }
@@ -349,7 +426,10 @@ Rectangle {
         Item {
             id: pointsArea
             Layout.fillWidth: true
-            Layout.preferredHeight: pointsLabel.implicitHeight * 1.5
+            Layout.preferredHeight: pointsLabel.implicitHeight * 1.5 * scaler
+
+            property int defaultHeight: self.pointsTextSize * 1.5
+
             Text {
                 id: pointsLabel
                 anchors.centerIn: parent
@@ -373,14 +453,21 @@ Rectangle {
             name: "ACCEPT_ANSWERS"
             PropertyChanges { target: pointsLabel; visible: true }
             PropertyChanges { target: answerButtonBox; opacity: 1 }
-            PropertyChanges { target: answerButtonBox; notSelectedDisabled: true }
+            PropertyChanges { target: answerButtonBox; notSelectedDisabled: false }
             StateChangeScript { script: feedback.setNowMode() }
         },
         State {
             name: "WAIT_ANSWER_FEEDBACK"
             //PropertyChanges { target: pointsLabel; visible: true }
             PropertyChanges { target: answerButtonBox; notSelectedDisabled: true }
+            PropertyChanges { target: answerButtonBox; opacity: 0.8 }
+            //StateChangeScript { script: feedback.setNowMode() }
+        },
+        State {
+            name: "ACCEPT_ANSWERS_AFTER_FEEDBACK"
+            PropertyChanges { target: pointsLabel; visible: true }
             PropertyChanges { target: answerButtonBox; opacity: 1 }
+            PropertyChanges { target: answerButtonBox; notSelectedDisabled: false }
             //StateChangeScript { script: feedback.setNowMode() }
         },
         State {
@@ -461,10 +548,13 @@ Rectangle {
             buttonsByAnswerId[js["answer_id"]].state = "MY_CORRECT"
             self.points = js["points"]
             self.enabled = false
+            state = "ACCEPT_ANSWERS_AFTER_FEEDBACK"
 
         } else if (js["action"] === "WrongAnswerFeedback") {
-            feedbackText.setFeedback(qsTr("Try again!"))
+            feedbackText.setFeedback(qsTr("Wrong! Wait ..."))
             buttonsByAnswerId[js["answer_id"]].state = "NOT_CORRECT"
+            accepAnswerAfterFeedbackTimer.running = true
+            //state = "ACCEPT_ANSWERS_AFTER_FEEDBACK"
 
         } else if (js["action"] === "ShowAnswers") {
             if (js["status"] === "GameOver") {
@@ -475,6 +565,7 @@ Rectangle {
             buttons.map(function (button) { button.state = "NOT_CORRECT" })
             buttonsByAnswerId[js["correct_answer"]].state = "CORRECT"
             self.enabled = false
+            state = "SHOW_ANSWERS"
 
 
         } else if (js["action"] === "Ping") {
@@ -491,11 +582,23 @@ Rectangle {
 
         if (self.enabled) {
             // TODO: send
+            state = "WAIT_ANSWER_FEEDBACK"
             var js = {"action": "AnswerSelected",
                       "answer": answerId,
                       "question_id": questionId}
             console.debug("Sending message out from AppBox")
             outgoingMessage(js)
+        }
+    }
+
+    Timer {
+        id: accepAnswerAfterFeedbackTimer
+        running: false; repeat: false; interval: 1000
+        onTriggered: {
+            if (state === "WAIT_ANSWER_FEEDBACK") {
+                state = "ACCEPT_ANSWERS_AFTER_FEEDBACK"
+                feedbackText.setFeedback(qsTr("Try again!"))
+            }
         }
     }
 
