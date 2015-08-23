@@ -68,8 +68,11 @@ Rectangle {
 
         ColumnLayout {
             width: root.width
-
-            Text { text: "Settings"; font.pointSize: 16 }
+            spacing: gdisplay.smallSizeText / 2
+            Text {
+                text: "Settings";
+                font.pointSize: gdisplay.smallSizeText
+            }
 
             GroupBox {
                 title: "Console"
