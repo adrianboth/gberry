@@ -82,12 +82,12 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
 
                 height: topbarContainer.height
-                width: toggleLocalGeneralActionsButton.width + topbarContainer.height
+                width: toggleLocalGeneralActionsButton.width *2
 
                 IconButton {
                     id: toggleLocalGeneralActionsButton
                     anchors.left: parent.left
-                    anchors.leftMargin: topbarContainer.height * 0.25
+                    anchors.leftMargin: gdisplay.touchCellWidth() * 0.20
                     anchors.verticalCenter: parent.verticalCenter
 
                     targetHeight: topbarContainer.height
@@ -176,7 +176,7 @@ Window {
                     //visible: false
                     enabled: generalActions.hasActions
                     anchors.right: parent.right
-                    anchors.rightMargin: topbarContainer.height * 0.25
+                    anchors.rightMargin: topbarContainer.height * 0.20
                     anchors.verticalCenter: parent.verticalCenter
 
                     imageSource: "images/menu_dots.svg"
@@ -218,7 +218,8 @@ Window {
             visible: false
             anchors.fill: parent
             maxWidth: root.width
-            maxHeight: root.height - topbar.height
+            //maxHeight: root.height - topbar.height
+            maxHeight: Screen.primaryOrientation === Qt.PortraitOrientation ? root.height : root.width
 
             //onMaxHeightChanged: { console.debug("### BC macHeight: " + maxHeight) }
 
@@ -284,8 +285,8 @@ Window {
         visible: false
         anchors.top: topbar.bottom
         anchors.right: parent.right
-        maxWidth: root.width
-        maxHeight: root.height - topbar.height
+        maxWidth: Screen.primaryOrientation === Qt.PortraitOrientation ? root.width : root.height
+        maxHeight: (Screen.primaryOrientation === Qt.PortraitOrientation ? root.height : root.width) - topbar.height
     }
 
     GeneralActions {
@@ -293,9 +294,19 @@ Window {
         visible: false
         anchors.top: topbar.bottom
         anchors.left: parent.left
+        //maxWidth: Screen.primaryOrientation === Qt.PortraitOrientation ? root.width : root.height
+        //maxHeight: (Screen.primaryOrientation === Qt.PortraitOrientation ? root.height : root.width) - topbar.height
+
         maxWidth: root.width
         maxHeight: root.height - topbar.height
+
+        onWidthChanged: { console.debug("##### maxWidth: " + maxWidth) }
+        onHeightChanged: { console.debug("#### maxHeight: " + maxHeight) }
+
+        onMaxHeightChanged: { console.debug("##### maxWidth: " + maxWidth) }
+        onMaxWidthChanged: { console.debug("#### maxHeight: " + maxHeight) }
     }
+
 
     ModalDialogFrame {
         content: LoginView {
@@ -364,7 +375,7 @@ Window {
             function show(msg) { errorMessage = msg; parent.show() }
             function hide() { parent.hide() }
 
-            onAcknowledged: { parent.hide() }
+            onAcknowledged: { hide() }
         }
     }
 
@@ -398,9 +409,9 @@ Window {
     // 'show' is optional, forces visibility to true/false
     function toggleGeneralActions(show) {
         if (typeof show !== 'undefined')
-            generalActions.visible = show
+            generalActions.show(show)
         else
-            generalActions.visible = !generalActions.visible
+            generalActions.show(!generalActions.visible)
     }
 
     function onGeneralActionSelected(actionId) {
@@ -408,15 +419,15 @@ Window {
 
         // TODO: action button should have a feedback
         // TODO: and because of that dropdown menu shouldn't close immediately
-        generalActions.visible = false
+        generalActions.show(false)
     }
 
     // 'show' is optional, forces visibility to true/false
     function toggleLocalGeneralActions(show) {
         if (typeof show !== 'undefined')
-            localGeneralActions.visible = show
+            localGeneralActions.show(show)
         else
-            localGeneralActions.visible = !localGeneralActions.visible
+            localGeneralActions.show(!localGeneralActions.visible)
     }
 
     function anyGeneralActionsVisible() {
@@ -510,6 +521,10 @@ Window {
             if (js["options"].length > 1) {
                 msgDiag.option2Id = js["options"][1]["id"]
                 msgDiag.option2Text = js["options"][1]["text"]
+            } else {
+                // clear potential previous data (TODO: actually should be dialog responsibility=
+                msgDiag.option2Id = ""
+                msgDiag.option2Text = ""
             }
 
             // TODO: we should be modal and disable controls on background
@@ -642,7 +657,7 @@ Window {
     }
 
 
-    function onLoginFailed(errorMsg) {
+    function onConnectFailed(errorMsg) {
         console.debug("Login failed: " + errorMsg)
         errorDialog.show(errorMsg)
         ui.state = "DISCONNECTED"
@@ -667,7 +682,7 @@ Window {
         Log.initLog("main", Log.DEBUG_LEVEL)
 
         mobapp.playerMessageReceived.connect(onPlayerMessageReceived)
-        mobapp.consoleConnectionOpenFailed.connect(onLoginFailed)
+        mobapp.consoleConnectionOpenFailed.connect(onConnectFailed)
         mobapp.consoleConnectionClosed.connect(onDisconnectRequested) // TODO: should we have some kind of info for user what happened
 
         generalActions.actionSelected.connect(onGeneralActionSelected)
@@ -681,6 +696,8 @@ Window {
         ])
         localGeneralActions.actionSelected.connect(onLocalGeneralActionSelected)
 
+        generalActions.calcScaling()
+        localGeneralActions.calcScaling()
 
         loginview.viewClosed.connect(onLoginViewClosed)
         loginview.login.connect(onLogin)
