@@ -39,7 +39,7 @@ Item {
         color: "snow"
         //color: "red" // for debug
         border.width: 1
-        border.color: "lightgray"
+        border.color: "black"
 
         ColumnLayout {
             id: mainColumn
