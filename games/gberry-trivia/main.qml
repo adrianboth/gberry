@@ -305,9 +305,22 @@ Window {
         console.debug("New player in: id = " + pid)
         PointsModel.playerJoined(pid, playersManager.playerName(pid))
 
-        var js = {action: "DefineGeneralActions",
+        var js
+        if (mainarea.state === "MENU") {
+            js = {action: "DefineGeneralActions",
+                  actions: [{actionId: "ExitGame", actionName: "Exit Game"}]}
+
+        } else if (mainarea.state === "GAME") {
+            js = {action: "DefineGeneralActions",
                   actions: [{actionId: "GameMenu", actionName: "Abort Game"}]}
+
+        } else {
+            console.error("Unknow app state: " + mainarea.state)
+            js = {action: "DefineGeneralActions",
+                  actions: []}
+        }
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
+
 
         js = {action: "DefineAppBox", data: AppBoxMaster.dataStr()}
         playersManager.sendPlayerMessage(pid, JSON.stringify(js))
@@ -378,7 +391,12 @@ Window {
             if (js["id"] === "GameMenu") {
                 console.debug("GAME MENU GENERAL ACTION")
                 mainarea.state = "MENU"
+
+            } else if (js["id"] === "ExitGame") {
+                console.debug("GAME MENU GENERAL ACTION")
+                Qt.quit()
             }
+
         } else if (js["action"] === "AppBoxMessage") {
             console.debug("### message received: " + js["data"])
             var appboxMsg = js["data"]
@@ -488,11 +506,11 @@ Window {
         //playGameSelected()
     }
 
-    /*
+/*
     AppBoxDebugWindow {
 
     }
-    */
+*/
 
 
 }
