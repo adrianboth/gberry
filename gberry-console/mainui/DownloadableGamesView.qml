@@ -341,7 +341,9 @@ Item {
             // note that as each active player may see different games we need
             // to do fresh every time. But model can cache (internally) for
             // players what they see
+
             gamesUiModel.clear()
+            gameDetails.clear()
             if (DownloadableGamesModel.requestGames()) {
                 gamesUiModel.onGamesAvailable()
             }

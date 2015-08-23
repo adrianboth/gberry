@@ -42,6 +42,14 @@ Item {
         versionLabel.text = gameMeta.version
     }
 
+    function clear() {
+        gameFullId = ""
+        gameApplicationId = ""
+        gameName = "---"
+        gameDescription = ""
+        gameImageUrl = ""
+    }
+
     signal gameDownloadRequested()
     signal gameLaunchRequested()
 
@@ -106,7 +114,7 @@ Item {
             Text {
                 anchors.centerIn: parent
                 id: nameLabel
-
+                visible: text != "undefined"
                 text: gameName
                 font.pixelSize: 55 //gdisplay.mediumSizeText
             }
@@ -158,6 +166,7 @@ Item {
             Text {
                 id: descriptionText
                 anchors.fill: parent
+                visible: text != "undefined"
                 anchors.margins: gdisplay.touchCellHeight()
                 font.pixelSize: gdisplay.mediumSizeText
                 text: gameDescription
