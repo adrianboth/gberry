@@ -51,7 +51,7 @@ Rectangle {
     radius: 20
     antialiasing: true
     property string label
-    opacity: enabled ? 1 : 0.75
+    opacity: enabled ? 1 : 0.5
 
     signal buttonClicked()
 
