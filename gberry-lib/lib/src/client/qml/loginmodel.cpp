@@ -58,6 +58,8 @@ public:
     QString currentUserEmail;
     QString currentUserToken;
     QString currentPrivateToken;
+    bool pendingLogin{false};
+    bool pendingLogout{false};
 
     void loginInvocationFinishedOk(RESTInvocation* inv) {
 
@@ -83,6 +85,7 @@ public:
         currentPrivateToken = json["private_token"].toString();
         currentUserEmail = userModel->currentEmail();
         saveData();
+        DEBUG("Login: currentPrivateToken =" << currentPrivateToken);
 
         inv->deleteLater();
         loggedIn = true;
@@ -104,7 +107,7 @@ public:
     }
 
     void logoutInvocationFinishedOk(RESTInvocation* inv) {
-
+        pendingLogout = false;
         QJsonParseError error;
         QByteArray data(inv->responseString().toLatin1());
         QJsonObject json = QJsonDocument::fromJson(data, &error).object();
@@ -127,10 +130,14 @@ public:
         loggedIn = false;
         emit q->isLoggedInChanged();
         emit q->logoutOk();
+
+        if (pendingLogin)
+            doLogin();
     }
 
     void logoutInvocationFinishedError(RESTInvocation* inv, const QString& errorString = QString()) {
         loggedIn = false;
+        pendingLogout = false;
         emit q->isLoggedInChanged();
         if (errorString.isEmpty()) {
             emit q->loginFailed(ResultMessageFormatter(inv->result()).createEndUserMessage());
@@ -139,15 +146,39 @@ public:
             emit q->loginFailed(errorString);
         }
         inv->deleteLater();
+
+        if (pendingLogin)
+            doLogin();
     }
 
     void saveData() {
         if (ini) {
+            DEBUG("Saving: email =" << currentUserEmail << ", privateToken =" << currentPrivateToken);
             ini->setValue(USEREMAIL_KEY, currentUserEmail);
             ini->setValue(USERTOKEN_KEY, currentUserToken);
             ini->setValue(PRIVATETOKEN_KEY, currentPrivateToken);
             ini->sync();
         }
+    }
+
+    void doLogin() {
+        pendingLogin = false;
+        RESTInvocation* inv = invocationFactory->newRESTInvocation();
+
+        connect(inv, &RESTInvocation::finishedOK,
+                [=] (Invocation* i) { Q_UNUSED(i); loginInvocationFinishedOk(inv); } );
+        connect(inv, &RESTInvocation::finishedError,
+                [=] (Invocation* i) { Q_UNUSED(i); loginInvocationFinishedError(inv); });
+
+        // curl -v -H "Content-Type: application/json" -X POST --data "{\"email\": \"$1\", \"password\": \"$2\"}" http://${GBERRYHOST}/gberryrest/v1/user/login
+
+        QJsonObject json;
+        json["email"] = userModel->currentEmail();
+        json["password"] = userModel->currentPassword();
+        inv->definePostOperation("/user/login", QJsonDocument(json));
+
+        DEBUG("Executing: Login");
+        inv->execute();
     }
 };
 
@@ -155,7 +186,7 @@ LoginModel::LoginModel(UserModel* userModel, IApplicationStorage* storage, Invoc
     _d(new Private(this, userModel, storage, invocationFactory))
 {
     connect(userModel, &UserModel::currentUserNameChanged,
-            [&] () { this->logout();} );
+            [&] () { if (!_d->pendingLogout) this->logout();} );
 
     // create a file if not exists
     QString loginIniFilePath(storage->storagePath() + "/loginmodel.ini");
@@ -180,12 +211,16 @@ LoginModel::LoginModel(UserModel* userModel, IApplicationStorage* storage, Invoc
         if (_d->ini->contains(USEREMAIL_KEY) && _d->ini->contains(USERTOKEN_KEY) && _d->ini->contains(PRIVATETOKEN_KEY) ) {
             QString userEmail = _d->ini->value(USEREMAIL_KEY).toString();
             // use tokens only if the current user is same
-            if (_d->userModel->currentEmail() == userEmail) {
+            if (_d->userModel->currentEmail().isEmpty()) {
+                DEBUG("No current email (empty) -> not reading existing data");
+
+            } else if (_d->userModel->currentEmail() == userEmail) {
                 DEBUG("User emails matched - reading saved tokens");
                 _d->currentUserEmail = userEmail;
                 _d->currentUserToken = _d->ini->value(USERTOKEN_KEY).toString();
                 _d->currentPrivateToken = _d->ini->value(PRIVATETOKEN_KEY).toString();
                 _d->loggedIn = true;
+                DEBUG("currentPrivateToken: " << _d->currentPrivateToken);
             } else {
                 DEBUG("User emails did not match: Discarding saved tokens");
             }
@@ -196,6 +231,9 @@ LoginModel::LoginModel(UserModel* userModel, IApplicationStorage* storage, Invoc
     } else {
         // no file, no saved login
     }
+
+    DEBUG("currentUserEmail: " << _d->currentUserEmail);
+    DEBUG("loggedIn: " << _d->loggedIn);
 }
 
 LoginModel::~LoginModel()
@@ -218,37 +256,34 @@ void GBerryClient::LoginModel::login()
         emit loginOk();
 
     } else {
-        if (_d->loggedIn)
+        // if we need to logout, do that first before new login
+        if (_d->loggedIn) {
+            _d->pendingLogin = true;
             logout();
-
-        RESTInvocation* inv = _d->invocationFactory->newRESTInvocation();
-
-        connect(inv, &RESTInvocation::finishedOK,
-                [=] (Invocation* i) { Q_UNUSED(i); _d->loginInvocationFinishedOk(inv); } );
-        connect(inv, &RESTInvocation::finishedError,
-                [=] (Invocation* i) { Q_UNUSED(i); _d->loginInvocationFinishedError(inv); });
-
-        // curl -v -H "Content-Type: application/json" -X POST --data "{\"email\": \"$1\", \"password\": \"$2\"}" http://${GBERRYHOST}/gberryrest/v1/user/login
-
-        QJsonObject json;
-        json["email"] = _d->userModel->currentEmail();
-        json["password"] = _d->userModel->currentPassword();
-        inv->definePostOperation("/user/login", QJsonDocument(json));
-
-        DEBUG("Executing: Login");
-        inv->execute();
+       } else {
+            _d->doLogin();
+        }
     }
 }
 
 void GBerryClient::LoginModel::logout()
 {
-    DEBUG("Logout");
-    if (_d->loggedIn) {
+
+    if (_d->loggedIn && !_d->pendingLogout) {
+        DEBUG("Logout: email =" << _d->currentUserEmail);
         QString privateToken = _d->currentPrivateToken;
+        _d->pendingLogout = true;
+        DEBUG("privateToken =" << privateToken << ", currentPrivateToken =" << _d->currentPrivateToken);
+
         _d->currentPrivateToken = "";
         _d->currentUserToken = "";
         _d->currentUserEmail = "";
         _d->saveData();
+        DEBUG("privateToken =" << privateToken);
+        if (privateToken.isEmpty()) {
+            DEBUG("Private token is empty, can't logout. Data cleared");
+            return;
+        }
 
         RESTInvocation* inv = _d->invocationFactory->newRESTInvocation();
 

@@ -54,6 +54,7 @@ Item {
 
     onVisibleChanged: {
         if (self.visible) {
+            currentUserDirty = false
             refreshComboboxModel()
 
             var index = userNameField.find(UserModel.currentUserName)
@@ -68,6 +69,8 @@ Item {
                 clearFields()
             }
         }
+
+        self.forceActiveFocus()
     }
 
     Rectangle {
@@ -436,7 +439,8 @@ Item {
                             // login possible when:
                             //   a) current user is not active
 
-                            property bool loginModeEnabled: !LoginModel.isLoggedIn && ((UserModel.currentUserName != userNameField.currentText) || self.currentUserDirty)
+
+                            property bool loginModeEnabled: ((UserModel.currentUserName != userNameField.currentText) || self.currentUserDirty)
                             label: {
                                 if (loginModeEnabled) {
                                     return qsTr("Login")
@@ -447,7 +451,7 @@ Item {
                             labelTextPixelSize: gdisplay.smallSizeText
 
 
-                            enabled: (userNameField.editText.length > 0 && userNameField.validSelection) || (UserModel.currentUserIsActive && userNameField.invalidSelection)
+                            enabled: (userNameField.editText.length > 0 || UserModel.currentUserIsActive) && userNameField.validSelection
                             height: buttonHeight
                             width: buttonWidth
                             anchors.verticalCenter: parent.verticalCenter

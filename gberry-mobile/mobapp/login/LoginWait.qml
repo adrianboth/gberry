@@ -88,14 +88,14 @@ Item {
 
     GErrorDialog {
         id: errorDialog
-        //visible: false
+        visible: false
         textPixelSize: gdisplay.smallSizeText
 
         //onVisibleChanged: console.debug("VISIBLE CHANGED FOR ERROR")
         function show(msg) { errorMessage = msg; visible = true }
-        function hide() { visible = false }
+        function hide() { visible = false; errorMessage = "" }
 
-        onAcknowledged: { self.viewClosed() }
+        onAcknowledged: { hide(); self.viewClosed() }
     }
 
     // -------------------------------------------------------------------------
@@ -108,6 +108,7 @@ Item {
     }
 
     function onLoginOk() {
+        console.debug("Login ok")
         viewClosed()
         loginOk();
 
